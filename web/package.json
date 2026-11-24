@@ -19,7 +19,7 @@
     "node": ">=20.9"
   },
   "devDependencies": {
-    "turbo": "2.11.10"
+    "turbo": "2.11.13"
   },
   "overrides": {
     "postcss-selector-parser": "7.1.6"
