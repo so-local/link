@@ -1,0 +1,46 @@
+# npm packages in web/package-lock.json whose license isn't on the
+# permissive list, each with why it's accepted. Read by `npm_licenses`
+# in src/licenses.rs, run by tests/dependencies.rs. This list may shrink,
+# never grow without a review of what the package's license asks.
+
+[accepted]
+# format 0.2.2 declares MIT in its published package's licenses array and
+# source header; npm omits that older metadata field from its lock file.
+"format" = "MIT, declared by the pinned package and source header, absent from its lock entry"
+# Image optimization's native libvips, loaded by sharp at build and serve
+# time on the platform it was installed for; never bundled into a page.
+"@img/sharp-libvips-darwin-arm64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-darwin-x64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linux-arm" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linux-arm64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linux-ppc64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linux-riscv64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linux-s390x" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linux-x64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linuxmusl-arm64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-libvips-linuxmusl-x64" = "LGPL libvips, a separately installed shared library sharp loads"
+"@img/sharp-wasm32" = "sharp with LGPL libvips as WebAssembly, loaded at build time only"
+"@img/sharp-win32-arm64" = "sharp with LGPL libvips, loaded at build time only"
+"@img/sharp-win32-ia32" = "sharp with LGPL libvips, loaded at build time only"
+"@img/sharp-win32-x64" = "sharp with LGPL libvips, loaded at build time only"
+# Browser support data read by the build; its attribution comes with it.
+"caniuse-lite" = "CC-BY-4.0 data the build reads, attributed in its own package"
+# The site's typeface: the Open Font License lets web pages embed it, and
+# its license text is in its package.
+"geist" = "SIL Open Font License fonts, embedded as the license allows"
+# Development tools only: linting, accessibility checks and CSS builds.
+"lightningcss" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-android-arm64" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-darwin-arm64" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-darwin-x64" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-freebsd-x64" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-linux-arm-gnueabihf" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-linux-arm64-gnu" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-linux-arm64-musl" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-linux-x64-gnu" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-linux-x64-musl" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-win32-arm64-msvc" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"lightningcss-win32-x64-msvc" = "MPL-2.0 CSS build tool, used unmodified at build time"
+"axe-core" = "MPL-2.0 accessibility checker, a development tool used unmodified"
+"minimatch" = "BlueOak-1.0.0, a permissive license, in a linter's dependencies"
+"argparse" = "Python-2.0, a permissive license, in a linter's dependencies"

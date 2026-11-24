@@ -1,0 +1,93 @@
+[package]
+authors.workspace = true
+name = "link-box"
+description = "The box module, `lnk-box`, makes machines in your own cloud accounts that run `lnk`"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-box"
+path = "src/main.rs"
+
+[dependencies]
+schemars.workspace = true
+link-id.workspace = true
+anyhow.workspace = true
+libc.workspace = true
+base64.workspace = true
+ring.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+tokio.workspace = true
+link-box-contract.workspace = true
+link-env-contract.workspace = true
+link-service.workspace = true
+
+[dependencies.link-workplace]
+workspace = true
+
+[dependencies.link-cloud-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-version]
+workspace = true
+
+[dependencies.link-keychain]
+workspace = true
+
+# The Landlock probe a box user's sandbox test is gated on.
+[dev-dependencies.link-sandbox-confine]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true

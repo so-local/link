@@ -1,0 +1,10 @@
+schema = 1
+# The watcher's day so far, `day.json` in the measure store's folder.
+kind = "measure day"
+current = 1
+command = "lnk measure"
+
+[[files]]
+location = "lnk.measures"
+path = "day.json"
+encoding = "json"

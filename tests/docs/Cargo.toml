@@ -1,0 +1,77 @@
+[package]
+authors.workspace = true
+name = "link-docs-check"
+description = "The docs checks read every page once and check links, headings, limits, and READMEs together"
+publish = false
+
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "tests/docs"
+# Every folder's docs, and every file whose length or package it checks.
+inputs = [{kind = "documentation"}, {kind = "file", path = "**/*.md", scope = "workspace"}, {kind = "file", path = "**/*.rs", scope = "workspace"}, {kind = "file", path = "**/Cargo.toml", scope = "workspace"}, {kind = "file", path = "**/layer.toml", scope = "workspace"}, {kind = "file", path = "*.toml", scope = "owner"}]
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.sha2]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.shlex]
+workspace = true
+
+[dependencies.link-component]
+workspace = true
+
+# The references it holds fresh (`references`): the catalog, and the
+# generator that writes them.
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-actions-surfaces]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.syn]
+workspace = true
+
+[dependencies.quote]
+version = "1"
+
+[dependencies.proc-macro2]
+workspace = true

@@ -1,0 +1,27 @@
+schema = 1
+
+[[uses]]
+name = "AWS_DEFAULT_REGION"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "AWS_PROFILE"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "AWS_REGION"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read"]
+context = "runtime"
+
+[namespaces]
+"LNK_*" = "CLI test overrides: append the uppercase program name (such as AWS) to `LNK_` when selecting the external AWS CLI."
+
+[readers]
+"cli::command" = "Each of this process's variables the AWS command line would take for its own credentials or settings, removed so it acts as the account alone."

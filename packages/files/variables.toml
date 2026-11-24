@@ -1,0 +1,27 @@
+schema = 1
+
+[defines.LNK_EXEC_DIR]
+type = "string"
+description = "Absolute adapter program directory, staged during install and read only during a run. It grants no filesystem access."
+
+[defines.LNK_UPGRADE_PROTOCOL]
+type = "string"
+description = "The upgrade protocol version of the core asking a program of a release what it changes, or to make its changes (`link_files::upgrade::PROTOCOL_VARIABLE`): the program answers in that version, and refuses one below the oldest it accepts, naming `lnk upgrade`. A program asked to write its files refuses an asker that states none."
+
+[[uses]]
+name = "HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_INSTALLATION_DIR"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["read"]
+context = "runtime"
+
+[readers]
+"layout::exec::given" = "Reads the exact variable declared by layout.toml's installation.exec-variable (LNK_EXEC_DIR)."

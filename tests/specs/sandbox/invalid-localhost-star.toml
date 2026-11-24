@@ -1,0 +1,8 @@
+# Every port would reach other sandboxes' proxies.
+[spec]
+schema = 1
+[spec.localhost]
+ports = ["*"]
+
+[expect]
+invalid = "name the ports"

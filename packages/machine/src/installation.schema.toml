@@ -1,0 +1,8 @@
+schema = 1
+kind = "installation identity"
+current = 1
+command = "lnk folder check"
+
+[[files]]
+location = "lnk.installation"
+encoding = "toml"

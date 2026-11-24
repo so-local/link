@@ -1,0 +1,72 @@
+# What the scrubber takes for a secret, read once (`scrub.rs`).
+
+# The words that make a line look like a secret, lowercase: any line
+# holding one is left out whole.
+secret-like = [
+    "password",
+    "passwd",
+    "passphrase",
+    "secret=",
+    "secret:",
+    "token=",
+    "token:",
+    "api_key",
+    "apikey",
+    "api-key",
+    "authorization:",
+    "bearer ",
+    "private key",
+    "pw:",
+    "pw=",
+    "pwd:",
+    "pwd=",
+    "pass:",
+    "pass=",
+]
+
+# The openings of credentials whose shape is known.
+token-openings = [
+    "sk-",
+    "ghp_",
+    "gho_",
+    "ghs_",
+    "github_pat_",
+    "xoxb-",
+    "xoxp-",
+    "AKIA",
+    "glpat-",
+    "AIza",
+]
+
+# Words that name a code that opens something, lowercase: with a run of
+# digits beside them, what's said is taken for that code.
+code-words = [
+    "pin",
+    "passcode",
+    "combination",
+    "combo",
+    "door code",
+    "gate code",
+    "garage code",
+    "lock code",
+    "locker code",
+    "safe code",
+    "alarm code",
+    "access code",
+    "entry code",
+    "security code",
+    "recovery code",
+    "backup code",
+    "one-time code",
+    "cvv",
+    "card number",
+    "ssn",
+    "social security",
+]
+
+# The fewest digits in a row that a code is taken to be.
+code-digits = 3
+
+# How many words from a code word its digits may be ("the locker code is
+# 4821" is two): farther, they're of something else.
+code-reach = 3

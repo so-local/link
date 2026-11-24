@@ -1,0 +1,30 @@
+# The owner's: every action on everything in its own account, and no other's.
+[spec]
+schema = 1
+name = "owner"
+version = 1
+
+[[spec.allow]]
+actions = ["*"]
+on = ["*"]
+
+[expect]
+name = "owner"
+
+[[check]]
+as = "user:0d1eh9w5ecd7"
+action = "cloud.admin"
+on = "cloud:aws"
+said = "allowed by grant 1"
+
+[[check]]
+as = "user:0d1eh9w5ecd7"
+action = "box.admin"
+on = "acct-own/box:b1"
+said = "allowed by grant 1"
+
+[[check]]
+as = "user:0d1eh9w5ecd7"
+action = "cloud.read"
+on = "acct-other/cloud:aws"
+said = "refused: no grant"

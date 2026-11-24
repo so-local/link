@@ -1,0 +1,12 @@
+# A kind not on the list is refused, naming the kinds.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[[spec.allow]]
+actions = ["models.invoke"]
+on = ["models"]
+
+[expect]
+invalid = "the kinds are agent, team, cloud, box, bucket"

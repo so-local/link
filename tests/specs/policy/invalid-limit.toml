@@ -1,0 +1,11 @@
+# A limit no service keeps is refused.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[spec.limits]
+credits_per_month = 2000
+
+[expect]
+invalid = "unknown field `credits_per_month`"

@@ -1,0 +1,17 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+
+["module"]
+id = "document-converter"
+"kind" = "module"
+owner = "modules/agents/tools/memory-tool/document-converter"
+
+["documentation"]
+"topic" = "agents/tools/memory/documents"
+"root" = "docs"
+"quickstart" = false

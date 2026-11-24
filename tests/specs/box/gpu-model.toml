@@ -1,0 +1,8 @@
+# A GPU model, in Link's words: at least one.
+[spec]
+schema = 1
+[spec.machine]
+gpus = { model = "nvidia-a100" }
+
+[expect]
+size = "p4d.24xlarge"

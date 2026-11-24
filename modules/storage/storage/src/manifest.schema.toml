@@ -1,0 +1,11 @@
+schema = 1
+# What went where of one folder, `~/.lnk/safe/storage/manifest-<folder>.json`:
+# a cache of what the clouds hold.
+kind = "storage manifest"
+current = 1
+command = "lnk storage"
+
+[[files]]
+location = "lnk.storage"
+path = "manifest-*.json"
+encoding = "json"

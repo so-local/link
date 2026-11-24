@@ -1,0 +1,106 @@
+[package]
+authors.workspace = true
+name = "link-agent-contract"
+description = "`link-agent-contract` defines what an agent is, for every program that reads an agent without running it"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/agent"
+
+[dependencies]
+link-id.workspace = true
+link-version.workspace = true
+anyhow.workspace = true
+link-component.workspace = true
+libc.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+# An agent's move (`moving`): one tar stream, each file's SHA-256 beside
+# it; no xattrs, the same on macOS and Linux.
+tar = { version = "0.4", optional = true, default-features = false }
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-agent-spec]
+workspace = true
+
+
+[dependencies.link-harness-contract]
+workspace = true
+
+# A teammate's message's receipt says what became of its delegation
+# (`namespace::Recipient`), as the host's interactions name it.
+[dependencies.link-interactions]
+workspace = true
+
+[dependencies.link-sandbox-client]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+
+# Writing an agent as Link keeps it, its keys in your secrets (`testing`).
+[dependencies.link-secret-contract]
+workspace = true
+optional = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+optional = true
+
+[features]
+action-client = ["dep:tokio", "link-model-contract/client"]
+moving = ["dep:tar"]
+test-support = ["dep:link-secret-contract", "dep:link-sandbox-binding"]
+
+[dev-dependencies]
+link-test-kit.workspace = true
+link-secret-contract.workspace = true
+link-sandbox-binding.workspace = true
+tokio.workspace = true
+
+[dev-dependencies.link-agent-contract]
+path = "."
+features = ["test-support"]
+
+[dependencies.link-machine]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies.tokio]
+workspace = true
+optional = true
+[dependencies.link-model-contract]
+workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true

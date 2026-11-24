@@ -1,0 +1,11 @@
+schema = 1
+
+[[uses]]
+name = "LNK_STORE_DIR"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_STORE_AGENT"
+access = ["read"]
+context = "runtime"

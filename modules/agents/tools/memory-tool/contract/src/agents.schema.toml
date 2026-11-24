@@ -1,0 +1,10 @@
+schema = 1
+# The agents `serve-many` serves, by each one's ID, written by Link
+# beside the memory service's working folder for each start.
+kind = "memory agents"
+current = 1
+
+[[files]]
+location = "lnk.shared-memory"
+path = "*/agents-*.json"
+encoding = "json"

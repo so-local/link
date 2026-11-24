@@ -1,0 +1,6 @@
+schema = 1
+
+[locations]
+# Where this machine keeps the journal.
+"lnk.migration-journal" = "journal"
+"lnk.stopped-services" = "kept-off"

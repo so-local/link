@@ -1,0 +1,8 @@
+schema = 1
+kind = "update notice"
+current = 1
+command = "lnk upgrade --check"
+
+[[files]]
+location = "lnk.update"
+encoding = "json"

@@ -1,0 +1,45 @@
+# Dependency updates as pull requests into main, a month's grouped per
+# ecosystem. Security updates come as soon as they're published. Cargo's
+# are grouped by crate across every folder, so a crate moves in all of
+# them in one PR, and they keep one version of each (checks.yml's "one
+# version").
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    target-branch: main
+    schedule:
+      interval: monthly
+    groups:
+      cargo:
+        patterns: ["*"]
+        group-by: dependency-name
+    # modules/agents/tools/web-tool walks htmd's own tree: it moves with htmd, never alone.
+    ignore:
+      - dependency-name: markup5ever_rcdom
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+  - package-ecosystem: npm
+    directory: /web
+    target-branch: main
+    schedule:
+      interval: monthly
+    groups:
+      npm:
+        patterns: ["*"]
+    # Majors that break `npm run lint` or `next build` until Next.js and
+    # typescript-eslint support them; @types/node follows the Node we run.
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: main
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]

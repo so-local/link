@@ -1,0 +1,55 @@
+schema = 1
+
+[header]
+type = "object"
+description = "A compact JWS's header: EdDSA, the kind of statement it closes, and the fingerprint of the verifier that checks it. Nothing else."
+required = ["alg", "typ", "kid"]
+additionalProperties = false
+
+[header.properties.alg]
+type = "string"
+description = "The signature's algorithm: EdDSA, Ed25519 alone."
+enum = ["EdDSA"]
+
+[header.properties.typ]
+type = "string"
+description = "What the JWS is, so one kind is never taken for another: `lnks` a signature, `at+jwt` a token, `lnka` a service credential."
+pattern = "^[a-z][a-z0-9+.-]{0,31}$"
+
+[header.properties.kid]
+type = "string"
+description = "The fingerprint of the verifier that checks it, `SHA256:` and 43 base64 characters."
+pattern = "^SHA256:[A-Za-z0-9+/]{43}$"
+
+[signature-claims]
+type = "object"
+description = "What a signature says: what it signs for, the one party it's for, its minute at most, and an ID of its own, so it's spent once."
+required = ["sub", "aud", "iat", "exp", "jti"]
+additionalProperties = false
+
+[signature-claims.properties.sub]
+type = "string"
+description = "What it signs for, whatever its caller names: link-signer reads nothing into it."
+minLength = 1
+maxLength = 256
+
+[signature-claims.properties.aud]
+type = "string"
+description = "The one party it's for, which refuses a signature meant for another."
+minLength = 1
+maxLength = 256
+
+[signature-claims.properties.iat]
+type = "integer"
+description = "When it was made, in Unix seconds."
+minimum = 0
+
+[signature-claims.properties.exp]
+type = "integer"
+description = "When it ends, in Unix seconds: at most a minute after `iat`."
+minimum = 0
+
+[signature-claims.properties.jti]
+type = "string"
+description = "Its own ID, 128 random bits as 32 lowercase hex digits, so it's taken once before it ends."
+pattern = "^[0-9a-f]{32}$"

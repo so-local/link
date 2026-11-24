@@ -1,0 +1,23 @@
+{
+  "ollama": {
+    "schema": 1,
+    "kind": "environment",
+    "reproducibility": "untracked",
+    "inputs": [
+      "upstream install script and signed app track latest release",
+      "models and runtime distributions resolve at installation time"
+    ],
+    "runtime": {
+      "external": "ollama",
+      "version": "latest"
+    },
+    "platforms": {
+      "macos": {
+        "url": "https://ollama.com/download/Ollama-darwin.zip"
+      },
+      "linux": {
+        "url": "https://ollama.com/install.sh"
+      }
+    }
+  }
+}

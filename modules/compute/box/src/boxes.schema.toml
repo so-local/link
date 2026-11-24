@@ -1,0 +1,9 @@
+schema = 1
+kind = "boxes"
+current = 1
+command = "lnk box"
+
+[[files]]
+location = "lnk.boxes"
+path = "boxes.toml"
+encoding = "toml"

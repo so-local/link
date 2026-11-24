@@ -1,0 +1,45 @@
+schema = 1
+
+[[uses]]
+name = "DBUS_SESSION_BUS_ADDRESS"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "DISPLAY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TEST_CA"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TEST_RESOLVE"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "WAYLAND_DISPLAY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["set"]
+context = "runtime"
+
+[readers]
+"route::bridge::start" = "The variables a route's bridge is started with: the desktop session's, and its own."
+"desktop::notify_on" = "The desktop session's variables, given to the notification it shows."

@@ -1,0 +1,4 @@
+# Where an agent's file tool takes a team's shared folder in a call's
+# paths: `<in_paths>/<team>/`, whatever the folder's place on disk. The
+# file tool and Link Harness both read it, through `teams.rs`, read once.
+in_paths = "teams"

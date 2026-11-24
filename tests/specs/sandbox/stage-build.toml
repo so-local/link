@@ -1,0 +1,19 @@
+# A box's setup, third stage: building in the clone reaches nothing,
+# not even what the stages before it could.
+[spec]
+schema = 1
+name = "build"
+version = 1
+[spec.files]
+write = ["~/app"]
+[spec.commands]
+allow = ["sh", "python3"]
+
+[run]
+cloud = true
+folders = ["~/app"]
+
+[expect]
+refused = ["github.com", "pypi.org", "files.pythonhosted.org", "169.254.169.254:80"]
+runs = ["sh", "python3"]
+refused_commands = ["git", "curl"]

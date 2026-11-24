@@ -1,0 +1,14 @@
+# A service is ready one way.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.service]]
+name = "db"
+run = "postgres"
+sandbox = "db.toml"
+ready = { port = 5432, run = "pg_isready" }
+
+[expect]
+invalid = "a port or a run, one of them"

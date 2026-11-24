@@ -1,0 +1,9 @@
+# A tcp endpoint always names its port.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["*"]
+tcp = ["db.example.com"]
+
+[expect]
+invalid = "endpoint"

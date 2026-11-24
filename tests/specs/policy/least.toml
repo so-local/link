@@ -1,0 +1,22 @@
+# A name and a version: a policy that allows nothing.
+[spec]
+schema = 1
+name = "nothing"
+version = 1
+
+[expect]
+name = "nothing"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "cloud.read"
+on = "cloud:aws"
+said = "refused: no grant"
+
+# Omitted limits impose none of the five limits on otherwise permitted usage.
+[[usage]]
+boxes = 4294967295
+cpus = 4294967295
+memory_gb = 4294967295
+disk_gb = 4294967295
+hours = 4294967295

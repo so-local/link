@@ -1,0 +1,47 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+# What leads into the module from `lnk up`.
+next = ["env.env.create", "env.image.create", "env.env.reset", "env.env.setup"]
+"recommends" = [{ "dependency" = "agent" }, { "dependency" = "sandbox" }, { "dependency" = "cloud" }, {dependency = "secret"}]
+
+
+["module"]
+id = "env"
+"kind" = "module"
+owner = "modules/compute/env"
+
+["dependencies"."agent"]
+"kind" = "module"
+"id" = "agent"
+
+["dependencies"."box"]
+"kind" = "module"
+"id" = "box"
+
+["dependencies"."sandbox"]
+"kind" = "module"
+"id" = "sandbox"
+
+["dependencies"."cloud"]
+"kind" = "module"
+"id" = "cloud"
+
+["dependencies".env]
+kind = "module"
+id = "env"
+
+["dependencies".secret]
+kind = "module"
+id = "secret"
+
+["documentation"]
+"topic" = "services/environments"
+"root" = "docs"
+
+["removal"]
+"parts" = ["environments"]

@@ -1,0 +1,10 @@
+schema = 1
+# An agent's moves not over yet, `~/.lnk/safe/agents/transfers/moving/<id>.toml`.
+kind = "move journal"
+current = 1
+command = "lnk agent move"
+
+[[files]]
+location = "lnk.moving"
+path = "*.toml"
+encoding = "toml"

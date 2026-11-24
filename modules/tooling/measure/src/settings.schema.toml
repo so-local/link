@@ -1,0 +1,9 @@
+schema = 1
+kind = "measure settings"
+current = 1
+command = "lnk measure"
+
+[[files]]
+location = "lnk.measures"
+path = "settings.toml"
+encoding = "toml"

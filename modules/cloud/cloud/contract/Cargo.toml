@@ -1,0 +1,61 @@
+[package]
+authors.workspace = true
+name = "link-cloud-contract"
+description = "The package `link-cloud-contract` defines the requests between the modules that use clouds and a cloud adapter (`lnk-aws`, `lnk-gcp`), and the subprocess client that sends them"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+toml.workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/cloud/cloud"
+
+[dependencies.link-machine]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dependencies.link-types]
+workspace = true

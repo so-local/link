@@ -1,0 +1,82 @@
+[package]
+authors.workspace = true
+name = "link-measure"
+description = "The measure module, `lnk-measure`, shows what each agent and this machine use, watched from outside them"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+autotests = false
+
+[[test]]
+name = "measure"
+path = "tests/main.rs"
+
+[[bin]]
+name = "lnk-measure"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+libc.workspace = true
+reqwest = { workspace = true, features = ["rustls-no-provider"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+toml.workspace = true
+# Closed store files (`store`), compressed.
+zstd.workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-measure-contract]
+workspace = true
+
+[dependencies.link-service]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true

@@ -1,0 +1,4 @@
+schema = 1
+kind = "rules"
+current = 1
+command = "lnk rules spec show"

@@ -1,0 +1,61 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+# What leads into the module from `lnk up`.
+next = ["measure.measure.show", "measure.measure.start", "measure.export.set", "measure.measure.get"]
+"recommends" = [{ "dependency" = "agent" }, { "dependency" = "sandbox" }, {dependency = "file-tool"}, {dependency = "browser-tool"}, {dependency = "desktop-tool"}, {dependency = "harness"}, {dependency = "memory-tool"}, {dependency = "run-tool"}, {dependency = "scheduler-tool"}, {dependency = "web-tool"}]
+
+["module"]
+id = "measure"
+"kind" = "module"
+owner = "modules/tooling/measure"
+
+["dependencies"."agent"]
+"kind" = "module"
+"id" = "agent"
+
+["dependencies"."sandbox"]
+"kind" = "module"
+"id" = "sandbox"
+
+["dependencies".browser-tool]
+kind = "module"
+id = "browser-tool"
+
+["dependencies".desktop-tool]
+kind = "module"
+id = "desktop-tool"
+
+["dependencies".file-tool]
+kind = "module"
+id = "file-tool"
+
+["dependencies".link-harness]
+kind = "module"
+id = "harness"
+
+["dependencies".memory-tool]
+kind = "module"
+id = "memory-tool"
+
+["dependencies".run-tool]
+kind = "module"
+id = "run-tool"
+
+["dependencies".scheduler-tool]
+kind = "module"
+id = "scheduler-tool"
+
+["dependencies".web-tool]
+kind = "module"
+id = "web-tool"
+["documentation"]
+"topic" = "tooling/measure"
+"root" = "docs"
+
+["removal"]
+"parts" = ["measures"]

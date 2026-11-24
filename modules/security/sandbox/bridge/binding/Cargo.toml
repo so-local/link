@@ -1,0 +1,53 @@
+[package]
+authors.workspace = true
+name = "link-sandbox-binding"
+description = "The package `link-sandbox-binding` keeps the agents bound on this machine, and their credentials, outside every sandbox"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/security/sandbox"
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.link-sandbox-bridge]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

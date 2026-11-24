@@ -1,0 +1,13 @@
+# A stage as a user of the box: in their own sandbox and folder, naming none.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.stage]]
+name = "notes"
+run = "make notes"
+user = "ann"
+
+[expect]
+image = ["notes"]

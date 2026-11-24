@@ -1,0 +1,6 @@
+# Spec kinds an action binds that are still read by a hand-written type,
+# each until its module's lane declares the kind in types.toml.
+# The list may only shrink, and each entry names the type
+# the generated binding reads.
+
+[specs]

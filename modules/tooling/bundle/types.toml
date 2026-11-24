@@ -1,0 +1,164 @@
+schema = 1
+
+[bundle]
+type = "object"
+description = "Which of Link's programs to build from source, for which targets, and how to seal and sign them into one release folder"
+x-link-spec = { kind = "bundle" }
+additionalProperties = false
+properties.build = "build"
+
+[bundle.properties.source]
+type = "array"
+items = { type = "string", x-link-path = true }
+examples = [["."]]
+description = """
+A workspace to find programs in, repeated for more. It's this folder
+when none is given."""
+
+[bundle.properties.program]
+type = "array"
+items = { type = "string" }
+examples = [["lnk", "lnk-box"]]
+description = """
+A program to build, by its file name, such as `lnk-measure` or a program
+of your own, repeated for more. It's `lnk` and every module of the first
+source when none is given."""
+
+[bundle.properties.components]
+type = "array"
+items = { type = "string", x-link-path = true }
+examples = [["../extra/modules/example"]]
+description = """
+A component folder, outside the built `lnk`'s own workspace, whose
+module the bundle's `lnk` lists, repeated for more. Its commands then
+answer on the machine the bundle installs to. A prod build lists it
+only if it's released. It's none when none is given, whatever the
+build's shell or folder says."""
+
+[bundle.properties.target]
+type = "array"
+items = "target"
+examples = [["x86_64-unknown-linux-musl"]]
+description = """
+A target to build for, one of Link's release targets, such as
+`x86_64-unknown-linux-musl`, or `host` for this computer's, repeated for
+more. It's `host` when none is given."""
+
+[bundle.properties.version]
+type = "string"
+examples = ["0.14.0"]
+description = """
+Its version. It's the workspace's, stamped for staging and dev, when
+none is given."""
+
+[bundle.properties.outside]
+type = "array"
+items = { type = "string", x-link-path = true }
+examples = [["outside.toml"]]
+description = """
+A TOML file declaring programs Link doesn't build, such as Caddy,
+repeated for more."""
+
+[bundle.properties.file]
+type = "array"
+items = { type = "string", x-link-path = true }
+examples = [["manifest.toml"]]
+description = """
+A file sealed beside the programs, such as a manifest its installer
+reads, repeated for more."""
+
+[bundle.properties.signer]
+type = "string"
+examples = ["dev"]
+description = """
+Who signs it: `link`, `staging`, a signer of your own by name, kept in
+`~/.lnk/safe/bundles/signers` and made on first use, or an
+allowed-signers file. Dev and prod require a signer, including unsigned
+parts that must embed its trust. Staging may omit it for unsigned parts."""
+
+[bundle.properties.from]
+type = "array"
+items = { type = "string", x-link-path = true }
+examples = [["part-linux"]]
+description = """
+Parts built before, unsigned, sealed instead of building, repeated for
+each part."""
+
+[bundle.properties.out]
+type = "string"
+x-link-path = true
+examples = ["dist"]
+description = """
+Where the bundle goes, `~/.lnk/data/bundles/<name>/<version>` when none is
+given."""
+
+[build]
+enum = ["dev", "staging", "prod"]
+description = """
+Its stage, which says what its `lnk` trusts: `dev` (the bundle's own
+signer and Link's), `staging` (the staging signer and Link's) or `prod`
+(the bundle's own signer alone, at the workspace's version)."""
+[target]
+enum = ["host", "aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-musl", "aarch64-unknown-linux-musl"]
+description = "A target a bundle builds for: one of Link's release targets, each an operating system on an architecture, or `host`, this computer's"
+x-link-values = { host = "this computer's own target, one of the others", aarch64-apple-darwin = "macOS on arm64", x86_64-apple-darwin = "macOS on x86_64", x86_64-unknown-linux-musl = "Linux on x86_64, built with musl so it needs no system libraries", aarch64-unknown-linux-musl = "Linux on arm64, built with musl so it needs no system libraries" }
+
+[architecture]
+enum = ["x86_64", "arm64"]
+description = "The processor architecture a target builds for: x86_64 or arm64"
+x-link-values = { x86_64 = "64-bit Intel and AMD processors", arm64 = "64-bit Arm processors, such as Apple silicon and AWS Graviton" }
+
+[made]
+type = "object"
+description = "A bundle made: its name, its version, where it is and whether it's signed"
+x-link-display = { key = "out" }
+required = ["name", "version", "out", "signed"]
+additionalProperties = false
+properties.name = { type = "string" }
+properties.version = { type = "string" }
+properties.out = { type = "string", x-link-path = true }
+properties.signed = { type = "boolean" }
+
+[shipped]
+type = "object"
+description = "A bundle the module comes with"
+x-link-display = { columns = ["name", "build", "signer"] }
+required = ["name", "build"]
+additionalProperties = false
+properties.name = { type = "string" }
+properties.build = "build"
+properties.signer = { type = "string" }
+
+[shelf]
+type = "array"
+description = "The bundles the module comes with"
+items = "shipped"
+
+[contents]
+type = "object"
+description = "A bundle's programs, their targets and architectures, its sums and signature checked"
+x-link-display = { columns = ["program", "target", "architecture"] }
+required = ["root", "programs"]
+additionalProperties = false
+properties.root = { type = "string", x-link-path = true, description = "Its folder" }
+properties.programs = { type = "array", items = "built" }
+
+[built]
+type = "object"
+required = ["program", "target", "architecture"]
+additionalProperties = false
+properties.program = { type = "string" }
+properties.target = "target"
+properties.architecture = "architecture"
+
+[signer]
+type = "object"
+description = "A signer of your own, kept in the Safe: its name, its folder, its allowed-signers file and the one line in it"
+x-link-display = { key = "folder" }
+x-link-resource = { id = "name" }
+required = ["name", "folder", "signers", "line"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name, which `--signer` takes" }
+properties.folder = { type = "string", x-link-path = true, description = "Its folder, `~/.lnk/safe/bundles/signers/<name>`, holding `secret` and `signers`" }
+properties.signers = { type = "string", x-link-path = true, description = "Its allowed-signers file, which a machine trusts it by" }
+properties.line = { type = "string", description = "The one line in it: link-release namespaces=\"link-release\" ssh-ed25519 <key> <name>" }

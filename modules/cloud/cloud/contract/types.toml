@@ -1,0 +1,211 @@
+schema = 1
+
+[request]
+type = "object"
+description = "One cloud adapter command's input, on its standard input"
+required = ["account"]
+additionalProperties = false
+properties.account = "account"
+properties.spec = "spec"
+properties.object = { type = "string", description = "`upload-once` and `object-read`: the object, by its path in the bucket" }
+properties.expires = { shape = "core.duration", description = "`upload-once`: how long its signed upload works" }
+properties.place = { type = "string", description = "Where: a region or zone [default: the account's]" }
+properties.id = { type = "string", description = "The box's id in the cloud" }
+properties.owner = { type = "string", description = "`list`: whose boxes, as their `lnk-owner` tag says; none, every owner's" }
+properties.places = { type = "array", items = { type = "string" }, description = "`list`: where to look (regions); none, everywhere the account may" }
+properties.public_key = { type = "string", description = "`add-key`: the SSH public key to let in" }
+properties.host_keys = { type = "array", items = { type = "string" }, description = "`save-hostkeys`: `<type> <key>` lines" }
+properties.tags = { type = "object", additionalProperties = { type = "string" }, description = "`tag`: the tags to add" }
+properties.bucket = { type = "string", description = "`label`, `bucket-credential`, `revoke-key`: the bucket" }
+properties.labels = { type = "object", additionalProperties = { type = "string" }, description = "`label`: the labels to add; `buckets`: the labels to find" }
+properties.image = { type = "string", description = "`image-save`: the new image's name; `launch` and `image-remove`: an image's id, as `image-list` gave it" }
+properties.objects = { type = "array", items = { type = "string" }, maxItems = 1000, description = "`delete-objects`: the objects to delete, by their names in the bucket" }
+
+[reply]
+type = "object"
+description = "One cloud adapter command's output, on its standard output: what it says, by command"
+additionalProperties = false
+properties.attachments = { type = "boolean", description = "`launch`: whether the box's attachments are there" }
+properties.upload = { shape = "upload", description = "`upload-once`: the signed upload" }
+properties.contents = { type = "string", description = "`object-read`: the object's contents" }
+properties.id = { type = "string", description = "`launch`: the machine's id in the cloud" }
+properties.ip = { type = "string", description = "`wait`, `state`: the machine's address" }
+properties.state = { type = "string", description = "`state`: running, stopped, ..." }
+properties.stopped_by_cloud = { type = "boolean", description = "`state`: stopped by its cloud taking a spot machine back, not by a person; none when the adapter can't tell" }
+properties.place = { type = "string", description = "`defaults`: the place" }
+properties.size = { type = "string", description = "`defaults`: the machine type" }
+properties.host_keys = { type = "array", items = { type = "string" }, description = "`hostkeys`: `<type> <key>` lines, as in `known_hosts`" }
+properties.boxes = { type = "array", items = "found", description = "`list`: the boxes found" }
+properties.denied = { type = "array", items = { type = "string" }, description = "`list`, looking in every place: the places this login's policy keeps it from looking in, skipped. Denied there, it made nothing there either." }
+properties.temporary = { type = "boolean", description = "`add-key`: the key works for a minute only" }
+properties.buckets = { type = "array", items = "found-bucket", description = "`buckets`: those found" }
+properties.sizes = { type = "array", items = "machine-size", description = "`sizes`: the machine types a box can be there, in the order the adapter would pick them" }
+properties.rates = { shape = "rates", description = "`sizes`: the region's rates for the rest of a box, where the cloud gives them" }
+properties.credential = { type = "object", additionalProperties = { type = "string", x-link-sensitive = true }, description = "`bucket-credential`: rclone's settings for a remote reaching the bucket with the new credential (`type` included); `storage`: for the account's own buckets, as the account. Secret." }
+properties.env = { type = "object", additionalProperties = { type = "string", x-link-sensitive = true }, description = "`storage`: variables rclone runs with besides `credential`, one account's per run. Secret." }
+properties.images = { type = "array", items = "found-image", description = "`image-list`: the images found; `image-save`: the one saved" }
+properties.writes = { type = "boolean", description = "`storage`: whether `credential` writes; none, it does. `false` for an account that may read and free space, never add to it." }
+properties.message = { type = "string", description = "`storage`: why it reads only, and how to make room, as the cloud says it" }
+
+[tunneled]
+type = "object"
+description = "Nothing: a tunnel's answer is the stream it carried"
+additionalProperties = false
+
+[account]
+type = "object"
+description = "A cloud account as Link keeps it: what it's called, its adapter, where things go, how it signs in, and what the cloud's CLI needs to act as it"
+required = ["name", "kind", "place"]
+additionalProperties = false
+properties.name = { type = "string", description = "What the user calls it (`aws` unless named), unique" }
+properties.kind = { type = "string", description = "The adapter: `aws`, `gcp`, ..." }
+properties.place = { type = "string", description = "Where things go by default: an AWS region, a Google Cloud zone" }
+properties.identity = { type = "string", default = "", description = "Who the sign-in is, as last checked (`AWS account 1234 (arn:...)`)" }
+properties.login = { type = "string", default = "", description = "How it signs in, without secrets (`your aws login (profile work)`)" }
+properties.region = { type = "string", description = "aws: the region, for `lnk storage`" }
+properties.profile = { type = "string", description = "aws: the profile of the user's own aws login, when it's reused" }
+properties.project = { type = "string", description = "gcp: the project, for `lnk storage`" }
+properties.settings = { type = "object", additionalProperties = { type = "string" }, description = "Ordinary CLI settings and credential-file selectors, naming credentials and holding none" }
+properties.env = { type = "object", additionalProperties = { type = "string", x-link-sensitive = true }, description = "What the cloud's own CLI or SDK needs to act as this account, access keys included (`AWS_ACCESS_KEY_ID`, `CLOUDSDK_CORE_ACCOUNT`, ...). Secret: never printed but by `lnk cloud env`." }
+properties.machine = { type = "boolean", description = "Whether the account is one machine, reached with `--on`, rather than a cloud that makes machines: its adapter says so, and such an account bills no one and has no zones" }
+
+[spec]
+type = "object"
+description = "What `lnk box create` asks an adapter for: a machine, resolved to one size, OS, processor and disk"
+required = ["name", "size", "user_data"]
+additionalProperties = false
+properties.attach = "attach"
+properties.self_remove = { type = "boolean", description = "Whether the machine may remove itself when its work ends, as a box a job made does" }
+properties.deadline = { shape = "core.duration", description = "Its maximum lifetime from start, from one second through seven days; shutdown terminates the machine" }
+properties.name = { type = "string", description = "The box's name" }
+properties.id = { type = "string", description = "The box's installation ID, which the adapter names its machine after (`lnk-<id>`): two computers never make the same one" }
+properties.tags = { type = "object", additionalProperties = { type = "string" }, description = "Tags (labels) the machine gets: `lnk-box`, `lnk-machine`, `lnk-owner`" }
+properties.size = { type = "string", description = "The machine type (`t3.small`, `e2-small`)" }
+properties.user_data = { type = "string", description = "The first-boot setup (cloud-init)" }
+properties.public_key = { type = "string", description = "An SSH public key the box accepts for `ubuntu`, from an older `lnk box` only; none, the box trusts Link's SSH certificates" }
+properties.os = { type = "string", default = "ubuntu-24.04", description = "The OS, an Ubuntu LTS: `ubuntu-24.04` or `ubuntu-22.04`, mapped by the adapter to its cloud's image" }
+properties.arch = { type = "string", default = "x86_64", description = "The processor: `x86_64` or `arm64`. An `arm64` box has no GPUs." }
+properties.disk_gb = { type = "integer", minimum = 8, maximum = 16384, default = 20, description = "The disk, in GiB" }
+properties.disk_type = { type = "string", default = "balanced", description = "The disk's type: `balanced` (gp3, pd-balanced) or `fast` (io2, pd-ssd)" }
+properties.spot = { type = "boolean", default = false, description = "A spot machine, which the cloud stops (never deletes: its disk stays) when it takes it back" }
+properties.gpus = { type = "integer", minimum = 0, default = 0, description = "How many GPUs `size` has" }
+properties.gpu_model = { type = "string", description = "Its GPUs' model in Link's words (`nvidia-l4`)" }
+properties.tunnel = { type = "boolean", description = "Reached only through its cloud's tunnel: the adapter lets nothing in" }
+
+[attach]
+type = "object"
+description = "Existing resources attached to the machine, which the box uses and never creates or deletes"
+additionalProperties = false
+
+[attach.properties.network]
+type = "string"
+examples = ["control"]
+description = "The network it joins: a network's name on Google Cloud; on AWS, a subnet's ID whose VPC has an `lnk-box` security group."
+
+[attach.properties.identity]
+type = "string"
+examples = ["service"]
+description = "Who it acts as in its cloud: a service account's name or email on Google Cloud; on AWS, an instance profile's name."
+
+[attach.properties.address]
+type = "string"
+examples = ["fixed"]
+description = "A reserved address it takes: the address's name on Google Cloud; on AWS, its allocation ID. Kept when the box is deleted."
+
+[attach.properties.disks]
+type = "array"
+items = { type = "string" }
+examples = [["data"]]
+description = "Data disks it attaches, never formats and keeps when it's deleted: persistent disks' names on Google Cloud; on AWS, volumes' IDs, each in its subnet's availability zone."
+
+
+[upload]
+type = "object"
+description = "An object-scoped, write-once upload: its signed address, a credential, and the headers it's sent with"
+required = ["url", "headers"]
+additionalProperties = false
+properties.url = { type = "string", x-link-sensitive = true, description = "The signed address. Secret." }
+properties.headers = { type = "object", additionalProperties = { type = "string" }, description = "The headers the upload is sent with" }
+
+[found]
+type = "object"
+description = "A box `list` found in the cloud, by its tags"
+required = ["id", "name", "place", "state"]
+additionalProperties = false
+properties.tags = { type = "object", additionalProperties = { type = "string" }, description = "Its tags" }
+properties.deadline = { type = "integer", minimum = 0, description = "When it removes itself, in seconds since the epoch" }
+properties.id = { type = "string", description = "Its id in the cloud" }
+properties.name = { type = "string", description = "Its `lnk-box` tag" }
+properties.machine_id = { type = "string", default = "", description = "Its `lnk-machine` tag; empty on a box made before them" }
+properties.owner = { type = "string", description = "Its `lnk-owner` tag: whose it is (`acct-<id>`); none when the adapter reports none" }
+properties.place = { type = "string", description = "Its region or zone" }
+properties.state = { type = "string", description = "running, stopped, ..." }
+properties.ip = { type = "string", description = "Its address" }
+properties.size = { type = "string", default = "", description = "Its machine type" }
+properties.stopped_by_cloud = { type = "boolean", description = "Stopped by its cloud taking a spot machine back, not by a person; none when the adapter can't tell" }
+properties.spot = { type = "boolean", description = "`describe`: whether it's a spot machine, as the cloud says" }
+properties.disk_gb = { type = "integer", minimum = 0, description = "`describe`: its disk in GiB" }
+properties.disk_type = { type = "string", description = "`describe`: its disk's type in Link's words (`balanced`, `fast`)" }
+properties.os = { type = "string", description = "`describe`: its OS (`ubuntu-24.04`), from its image" }
+properties.arch = { type = "string", description = "`describe`: its processor, from its image" }
+
+[found-bucket]
+type = "object"
+description = "A bucket `buckets` found by its labels"
+required = ["bucket"]
+additionalProperties = false
+properties.bucket = { type = "string", description = "Its name" }
+properties.place = { type = "string", default = "", description = "Its region or location" }
+properties.labels = { type = "object", additionalProperties = { type = "string" }, description = "Its labels" }
+
+[found-image]
+type = "object"
+description = "An image `image-list` found by its tags"
+required = ["id", "name", "state"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its id in the cloud (`ami-...`, `lnk-web-ready`)" }
+properties.name = { type = "string", description = "Its `lnk-image` tag: what you call it" }
+properties.place = { type = "string", default = "", description = "Its region (AWS); empty where an image is the whole project's (Google Cloud), so a box from it can be anywhere" }
+properties.state = { type = "string", description = "`ready`, `pending` or `failed`; another word the cloud says, as it says it" }
+properties.disk_gb = { type = "integer", minimum = 0, description = "The disk it was saved from, in GiB: a box from it has at least that" }
+properties.arch = { type = "string", description = "`x86_64` or `arm64`, when the cloud says" }
+properties.created = { type = "string", description = "When it was made, as the cloud says it" }
+properties.hash = { type = "string", description = "Its `lnk-image-hash` tag: a hash of what made it. None for an image saved without one." }
+
+[machine-size]
+type = "object"
+description = "A machine type `sizes` lists: what it has, in Link's words"
+required = ["size", "cpus", "memory_mb", "arch"]
+additionalProperties = false
+properties.size = { type = "string", description = "Its name in the cloud (`t3.small`, `e2-standard-4`)" }
+properties.cpus = { type = "integer", minimum = 0, description = "Its CPUs" }
+properties.memory_mb = { type = "integer", minimum = 0, description = "Its memory in MiB" }
+properties.gpus = { type = "integer", minimum = 0, default = 0, description = "Its GPUs" }
+properties.gpu_model = { type = "string", description = "Its GPUs' model in Link's words (`nvidia-l4`); none without" }
+properties.arch = { type = "string", description = "`x86_64` or `arm64`" }
+properties.price = { type = "number", minimum = 0, description = "Dollars an hour, only from a rate the cloud gives" }
+
+[rates]
+type = "object"
+description = "A region's rates for the rest of a box, where the cloud gives them"
+additionalProperties = false
+properties.balanced_disk = { type = "number", minimum = 0, description = "A GB of a balanced disk, an hour" }
+properties.fast_disk = { type = "number", minimum = 0, description = "A GB of a fast disk, an hour" }
+properties.address = { type = "number", minimum = 0, description = "A public address, an hour" }
+properties.egress = { type = "number", minimum = 0, description = "A GB sent out to the internet" }
+
+[journal-schema]
+type = "object"
+description = "The resource journal protocol a provider speaks: its version, and whether it journals a job's identity and conditional grant too"
+required = ["version"]
+additionalProperties = false
+properties.version = { type = "integer", minimum = 1, description = "The protocol's version" }
+properties.job_identities = { type = "boolean", description = "Whether it journals the identity and conditional IAM grant a job's box gets" }
+
+[disk-type]
+description = "How fast a box's disk is: `balanced`, or `fast`"
+enum = ["balanced", "fast"]
+
+[gpu-model]
+description = "A GPU's model in Link's words, whatever its cloud calls it"
+enum = ["nvidia-t4", "nvidia-l4", "nvidia-l40s", "nvidia-a10g", "nvidia-a100", "nvidia-h100", "nvidia-h200", "nvidia-b200"]

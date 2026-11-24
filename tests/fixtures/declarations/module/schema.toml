@@ -1,0 +1,11 @@
+schema = 1
+kind = "env"
+current = 2
+command = "lnk env spec show"
+about = "The worked example's environment spec."
+
+[[steps]]
+from = 1
+rename = { dir = "workdir" }
+since = "0.0.0"
+until = "0.16.0"

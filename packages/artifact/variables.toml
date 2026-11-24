@@ -1,0 +1,9 @@
+schema = 1
+
+[defines.LNK_ARTIFACT_BUDGET]
+type = "string"
+description = "Positive byte budget for the shared immutable-download cache; defaults to 2147483648 bytes."
+
+[defines.LNK_ARTIFACT_CACHE]
+type = "string"
+description = "Shared folder for verified immutable downloads; defaults to this machine's cache/artifacts folder."

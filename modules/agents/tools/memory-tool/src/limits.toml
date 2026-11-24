@@ -1,0 +1,95 @@
+# What memory holds to, read once (`limits.rs`).
+
+# The most documents one background batch extracts, the fewest tried
+# first: a slow one never holds up those behind it for good.
+extract-batch = 4
+
+# The most a compact conversation's frames are read to, in bytes: an
+# agent writes them, and one service reads every agent's, so a larger
+# conversation is found by its name only.
+frames-max-bytes = 67108864
+
+# The longest message a service session's line may be past its hello, in
+# bytes: a call is a few arguments, so a longer line ends the session
+# rather than taking the service's memory, which every agent shares.
+message-max-bytes = 1048576
+
+# The most sessions the service serves at once, a thread each: one past
+# it is refused, so a burst of them takes no more of the machine.
+sessions-max = 256
+
+# The largest skill's file, or notes, a call reads, in bytes, and the
+# most lines a read asks for.
+file-max-bytes = 1048576
+
+# The most removed documents remembered, the latest kept.
+removed-max = 10000
+
+# The most documents `links` gives each way.
+links-max = 200
+
+# How long the document converter may take over a document, from its
+# start, in seconds: then it's killed. Its processor time is held to it
+# too.
+extract-deadline-secs = 30
+
+# The most memory the document converter may map, in bytes: a long
+# report's parse, with room.
+extract-memory-max-bytes = 1073741824
+
+# The most text one indexing batch reads before it commits, in bytes: a
+# crash or a kill loses at most this, and the write-ahead log stays small.
+batch-bytes = 8388608
+
+# About how long one indexing batch takes, reading and committing, in
+# milliseconds: each reads as much as the last batch's speed says fits,
+# at most batch-bytes, so a file written while a large folder is indexed
+# waits for no more than this before its own batch.
+batch-millis = 1000
+
+# What the index's write-ahead log is cut back to once checkpointed, in
+# bytes.
+wal-max-bytes = 268435456
+
+# How often a watched folder is walked anyway, in seconds: a watch can
+# miss what changed while memory wasn't running, or on a network folder.
+walk-every-secs = 600
+
+# How often a folder no watch reaches whole is walked, in seconds: the
+# machine's watch limit reached, or no watch on this system.
+walk-unwatched-secs = 60
+
+# How many times the writer tries a document again whose parser didn't
+# start, before it waits for the next walk.
+extract-tries = 5
+
+# How long the writer waits after a commit found the disk full before it
+# tries again, in seconds: meanwhile indexing is paused, and nothing is
+# read or written for it.
+full-retry-secs = 60
+
+# The most removed documents one indexing batch drops before it commits:
+# a folder deleted whole is dropped in small transactions too.
+removed-batch = 1000
+
+# The most noted paths one writer's turn takes from the journal.
+journal-batch = 1000
+
+# The most of a file a call reads to answer, in bytes: the index keeps
+# only where each passage is, so a read, and a snippet of a file kept
+# off this machine, read the file itself.
+source-max-bytes = 67108864
+
+# How much a word in a document's title counts, beside one in its
+# passages: a search by words weighs a passage by BM25, Tantivy's, and a
+# title word adds its rarity times this.
+rank-title = 1.0
+
+# The share of the passages past which a word is common: a search falling
+# back to passages holding any of its words leaves a common one out when
+# it has rarer ones.
+rank-common = 0.1
+
+# How many passages a search by meaning rescores with their small
+# vectors: those whose binary codes differ least from the query's.
+rescore = 400

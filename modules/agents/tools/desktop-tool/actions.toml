@@ -1,0 +1,119 @@
+schema = 1
+
+[verbs]
+serve = { description = "Serve the tool to a harness as an MCP server over stdio, until its input closes", effect = "insert" }
+screenshot = { description = "See the desktop, for a model calling the tool", effect = "find" }
+click = { description = "Click a pixel of the desktop, for a model calling the tool", effect = "update" }
+type = { description = "Type where the keyboard's focus is, for a model calling the tool", effect = "update" }
+key = { description = "Press a key or a combination, for a model calling the tool", effect = "update" }
+scroll = { description = "Turn the mouse's wheel, for a model calling the tool", effect = "update" }
+drag = { description = "Drag from one pixel to another, for a model calling the tool", effect = "update" }
+
+[actions."desktop-tool.cookie.create"]
+description = "Make the display's cookie file, read only by you, unless it's there."
+role = "plumbing"
+output = "cookie"
+
+[actions."desktop-tool.cookie.create".args]
+display = { type = "integer", minimum = 0, maximum = 4294967295, description = "The X display's number", required = true }
+file = { type = "string", x-link-path = true, description = "The cookie's file, made read only by you", required = true, x-link-cli = { position = 1 } }
+
+[actions."desktop-tool.desktop-tool.install"]
+description = "Nothing to install: this program is the tool."
+role = "plumbing"
+output = "installed"
+
+[actions."desktop-tool.desktop-tool.serve"]
+description = """
+Serve the desktop as an MCP server over stdio. Xvfb starts at the first call
+on display :<n>, in the sandbox after --, taking only clients with the cookie in
+--xauthority's file, and ends with this server; the programs on it are those an
+agent runs with DISPLAY=:<n>.
+"""
+role = "plumbing"
+output = "served"
+
+[actions."desktop-tool.desktop-tool.serve".args]
+display = { type = "integer", minimum = 0, maximum = 4294967295, description = "The X display's number", required = true }
+sandbox = { type = "array", items = { type = "string" }, description = "The sandbox Xvfb runs under: a program and its flags", required = true, x-link-cli = { rest = true, last = true } }
+xauthority = { type = "string", x-link-path = true, description = "The file of the display's cookie", required = true }
+xvfb = { type = "string", x-link-path = true, description = "The X server program [default: Xvfb]" }
+
+
+# The calls a model makes, as `serve` offers them (`tools/list`).
+[actions."desktop-tool.desktop-tool.screenshot"]
+description = "See the desktop: an image of all of it. Its pixels are the [x, y] coordinates click, scroll and drag take."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."desktop-tool.desktop-tool.screenshot".tool]
+name = "screenshot"
+open-world = false
+
+[actions."desktop-tool.desktop-tool.click"]
+description = "Move the mouse to a pixel of the screenshot and click there."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."desktop-tool.desktop-tool.click".tool]
+name = "click"
+open-world = false
+
+# A pixel is [x, y], as computer use takes it. Each axis's most is
+# the larger of the desktop's width and height less one, from
+# limits.toml (a test checks); a y past the height is refused by name.
+[actions."desktop-tool.desktop-tool.click".args]
+coordinate = { type = "array", items = { type = "integer", minimum = 0, maximum = 1279 }, minItems = 2, maxItems = 2, description = "[x, y]: pixels from the left and from the top of the screenshot.", required = true, x-link-summary = 1 }
+button = { type = "string", enum = ["left", "right", "middle"], description = "Left if left out." }
+double = { type = "boolean", description = "A double click (false if left out)." }
+
+[actions."desktop-tool.desktop-tool.type"]
+description = "Type text where the keyboard's focus is: click a field first."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."desktop-tool.desktop-tool.type".tool]
+name = "type"
+open-world = false
+
+[actions."desktop-tool.desktop-tool.type".args]
+text = { type = "string", maxLength = 4000, description = "What to type, up to 4000 characters; a line's end presses Return.", required = true }
+
+[actions."desktop-tool.desktop-tool.key"]
+description = "Press a key or a combination, such as Return, Escape, ctrl+c, or ctrl+shift+t. No window manager runs, so no key closes a window."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."desktop-tool.desktop-tool.key".tool]
+name = "key"
+open-world = false
+
+[actions."desktop-tool.desktop-tool.key".args]
+text = { type = "string", description = "Keys joined by +, held down in order, such as ctrl+c or Return. A capital letter among them is its key (ctrl+V is ctrl+v): add shift for shift.", required = true, x-link-summary = 1 }
+
+[actions."desktop-tool.desktop-tool.scroll"]
+description = "Turn the mouse's wheel, at a pixel when given."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."desktop-tool.desktop-tool.scroll".tool]
+name = "scroll"
+open-world = false
+
+[actions."desktop-tool.desktop-tool.scroll".args]
+coordinate = { type = "array", items = { type = "integer", minimum = 0, maximum = 1279 }, minItems = 2, maxItems = 2, description = "[x, y]: where the wheel turns; where the mouse is if left out." }
+scroll-direction = { type = "string", enum = ["down", "up", "left", "right"], description = "Down if left out.", x-link-summary = 1 }
+scroll-amount = { type = "integer", minimum = 1, maximum = 50, description = "The wheel's clicks (3 if left out)." }
+
+[actions."desktop-tool.desktop-tool.drag"]
+description = "Press the left button at one pixel, move to another, and let go."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."desktop-tool.desktop-tool.drag".tool]
+name = "drag"
+open-world = false
+
+[actions."desktop-tool.desktop-tool.drag".args]
+start-coordinate = { type = "array", items = { type = "integer", minimum = 0, maximum = 1279 }, minItems = 2, maxItems = 2, description = "[x, y]: where it starts.", required = true }
+coordinate = { type = "array", items = { type = "integer", minimum = 0, maximum = 1279 }, minItems = 2, maxItems = 2, description = "[x, y]: where it ends.", required = true }

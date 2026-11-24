@@ -1,0 +1,31 @@
+[package]
+authors.workspace = true
+name = "link-storage-contract"
+description = "The package `link-storage-contract` defines what the storage module asks of the modules built on it"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/storage/storage"
+
+[dependencies]
+serde.workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-id]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+serde_json.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

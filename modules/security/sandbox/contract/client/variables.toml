@@ -1,0 +1,14 @@
+schema = 1
+
+[defines.LNK_PROXY_LISTENER_FD]
+type = "string"
+description = "Proxy startup protocol: inherited TCP listener descriptor, validated against the requested loopback address before use."
+
+[defines.LNK_SANDBOX_OPEN]
+type = "string"
+description = "Sandbox browser protocol: authenticated loopback proxy URL used by the browser-opening shim."
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["read"]
+context = "runtime"

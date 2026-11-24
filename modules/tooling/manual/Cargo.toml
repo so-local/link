@@ -1,0 +1,45 @@
+[package]
+authors.workspace = true
+name = "link-manual"
+description = "The manual module, `lnk man`, reads the documentation and the command reference of installed components offline"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-manual"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+link-actions.workspace = true
+link-component.workspace = true
+link-files.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+
+[dependencies.link-core]
+workspace = true
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true

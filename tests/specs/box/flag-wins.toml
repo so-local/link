@@ -1,0 +1,11 @@
+# A flag wins over the file.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 2
+
+[run]
+flags = ["--machine.cpus", "8"]
+
+[expect]
+size = "c7i.2xlarge"

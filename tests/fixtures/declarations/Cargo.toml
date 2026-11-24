@@ -1,0 +1,41 @@
+[package]
+authors.workspace = true
+name = "link-declarations-fixture"
+description = "`link-declarations-fixture` compiles a small module's declarations through Actions Build, so tests run the generated types, command line and dispatch end to end"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "tests/fixtures/declarations"
+
+[lib]
+doctest = false
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+link-actions.workspace = true
+link-core.workspace = true
+link-files.workspace = true
+link-secretive.workspace = true
+link-service.workspace = true
+link-spec.workspace = true
+link-types.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+link-format.workspace = true
+link-test-kit.workspace = true
+toml.workspace = true
+
+[lints]
+workspace = true

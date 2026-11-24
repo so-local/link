@@ -1,0 +1,86 @@
+[package]
+authors.workspace = true
+name = "link-model"
+description = "The models module, `lnk model`, finds the model runtimes running on this machine, installs Ollama and its models, serves a runtime's OpenAI-compatible API, and bridges the model routes out of a sandbox"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-model"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+link-secret-contract.workspace = true
+link-agent-identity.workspace = true
+link-sandbox-binding.workspace = true
+link-sandbox-route.workspace = true
+anyhow.workspace = true
+axum.workspace = true
+clap.workspace = true
+futures-util.workspace = true
+http.workspace = true
+reqwest = { workspace = true, features = ["rustls-no-provider"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+toml.workspace = true
+
+[dependencies.link-measure-contract]
+workspace = true
+
+[dependencies.link-model-contract]
+workspace = true
+features = ["client"]
+
+[dependencies.link-service]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+tokio = { workspace = true, features = ["test-util"] }
+# A provider over TLS of the tests' own, for the hosted route's tests.
+rustls.workspace = true
+tokio-rustls.workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+link-component-build.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dev-dependencies.link-component]
+workspace = true

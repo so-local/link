@@ -1,0 +1,32 @@
+schema = 1
+
+[[uses]]
+name = "DISPLAY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "SSH_CONNECTION"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "SSH_TTY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "WAYLAND_DISPLAY"
+access = ["read"]
+context = "runtime"
+
+[namespaces]
+"LNK_*" = "CLI test overrides: append the uppercase program name (such as GCLOUD or GSUTIL) to `LNK_` when selecting the external Google Cloud CLI."
+
+[readers]
+"cli::command" = "Each of this process's variables the gcloud command line would take for its own credentials or settings, removed so it acts as the account alone."

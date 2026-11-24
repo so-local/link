@@ -1,0 +1,57 @@
+# Documentation prominence weights. Counts use distinct pages or targets,
+# never repeated links or repeated mentions on one page.
+homepage = 20
+incoming = 3
+mentioned = 2
+outgoing = 1
+
+[arguments]
+command = 10
+default_path = 8
+positional = 5
+flag = 1
+required_bonus = 2
+case_floor = 1
+
+[[arguments.rules]]
+flags = ["harness", "model", "cloud", "here", "on", "ssh", "via"]
+category = "behavior"
+points = 8
+value_sensitive = true
+reason = "Selects an execution engine, provider, model or placement."
+
+[[arguments.rules]]
+flags = ["sandbox", "no-sandbox", "read", "write", "network-mode", "internet-host", "lan-host", "tcp", "tool", "secret"]
+category = "security"
+points = 8
+value_sensitive = false
+reason = "Changes isolation, permissions or granted authority."
+
+[[arguments.rules]]
+flags = ["agent", "owner", "name"]
+category = "target"
+points = 5
+value_sensitive = false
+reason = "Selects the resource acted on, like a positional object."
+
+[[arguments.rules]]
+flags = ["json", "help", "version", "quiet", "verbose", "color"]
+category = "presentation"
+points = 1
+value_sensitive = false
+reason = "Changes presentation rather than the main operation."
+
+[selection]
+importance_curve = "log"
+command_exponent = 1.0
+decay = 0.5
+preview = 20
+positional_round_robin = true
+
+[[arguments.rules]]
+commands = ["agent connect", "cloud connect", "storage create"]
+positionals = ["connection", "kind"]
+category = "positional"
+points = 5
+value_sensitive = true
+reason = "Selects a distinct connection, cloud provider or storage backend."

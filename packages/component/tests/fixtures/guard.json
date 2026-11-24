@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "module": {"id": "guard", "kind": "module"},
+  "commands": {
+    "wrap": {
+      "help": "Confine a command.",
+      "options": {"mode": {"type": "string", "values": ["restricted", "unrestricted"]}}
+    }
+  }
+}

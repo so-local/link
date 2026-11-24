@@ -1,0 +1,47 @@
+schema = 1
+
+[domain-id]
+type = "string"
+description = "A domain of questions (`tool.approval`): letters, digits and `.`, `_`, `:`, `-` or `/`, at most 256 of them."
+pattern = "^[A-Za-z0-9._:/-]+$"
+minLength = 1
+maxLength = 256
+
+[fallback]
+type = "string"
+description = "What a question left unanswered becomes. `expire`, nothing: it expires unanswered; `use_default`, its default answer; `use_recommended`, its recommended answer."
+enum = ["expire", "use_default", "use_recommended"]
+
+[interaction-opinions]
+type = "object"
+additionalProperties = false
+
+[interaction-opinions.properties.domains]
+type = "object"
+description = """
+How long a question of each kind waits for its owner, and what an
+unanswered one becomes, by its domain (`tool.approval`). A domain's
+opinion holds for the domains below it unless theirs says.
+"""
+propertyNames = "domain-id"
+additionalProperties = "domain-opinion"
+default = {  }
+
+[domain-opinion]
+type = "object"
+additionalProperties = false
+properties.confirmation = "fallback"
+properties.text = "fallback"
+properties.choice = "fallback"
+
+[domain-opinion.properties.wait_secs]
+type = "integer"
+description = """
+How long a question waits for an answer, in seconds, at most a
+day.
+"""
+minimum = 0
+
+[domain-opinion.properties.allow_request_overrides]
+type = "boolean"
+description = "Whether the asker's own wait and fallbacks replace these."

@@ -1,0 +1,61 @@
+# Who you coach. Filled in by the onboard skill, edited whenever it changes.
+# Empty strings and 0 mean "not asked yet". Schema: README.md, "profile.toml".
+onboarded = false
+name = ""
+birth_year = 0
+sex = ""                  # "female", "male" or "" (used only by the calorie formula)
+height_cm = 0
+weight_kg = 0.0           # latest; the history is body/measurements.csv
+units_note = ""           # anything about units they prefer; files stay metric
+time_zone = ""             # IANA name, e.g. "Europe/Lisbon"; scheduler setup must match separately
+
+# Experience: "none", "beginner", "intermediate" or "advanced" per area.
+[experience]
+endurance = ""
+strength = ""
+team_sport = ""
+
+# Days they can train, 3-letter weekdays, and the time they have.
+[availability]
+days = []                 # e.g. ["mon", "wed", "sat"]
+minutes_per_day = 0       # typical time on a training day
+preferred_time = ""       # "morning", "lunch", "evening" or ""
+long_session_day = ""     # the day for a long run or ride, e.g. "sat"
+constraints = ""          # work, travel, family, anything fixed
+
+[equipment]
+gym_access = false
+home_equipment = []       # what they have at home, in their words
+has_watch = false         # whether they record pace and heart rate
+has_pool = false
+has_bike = false
+
+[health]
+max_hr_bpm = 0            # measured or "220 - age" estimate, say which in notes
+resting_hr_bpm = 0
+injuries = ""             # current and past injuries, in their words
+limits = ""               # movements or loads to avoid
+conditions_seen_by_doctor = ""
+notes = ""
+
+[nutrition]
+diet = ""                 # how they eat, in their words
+allergies = ""
+dislikes = ""
+meals_per_day = 0
+activity_level = ""       # "sedentary", "light", "moderate", "very", "extreme"; see nutrition/targets.md
+goal = ""                 # "lose", "maintain" or "gain"
+
+[preferences]
+tone = ""                 # how they like to be coached
+check_in_style = ""       # e.g. "short", "ask me only if I miss a session"
+sports = []               # what they train: "running", "cycling", "swimming", "lifting", "team"
+
+# One [[goals]] block per goal they name, added by the onboard skill;
+# never more files. Its keys:
+#   title        the goal in their words
+#   area         "endurance", "strength", "team", "body" or "nutrition"
+#   target       the measure they gave
+#   target_date  YYYY-MM-DD
+#   why          their reason, or ""
+#   status       "active", "done" or "dropped"

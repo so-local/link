@@ -1,0 +1,52 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "lint": {},
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/../scripts/documentation-index.json",
+        "$TURBO_ROOT$/../README.md",
+        "$TURBO_ROOT$/docs/**",
+        "$TURBO_ROOT$/../docs/**",
+        "$TURBO_ROOT$/../tests/**/docs/**",
+        "$TURBO_ROOT$/../core/**/docs/**",
+        "$TURBO_ROOT$/../core/cli/install.sh",
+        "$TURBO_ROOT$/../Cargo.toml",
+        "$TURBO_ROOT$/../modules/**/docs/**",
+        "$TURBO_ROOT$/../interop/**/docs/**",
+        "$TURBO_ROOT$/../config/**/docs/**",
+        "$TURBO_ROOT$/../packages/**/docs/**",
+        "$TURBO_ROOT$/../more/**/docs/**"
+      ]
+    },
+    "build": {
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/../scripts/documentation-index.json",
+        "$TURBO_ROOT$/../README.md",
+        "$TURBO_ROOT$/docs/**",
+        "$TURBO_ROOT$/../docs/**",
+        "$TURBO_ROOT$/../tests/**/docs/**",
+        "$TURBO_ROOT$/../core/**/docs/**",
+        "$TURBO_ROOT$/../core/cli/install.sh",
+        "$TURBO_ROOT$/../Cargo.toml",
+        "$TURBO_ROOT$/../modules/**/docs/**",
+        "$TURBO_ROOT$/../interop/**/docs/**",
+        "$TURBO_ROOT$/../config/**/docs/**",
+        "$TURBO_ROOT$/../packages/**/docs/**",
+        "$TURBO_ROOT$/../more/**/docs/**"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

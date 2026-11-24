@@ -1,0 +1,14 @@
+# A user of the box by name runs in their own sandbox, and the run names none.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.stage]]
+name = "build"
+run = "make"
+sandbox = "build.toml"
+user = "builder"
+
+[expect]
+invalid = "has a sandbox and user = \"builder\""

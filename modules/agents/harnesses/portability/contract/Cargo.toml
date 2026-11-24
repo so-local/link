@@ -1,0 +1,103 @@
+[package]
+authors.workspace = true
+name = "link-harness-contract"
+description = "`link-harness-contract` sets the rules between the agent module (`lnk-agent`) and a harness program"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+link-id.workspace = true
+link-version.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-agent-spec]
+workspace = true
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-harness-base]
+workspace = true
+
+[dependencies.link-sandbox-client]
+workspace = true
+
+[dependencies.link-model-contract]
+workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+features = ["files-client"]
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.ring]
+workspace = true
+
+[dependencies.tokio]
+workspace = true
+
+[dependencies.link-agent-state-protocol]
+workspace = true
+
+[dependencies.link-harness-wire]
+workspace = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/harnesses"
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-runtime]
+workspace = true
+
+[dependencies.link-artifact]
+workspace = true
+
+[dev-dependencies.link-secret-contract]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true

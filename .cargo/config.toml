@@ -1,0 +1,17 @@
+# Tests run 16 at a time, not one per core: most wait on sockets, timers
+# and the programs they start, rarely on a processor, and the end-to-end
+# program took 130 s at 4, 76 s at 16, in the same 1.3 GB
+# (docs/more/developing/decisions.md). RUST_TEST_THREADS set by you,
+# or --test-threads, wins.
+[env]
+RUST_TEST_THREADS = "16"
+
+# A workspace's checks as one command, as checks.toml beside this says:
+# `cargo full-check` once per initiative, `cargo session-check -p <name>`
+# as often as it helps, and `cargo test-copies -p <name> <test>` to run
+# one test as hundreds of copies at once, to find a flake again or prove
+# its fix (tests/timing/docs/more/developing/testing/).
+[alias]
+full-check = "run --locked --quiet -p link-test-timing --bin lnk-check -- full"
+session-check = "run --locked --quiet -p link-test-timing --bin lnk-check -- session"
+test-copies = "run --locked --quiet -p link-test-timing --bin lnk-check -- copies"

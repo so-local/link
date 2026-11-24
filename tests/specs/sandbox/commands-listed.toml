@@ -1,0 +1,9 @@
+# Only the programs listed run, a name found on PATH.
+[spec]
+schema = 1
+[spec.commands]
+allow = ["sh", "ls"]
+
+[expect]
+runs = ["sh", "ls"]
+refused_commands = ["cat", "id", "env"]

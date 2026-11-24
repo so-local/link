@@ -1,0 +1,5 @@
+# Modules whose declarations aren't in the current format yet, by their
+# path from the workspace: the reference generators leave them out until
+# each converts. The list only shrinks, and a member that isn't a module
+# is refused.
+modules = []

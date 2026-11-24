@@ -1,0 +1,16 @@
+schema = 1
+# The providers whose entries Link set in OpenClaw's config, so a later
+# configure unsets only those: `.openclaw/link-providers.json` in a
+# harness home.
+kind = "openclaw providers set"
+current = 1
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/openclaw/.openclaw/link-providers.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.openclaw/link-providers.json"
+encoding = "json"

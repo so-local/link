@@ -1,0 +1,12 @@
+# A grant names its actions.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[[spec.allow]]
+actions = []
+on = ["cloud:aws"]
+
+[expect]
+invalid = "grant 1 names no"

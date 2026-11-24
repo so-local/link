@@ -1,0 +1,25 @@
+schema = 1
+
+[defines.LNK_MEMORY]
+type = "string"
+description = "The agent's memory's address in its harness's environment: an MCP server over HTTP"
+
+[defines.LNK_MEMORY_MODEL]
+type = "string"
+description = "The address of the embedding model memory ranks by, an OpenAI-style API on this machine; empty when no runtime here has the model"
+
+[defines.LNK_MEMORY_SPEC]
+type = "string"
+description = "The agent's [tool.memory] opinions as JSON, in the environment of every memory command; unset, the engine's own"
+
+[defines.LNK_MEMORY_NOTES]
+type = "string"
+description = "The agent's notes file memory may write; unset, it writes nothing of the agent's folder"
+
+[defines.LNK_MEMORY_FROM]
+type = "boolean"
+description = "1 when the agent's harness is sent messages from others, so memory writes notes only in the owner's conversations"
+
+[defines.LNK_MEMORY_DRIVER]
+type = "string"
+description = "The store driver the agent's specification keeps its conversations by, the only one memory runs to read them; unset, it runs none"

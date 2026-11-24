@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.connection.slack]
+ask_wait = "5m"
+
+[expect]
+invalid = "ask_wait: a question waits as long on every connection"

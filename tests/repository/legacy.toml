@@ -1,0 +1,11 @@
+# The source files that say what `link_repository_check::legacy` looks for
+# (old-format wording, a serde or clap `alias`, backward compatibility
+# or a deprecated interface), with how many lines. Each is current: a vendor's or a
+# standard's word, or a feature's own (the commands plan's sweep says
+# which). A file here may shrink, never grow, and no file joins it: lower
+# its number as it shrinks, and take it out once it says none.
+
+[lines]
+"interop/cloud/gcp/src/boxes/machines.rs" = 3
+"tests/docs/code/src/arguments.rs" = 3
+"tests/repository/src/legacy.rs" = 5

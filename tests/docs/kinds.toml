@@ -1,0 +1,65 @@
+# The kinds of page a section holds, in the order a reader reads them:
+# the guide first, then the pages written for the section, then the
+# developer pages, the generated references, and last the catch-alls a
+# reader goes to only when they need them. The docs tree writer orders
+# every page's children by these kinds, keeping the curated order within
+# a kind, and the docs checks hold the website's outline to that order.
+# A page is of the first kind naming its file, by the end of its path
+# below `docs/`; a page none names is a `page`. A README's index lists
+# each kind under its `index` heading: Pages, the default, for what's
+# written for the reader, References for what's generated, and More for
+# developer pages and the catch-alls, so a reader meets every page
+# written for them first.
+
+[[kind]]
+id = "guide"
+files = ["guide.md"]
+# A guide, decisions, security or troubleshooting page has no pages
+# under it: what it holds is one page's subject.
+leaf = true
+
+[[kind]]
+id = "page"
+
+[[kind]]
+id = "developer"
+files = [
+    "more/README.md",
+    "contract.md",
+    "contract/README.md",
+    "protocol.md",
+    "protocol/README.md",
+    "developing.md",
+    "command-line.md",
+    "adapters.md",
+    "interop/README.md",
+]
+index = "More"
+
+[[kind]]
+id = "generated"
+# A reference link-actions-surfaces writes, known by its marker line.
+generated = true
+index = "References"
+
+[[kind]]
+id = "decisions"
+files = ["decisions.md"]
+leaf = true
+# It may name Rust source, which only a maintainer needs: no other kind does.
+names_rust = true
+index = "More"
+
+[[kind]]
+id = "security"
+files = ["security.md"]
+leaf = true
+names_rust = true
+index = "More"
+
+[[kind]]
+id = "troubleshooting"
+files = ["troubleshooting.md"]
+leaf = true
+names_rust = true
+index = "More"

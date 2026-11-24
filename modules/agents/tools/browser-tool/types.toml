@@ -1,0 +1,11 @@
+schema = 1
+
+[served]
+type = "object"
+description = "An MCP session over stdio, ended when its caller closed its input"
+additionalProperties = false
+
+[installed]
+type = "object"
+description = "Nothing installed: this program is the tool"
+additionalProperties = false

@@ -1,0 +1,43 @@
+schema = 1
+
+[machine]
+type = "object"
+description = "What a box is made with"
+x-link-spec = { kind = "box" }
+required = ["size"]
+additionalProperties = false
+properties.size = { type = "string", enum = ["small", "large"], default = "small", description = "How much it has" }
+properties.disk = { type = "object", additionalProperties = false, properties.gigabytes = { type = "integer", minimum = 1, description = "Its size" }, description = "Its disk" }
+properties.token = { type = "string", x-link-sensitive = true, description = "The secret it starts with" }
+properties.ports = { type = "object", additionalProperties = "port", description = "Its open ports, by name" }
+properties.boot = { description = "What it starts from", oneOf = [
+  { type = "object", required = ["from"], additionalProperties = false, properties.from = { const = "image" }, properties.image = { type = "string", description = "The image it starts from" } },
+  { type = "object", required = ["from"], additionalProperties = false, properties.from = { const = "disk" }, properties.disk = { type = "string", description = "The disk it starts from" } },
+] }
+
+[box]
+type = "object"
+x-link-resource = { id = "id" }
+x-link-display = { columns = ["id", "cloud"] }
+required = ["id", "cloud"]
+additionalProperties = false
+properties.id = { type = "string", format = "link-id", x-link-kind = "box", description = "Its ID" }
+properties.cloud = { type = "string", description = "The cloud account it's on" }
+
+[port]
+type = "object"
+required = ["number"]
+additionalProperties = false
+properties.number = { type = "integer", minimum = 1, maximum = 65535, description = "The port's number" }
+
+
+[order]
+enum = ["newest", "oldest"]
+description = "Which comes first"
+
+[change]
+description = "One change of a box as it happens, or that it's gone"
+oneOf = [
+    { type = "object", required = ["event", "state"], additionalProperties = false, properties = { event = { const = "state" }, state = { type = "string", description = "Its state now" } } },
+    { type = "object", required = ["event"], additionalProperties = false, properties = { event = { const = "gone" } } },
+]

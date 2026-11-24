@@ -1,0 +1,65 @@
+[package]
+authors.workspace = true
+name = "link-harness-conformance"
+description = "`link-harness-conformance` is the kit that checks a harness program answers the harness commands, by running the program as `lnk-agent` would"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "modules/agents/harnesses/portability/conformance"
+
+[dependencies]
+link-test-kit.workspace = true
+link-agent-contract = { workspace = true, features = ["test-support"] }
+link-sandbox-binding.workspace = true
+anyhow.workspace = true
+axum.workspace = true
+bytes.workspace = true
+futures-util.workspace = true
+reqwest = { workspace = true, features = ["rustls-no-provider"] }
+serde_json.workspace = true
+tokio.workspace = true
+tokio-tungstenite.workspace = true
+# ACP, as the harness speaks it, raw.
+agent-client-protocol.workspace = true
+
+[dependencies.link-sandbox-bridge]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.link-harness-contract]
+workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+
+[dependencies.link-measure-contract]
+workspace = true
+
+
+[lints]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dev-dependencies.link-spec]
+workspace = true
+
+[dev-dependencies.clap]
+workspace = true

@@ -1,0 +1,40 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+# What leads into the module from `lnk up`.
+next = ["storage.storage.clean", "storage.storage.connect", "storage.storage.create", "storage.storage.list", "storage.storage.pull", "storage.storage.push", "storage.storage.rclone", "storage.storage.remove"]
+"recommends" = [{ "dependency" = "cloud" }]
+
+["module"]
+id = "storage"
+"kind" = "module"
+owner = "modules/storage/storage"
+
+["dependencies"."cloud"]
+"kind" = "module"
+"id" = "cloud"
+
+["dependencies"."engine"]
+"kind" = "external"
+"id" = "rclone"
+
+["menu"]
+"label" = "Back up files"
+"group" = "storage"
+"default" = true
+"next" = "lnk storage create"
+
+["documentation"]
+"topic" = "services/storage"
+"root" = "docs"
+
+["removal"]
+"parts" = ["personal", "buckets"]
+
+["pins"."rclone"]
+"file" = "externals.json"
+"pointer" = "/rclone"

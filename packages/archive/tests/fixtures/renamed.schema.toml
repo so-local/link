@@ -1,0 +1,12 @@
+schema = 1
+# The archive's schema in a release that renamed a location,
+# `link.machines` to `link.boxes`: the map's own step renames it on a
+# machine, and this one in an archive's [map].
+kind = "archive"
+current = 2
+command = "lnk archive export"
+[[steps]]
+from = 1
+since = '0.1.0'
+until = '0.2.0'
+rename = { 'map."link.machines"' = 'map."link.boxes"' }

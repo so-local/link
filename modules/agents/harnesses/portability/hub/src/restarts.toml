@@ -1,0 +1,8 @@
+# How many starts in a row may fail, or end before the harness ran
+# steadily, before the hub stops starting it and says why: a harness that
+# can't start (a migration it refuses to run, a config it rejects) is
+# never started again every minute until someone stops the agent.
+most_in_a_row = 5
+# How long a harness runs before it counts as started well: one that ends
+# sooner counts toward the limit, one that ran this long clears it.
+steady_seconds = 60

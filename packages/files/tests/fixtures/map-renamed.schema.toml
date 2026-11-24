@@ -1,0 +1,11 @@
+schema = 1
+# The map's schema in a release that renamed a location, `link.documents`
+# to `link.files`: the rename in layout.toml, and this step beside it.
+kind = "map"
+current = 2
+command = "lnk folder set"
+[[steps]]
+from = 1
+since = '0.1.0'
+until = '0.2.0'
+rename = { 'locations."link.documents"' = 'locations."link.files"' }

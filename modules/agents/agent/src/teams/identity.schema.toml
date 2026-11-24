@@ -1,0 +1,9 @@
+schema = 1
+kind = "team identity"
+current = 1
+command = "lnk agent team create"
+
+[[files]]
+location = "link.team-specs"
+path = "*/definition.toml"
+encoding = "toml"

@@ -1,0 +1,11 @@
+schema = 1
+# A line of `~/.lnk/safe/agents/<agent>/held.jsonl`: a message a cloud
+# that hosts agents held for one while it was paused there.
+kind = "held message"
+current = 1
+command = "lnk agent deliver"
+
+[[files]]
+location = "lnk.agents"
+path = "*/held.jsonl"
+encoding = "lines"

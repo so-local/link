@@ -1,0 +1,11 @@
+# An adapter that doesn't answer sizes still makes a pinned size.
+[spec]
+schema = 1
+[spec.machine.aws]
+size = "x9.huge"
+
+[run]
+sizes = false
+
+[expect]
+size = "x9.huge"

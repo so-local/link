@@ -1,0 +1,8 @@
+# A disk type from Link's two words.
+[spec]
+schema = 1
+[spec.machine]
+disk = { min = "40 GB", type = "gp2" }
+
+[expect]
+invalid = "unknown variant `gp2`"

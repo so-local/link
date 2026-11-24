@@ -1,0 +1,8 @@
+# A GPU the cloud doesn't have there: which it has.
+[spec]
+schema = 1
+[spec.machine]
+gpus = { model = "nvidia-h100" }
+
+[expect]
+error = "its GPUs are nvidia-a100, nvidia-l4"

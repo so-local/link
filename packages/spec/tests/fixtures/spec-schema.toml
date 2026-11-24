@@ -1,0 +1,10 @@
+schema = 1
+kind = "example"
+current = 2
+command = "lnk example spec --spec"
+
+[[steps]]
+from = 1
+since = "0.0.0"
+until = "1.0.0"
+rename = { title = "name" }

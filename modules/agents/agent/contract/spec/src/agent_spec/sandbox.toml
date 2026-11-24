@@ -1,0 +1,33 @@
+# Link's sandbox template, used to describe optional tool access. It is
+# never a fallback for a missing sandbox.toml in the agent's Safe folder: that stays closed.
+# A sandbox's spec, as yours is: a section left out stays closed.
+schema = 1
+
+# Its files folder: the folders it may write, and those it may only read
+# (side by side, never one inside another); it reads the rest. Its
+# harness alone writes its conversations. It writes its instructions and
+# skills, so asked to change how it works, it changes them. Move
+# `instructions` or `skills` under `read` to keep them yours alone
+# (`instructions` under `read` locks its notes too).
+[files]
+write = ["work", "instructions", "skills"]
+read = ["chats"]
+
+# The internet, through its proxy: installs, hosted models, its connections.
+[internet]
+hosts = ["*"]
+
+# The programs its `run` tool may start, each call in a sandbox of its
+# own made from this file, and the language servers its `code` tool may.
+# Without the section `run` and `code` are off. `allow = ["*"]` lets
+# them start any program on its PATH, and what those programs and their
+# builds run. To narrow it, drop `allow` and keep the
+# toolchains, each naming its programs and running what its builds make,
+# such as Rust's build scripts (`lnk sandbox permission list` lists them).
+[commands]
+allow = ["*"]
+toolchains = ["shell", "git", "python", "node", "rust", "go", "c"]
+
+# Read-only developer tools (git), on macOS.
+[commands.macos]
+developer_tools = true

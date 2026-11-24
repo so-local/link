@@ -1,0 +1,8 @@
+schema = 1
+kind = "measured tokens"
+current = 1
+
+[[files]]
+location = "lnk.measure-credentials"
+path = "*.json"
+encoding = "json"

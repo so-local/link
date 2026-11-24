@@ -1,0 +1,23 @@
+schema = 1
+
+# The protocol every store answers, declared once: the storage bridge
+# runs a store's program with one of these, its requests on standard input.
+[verbs]
+contract = { description = "Print what the store answers about itself, as JSON", effect = "find" }
+call = { description = "Answer one storage request read whole from standard input", effect = "insert" }
+serve = { description = "Answer storage requests on standard input, one a line, until it closes", effect = "insert" }
+
+[actions."store.store.contract"]
+description = "Print what this store answers about itself, as JSON"
+role = "plumbing"
+output = "contract"
+
+[actions."store.store.call"]
+description = "Answer one storage request"
+role = "plumbing"
+output = "reply"
+
+[actions."store.store.serve"]
+description = "Answer storage requests on standard input"
+role = "plumbing"
+output = "served"

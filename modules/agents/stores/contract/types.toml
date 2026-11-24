@@ -1,0 +1,150 @@
+schema = 1
+
+[contract]
+type = "object"
+description = "What a store answers about itself: the version of the store protocol it speaks, and which of its optional parts it keeps"
+required = ["version"]
+additionalProperties = false
+properties.version = { type = "integer", minimum = 1, description = "The version of the store protocol it speaks" }
+properties.serve = { type = "boolean", description = "Whether it answers serve, one call a line for as long as its caller keeps it running" }
+properties.jobs = { type = "boolean", description = "Whether it keeps agents' jobs" }
+properties.files = { type = "boolean", description = "Whether it keeps agents' files by path" }
+
+[reply]
+description = "A store's answer to one request, told apart by its reply: what each request is answered is in the store protocol's page"
+oneOf = [
+    { type = "object", required = ["reply"], additionalProperties = false, properties = { reply = { const = "done" } } },
+    { type = "object", required = ["reply", "last"], additionalProperties = false, properties = { reply = { const = "taken" }, last = { type = "integer", minimum = 0, description = "The conversation's last number: the one asked wasn't free, or wasn't the next" } } },
+    { type = "object", required = ["reply", "events"], additionalProperties = false, properties = { reply = { const = "events" }, events = { type = "array", items = { x-link-any = true }, description = "The events asked for, in order" } } },
+    { type = "object", required = ["reply", "last"], additionalProperties = false, properties = { reply = { const = "last" }, last = { type = "integer", minimum = 0, description = "The last event's number, 0 for none" } } },
+    { type = "object", required = ["reply", "threads"], additionalProperties = false, properties = { reply = { const = "threads" }, threads = { type = "array", items = "kept" } } },
+    { type = "object", required = ["reply", "took"], additionalProperties = false, properties = { reply = { const = "took" }, took = "took" } },
+    { type = "object", required = ["reply"], additionalProperties = false, properties = { reply = { const = "lost" } } },
+    { type = "object", required = ["reply", "leases"], additionalProperties = false, properties = { reply = { const = "leases" }, leases = { type = "array", items = "lease" } } },
+    { type = "object", required = ["reply"], additionalProperties = false, properties = { reply = { const = "job" }, job = "job" } },
+    { type = "object", required = ["reply", "jobs"], additionalProperties = false, properties = { reply = { const = "jobs" }, jobs = { type = "array", items = "job" } } },
+    { type = "object", required = ["reply", "count"], additionalProperties = false, properties = { reply = { const = "count" }, count = { type = "integer", minimum = 0 } } },
+    { type = "object", required = ["reply", "found"], additionalProperties = false, properties = { reply = { const = "found" }, found = { type = "boolean", description = "Whether the job or file was where the call said" } } },
+    { type = "object", required = ["reply"], additionalProperties = false, properties = { reply = { const = "next" }, next = { type = "integer", minimum = 0, description = "When the soonest job waiting is due, in seconds since 1970; left out when none waits" } } },
+    { type = "object", required = ["reply", "day", "sent"], additionalProperties = false, properties = { reply = { const = "day" }, day = { type = "integer", minimum = 0, description = "The day, as days since 1970 in the agent's time zone" }, sent = { type = "integer", minimum = 0, maximum = 4294967295, description = "How many messages went on it" } } },
+    { type = "object", required = ["reply", "mark"], additionalProperties = false, properties = { reply = { const = "mark" }, mark = { type = "integer", minimum = 0 } } },
+    { type = "object", required = ["reply"], additionalProperties = false, properties = { reply = { const = "file" }, file = "stored" } },
+    { type = "object", required = ["reply", "files"], additionalProperties = false, properties = { reply = { const = "files" }, files = { type = "array", items = { type = "string" }, description = "The paths of files, in order" } } },
+    { type = "object", required = ["reply", "version"], additionalProperties = false, properties = { reply = { const = "wrote" }, version = { type = "integer", minimum = 0, description = "The file's version now" } } },
+    { type = "object", required = ["reply", "version"], additionalProperties = false, properties = { reply = { const = "stale" }, version = { type = "integer", minimum = 0, description = "The file's version now, 0 for none: not the one named, so nothing was written" } } },
+    { type = "object", required = ["reply"], additionalProperties = false, properties = { reply = { const = "tools" }, tools = { type = "array", items = { type = "string" }, description = "The tools the conversation may use; left out when nothing narrowed it, and it may use every tool" } } },
+    { type = "object", required = ["reply", "narrowed"], additionalProperties = false, properties = { reply = { const = "narrowed" }, narrowed = { type = "object", additionalProperties = { type = "array", items = { type = "string" } }, description = "Each conversation narrowed, by its thread, and the tools it may use" } } },
+    { type = "object", required = ["reply", "error"], additionalProperties = false, properties = { reply = { const = "error" }, error = { type = "string", description = "Why the call failed" } } },
+]
+
+[kept]
+type = "object"
+description = "A conversation a store keeps"
+required = ["thread", "last"]
+additionalProperties = false
+properties.thread = { type = "string" }
+properties.last = { type = "integer", minimum = 0, description = "Its last event's number" }
+
+[took]
+description = "What taking a lease came to: taken with no turn running, taken from a holder whose lease lapsed, or another's, renewed lately"
+enum = ["took", "lapsed", "held"]
+
+[lease]
+type = "object"
+description = "A conversation's lease: who holds it, when it was taken and last renewed, in seconds since 1970 by the store's clock, and whether it lapsed"
+required = ["thread", "holder", "started", "renewed", "lapsed"]
+additionalProperties = false
+properties.thread = { type = "string" }
+properties.holder = { type = "string" }
+properties.started = { type = "integer", minimum = 0 }
+properties.renewed = { type = "integer", minimum = 0 }
+properties.lapsed = { type = "boolean" }
+
+[job]
+type = "object"
+description = "A job, as a store keeps it: its ID, its specification, the scheduler's and none of it the store's to read, and when it's due, in seconds since 1970"
+required = ["id", "spec", "due"]
+additionalProperties = false
+properties.id = { type = "string" }
+properties.spec = { x-link-any = true }
+properties.due = { type = "integer", minimum = 0 }
+
+[stored]
+type = "object"
+description = "A file a store keeps: its bytes, as base64, and its version, which a write names"
+required = ["data", "version"]
+additionalProperties = false
+properties.data = { type = "string" }
+properties.version = { type = "integer", minimum = 0 }
+
+[served]
+type = "array"
+description = "Requests answered on standard output, one reply a line, until standard input closed"
+items = "reply"
+
+[storage]
+type = "object"
+description = """
+Where an agent would keep each of its collections (its specification's
+`[storage]`): a place's name each, a request its machine has the
+last word on. A harness from outside Link keeps its own conversations
+however it does.
+"""
+additionalProperties = false
+
+[storage.properties.conversations]
+type = "string"
+description = """
+Where a new conversation is kept: a place (`file`
+or a driver's name, `sqlite` the program `lnk-sqlite-store`,
+a store), or `log` or `compact`,
+each `file`. A conversation already kept is read
+where it is: `lnk agent chat export --format` converts it.
+"""
+examples = ["log"]
+
+[storage.properties.home]
+type = "string"
+description = """
+Where it would keep its home, the person's documents and work (`Home/`):
+a place's name, lowercase letters, digits and dashes. It's a request:
+the machine's `[storage]` has the last word, and a place it doesn't
+support gets its default. Link's specification sets `"file"`.
+"""
+examples = ["file"]
+
+[storage.properties.instructions]
+type = "string"
+description = """
+Where it would keep its instructions, which you edit. It's a request:
+the machine's `[storage]` has the last word, and a place it doesn't
+support gets its default. Link's specification sets `"file"`.
+"""
+examples = ["file"]
+
+[storage.properties.skills]
+type = "string"
+description = """
+Where it would keep its skills, which you edit. It's a request: the
+machine's `[storage]` has the last word, and a place it doesn't support
+gets its default. Link's specification sets `"file"`.
+"""
+examples = ["file"]
+
+[storage.properties.memory]
+type = "string"
+description = """
+Where it would keep memory's notes and index. It's a request: the
+machine's `[storage]` has the last word, and a place it doesn't support
+gets its default. Link's specification sets `"file"`.
+"""
+examples = ["file"]
+
+[storage.properties.schedule]
+type = "string"
+description = """
+Where it would keep its scheduled jobs. It's a request: the machine's
+`[storage]` has the last word, and a place it doesn't support gets its
+default. Link's specification sets `"file"`.
+"""
+examples = ["file"]

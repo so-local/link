@@ -1,0 +1,61 @@
+# Flags more than one module takes, each declared once here by the shared
+# type that owns it (`link_component::shared`), with the help every command
+# taking it shows. A command's `actions.toml` names a flag's type as its
+# argument's `shared`, which the typed parser writes: a composed type's
+# flags where the command flattens its type (its clap group, named as the
+# type here), any other's wherever the parser types a flag as declared.
+# A flag with `short_for` is a shorthand: the strict flags it stands for,
+# which every command composing its type takes too.
+
+[output]
+help = "How a command answers"
+flags.json = { type = "boolean", help = "Print the answer as JSON for other programs" }
+
+[quiet]
+help = "How much a command says"
+flags.quiet = { type = "boolean", help = "Say less, for another of Link's commands running it on the way" }
+
+[request]
+help = "A typed request read whole"
+flags.request = { type = "string", help = "JSON request file (default: standard input)" }
+
+[confirm]
+help = "Answers to what a command would ask"
+flags.yes = { type = "boolean", help = "Say yes to what it would ask" }
+
+# Where work goes (`link_workplace::Slots`): at most one place, `--zone`
+# only with a cloud. The place positional is short for `--on <machine>`
+# where it names a machine of yours, for `--cloud <cloud>` where it names
+# a cloud account, and its value `here` for `--here`.
+[workplace]
+help = "Where work goes"
+composed = true
+flags.on = { type = "string", help = "A machine" }
+flags.cloud = { type = "string", help = "A cloud account" }
+flags.zone = { type = "string", help = "A region or zone of the cloud" }
+flags.here = { type = "boolean", help = "This machine" }
+positionals.place = { type = "string", help = "A machine, a cloud account, or here: short for --on <machine>, --cloud <cloud> or --here" }
+
+# Flags a command takes by its own field, once, required or repeated, each
+# with one meaning the repository check holds every declaration to: its
+# type, and its help saying `says`.
+
+[cloud]
+help = "A cloud account"
+counted = true
+flags.cloud = { type = "string", help = "A cloud account, as `lnk cloud list` names it", says = "`lnk cloud list`" }
+
+[owner]
+help = "An owner"
+counted = true
+flags.owner = { type = "string", help = "An owner's stable ID, <kind>:<id>, as the module that keeps that kind names it", says = "<kind>:" }
+
+[account]
+help = "A Link account"
+counted = true
+flags.account = { type = "string", help = "A Link account, by its username or ID", says = "Link account" }
+
+[remote]
+help = "A storage remote"
+counted = true
+flags.remote = { type = "string", help = "A storage remote that is no cloud account: s3, a folder or another rclone storage, as `lnk storage list` names it", says = "`lnk storage list`" }

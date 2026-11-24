@@ -1,0 +1,8 @@
+# A cloud's table is named as its adapter is: lowercase letters and dashes.
+[spec]
+schema = 1
+[spec.machine.Third]
+cpus = 2
+
+[expect]
+invalid = "isn't a cloud"

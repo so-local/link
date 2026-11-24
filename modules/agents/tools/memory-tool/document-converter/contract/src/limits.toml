@@ -1,0 +1,9 @@
+# What Link Document Converter reads and keeps of a document (`limits()`),
+# read once, alike by the converter and by Link Memory, which runs it.
+
+# The largest document read, in bytes: a long report, scanned pages
+# aside.
+document-max-bytes = 33554432
+
+# The most text kept of one, in bytes: the rest isn't indexed.
+text-max-bytes = 2097152

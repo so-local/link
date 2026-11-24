@@ -1,0 +1,6 @@
+# The default size asks the adapter nothing, so its failing is no matter.
+[run]
+sizes_error = "lnk-aws sizes: An error occurred (UnauthorizedOperation)"
+
+[expect]
+size = "t3.small"

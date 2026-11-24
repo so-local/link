@@ -1,0 +1,7 @@
+# The protocol of the question model.providers: the providers an
+# installed module adds, each at an address it declares. One line from
+# the asker, one back, each stating the version it speaks.
+name = "model providers answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

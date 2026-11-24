@@ -1,0 +1,30 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+"requires" = [{ "dependency" = "storage" }]
+
+["dependencies".storage]
+kind = "module"
+id = "storage"
+
+["dependencies".engine]
+kind = "external"
+id = "rclone"
+
+["module"]
+id = "bucket-store"
+"kind" = "store"
+owner = "modules/agents/stores/bucket-store"
+
+
+["pins"."rclone"]
+"file" = "externals.json"
+"pointer" = "/rclone"
+
+[dependencies.store]
+kind = "package"
+id = "store"

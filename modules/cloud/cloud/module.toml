@@ -1,0 +1,50 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+# What leads into the module from `lnk up`.
+next = ["cloud.cloud.connect", "cloud.cloud.list"]
+recommends = [{dependency = "agent"}, {dependency = "aws"}, {dependency = "box"}, {dependency = "storage"}, {dependency = "gcp"}, {dependency = "secret"}]
+
+["module"]
+id = "cloud"
+"kind" = "module"
+owner = "modules/cloud/cloud"
+
+["documentation"]
+"topic" = "services/cloud"
+"root" = "docs"
+
+["removal"]
+"parts" = ["clouds"]
+
+[dependencies.cloud-contract]
+kind = "package"
+id = "cloud-contract"
+
+[dependencies.agent]
+kind = "module"
+id = "agent"
+
+[dependencies.aws]
+kind = "module"
+id = "aws"
+
+[dependencies.box]
+kind = "module"
+id = "box"
+
+[dependencies.storage]
+kind = "module"
+id = "storage"
+
+[dependencies.gcp]
+kind = "module"
+id = "gcp"
+
+[dependencies.secret]
+kind = "module"
+id = "secret"

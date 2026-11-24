@@ -1,0 +1,19 @@
+# Two repositories are two stages, each a clone in its sandbox.
+[spec]
+schema = 1
+name = "app"
+version = 1
+workdir = "app"
+
+[[spec.stage]]
+name = "clone-app"
+run = "git clone https://github.com/me/app app"
+sandbox = "clone.toml"
+
+[[spec.stage]]
+name = "clone-lib"
+run = "git clone https://github.com/me/lib lib"
+sandbox = "clone.toml"
+
+[expect]
+image = ["clone-app", "clone-lib"]

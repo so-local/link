@@ -1,0 +1,32 @@
+[package]
+authors.workspace = true
+name = "link-agent-identity"
+description = "`link-agent-identity` holds agent IDs, owners, and who outside may do what, without a running agent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+anyhow.workspace = true
+link-principal.workspace = true
+link-sandbox-bridge.workspace = true
+link-machine.workspace = true
+link-secret-contract.workspace = true
+serde.workspace = true
+[dev-dependencies]
+link-test-kit.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/agent"
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true

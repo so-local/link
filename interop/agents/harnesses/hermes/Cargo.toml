@@ -1,0 +1,98 @@
+[package]
+authors.workspace = true
+name = "link-hermes"
+description = "The Hermes Agent adapter, `lnk-hermes`, lets Local Link install, sandbox, and run Hermes Agent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-hermes"
+path = "src/main.rs"
+
+[dependencies]
+toml.workspace = true
+serde.workspace = true
+anyhow = "1"
+serde_json = { version = "1", features = ["raw_value"] }
+# Hermes's config.yaml, its tools' addresses written into it.
+serde_norway = "0.9"
+tokio = { version = "1", features = ["rt", "net", "io-util", "time"] }
+# Passing a stop on to the gateway it runs.
+libc = "0.2"
+
+[dependencies.link-harness-contract]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.link-harness-hub]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+link-core = { workspace = true}
+# The kit every harness is checked with, from the core.
+link-harness-conformance = { workspace = true }
+
+# No debug info: it was most of `target/` (a full `cargo test` wrote
+# 20 GB with it). A panic still says where it happened; a backtrace names
+# functions only.
+
+[dev-dependencies.link-store-contract]
+workspace = true
+features = []
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+link-component-build.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.jiff]
+workspace = true
+
+[dependencies.link-scheduler-tool-contract]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-core]
+workspace = true

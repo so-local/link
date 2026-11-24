@@ -1,0 +1,9 @@
+# A write in a project's .git is what runs outside: the project's
+# folder is written instead, and named in write_dot_files.
+[spec]
+schema = 1
+[spec.files]
+write = ["app/.git/hooks"]
+
+[expect]
+invalid = "runs outside the sandbox"

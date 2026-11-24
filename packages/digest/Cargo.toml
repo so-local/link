@@ -1,0 +1,27 @@
+[package]
+authors.workspace = true
+name = "link-digest"
+description = "`link-digest` computes SHA-256 digests, which identify content and verify downloads"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/digest"
+
+[dependencies]
+ring.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

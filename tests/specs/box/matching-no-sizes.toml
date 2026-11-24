@@ -1,0 +1,11 @@
+# But can't match one.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 4
+
+[run]
+sizes = false
+
+[expect]
+error = "doesn't list its machine types"

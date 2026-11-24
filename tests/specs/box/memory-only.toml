@@ -1,0 +1,8 @@
+# Memory alone: the fewest CPUs with it.
+[spec]
+schema = 1
+[spec.machine]
+memory = { min = "4 GB" }
+
+[expect]
+size = "t3.medium"

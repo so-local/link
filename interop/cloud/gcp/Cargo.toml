@@ -1,0 +1,62 @@
+[package]
+authors.workspace = true
+name = "link-gcp"
+description = "The Google Cloud adapter, `lnk-gcp`, manages accounts, buckets, boxes, and images on Google Cloud through gcloud"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-gcp"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[dependencies.link-cloud-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true

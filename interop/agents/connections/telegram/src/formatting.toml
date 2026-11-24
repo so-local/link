@@ -1,0 +1,15 @@
+# How Telegram takes an answer (`format.rs`).
+
+# The Bot API's parse mode an answer is sent in: Telegram's HTML subset.
+parse_mode = "HTML"
+
+# What Telegram's refusal says when it can't read a message's HTML: that
+# message is sent again once, as plain text.
+unparsed = "can't parse entities"
+
+# Telegram's longest message: 4096 characters, which it counts in UTF-16
+# code units. The HTML's tags are counted too, so a message is never
+# longer than Telegram takes.
+[channel]
+limit = 4096
+counted = "utf16"

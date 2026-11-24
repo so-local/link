@@ -1,0 +1,13 @@
+# The skills section is Link's list of skills/ unless you say otherwise:
+# none, or a file of yours.
+[spec]
+schema = 1
+[spec.instructions]
+skills = "none"
+
+[spec.instructions.max]
+skills = "2 KB"
+
+[expect]
+values = { "instructions.skills" = "none", "instructions.max.skills" = "2 KB", "instructions.base" = "link" }
+from = { "instructions.skills" = "yours", "instructions.max.skills" = "yours", "instructions.base" = "link" }

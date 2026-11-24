@@ -1,0 +1,10 @@
+# A pinned size the adapter doesn't list there (one it doesn't fully
+# know, as a GPU it has no word for): made as given, said.
+[spec]
+schema = 1
+[spec.machine.aws]
+size = "p3.2xlarge"
+
+[expect]
+size = "p3.2xlarge"
+note = "lnk-aws doesn't list p3.2xlarge in us-east-2"

@@ -1,0 +1,192 @@
+# fmt, clippy, tests and shellcheck, on every pull request into main and
+# every push to it. A pull request from a fork gets a read-only token and
+# no secrets (`pull_request`, never `pull_request_target`), and no job
+# here needs one.
+#
+# Actions are pinned to commits (tag in the comment). Jobs that run
+# third-party actions get no secrets and no stored checkout token.
+name: checks
+
+on:
+  workflow_call:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A pull request's newer push cancels its older run, which no one reads.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('checks-{0}', github.ref) || format('checks-{0}', github.sha) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# One Rust for every run: `stable` moves every six weeks, and its new
+# clippy lints failed checks on code no PR had touched (and its new
+# version misses rust-cache's cache). Move it on purpose, in a PR of its
+# own (docs/more/developing/decisions.md).
+env:
+  RUST_TOOLCHAIN: "1.99.0"
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: validation timing start
+        run: |
+          mkdir -p "$RUNNER_TEMP/test-timing/phases"
+          printf '%s\n' "$EPOCHSECONDS" > "$RUNNER_TEMP/test-timing/validation-start"
+          : > "$RUNNER_TEMP/test-timing/cargo.log"
+      # The runner's image fills about 58 GB of its 72 GB with tools Link
+      # never uses; clippy, the tests' build and the programs they build
+      # take about 3 GB of the rest. Removing the biggest leaves room for a
+      # build that grows (docs/more/developing/decisions.md), in the background, so
+      # the job doesn't wait for it.
+      - name: room on disk
+        run: |
+          df -h /
+          sudo nohup rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL >/dev/null 2>&1 &
+      - name: toolchain setup
+        run: |
+          TIMEFORMAT='%R'
+          trap 'printf "%s\n" "$?" > "$RUNNER_TEMP/test-timing/phases/toolchain-setup.status"' EXIT
+          { time { rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --component rustfmt,clippy,rust-analyzer && rustup default "$RUST_TOOLCHAIN"; } 2>&1; } \
+            2> "$RUNNER_TEMP/test-timing/phases/toolchain-setup.seconds"
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      # The core's sandbox tests run in Link's sandbox: bubblewrap, with
+      # the unprivileged user namespaces Ubuntu's AppArmor holds back (and
+      # OpenSSH's server, for a guest's), and a test that can't run it
+      # fails rather than skips.
+      - name: bubblewrap
+        run: |
+          TIMEFORMAT='%R'
+          trap 'printf "%s\n" "$?" > "$RUNNER_TEMP/test-timing/phases/host-setup.status"' EXIT
+          { time { sudo apt-get update -q && sudo apt-get install -y -q bubblewrap openssh-server openssh-client git python3 openssl xvfb && sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0; } 2>&1; } \
+            2> "$RUNNER_TEMP/test-timing/phases/host-setup.seconds"
+      - name: formatting
+        run: |
+          TIMEFORMAT='%R'
+          trap 'printf "%s\n" "$?" > "$RUNNER_TEMP/test-timing/phases/fmt.status"' EXIT
+          { time cargo fmt --all --check 2>&1; } 2> "$RUNNER_TEMP/test-timing/phases/fmt.seconds"
+      - name: Clippy
+        run: |
+          TIMEFORMAT='%R'
+          trap 'printf "%s\n" "$?" > "$RUNNER_TEMP/test-timing/phases/clippy.status"' EXIT
+          { time cargo clippy --locked --workspace --all-targets -- -D warnings 2>&1; } 2> "$RUNNER_TEMP/test-timing/phases/clippy.seconds"
+      # Tests run the workspace's programs from target/debug.
+      - name: binary build
+        run: |
+          TIMEFORMAT='%R'
+          trap 'printf "%s\n" "$?" > "$RUNNER_TEMP/test-timing/phases/bin-build.status"' EXIT
+          { time cargo build --locked --workspace --bins 2>&1; } 2> "$RUNNER_TEMP/test-timing/phases/bin-build.seconds"
+      - name: tests and saved timings
+        id: tests
+        run: |
+          mkdir -p "$RUNNER_TEMP/test-timing"
+          cargo metadata --locked --no-deps --format-version 1 > "$RUNNER_TEMP/test-timing/metadata.json"
+          set +e
+          TIMEFORMAT='%R'
+          { time cargo test --locked --workspace --no-fail-fast --color never --message-format=json-render-diagnostics 2>&1; } \
+            2> "$RUNNER_TEMP/test-timing/wall-seconds" | tee "$RUNNER_TEMP/test-timing/cargo.log"
+          statuses=("${PIPESTATUS[@]}")
+          printf '%s\n' "${statuses[0]}" > "$RUNNER_TEMP/test-timing/status"
+          if [ "${statuses[1]}" -ne 0 ]; then exit "${statuses[1]}"; fi
+          exit "${statuses[0]}"
+        # Every capability a test gates on is required here, so a skip
+        # fails: the sandbox's, the kernel's own confinement (Landlock)
+        # and the host programs tests run.
+        env:
+          LNK_REQUIRE_SANDBOX: "1"
+          LNK_REQUIRE_NATIVE: "1"
+          LNK_REQUIRE_PROGRAMS: "1"
+          RUST_TEST_THREADS: "16"
+      # The Linux release is static (musl), whose libc differs from glibc
+      # where the sandbox leans on it (O_PATH): its unit tests run there too.
+      - name: the sandbox on musl
+        run: |
+          TIMEFORMAT='%R'
+          trap 'printf "%s\n" "$?" > "$RUNNER_TEMP/test-timing/phases/musl-validation.status"' EXIT
+          { time { rustup target add x86_64-unknown-linux-musl && sudo apt-get update -q && sudo apt-get install -y -q musl-tools && cargo test --locked --target x86_64-unknown-linux-musl -p link-sandbox -p link-sandbox-confine -p link-sandbox-proxy --lib; } 2>&1; } \
+            2> "$RUNNER_TEMP/test-timing/phases/musl-validation.seconds"
+      - name: shellcheck
+        run: |
+          TIMEFORMAT='%R'
+          trap 'printf "%s\n" "$?" > "$RUNNER_TEMP/test-timing/phases/shellcheck.status"' EXIT
+          { time { git ls-files '*.sh' | xargs -r shellcheck; } 2>&1; } 2> "$RUNNER_TEMP/test-timing/phases/shellcheck.seconds"
+      - name: test timing report
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/test-timing/phases"
+          elapsed=null
+          if [ -s "$RUNNER_TEMP/test-timing/validation-start" ]; then
+            started=$(cat "$RUNNER_TEMP/test-timing/validation-start")
+            elapsed=$((EPOCHSECONDS - started))
+          fi
+          {
+            printf '{"schema":1,"elapsed_seconds":%s,"cache_state":null,"phases":[' "$elapsed"
+            separator=
+            for phase in toolchain-setup cache-restore host-setup fmt clippy bin-build test-command musl-validation shellcheck; do
+              seconds=null
+              status=null
+              phase_file="$RUNNER_TEMP/test-timing/phases/$phase"
+              if [ "$phase" = test-command ]; then
+                if [ -s "$RUNNER_TEMP/test-timing/wall-seconds" ]; then seconds=$(cat "$RUNNER_TEMP/test-timing/wall-seconds"); fi
+                if [ -s "$RUNNER_TEMP/test-timing/status" ]; then status=$(cat "$RUNNER_TEMP/test-timing/status"); fi
+              else
+                if [ -s "$phase_file.seconds" ]; then seconds=$(cat "$phase_file.seconds"); fi
+                if [ -s "$phase_file.status" ]; then status=$(cat "$phase_file.status"); fi
+              fi
+              printf '%s{"name":"%s","wall_seconds":%s,"status":%s}' "$separator" "$phase" "$seconds" "$status"
+              separator=,
+            done
+            printf ']}\n'
+          } > "$RUNNER_TEMP/test-timing/phases.json"
+          if [ ! -s "$RUNNER_TEMP/test-timing/metadata.json" ]; then
+            cargo metadata --locked --no-deps --format-version 1 > "$RUNNER_TEMP/test-timing/metadata.json"
+          fi
+          args=()
+          if [ -s "$RUNNER_TEMP/test-timing/status" ]; then args+=(--status "$(cat "$RUNNER_TEMP/test-timing/status")"); fi
+          if [ -s "$RUNNER_TEMP/test-timing/wall-seconds" ]; then args+=(--wall-seconds "$(cat "$RUNNER_TEMP/test-timing/wall-seconds")"); fi
+          cargo run --locked --package link-test-timing -- \
+            --metadata "$RUNNER_TEMP/test-timing/metadata.json" --log "$RUNNER_TEMP/test-timing/cargo.log" \
+            --output "$RUNNER_TEMP/test-timing/report" --phases "$RUNNER_TEMP/test-timing/phases.json" \
+            "${args[@]}" --revision "$GITHUB_SHA" --machine "$RUNNER_OS/$RUNNER_ARCH" --threads 16
+      - name: save test timing report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-timing
+          path: ${{ runner.temp }}/test-timing/
+          if-no-files-found: warn
+
+  # The sandbox's unit tests on the arm64 Linux release's processor and
+  # libc (musl): its seccomp filter and the syscalls it names differ
+  # from x86_64's.
+  sandbox-arm64:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN" && rustup target add aarch64-unknown-linux-musl
+      - run: sudo apt-get update -q && sudo apt-get install -y -q musl-tools
+      - run: cargo test --locked --target aarch64-unknown-linux-musl -p link-sandbox -p link-sandbox-confine -p link-sandbox-proxy --lib
+
+  # Clippy on a Mac: code under one OS's `cfg` leaves imports and code
+  # unused on the other, which Linux's clippy never compiles.
+  macos-clippy:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --component clippy && rustup default "$RUST_TOOLCHAIN"
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo clippy --locked --workspace --all-targets -- -D warnings

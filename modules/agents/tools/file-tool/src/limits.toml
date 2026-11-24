@@ -1,0 +1,51 @@
+# Link file's limits (`limits()`), read once.
+
+# The largest image or PDF `read` gives whole, in bytes: within what
+# models' providers take of one, as base64.
+media_max = 2097152
+
+# The longest a `glob` or `grep` looks, in milliseconds: past it, it answers with
+# what it found and says it stopped.
+find_time_max_ms = 10000
+
+# The largest `.gitignore` `glob` and `grep` keep to, in bytes.
+ignore_file_max = 65536
+
+# The most bytes JSON escapes one byte of a string to (`\u0000`), which
+# sizes the most a call and its answer take between the server and its
+# sandbox.
+escaped_max = 6
+
+# The largest file it reads or writes, in bytes: a text file an agent
+# works on, not a dump.
+file_max = 4194304
+
+# The most of a file one `read` gives, in bytes, whole lines: well
+# within what a harness keeps of an answer (Link's 32 KB), so nothing
+# is cut unsaid; `offset` reads on.
+read_max = 24576
+
+# The most files `glob` or lines `grep` gives, and the most of each
+# line, in bytes.
+found_max = 100
+line_max = 200
+
+# The most files and folders a `glob` or `grep` looks at, and the largest file it
+# reads, in bytes.
+files_max = 10000
+searched_max = 1048576
+
+# The most a `glob` or `grep` pattern compiles to, in bytes: a hostile one is
+# refused, never let take the tool's memory.
+pattern_max = 1048576
+
+# The longest diff a `write` or `edit` answers with, in bytes: past
+# it, the answer says it's cut and gives the new text's SHA-256, so it
+# stays well within what a harness keeps of an answer (Link's 32 KB).
+diff_max = 16384
+
+# How `read` numbers each line it gives, as Claude Code's Read does: the
+# line's number right-aligned in at least this many columns, then the
+# mark, then the line (`     1→fn main() {`).
+number_width = 6
+number_mark = "→"

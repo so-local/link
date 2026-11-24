@@ -1,0 +1,244 @@
+schema = 1
+
+# The protocol every harness program answers, declared once: the agent
+# module (`lnk-agent`) runs a harness's program with one of these, its
+# settings and portable state on standard input. Each adapter lists the
+# ones it answers under [implements].
+[verbs]
+contract = { description = "Print what the adapter answers about itself, as JSON", effect = "find" }
+configure = { description = "Write the harness's own settings from the agent's configuration, on standard input", effect = "update" }
+command = { description = "Print how to run the harness in the foreground, as JSON", effect = "find" }
+health = { description = "Exit 0 when the running harness answers", effect = "find" }
+endpoint = { description = "Print the address of the harness's endpoint on this machine, as JSON", effect = "find" }
+connections = { description = "Print the connections the harness speaks, as a JSON list", effect = "find" }
+traces = { description = "Print where the harness writes outside its home, as a JSON list", effect = "find" }
+internet-hosts = { description = "Print the internet hosts its install and configure reach, as a JSON list", effect = "find" }
+needs = { description = "Print what the harness needs beyond Link's defaults, as JSON", effect = "find" }
+serve = { description = "Run the harness's endpoint until it's stopped", effect = "insert" }
+acp = { description = "Run the harness's ACP agent on standard input and output", effect = "insert" }
+instructions = { description = "Print the system prompt the harness sends its model", effect = "find" }
+written = { description = "Print the version that wrote an install's state in a home", effect = "find" }
+clean = { description = "Take secrets read on standard input out of a home's own files", effect = "delete" }
+export = { description = "Print the agent's portable state, changing nothing", effect = "find" }
+schedules = { description = "Print the harness's own scheduled jobs and their revision", effect = "find" }
+clear-schedules = { description = "Remove only the scheduled jobs of one exported revision", effect = "delete" }
+link = { description = "Link a connection whose account the harness links itself", effect = "insert" }
+conversation = { description = "Print one conversation as a person reads it", effect = "find" }
+fork = { description = "Copy a conversation's events before a message into a new conversation", effect = "insert" }
+move = { description = "Move each conversation to the way the agent's specification keeps them", effect = "update" }
+ask = { description = "Ask the running harness one message and print its answer", effect = "insert" }
+
+[actions."harness-contract.harness-contract.contract"]
+description = "Print what this adapter answers about itself, as JSON"
+role = "plumbing"
+output = "contract"
+
+[actions."harness-contract.harness-contract.contract".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.install"]
+description = "Install the harness into its home, or leave it there"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.harness-contract.install".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.configure"]
+description = "Write the harness's own settings from the agent's configuration, as JSON on stdin"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.harness-contract.configure".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.command"]
+description = "Print how to run the harness in the foreground, as JSON"
+role = "plumbing"
+output = "launch"
+
+[actions."harness-contract.harness-contract.command".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.health"]
+description = "Exit 0 when the running harness answers"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.harness-contract.health".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.endpoint"]
+description = "Print the address of its endpoint on this machine, as JSON"
+role = "plumbing"
+output = "endpoint"
+
+[actions."harness-contract.harness-contract.endpoint".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.connections"]
+description = "Print the connections the harness speaks, as a JSON list"
+role = "plumbing"
+output = "connections"
+
+[actions."harness-contract.harness-contract.connections".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.traces"]
+description = "Print where the harness writes outside its home, as a JSON list"
+role = "plumbing"
+output = "traces"
+
+[actions."harness-contract.harness-contract.traces".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.internet-hosts"]
+description = "Print the internet hosts its install and configure reach, as a JSON list"
+role = "plumbing"
+output = "hosts"
+
+[actions."harness-contract.harness-contract.internet-hosts".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.needs"]
+description = "Print what the harness needs beyond Link's defaults, as JSON, from Link's settings on stdin"
+role = "plumbing"
+output = "needs"
+
+[actions."harness-contract.harness-contract.needs".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.serve"]
+description = "Run its endpoint on its port until stopped"
+role = "plumbing"
+output = "served"
+
+[actions."harness-contract.harness-contract.serve".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.acp"]
+description = "Run the ACP agent on standard input and output, normally behind Link's harness hub"
+role = "plumbing"
+output = "served"
+
+[actions."harness-contract.harness-contract.acp".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.instructions"]
+description = "Print the system prompt the harness sends its model now (--json: with its sections)"
+role = "plumbing"
+output = "instructions"
+
+[actions."harness-contract.harness-contract.instructions".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.written"]
+description = "Print the version that wrote an install's state in the home it names, as JSON, for `lnk agent migrate`"
+role = "plumbing"
+output = "written"
+
+[actions."harness-contract.harness-contract.written".args]
+home = { type = "string", description = "The harness's absolute home folder", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.clean"]
+description = "Take the secrets on stdin, a JSON list, out of the home it names, for `lnk agent migrate`"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.harness-contract.clean".args]
+home = { type = "string", description = "The harness's absolute home folder", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.link"]
+description = "Link a connection whose account the harness links itself"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.harness-contract.link".args]
+connection = { type = "string", description = "The native connection whose account should be linked", required = true, x-link-cli = { position = 1 } }
+again = { type = "boolean", description = "Link the account again even if it is already linked" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.ask"]
+description = "Ask the harness running on this machine's port one message on a conversation over ACP, and print its answer: the endpoint key on stdin's first line, the message after it"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.harness-contract.ask".args]
+thread = { type = "string", description = "The conversation's thread identifier", required = true, x-link-cli = { position = 1 } }
+from = { type = "string", description = "The sender of the message, someone who isn't the owner" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.harness-contract.conversation"]
+description = "Print a conversation as a person reads it, wherever it's kept (--json: its typed history)"
+role = "plumbing"
+output = "history"
+
+[actions."harness-contract.harness-contract.conversation".args]
+thread = { type = "string", description = "The conversation's thread identifier", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+# `state` alone: what in its home is the agent's.
+[actions."harness-contract.state.show"]
+description = "Print what in its home is the agent's, as JSON, for `lnk agent move`"
+role = "plumbing"
+output = "state"
+default = true
+
+[actions."harness-contract.state.show".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.state.export"]
+description = "Export portable agent state without changing it"
+role = "plumbing"
+output = "exported"
+
+[actions."harness-contract.state.export".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.state.schedules"]
+description = "Export the native scheduled jobs and their revision"
+role = "plumbing"
+output = "schedules"
+
+[actions."harness-contract.state.schedules".args]
+root = { type = "string", description = "The native state folder", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.state.clear-schedules"]
+description = "Remove only the scheduled jobs in the exported revision"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.state.clear-schedules".args]
+revision = { type = "string", description = "The revision exported with the scheduled jobs", required = true, x-link-cli = { position = 1 } }
+root = { type = "string", description = "The native state folder", required = true, x-link-cli = { position = 2 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.conversations.list"]
+description = "List the agent's conversations, as JSON"
+role = "plumbing"
+output = "conversations"
+
+[actions."harness-contract.conversations.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.conversations.fork"]
+description = "Copy the events before an owner's message into a fresh conversation, and print its typed history"
+role = "plumbing"
+output = "history"
+
+[actions."harness-contract.conversations.fork".args]
+thread = { type = "string", description = "The conversation's thread identifier", required = true, x-link-cli = { position = 1 } }
+before = { type = "integer", minimum = 0, description = "The sequence number of the owner's message the copy stops before", required = true }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."harness-contract.conversations.move"]
+description = "Move each conversation kept another way than the agent's specification says to that way, or to the way named"
+role = "plumbing"
+output = "core.report"
+
+[actions."harness-contract.conversations.move".args]
+way = { type = "string", description = "The way to keep them: log, compact or a store's name", x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }

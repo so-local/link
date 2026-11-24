@@ -1,0 +1,7 @@
+# What the worker launcher keeps from the program it starts. Read once by
+# `workers.rs`.
+
+# Variables dropped by their name's start: what sudo adds as it runs the
+# launcher as root (`SUDO_USER`, `SUDO_UID`, `SUDO_GID`, `SUDO_COMMAND`,
+# `SUDO_HOME`), which tell a program inside who started it, and how.
+dropped_prefixes = ["SUDO_"]

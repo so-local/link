@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.connection.telegram]
+compact_after = "30s"
+
+[expect]
+invalid = "compact_after is \"auto\", at least 1m"

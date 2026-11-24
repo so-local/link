@@ -1,0 +1,45 @@
+schema = 1
+
+# A Safe's files, listed, read and written by its owner alone: each action
+# is control, so no role a module ships holds one and no run is given one.
+# A write is checked by the module that owns the file before it's kept.
+
+[verbs]
+read = { description = "Read a file's text", effect = "find" }
+write = { description = "Write a file, refused when it changed since it was read or its owner's check refuses it", effect = "update" }
+
+[actions."safe.file.list"]
+description = "List a Safe's files, each with its revision"
+resource = "safe"
+role = "secondary"
+control = true
+surfaces = ["rest"]
+
+[actions."safe.file.list".args]
+safe = { type = "string", format = "link-id", x-link-kind = "safe", description = "The Safe, by its ID, safe:<id>", required = true }
+
+[actions."safe.file.read"]
+description = "Read one file of a Safe, and the revision it was read at"
+resource = "safe"
+role = "secondary"
+output = "file-text"
+control = true
+surfaces = ["rest"]
+
+[actions."safe.file.read".args]
+safe = { type = "string", format = "link-id", x-link-kind = "safe", description = "The Safe, by its ID, safe:<id>", required = true }
+path = { type = "string", description = "Its path in the Safe, as sandbox.toml", required = true }
+
+[actions."safe.file.write"]
+description = "Write one file of a Safe, once the module that owns it checks it, refused with conflict when it changed since the revision named"
+resource = "safe"
+role = "secondary"
+output = "file"
+control = true
+surfaces = ["rest"]
+
+[actions."safe.file.write".args]
+safe = { type = "string", format = "link-id", x-link-kind = "safe", description = "The Safe, by its ID, safe:<id>", required = true }
+path = { type = "string", description = "Its path in the Safe, as sandbox.toml", required = true }
+text = { type = "string", description = "Its new text", required = true }
+revision = { type = "string", description = "The revision it was read at [default: none, for a new file]" }

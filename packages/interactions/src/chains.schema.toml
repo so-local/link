@@ -1,0 +1,9 @@
+schema = 1
+kind = "approval chain"
+current = 1
+command = "lnk agent"
+
+[[files]]
+location = "lnk.approvals"
+path = "chains/*/*.json"
+encoding = "json"

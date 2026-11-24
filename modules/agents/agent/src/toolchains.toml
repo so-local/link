@@ -1,0 +1,67 @@
+# What an agent's run and code tools need of a program found on the PATH
+# of whoever started it (`here.toml`'s `path`), when that program is in
+# your home folder: the folders read with it, those of them hidden (a
+# credential), and its package caches moved to the agent's own
+# (`~/.lnk/data/agents/<name>/caches`), so nothing it downloads reaches
+# what you build. A PATH folder in your home that no toolchain below
+# names is read alone.
+
+# rustup's cargo and rustc start the toolchain's own from ~/.rustup.
+[[toolchain]]
+bin = ".cargo/bin"
+read = [".cargo", ".rustup"]
+hide = [".cargo/credentials.toml", ".cargo/credentials"]
+
+# nvm, Volta, fnm, Bun and Deno keep each version beside its program.
+[[toolchain]]
+bin = ".nvm"
+read = [".nvm"]
+
+[[toolchain]]
+bin = ".volta/bin"
+read = [".volta"]
+
+[[toolchain]]
+bin = ".local/share/fnm"
+read = [".local/share/fnm"]
+
+[[toolchain]]
+bin = ".bun/bin"
+read = [".bun"]
+
+[[toolchain]]
+bin = ".deno/bin"
+read = [".deno"]
+
+# pipx's, uv's and pip --user's programs run from their environments.
+[[toolchain]]
+bin = ".local/bin"
+read = [".local/bin", ".local/lib", ".local/share/uv", ".local/share/pipx", ".local/pipx"]
+
+# pyenv's and rbenv's shims start a version under their folder.
+[[toolchain]]
+bin = ".pyenv"
+read = [".pyenv"]
+
+[[toolchain]]
+bin = ".rbenv"
+read = [".rbenv"]
+
+# go install's programs.
+[[toolchain]]
+bin = "go/bin"
+read = ["go/bin"]
+
+# SDKMAN's Java, Kotlin, Gradle and Maven.
+[[toolchain]]
+bin = ".sdkman"
+read = [".sdkman"]
+
+# Each cache variable, set to a folder of the agent's own caches folder.
+[caches]
+CARGO_HOME = "cargo"
+npm_config_cache = "npm"
+XDG_CACHE_HOME = "cache"
+GOPATH = "go"
+GOMODCACHE = "go/pkg/mod"
+GRADLE_USER_HOME = "gradle"

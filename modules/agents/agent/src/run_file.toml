@@ -1,0 +1,9 @@
+# How much sooner than its call's timeout a command `run` runs, or a
+# language server `code` asks, is stopped, so what it has comes back
+# before the harness stops waiting: a share of the timeout, and at least
+# so many milliseconds, which covers starting the call's sandbox and
+# reading a command's last output once it exited. At most half the
+# timeout is kept back.
+[margin]
+percent = 10
+least_ms = 2000

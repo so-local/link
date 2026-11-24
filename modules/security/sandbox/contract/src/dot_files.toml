@@ -1,0 +1,40 @@
+# What a person's tools run from the top of a folder a sandbox writes,
+# outside the sandbox: kept from the sandbox there, as the sandbox's
+# `dot-files.md` says. Read once by `dot_files.rs`.
+
+# The names at the top of a folder that run outside the sandbox: git's
+# settings and hooks, direnv's file, and two editors' settings.
+names = [".git", ".envrc", ".vscode", ".idea"]
+
+# What hook managers read from the top of a folder, run from a stub in
+# `.git/hooks`: kept read only where it's there, never made.
+hook_managers = [
+    ".husky",
+    ".pre-commit-config.yaml",
+    ".pre-commit-config.yml",
+    "lefthook.yml",
+    "lefthook.yaml",
+    "lefthook.json",
+    "lefthook.toml",
+    ".lefthook.yml",
+    ".lefthook.yaml",
+    ".lefthook.json",
+    ".lefthook.toml",
+    "lefthook-local.yml",
+    "lefthook-local.yaml",
+    "lefthook-local.json",
+    "lefthook-local.toml",
+    ".lefthook-local.yml",
+    ".lefthook-local.yaml",
+    ".lefthook-local.json",
+    ".lefthook-local.toml",
+    ".lefthook",
+    ".lefthook-local",
+]
+
+# Link's own data folders, by their `[home]` key in the file layout,
+# where no person's project lives. In a folder below one of these, no
+# placeholder is made for a name that isn't there: the file tool never
+# writes one, and one a sandboxed program made is removed when its run
+# ends.
+swept = ["agents", "teams"]

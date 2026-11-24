@@ -1,0 +1,9 @@
+schema = 1
+kind = "approvals"
+current = 1
+command = "lnk agent"
+
+[[files]]
+location = "lnk.approvals"
+path = "interactions.json"
+encoding = "json"

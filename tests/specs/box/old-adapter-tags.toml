@@ -1,0 +1,11 @@
+# Tags it always made: today's box, with them.
+[spec]
+schema = 1
+[spec.machine]
+tags = { team = "research" }
+
+[run]
+sizes = false
+
+[expect]
+size = "t3.small"

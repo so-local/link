@@ -1,0 +1,48 @@
+{
+  "aws": {
+    "place": "us-east-2",
+    "default": "t3.small",
+    "sizes": [
+      {"size": "t3.nano", "cpus": 2, "memory_mb": 512, "arch": "x86_64"},
+      {"size": "t3.micro", "cpus": 2, "memory_mb": 1024, "arch": "x86_64"},
+      {"size": "t3.small", "cpus": 2, "memory_mb": 2048, "arch": "x86_64"},
+      {"size": "t3.medium", "cpus": 2, "memory_mb": 4096, "arch": "x86_64"},
+      {"size": "t3.large", "cpus": 2, "memory_mb": 8192, "arch": "x86_64"},
+      {"size": "t3.xlarge", "cpus": 4, "memory_mb": 16384, "arch": "x86_64"},
+      {"size": "m7i.large", "cpus": 2, "memory_mb": 8192, "arch": "x86_64"},
+      {"size": "m7i.xlarge", "cpus": 4, "memory_mb": 16384, "arch": "x86_64"},
+      {"size": "m7i.2xlarge", "cpus": 8, "memory_mb": 32768, "arch": "x86_64"},
+      {"size": "c7i.xlarge", "cpus": 4, "memory_mb": 8192, "arch": "x86_64", "price": 0.1785},
+      {"size": "c7a.xlarge", "cpus": 4, "memory_mb": 8192, "arch": "x86_64", "price": 0.16},
+      {"size": "c7i.2xlarge", "cpus": 8, "memory_mb": 16384, "arch": "x86_64"},
+      {"size": "g6.xlarge", "cpus": 4, "memory_mb": 16384, "gpus": 1, "gpu_model": "nvidia-l4", "arch": "x86_64"},
+      {"size": "g6.12xlarge", "cpus": 48, "memory_mb": 196608, "gpus": 4, "gpu_model": "nvidia-l4", "arch": "x86_64"},
+      {"size": "p4d.24xlarge", "cpus": 96, "memory_mb": 1179648, "gpus": 8, "gpu_model": "nvidia-a100", "arch": "x86_64"},
+      {"size": "t4g.small", "cpus": 2, "memory_mb": 2048, "arch": "arm64"}
+    ]
+  },
+  "gcp": {
+    "place": "us-central1-a",
+    "default": "e2-small",
+    "sizes": [
+      {"size": "e2-micro", "cpus": 2, "memory_mb": 1024, "arch": "x86_64"},
+      {"size": "e2-small", "cpus": 2, "memory_mb": 2048, "arch": "x86_64"},
+      {"size": "e2-medium", "cpus": 2, "memory_mb": 4096, "arch": "x86_64"},
+      {"size": "e2-highcpu-4", "cpus": 4, "memory_mb": 4096, "arch": "x86_64"},
+      {"size": "e2-standard-2", "cpus": 2, "memory_mb": 8192, "arch": "x86_64"},
+      {"size": "e2-standard-4", "cpus": 4, "memory_mb": 16384, "arch": "x86_64"},
+      {"size": "e2-standard-8", "cpus": 8, "memory_mb": 32768, "arch": "x86_64"},
+      {"size": "n2-standard-4", "cpus": 4, "memory_mb": 16384, "arch": "x86_64"},
+      {"size": "g2-standard-4", "cpus": 4, "memory_mb": 16384, "gpus": 1, "gpu_model": "nvidia-l4", "arch": "x86_64"},
+      {"size": "a2-highgpu-1g", "cpus": 12, "memory_mb": 87040, "gpus": 1, "gpu_model": "nvidia-a100", "arch": "x86_64"}
+    ]
+  },
+  "third": {
+    "place": "zone-1",
+    "default": "small",
+    "sizes": [
+      {"size": "small", "cpus": 2, "memory_mb": 2048, "arch": "x86_64"},
+      {"size": "large", "cpus": 8, "memory_mb": 32768, "arch": "x86_64"}
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+# Your home folder itself is never written.
+[spec]
+schema = 1
+[spec.files]
+write = ["~"]
+
+[expect]
+invalid = "home folder itself"

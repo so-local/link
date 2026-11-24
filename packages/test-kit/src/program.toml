@@ -1,0 +1,17 @@
+# How the testing kit runs a system test program: each test in a process
+# of its own (`program!(system)`, packages/test-kit/src/program.rs).
+
+# The longest one test's process may run, in seconds, times
+# LNK_TEST_TIME_SCALE. Past it the process and everything it started are
+# ended and the test fails, naming itself and what it last printed. A
+# test's own waits are shorter: this ends one that hangs where none waits.
+deadline = 300
+
+# After this many seconds a test still running is named on the run's
+# output, as libtest does, so a slow test is seen before its deadline.
+slow = 60
+
+# How long, in seconds, the runner reads what a finished test's process
+# printed, past its end: a process the test left that still holds the
+# output is ended with the rest, and its last words are not waited for.
+drain = 2

@@ -1,0 +1,19 @@
+# What personal may do on this machine: write its files folder and its
+# own instructions and skills, reach its hosted model and the web through
+# its proxy, call Link Web, and run sh.
+schema = 1
+[files]
+write = [".", "instructions", "skills"]
+
+[internet]
+hosts = ["*"]
+
+[commands]
+# Only sh: a short script of its builtins for a calculation or a date. A
+# script reaches no other program, since none is granted.
+allow = ["sh"]
+
+[tools]
+# Link Web: pages fetched, and a search where Web has a search key.
+# Where Web isn't added on this machine, it starts without it.
+names = ["web"]

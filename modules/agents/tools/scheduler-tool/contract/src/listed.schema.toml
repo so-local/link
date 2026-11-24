@@ -1,0 +1,10 @@
+schema = 1
+# The agents one scheduler runner fires in a time zone, as the machine's
+# shared bridge lists them: `~/.lnk/safe/agents/bridges/runners/<zone>.json`.
+kind = "scheduler runner agents"
+current = 1
+
+[[files]]
+location = "lnk.shared-bridges"
+path = "runners/*.json"
+encoding = "json"

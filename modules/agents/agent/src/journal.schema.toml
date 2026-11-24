@@ -1,0 +1,9 @@
+schema = 1
+kind = "migration journal"
+current = 1
+command = "lnk agent migrate"
+
+[[files]]
+location = "lnk.migration-journal"
+path = "*.toml"
+encoding = "toml"

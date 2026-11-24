@@ -1,0 +1,7 @@
+# A name has a box name's characters.
+[spec]
+schema = 1
+name = "Web Box"
+
+[expect]
+invalid = "can't start a box's name"

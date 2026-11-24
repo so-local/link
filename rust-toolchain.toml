@@ -1,0 +1,9 @@
+# The one Rust every folder builds with, on any computer and in CI:
+# rustup reads this file from any folder below it. Move it with the
+# workflows' RUST_TOOLCHAIN, in a pull request of its own
+# (core/docs/more/developing/decisions.md, "Why does CI pin its Rust
+# version?"); the core's tooling test fails when the two differ.
+[toolchain]
+channel = "1.99.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"

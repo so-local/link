@@ -1,0 +1,19 @@
+# What `caching.rs` reads once: the figures its choices are made with,
+# each named there. Decisions, not opinions: a setting of the agent's
+# spec (`[connections] cache`, `compact_after` and `pauses`) is where an
+# opinion goes.
+
+# How long before its cache ends a quiet conversation is compacted, so
+# the compaction starts while the cache still holds it.
+margin = "5m"
+
+# How many cached turns a conversation takes after a pause, which a
+# compaction makes cheaper to read.
+turns = 3
+
+# How long a summary is expected to be, in tokens, before a conversation
+# has one of its own.
+summary = 2000
+
+# How many of a conversation's latest pauses its choices learn from.
+kept = 20

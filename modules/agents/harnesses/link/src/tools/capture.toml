@@ -1,0 +1,6 @@
+reply_bytes = 1048576
+request_bytes = 1048576
+# A model request records what changed since the request before it, and
+# every this many requests the whole of what it sent, so making one whole
+# again never walks back further.
+whole_every = 256

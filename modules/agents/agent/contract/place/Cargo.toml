@@ -1,0 +1,55 @@
+[package]
+authors.workspace = true
+name = "link-agent-place"
+description = "`link-agent-place` describes where an agent lives off your machines"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/agent"
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-cloud-contract]
+workspace = true
+
+[dependencies.link-harness-wire]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-principal]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true

@@ -1,0 +1,8 @@
+# The upgrade protocol: `lnk upgrade` asks each program of a release what
+# it will change (`--link-upgrade plan`), then has it make the changes
+# (`--link-upgrade transfer`, then `--link-upgrade convert`), each answer
+# stating the version it speaks.
+name = "upgrade"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

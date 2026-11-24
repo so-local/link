@@ -1,0 +1,44 @@
+["package"]
+authors.workspace = true
+"name" = "link-component-build"
+"description" = "`link-component-build` is what a package's build script calls to embed its component description and the pages it owns"
+["package"."version"]
+"workspace" = true
+
+["package"."edition"]
+"workspace" = true
+
+["package"."license"]
+"workspace" = true
+
+["package"."metadata"."link"]
+"schema" = 1
+"role" = "library"
+owner = "packages/component/build"
+
+["dependencies"."anyhow"]
+"workspace" = true
+
+["dependencies"."link-component"]
+"workspace" = true
+
+["dependencies"."link-actions"]
+"workspace" = true
+
+["dependencies"."link-spec"]
+"workspace" = true
+
+["dependencies"."serde_json"]
+"workspace" = true
+
+["dependencies"."toml"]
+"workspace" = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

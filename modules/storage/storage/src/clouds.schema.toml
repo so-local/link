@@ -1,0 +1,9 @@
+schema = 1
+kind = "storage clouds"
+current = 1
+command = "lnk storage"
+
+[[files]]
+location = "lnk.storage"
+path = "clouds.toml"
+encoding = "toml"

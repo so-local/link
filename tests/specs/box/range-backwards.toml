@@ -1,0 +1,8 @@
+# A range's min over its max.
+[spec]
+schema = 1
+[spec.machine]
+cpus = { min = 8, max = 2 }
+
+[expect]
+invalid = "over its max"

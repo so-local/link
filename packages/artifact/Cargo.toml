@@ -1,0 +1,30 @@
+[package]
+authors.workspace = true
+name = "link-artifact"
+description = "Artifact downloads pinned files, verifies each one, and keeps them in a shared cache of bounded size"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/artifact"
+
+[dependencies]
+link-files.workspace = true
+link-settings.workspace = true
+link-fetch.workspace = true
+link-digest.workspace = true
+link-format.workspace = true
+tokio.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

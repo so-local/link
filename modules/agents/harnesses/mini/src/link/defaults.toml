@@ -1,0 +1,4 @@
+port = 18860
+answer = 4096
+window = 128000
+instructions = "instructions.md"

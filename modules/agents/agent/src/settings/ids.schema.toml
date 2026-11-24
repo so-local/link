@@ -1,0 +1,17 @@
+schema = 1
+kind = "ID ledger"
+current = 1
+command = "lnk agent"
+
+[[files]]
+location = "lnk.agent-ids"
+encoding = "toml"
+
+[[files]]
+location = "lnk.agent-services"
+encoding = "toml"
+
+[[files]]
+location = "lnk.agents"
+path = "team-ids.toml"
+encoding = "toml"

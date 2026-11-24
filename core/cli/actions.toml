@@ -1,0 +1,220 @@
+schema = 1
+
+[verbs]
+help = { description = "Show Link's commands or one command's help", effect = "find" }
+nexts = { description = "Print a command's declared next steps", effect = "find" }
+setup = { description = "Set up this release's components for the cached account sign-in", effect = "update" }
+up = { description = "Set `lnk` up for what you want it for", effect = "update" }
+upgrade = { description = "Upgrade `lnk` and its modules", effect = "update" }
+version = { description = "Print the installed Link version", effect = "find" }
+
+[program]
+description = "a data center on your desktop"
+
+[program.args]
+help = { type = "boolean", description = "Show Link's help.", x-link-cli = { short = "h" } }
+version = { type = "boolean", description = "Print Link's installed version.", x-link-cli = { short = "V" } }
+link-history = { type = "boolean", description = "Print the command history for discovery.", x-link-cli = { hidden = true } }
+link-registry = { type = "boolean", description = "Print the built-in module registry.", x-link-cli = { hidden = true } }
+link-documentation = { type = "boolean", description = "Print the built-in documentation for discovery.", x-link-cli = { hidden = true } }
+
+[args]
+json = { x-link-cli = { shared = "json" } }
+
+# Short forms a person may type for a group, by its words after `lnk`.
+[aliases]
+module = "mod"
+
+[actions."core.folder.check"]
+description = "List old atomic-write staging files in your data without deleting them"
+role = "secondary"
+docs = "/more/architecture/files#staging-files"
+output = "staging"
+fail = ["core.folder.list"]
+
+[actions."core.core.help"]
+description = "Show Link's commands or the help for one command"
+role = "secondary"
+docs = "/more/modules/guide#get-help"
+output = "core.report"
+
+[actions."core.core.help".args]
+group = { type = "string", description = "The command group whose help to read", x-link-cli = { position = 1 } }
+arguments = { type = "array", items = { type = "string" }, description = "The command within the group", x-link-cli = { rest = true } }
+
+[actions."core.issue.create"]
+description = """
+Turn the last failure into a bug report: its fields, scrubbed of what's
+private, to paste, or filled in on the bug form with --open
+"""
+role = "secondary"
+docs = "/more/modules/guide#get-help"
+output = "core.report"
+
+[actions."core.issue.create".args]
+open = { type = "boolean", description = "Open the bug form in your browser with what fits filled in" }
+
+[actions."core.core.nexts"]
+description = "Print the command's declared next steps."
+role = "plumbing"
+output = "steps"
+
+[actions."core.core.uninstall"]
+description = """
+Uninstall `lnk` and its modules, stopping what they run.
+
+Saved data stays unless you select its part. Installed modules declare the parts they keep and explain what deleting each loses. In a terminal, `lnk` asks about each part in turn. Use rest for unclaimed data, or --all for every part."""
+role = "secondary"
+docs = "/more/modules/guide#uninstall"
+output = "kept"
+checks = ["parts_with_json"]
+
+[actions."core.core.uninstall".args]
+yes = { x-link-cli = { shared = "yes" } }
+delete = { type = "array", items = { type = "string" }, description = "Also delete a named part (repeat, or comma-separated)" }
+all = { type = "boolean", description = "Also delete every part", x-link-cli = { conflicts = ["delete"] } }
+parts = { type = "boolean", description = "With --json: list what installed modules keep, grouped by their declared parts. Removes nothing.", x-link-cli = { hidden = true, conflicts = ["yes", "delete", "all"] } }
+
+[actions."core.core.up"]
+description = """
+Set up `lnk`: choose what you want it for, and it installs the modules
+that needs
+
+With --source CHECKOUT, install supported modules from that workspace through
+Cargo. Repeat --source to include additional workspaces. Use --module NAME,NAME
+or repeat --module to select modules. With --stale, refresh installed modules whose executables
+differ from the current Cargo build. The CLI is installed separately by install.sh.
+
+Without arguments, it asks. Run it again any time to add more. Modules
+by name, or from outside Link, are `lnk module add`'s.
+"""
+role = "primary"
+docs = "/more/modules/install#pick-your-modules"
+output = "core.report"
+checks = ["up_from_source"]
+next = ["core.variable.list", "core.module.list", "core.module.add", "core.folder.list"]
+next-modules = true
+fail = ["core.module.list", "core.core.uninstall", "core.module.add", "core.module.remove", "core.folder.create"]
+
+[actions."core.core.up".args]
+uses = { type = "array", items = { type = "string" }, description = "What you want Link for (`agents`) [default: asks]", x-link-cli = { position = 1, conflicts = ["source"] } }
+source = { type = "array", items = { type = "string", x-link-path = true }, description = "Install supported modules from a source workspace with Cargo" }
+module = { type = "array", items = { type = "string" }, description = "Select source modules by executable name without lnk-; separate names with commas or repeat the flag" }
+stale = { type = "boolean", description = "Refresh only installed source modules whose Cargo build differs from the installed executable" }
+
+[actions."core.core.upgrade"]
+description = "Upgrade `lnk` and its modules to the latest release (or a specific version)"
+role = "primary"
+docs = "/more/modules/guide#upgrade"
+output = "core.report"
+next = ["core.core.upgrade", "secret.keeper.create", "sandbox.sandbox.workers"]
+fail = ["core.core.upgrade", "core.folder.create"]
+
+[actions."core.core.upgrade".args]
+yes = { x-link-cli = { shared = "yes" } }
+version = { type = "string", description = "Version to install, e.g. 0.14.0 [default: the latest release]", x-link-cli = { position = 1, conflicts = ["check"] } }
+check = { type = "boolean", x-link-cli = { conflicts = ["yes"] }, description = """
+Report newer releases and advisories, installing nothing. Ordinary
+interactive commands refresh this guidance in the background
+""" }
+
+[actions."core.core.version"]
+description = "Print the installed Link version."
+role = "plumbing"
+output = "core.report"
+
+[actions."core.folder.create"]
+description = "Make a new, empty Link folder at `~/Link`, in place of one that's gone"
+role = "secondary"
+docs = "/more/reference/locations#set-a-location"
+next = ["core.folder.list"]
+fail = ["core.folder.set", "core.core.uninstall"]
+
+[actions."core.folder.list"]
+description = """
+List the map: each location, by its ID, and where it is on this machine,
+starting with the Link folder
+"""
+role = "primary"
+docs = "/more/reference/locations#every-location"
+default = true
+output = "map"
+next = ["core.folder.set", "core.folder.create", "core.folder.check"]
+fail = ["core.folder.set", "core.folder.create"]
+
+[actions."core.folder.set"]
+description = """
+Move a location to a path: its files, when they're there, and its entry in
+the map, with every location inside it; or point Link at files you moved
+"""
+role = "secondary"
+docs = "/more/reference/locations#set-a-location"
+next = ["core.folder.list"]
+fail = ["core.folder.list", "core.folder.create"]
+
+[actions."core.folder.set".args]
+location = { type = "string", description = "The location's ID, as `lnk folder list` shows it: link for the Link folder", required = true, x-link-cli = { position = 1 } }
+path = { type = "string", x-link-path = true, description = "Where it goes, or where you moved it", required = true, x-link-cli = { position = 2 } }
+
+[actions."core.module.add"]
+description = "Add modules: Link's by name, or one from outside Link by --url"
+role = "primary"
+docs = "/more/modules/guide#add-or-remove-a-module"
+output = "core.report"
+checks = ["module_or_url"]
+next = ["core.core.up", "core.module.list", "core.module.add"]
+next-modules = true
+fail = ["core.module.list", "core.module.add", "core.core.uninstall", "core.module.remove", "core.folder.create"]
+
+[actions."core.module.add".args]
+modules = { type = "array", items = { type = "string" }, description = "Link's modules by name (`lnk module list`)", x-link-cli = { position = 1 } }
+url = { type = "array", items = { type = "string" }, description = "A module from outside Link, by its GitHub URL, https://github.com/<owner>/<repo> (repeat)" }
+yes = { x-link-cli = { shared = "yes" } }
+signer = { type = "string", description = "Trust this signer (ssh-ed25519 ...) rather than the one its release offers" }
+dry = { type = "boolean", description = "Print what it would install, one a line, and install nothing", x-link-cli = { hidden = true, conflicts = ["yes", "signer"] } }
+
+[actions."core.module.list"]
+fail = ["core.core.up"]
+description = """
+List Link's modules, which are installed, and those from outside Link
+(the default)
+"""
+role = "primary"
+docs = "/more/modules/guide#get-help"
+default = true
+next = ["core.module.add", "core.module.show", "core.module.remove"]
+
+[actions."core.module.remove"]
+description = "Remove modules, and what needs them"
+role = "secondary"
+docs = "/more/modules/guide#add-or-remove-a-module"
+output = "core.report"
+next = ["core.module.list"]
+fail = ["core.module.list", "core.folder.create"]
+
+[actions."core.module.remove".args]
+modules = { type = "array", items = { type = "string" }, description = "The modules, as `lnk module list` names them", required = true, x-link-cli = { position = 1 } }
+
+[actions."core.module.setup"]
+description = "Set up this release's components for the cached account sign-in"
+role = "plumbing"
+output = "core.report"
+
+[actions."core.module.show"]
+diagnoses = "module"
+description = "Show where a module comes from and whether it's installed"
+role = "secondary"
+docs = "/more/modules/guide#inspect-a-module"
+next = ["core.module.list"]
+fail = ["core.module.list", "core.module.add"]
+
+[actions."core.module.show".args]
+module = { type = "string", description = "The module, as `lnk module list` names it", required = true, x-link-cli = { position = 1 } }
+
+[actions."core.variable.list"]
+description = "List command environment variable names and descriptions, optionally for one command, without reading their values"
+role = "primary"
+docs = "/more/architecture/files#list-a-commands-variables"
+
+[actions."core.variable.list".args]
+command = { type = "array", items = { type = "string" }, description = "Command words to inspect, such as agent start; omit to list all command declarations", x-link-cli = { position = 1 } }

@@ -1,0 +1,43 @@
+[package]
+authors.workspace = true
+name = "link-test-timing"
+description = "Checks and Timings runs a workspace's checks as one command, `lnk-check`, and turns its test run into a timing report that sorts each failure by whose it is"
+publish = false
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "tests/timing"
+
+[[bin]]
+name = "lnk-check"
+path = "src/check_main.rs"
+test = false
+
+[[bin]]
+name = "lnk-test-timing"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true

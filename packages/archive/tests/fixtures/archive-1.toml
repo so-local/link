@@ -1,0 +1,7 @@
+schema = 1
+description = "A machine"
+
+[map]
+"link.machines" = "Boxes"
+
+["box.gcp-1"]

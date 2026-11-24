@@ -1,0 +1,11 @@
+schema = 1
+
+# The store protocol's actions this store answers; record delete it doesn't.
+[implements]
+store = ["store.store.serve", "store.record.show"]
+
+# It binds the contract's spec kind, read through the contract's types.
+[actions."file-store.file-store.check"]
+description = "Read a store spec and say what's wrong"
+spec = "store.store"
+output = "store.served"

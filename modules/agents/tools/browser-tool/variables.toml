@@ -1,0 +1,25 @@
+schema = 1
+
+[defines.CHROMIUM]
+type = "string"
+description = "The Chromium the browser's tests drive, ahead of one on PATH or Playwright's"
+
+[[uses]]
+name = "PATH"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "CHROMIUM"
+access = ["read"]
+context = "test"
+
+[[uses]]
+name = "PLAYWRIGHT_BROWSERS_PATH"
+access = ["read"]
+context = "test"

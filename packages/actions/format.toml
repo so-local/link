@@ -1,0 +1,106 @@
+# The declaration format this build of link-actions reads: version 1 of
+# module.toml, actions.toml, types.toml, variables.toml and schema.toml.
+
+[format]
+schema = 1
+# JSON Schema's dialect every rendered shape names: the version OpenAPI
+# 3.1 uses.
+dialect = "https://json-schema.org/draft/2020-12/schema"
+
+[files]
+module = "module.toml"
+actions = "actions.toml"
+types = "types.toml"
+variables = "variables.toml"
+schema = "schema.toml"
+# The versions of a spec kind other than the one named as its namespace.
+kind-schema = "{kind}-schema.toml"
+max-bytes = 1048576
+max-depth = 64
+
+# Link's fixed verbs, each with the output it implies (the resource, a
+# list of it, its ID, or none, where the action names its own output)
+# and its effect, what it does to state: find, insert, update or delete.
+[verbs.fixed]
+create = { output = "resource", effect = "insert" }
+show = { output = "resource", effect = "find" }
+add = { output = "resource", effect = "insert" }
+set = { output = "resource", effect = "update" }
+get = { output = "resource", effect = "find" }
+connect = { output = "resource", effect = "insert" }
+install = { output = "resource", effect = "insert" }
+start = { output = "resource", effect = "update" }
+list = { output = "list", effect = "find" }
+delete = { output = "id", effect = "delete" }
+remove = { output = "id", effect = "delete" }
+disconnect = { output = "id", effect = "delete" }
+uninstall = { output = "id", effect = "delete" }
+stop = { output = "id", effect = "update" }
+check = { output = "none", effect = "find" }
+run = { output = "none", effect = "insert" }
+
+# Words a module may not declare as its own verb, each meaning a fixed
+# one, with what to say instead.
+[verbs.banned]
+give = "add, or create"
+take = "remove, or delete"
+new = "create"
+forget = "delete, or remove"
+cancel = "stop"
+allow = "add"
+deny = "remove"
+destroy = "delete"
+make = "create"
+rm = "remove"
+register = "add"
+unregister = "remove"
+attach = "add"
+detach = "remove"
+
+# The bridge an agent's harness is: it runs the command itself, so a route
+# on it bounds no call and names no limits; every other bridge's routes do.
+[route]
+harness = "harness"
+# Every bridge a route may name: the agent's, its harness's, a command
+# run through lnk, and the model module's.
+kinds = ["agent", "harness", "command", "model"]
+
+# The words of what core gives every module: its program, `uninstall`,
+# and `<namespace> spec show` for each spec kind it declares.
+[core]
+program = "lnk"
+spec = "spec"
+show = "show"
+uninstall = "uninstall"
+# The word after the program that names every module's own command in a
+# Next, as `lnk <module>`: what an action with next-modules leads to.
+module-next = "<module>"
+# The flag clap gives every program, unless its [program] declares its own.
+version = "version"
+# The help flag and command every program has from clap, unless its
+# `[program]` declares the flag: then the program renders its own.
+help = "help"
+# The hidden root flag a module answering questions (module.toml's
+# answers) takes: `lnk-<module> --link-answer <question>`, a protocol
+# outside its command space.
+answer = "link-answer"
+# The hidden command a module running a guest service (module.toml's
+# guest_service) is re-entered by.
+guest = "guest-service"
+# The section explaining a spec kind's own commands: its generated spec
+# page's.
+spec-docs = "/config/specs/{kind}#use-it"
+# The module whose shapes every module names with no dependency, and the
+# crate their Rust is.
+module = "core"
+types = "link_types"
+# The kind of core's half holding those shapes, a package (link-actions'
+# own core folder), told from its program's half by it, wherever it is.
+shapes = "package"
+
+# What REST never takes: core's shared arguments and groups saying where
+# or how a machine runs an action, since a REST call is answered where its
+# service runs, never on a machine the caller picks, and a person is never
+# asked on it.
+[rest]
+never = ["workplace", "cloud", "remote", "account", "yes", "quiet", "request"]

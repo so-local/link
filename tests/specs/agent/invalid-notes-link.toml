@@ -1,0 +1,8 @@
+# Link has no notes of its own: the agent's file, or none.
+[spec]
+schema = 1
+[spec.instructions]
+notes = "link"
+
+[expect]
+invalid = "Link has none"

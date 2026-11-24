@@ -1,0 +1,4 @@
+schema = 1
+kind = "env"
+current = 1
+command = "lnk env spec show"

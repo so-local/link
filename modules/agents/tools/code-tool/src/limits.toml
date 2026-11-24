@@ -1,0 +1,41 @@
+# What Link Code holds to, of a language server and of an answer: a
+# server runs the project's code, unconfined text to this program, so
+# every part of what it sends is bounded.
+
+# An answer to the model.
+listed-max = 200              # places or problems listed: the rest are counted
+line-max = 200                # characters of a file's line shown beside a place
+message-max = 2000            # characters of one diagnostic's message
+answer-max = 32768            # bytes of an answer's listing: the rest are counted
+file-max = 16777216           # bytes of a file read to give a server or show a line
+
+# The protocol versions it speaks to a model's harness, newest first:
+# it answers in the one asked for, else the newest.
+versions = ["2025-06-18", "2025-03-26", "2024-11-05"]
+
+# What a server sends.
+header-max = 1024             # bytes of one header line
+body-max = 67108864           # bytes of one message
+errors-kept = 4096            # bytes kept of its errors, their end, to say why it stopped
+progress-max = 256            # pieces of work in progress followed at once
+diagnostics-max = 1000        # diagnostics kept of one file
+
+# A name asked for that matches no symbol.
+close-names-max = 10          # close names suggested instead
+name-lines = 20               # lines from a symbol's range start searched for its name
+
+# A server's root, looked over on each call for files changed that the
+# server wasn't given, since it's refused watching them itself.
+watched-max = 20000           # files followed under one root: past it, the rest aren't
+unwatched = [".git", "node_modules", "target"]  # folders never looked in
+
+# How long, in milliseconds.
+quiet-ms = 500                # quiet, no work in progress, before what it published is all it has
+unpublished-ms = 3000         # a file opened is waited on for diagnostics a server never publishes
+errors-wait-ms = 2000         # an ended server's errors may stay open before its end is told
+stop-ms = 1000                # a server is given to shut down before it's stopped
+stop-poll-ms = 10             # between looks whether a stopping server ended
+
+# A definition or references call waits this share of its time, in
+# percent, for its server to settle, and leaves the rest to its answer.
+settle-percent = 50

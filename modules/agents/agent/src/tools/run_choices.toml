@@ -1,0 +1,17 @@
+# What `lnk agent tool add run` offers to let an agent start when its
+# sandbox file allows no program yet: each choice names toolchains
+# (`lnk sandbox permission list` lists them), never `*`. The first is the
+# default, and what `--yes` takes. A grant of kind `template` takes the
+# toolchains Link's own sandbox template grants.
+
+[[choice]]
+name = "shell"
+grants = { kind = "toolchains", toolchains = ["shell"] }
+
+[[choice]]
+name = "scripts"
+grants = { kind = "toolchains", toolchains = ["shell", "git", "python", "node"] }
+
+[[choice]]
+name = "everything"
+grants = { kind = "template" }

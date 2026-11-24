@@ -1,0 +1,45 @@
+# Link run's limits (`link_run_tool_contract::limits`), which the agent
+# module and `lnk-run-tool` both hold to.
+
+# The most bytes kept of each of a command's output and its errors, and
+# the most a background read gives at once, whatever `[tool.run] output`
+# says: an answer of both, each byte of it shown as up to three (an
+# invalid byte becomes U+FFFD), stays under the tools bridge's message
+# cap, past which the `task` server's session would end.
+output_most = 1048576
+
+# The bytes of a command's answer that aren't its output or its errors:
+# its status line, two fences naming the command (up to 200 characters
+# each), and a cut marker each. Each stream is kept to half of the answer
+# cap less this, so the errors' end is never what the harness cuts, for
+# output that is text (an invalid byte is shown as three).
+answer_room = 3072
+
+# The most calls one session runs at once; one past it is refused.
+calls_at_once = 16
+
+# The most bytes of a call's command: a guard on what the model writes,
+# not a limit a command meets.
+command_max = 1048576
+
+# The shell a command runs in, as `<shell> -c <command>`: a call is
+# offered only where the programs a command may start name it (by name,
+# or a path ending in it) or allow any.
+shell = "sh"
+
+# How long a command's output is waited for once it exited, in
+# milliseconds: a program it left running in the background may hold it
+# open.
+drain_ms = 1000
+
+# How long `stop` waits for a background command's supervisor to record
+# its end, in milliseconds.
+stop_wait_ms = 10000
+
+# How often a background command's supervisor looks at its command, a
+# stop asked, and the signals it was sent, in milliseconds.
+tick_ms = 50
+
+# How long a sweep keeps trying to tell of a background command's end
+# while the agent's way in isn't there, in seconds.
+tell_for_secs = 600

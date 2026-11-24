@@ -1,0 +1,53 @@
+[package]
+authors.workspace = true
+name = "link-harness-base"
+description = "`link-harness-base` holds the vocabulary every harness shares apart from the host's orchestration"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/harnesses"
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

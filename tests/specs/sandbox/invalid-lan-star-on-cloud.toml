@@ -1,0 +1,12 @@
+# On a cloud's machine, "*" in [lan] is the cloud's network, other
+# people's machines among it.
+[spec]
+schema = 1
+[spec.lan]
+hosts = ["*"]
+
+[run]
+cloud = true
+
+[expect]
+invalid = "isn't taken on a cloud's machine"

@@ -1,0 +1,15 @@
+# A cloud's table replaces a field whole: its memory, not [machine]'s max.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 4
+memory = { min = "4 GB", max = "4 GB" }
+
+[spec.machine.gcp]
+memory = { min = "16 GB" }
+
+[run]
+kind = "gcp"
+
+[expect]
+size = "e2-standard-4"

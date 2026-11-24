@@ -1,0 +1,10 @@
+schema = 1
+kind = "upgrade ledger"
+current = 2
+holds = "history"
+
+# What happened, read line by line: its steps are never deleted.
+[[steps]]
+from = 1
+rename = { said = "text" }
+since = "0.2.0"

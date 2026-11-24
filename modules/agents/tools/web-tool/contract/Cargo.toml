@@ -1,0 +1,42 @@
+[package]
+authors.workspace = true
+name = "link-web-tool-contract"
+description = "`link-web-tool-contract` holds what Link Web answers, a page and search results, as shapes that the agent module and other callers name"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[lib]
+doctest = false
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/tools/web-tool"
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[dependencies.anyhow]
+workspace = true

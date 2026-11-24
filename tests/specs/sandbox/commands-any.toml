@@ -1,0 +1,8 @@
+# `["*"]` runs any program.
+[spec]
+schema = 1
+[spec.commands]
+allow = ["*"]
+
+[expect]
+runs = ["sh", "ls", "cat", "id", "env"]

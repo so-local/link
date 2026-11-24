@@ -1,0 +1,23 @@
+# A box's setup, first stage: cloning reaches GitHub alone, as git, and
+# writes the one folder it clones into, its .git too.
+[spec]
+schema = 1
+name = "clone"
+version = 1
+[spec.files]
+write = ["~/app"]
+write_dot_files = ["~/app"]
+[spec.internet]
+hosts = ["github.com"]
+[spec.commands]
+allow = ["git", "/usr/lib/git-core/"]
+
+[run]
+cloud = true
+folders = ["~/app"]
+
+[expect]
+reaches = ["github.com"]
+refused = ["pypi.org", "files.pythonhosted.org", "registry.npmjs.org", "169.254.169.254:80"]
+runs = ["git", "/usr/lib/git-core/git-remote-https"]
+refused_commands = ["sh", "python3", "curl"]

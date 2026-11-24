@@ -1,0 +1,26 @@
+schema = 1
+# Link's tools and memory, each an MCP server at its address on Link's
+# proxy, which an adapter's configure keeps for the hub to hand the
+# harness in each session, kept in its harness's home.
+kind = "harness hub tools"
+current = 1
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/mini/tools.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/deepseek/.deepseek/link-tools.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/tools.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.deepseek/link-tools.json"
+encoding = "json"

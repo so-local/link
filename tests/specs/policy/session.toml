@@ -1,0 +1,35 @@
+# A cloud session a host accepted, its own service: boxes on its cloud, for hours, and no more.
+[spec]
+schema = 1
+name = "session"
+version = 1
+
+[[spec.allow]]
+actions = ["cloud.read", "cloud.use"]
+on = ["cloud:aws"]
+
+[spec.limits]
+boxes = 1
+hours = 8
+
+[expect]
+name = "session"
+
+[[check]]
+as = "service:s1qiwywwj1pe"
+action = "cloud.use"
+on = "cloud:aws"
+said = "allowed by grant 1"
+
+[[check]]
+as = "service:s1qiwywwj1pe"
+action = "cloud.admin"
+on = "cloud:aws"
+said = "refused: no grant"
+
+[[check]]
+as = "service:s1qiwywwj1pe"
+expired = true
+action = "cloud.use"
+on = "cloud:aws"
+said = "refused: the principal has expired"

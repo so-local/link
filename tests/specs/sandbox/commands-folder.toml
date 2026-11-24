@@ -1,0 +1,9 @@
+# A folder ending in / allows every program in it, and none elsewhere.
+[spec]
+schema = 1
+[spec.commands]
+allow = ["/usr/bin/"]
+
+[expect]
+runs = ["/usr/bin/id", "/usr/bin/env"]
+refused_commands = ["/usr/sbin/nologin"]

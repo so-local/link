@@ -1,0 +1,8 @@
+# aws: tags are AWS's.
+[spec]
+schema = 1
+[spec.machine.tags]
+"aws:x" = "y"
+
+[expect]
+invalid = "is AWS's own"

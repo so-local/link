@@ -1,0 +1,34 @@
+[package]
+name = "link-harness-fixture"
+description = "`lnk-harness-fixture` reuses Mini Harness for adapter and connection tests"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "tests/fixtures/harness"
+
+[[bin]]
+name = "lnk-harness-fixture"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+link-mini-harness = { workspace = true, features = ["fixture"] }
+link-harness-contract.workspace = true
+link-settings.workspace = true
+link-component.workspace = true
+link-spec.workspace = true
+link-secretive.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-core]
+workspace = true

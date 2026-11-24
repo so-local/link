@@ -1,0 +1,11 @@
+# A range in [lan] reaches only the private addresses in it.
+[spec]
+schema = 1
+[spec.lan]
+hosts = ["8.8.8.0/24"]
+
+[spec.commands]
+toolchains = ["shell"]
+
+[expect]
+refused = ["8.8.8.8:53", "8.8.8.8:443"]

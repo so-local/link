@@ -1,0 +1,25 @@
+# Every file Link saves names its schema: it's written through
+# `link_files::saved`, never as a bare TOML or JSON value
+# (`link_repository_check::saved`). These may still write one bare: files
+# in another program's format, a build's output or a test's fixture, and
+# the files held until their owner declares the schema, a list that only
+# shrinks.
+
+[allowed]
+"interop/agents/harnesses/openclaw/src/configuring.rs" = "OpenClaw's own config file, in its format"
+"interop/agents/harnesses/openclaw/src/identity.rs" = "OpenClaw's own identity file, in its format"
+"packages/component/build/src/lib.rs" = "a build's output in its OUT_DIR, which no install keeps"
+"modules/agents/agent/contract/src/testing.rs" = "the test fixtures it writes for other crates' tests"
+"modules/tooling/measure/contract/src/client.rs" = "OTLP measures appended in OpenTelemetry's own format"
+"modules/cloud/cloud/src/lib.rs" = "an account file kept with its comments, its schema line put in by its writer"
+"interop/agents/harnesses/deepseek/src/main.rs" = "dsh's settings patch, in its format, handed to dsh as an argument"
+"modules/agents/harnesses/portability/conformance/src/kit.rs" = "the stand-in harness program its conformance tests run, with the model in its script"
+"modules/agents/harnesses/link/src/store/files.rs" = "a turn's lease, which never outlives the turn"
+"packages/format/src/inner.rs" = "an inner run's failure trace, taken and emptied by the run that started it"
+"modules/security/sandbox/proxy/src/wire/traffic.rs" = "a running sandbox's traffic counts, rewritten while it runs"
+"modules/security/sandbox/confine/src/linux/workers.rs" = "a sandbox worker's plan for its one run"
+"packages/service/src/guest/worker.rs" = "a guest job's ready file for its supervisor, within the job's run"
+"interop/agents/harnesses/hermes/src/workarounds/manager.rs" = "the PM runtime's marker in Hermes's staged payload, in the format its pinned code reads"
+"interop/agents/harnesses/hermes/src/workarounds/mod.rs" = "the staged payload's manifest, in the format Hermes's patched code reads"
+
+[held]

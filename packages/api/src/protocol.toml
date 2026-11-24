@@ -1,0 +1,8 @@
+# The account API: what `lnk` asks the account service, every route
+# under `/api/v<current>` (`schemas/account.yaml`, whose `info.version`
+# and server path say the same). The service serves each version from
+# `oldest` to `current` under its own path.
+name = "Link account API"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

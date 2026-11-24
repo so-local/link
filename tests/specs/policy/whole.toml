@@ -1,0 +1,114 @@
+# Every key: grants of one action, of a kind and of every kind, and limits.
+[spec]
+schema = 1
+name = "ci"
+version = 1
+
+[[spec.allow]]
+actions = ["cloud.read", "cloud.use"]
+on = ["cloud:aws", "cloud:ci-*"]
+
+[[spec.allow]]
+actions = ["box.*"]
+on = ["box:ci-*"]
+
+[[spec.allow]]
+actions = ["*"]
+on = ["box:shared"]
+
+[spec.limits]
+boxes = 2
+cpus = 4
+memory_gb = 8
+disk_gb = 40
+hours = 12
+
+[expect]
+name = "ci"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "cloud.read"
+on = "cloud:aws"
+said = "allowed by grant 1"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "cloud.use"
+on = "cloud:ci-linux"
+said = "allowed by grant 1"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "cloud.admin"
+on = "cloud:aws"
+said = "refused: no grant"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "cloud.use"
+on = "cloud:mac"
+said = "refused: no grant"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "box.read"
+on = "box:ci-1"
+said = "allowed by grant 2"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "box.ssh"
+on = "box:ci-1"
+said = "allowed by grant 2"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "box.admin"
+on = "box:ci-1"
+said = "allowed by grant 2"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "box.ssh"
+on = "box:shared"
+said = "allowed by grant 3"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "box.ssh"
+on = "box:mine"
+said = "refused: no grant"
+
+[[check]]
+as = "service:k18fzt9rp227"
+action = "cloud.read"
+on = "box:ci-1"
+said = "refused: the action isn't one of the resource's kind"
+
+[[usage]]
+boxes = 2
+cpus = 4
+memory_gb = 8
+disk_gb = 40
+hours = 12
+
+[[usage]]
+boxes = 3
+exceeds = "boxes"
+
+[[usage]]
+memory_gb = 16
+exceeds = "memory_gb"
+
+[[usage]]
+hours = 24
+exceeds = "hours"
+
+[[usage]]
+cpus = 5
+exceeds = "cpus"
+
+[[usage]]
+disk_gb = 41
+exceeds = "disk_gb"

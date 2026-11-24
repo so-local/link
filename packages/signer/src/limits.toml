@@ -1,0 +1,17 @@
+# link-signer's limits: what `limits.rs` reads once, each named there.
+
+# The longest a signature lives, from `iat` to `exp`, in seconds: one
+# exchange, so a minute.
+signature_life = 60
+
+# The longest compact JWS read, in bytes: a real signature or token is a
+# few hundred, so anything near this is refused unread.
+jws_max = 8192
+
+# How many signatures a replay store keeps at once before it refuses new
+# ones, so a flood can't grow it without end.
+seen_max = 100000
+
+# How far ahead of this machine's clock a statement's `iat` may be, in
+# seconds, so a signer whose clock runs a little fast isn't refused.
+clock_skew = 5

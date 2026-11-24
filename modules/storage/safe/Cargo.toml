@@ -1,0 +1,31 @@
+[package]
+authors.workspace = true
+name = "link-safe"
+description = "`link-safe` declares the Safe, where the control files that steer Local Link live, and the actions that list, read, and write a Safe's files, each named by the Safe's ID, `safe:<id>`"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "package"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true

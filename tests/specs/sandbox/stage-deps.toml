@@ -1,0 +1,23 @@
+# A box's setup, second stage: installing the clone's dependencies
+# reaches the package registry alone, never GitHub, which only the first
+# stage could.
+[spec]
+schema = 1
+name = "deps"
+version = 1
+[spec.files]
+write = ["~/app"]
+[spec.internet]
+hosts = ["pypi.org", "files.pythonhosted.org"]
+[spec.commands]
+allow = ["python3"]
+
+[run]
+cloud = true
+folders = ["~/app"]
+
+[expect]
+reaches = ["pypi.org", "files.pythonhosted.org"]
+refused = ["github.com", "codeload.github.com", "registry.npmjs.org", "169.254.169.254:80"]
+runs = ["python3"]
+refused_commands = ["git", "sh", "curl"]

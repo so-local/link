@@ -1,0 +1,14 @@
+# A size pinned on AWS: the best fit on Google Cloud.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 4
+
+[spec.machine.aws]
+size = "m7i.xlarge"
+
+[run]
+kind = "gcp"
+
+[expect]
+size = "e2-highcpu-4"

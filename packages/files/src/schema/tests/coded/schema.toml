@@ -1,0 +1,17 @@
+schema = 1
+kind = "disks"
+current = 3
+command = "lnk disks spec show"
+
+# Schema 1 wrote a disk as one string, its size and unit together.
+[[steps]]
+from = 1
+since = '0.1.0'
+until = '9.0.0'
+migration = "disks_1_to_2"
+
+[[steps]]
+from = 2
+since = '0.1.0'
+until = '9.0.0'
+rename = { "disk.unit" = "disk.units" }

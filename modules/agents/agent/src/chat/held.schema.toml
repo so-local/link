@@ -1,0 +1,11 @@
+schema = 1
+# A line of `~/.lnk/safe/agents/<agent>/connections/link/held.jsonl`: an
+# answer in a `link` thread held for the next chat on it.
+kind = "held answer"
+current = 1
+command = "lnk agent chat"
+
+[[files]]
+location = "lnk.agents"
+path = "*/connections/link/held.jsonl"
+encoding = "lines"

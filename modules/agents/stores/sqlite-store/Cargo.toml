@@ -1,0 +1,70 @@
+[package]
+authors.workspace = true
+name = "link-sqlite-store"
+description = "The store driver `lnk-sqlite-store` keeps an agent’s collections except Home in one SQLite file that moves with the agent's data"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+doctest = false
+
+[[bin]]
+name = "lnk-sqlite-store"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+base64.workspace = true
+libc.workspace = true
+serde_json.workspace = true
+# SQLite, compiled in: no system library.
+rusqlite = { version = "0.41", features = ["bundled"] }
+
+[dependencies.link-store-contract]
+workspace = true
+features = []
+
+[dependencies.link-core]
+workspace = true
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+link-component-build.workspace = true
+
+[dev-dependencies.link-sandbox-binding]
+workspace = true
+
+[dev-dependencies.link-store-contract]
+workspace = true
+features = ["test-support"]
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.serde]
+workspace = true

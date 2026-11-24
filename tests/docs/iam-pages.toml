@@ -1,0 +1,4 @@
+# The folders whose Markdown is IAM's pages, by their path from this
+# workspace: the IAM Model's retired words are refused there
+# (`retired-words`, words.toml's [[retired]]).
+folders = ["packages/token", "packages/signer", "packages/principal"]

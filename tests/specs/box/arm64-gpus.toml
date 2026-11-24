@@ -1,0 +1,9 @@
+# arm64 with GPUs: Link's images with NVIDIA's driver are x86_64.
+[spec]
+schema = 1
+[spec.machine]
+arch = "arm64"
+gpus = 1
+
+[expect]
+error = "a box with GPUs is x86_64"

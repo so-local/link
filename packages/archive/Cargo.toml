@@ -1,0 +1,38 @@
+[package]
+authors.workspace = true
+name = "link-archive"
+description = "`link-archive` carries a thing's state as one `.tar.gz` file"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/archive"
+
+[dependencies]
+anyhow.workspace = true
+flate2 = "1"
+libc.workspace = true
+serde.workspace = true
+tar = { version = "0.4", default-features = false }
+toml.workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

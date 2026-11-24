@@ -1,0 +1,46 @@
+[package]
+authors.workspace = true
+name = "link-document-converter-contract"
+description = "`link-document-converter-contract` holds what Link Document Converter answers, the text of a PDF or a Word document, for Link Memory to read"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[lib]
+doctest = false
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/tools/memory-tool/document-converter"
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+# Its limits, read from `src/limits.toml`.
+[dependencies.toml]
+workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[dependencies.anyhow]
+workspace = true

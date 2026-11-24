@@ -1,0 +1,12 @@
+# What the owner's `[tool.scheduler] recurring` setting governs, as
+# `scheduler.rs` reads once, each named there.
+
+# The argument of the tool's calls whose ask the setting lets through
+# (`x-link-asks` in the tool's declarations): `recurring = "allow"`
+# leaves each `<call>.recurring` out of the sandbox's `--ask-if`.
+argument = "recurring"
+
+# What lets a call that asks by it through, said in its refusal when
+# no one answers (`lnk sandbox tool add --ask-if-hint`): the setting,
+# never `--add`, which an argument that asks doesn't heed.
+hint = "[tool.scheduler] recurring = \"allow\" in the agent's spec lets it through"

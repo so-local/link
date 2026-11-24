@@ -1,0 +1,16 @@
+schema = 1
+# A native schedule import handed to Link, stage by stage:
+# `~/.lnk/safe/agents/<agent>/schedule-handoff.json`, and once done the
+# report `schedule-imports/<revision>.json` beside it.
+kind = "schedule handoff"
+current = 1
+
+[[files]]
+location = "lnk.agents"
+path = "*/schedule-handoff.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agents"
+path = "*/schedule-imports/*.json"
+encoding = "json"

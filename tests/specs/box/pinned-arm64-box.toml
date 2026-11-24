@@ -1,0 +1,11 @@
+# A pinned arm64 size on an arm64 box.
+[spec]
+schema = 1
+[spec.machine]
+arch = "arm64"
+
+[spec.machine.aws]
+size = "t4g.small"
+
+[expect]
+size = "t4g.small"

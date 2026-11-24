@@ -1,0 +1,79 @@
+[package]
+authors.workspace = true
+name = "link-web-tool"
+description = "Link Web (`lnk-web-tool`) lets an agent fetch a page as Markdown and search the web through a search API with a secret of yours"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-web-tool"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+# Its limits, read from `src/limits.toml`.
+toml.workspace = true
+# Pages and the search API, over HTTPS (rustls, `ring` as Link's own).
+reqwest = { workspace = true, features = ["blocking", "json", "query", "rustls-no-provider"] }
+# A page's HTML, parsed as a browser does into a tree of the tool's
+# own, which it writes as markdown: Servo's parser, no script run.
+html5ever = "0.40"
+# A page's character set, as a browser decodes it: Mozilla's decoder,
+# already in Link through reqwest.
+encoding_rs = "0.8"
+# A page a server compressed unasked, undone: rust-lang's gzip and
+# deflate, already in Link.
+flate2 = "1"
+
+[dependencies.link-agent-spec]
+workspace = true
+
+[dependencies.link-web-tool-contract]
+workspace = true
+
+[dependencies.link-untrusted]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[dependencies.link-types]
+workspace = true

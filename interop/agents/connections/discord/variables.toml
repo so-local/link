@@ -1,0 +1,30 @@
+schema = 1
+
+[defines.LNK_DISCORD_API]
+type = "string"
+description = "Discord's HTTP API, for tests; the Gateway's address comes from it"
+
+[defines.LNK_DISCORD_TOKEN]
+type = "string"
+description = "The Discord bot's token, read by connect, which asks for it when it's unset"
+carries = { secret = "discord.bot_token" }
+
+[[uses]]
+name = "LNK_DISCORD_API"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_DISCORD_TOKEN"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_DISCORD_API"
+access = ["set", "forward"]
+context = "test"
+
+[[uses]]
+name = "NO_PROXY"
+access = ["set", "forward"]
+context = "test"

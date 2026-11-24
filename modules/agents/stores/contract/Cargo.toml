@@ -1,0 +1,103 @@
+[package]
+authors.workspace = true
+name = "link-store-contract"
+description = "`link-store-contract` defines where an agent's things are kept: the six collections and their places, the agreement between a harness and a store driver, the files bridge over a bucket, and the storage credential that refreshes itself"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+link-actions.workspace = true
+link-interactions.workspace = true
+anyhow.workspace = true
+
+serde.workspace = true
+
+serde_json.workspace = true
+zstd = { workspace = true, optional = true }
+aes = { version = "0.9", optional = true }
+scrypt = { version = "0.12", optional = true, default-features = false }
+# Each wipes its key and state when dropped (`zeroize`).
+salsa20 = { version = "0.11", optional = true, default-features = false, features = ["zeroize"] }
+poly1305 = { version = "0.9", optional = true, default-features = false, features = ["zeroize"] }
+subtle = { version = "2.6", optional = true, default-features = false }
+# The keys crypt holds itself, wiped when dropped.
+link-secretive = { workspace = true }
+# A team's folders as a role, each call checked by `allows`.
+link-policy = { workspace = true, optional = true }
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.tokio]
+workspace = true
+
+[dependencies.link-sandbox-bridge]
+workspace = true
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-harness-base]
+workspace = true
+
+[dependencies.link-connection-policy]
+workspace = true
+
+[dependencies.ring]
+workspace = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/stores"
+[dev-dependencies]
+link-test-kit.workspace = true
+tokio.workspace = true
+
+[dev-dependencies.link-sandbox-bridge]
+workspace = true
+features = ["conformance"]
+
+[features]
+compact = ["dep:zstd"]
+files-client = []
+files-bridge = ["files-client", "dep:aes", "dep:poly1305", "dep:salsa20", "dep:subtle", "dep:scrypt", "dep:link-policy"]
+files = ["files-bridge"]
+test-support = []
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dev-dependencies.link-secret-contract]
+workspace = true

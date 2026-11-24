@@ -1,0 +1,9 @@
+schema = 1
+# One record of a harness's portable archive, synced before it's
+# forwarded or acknowledged: `.lnk/data/agents/context/handoffs/<n>.json`
+# in a harness home.
+kind = "portable archive record"
+current = 1
+# What happened, never rewritten by an upgrade: each record is read as
+# its schema says.
+holds = "history"

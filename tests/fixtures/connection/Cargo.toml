@@ -1,0 +1,76 @@
+"bin" = [{ "name" = "lnk-connection-fixture", "path" = "src/main.rs", "test" = false }]
+
+["package"]
+authors.workspace = true
+"name" = "link-connection-fixture"
+"description" = "`lnk-connection-fixture` demonstrates how a connection carries messages, as the connection contract describes, against a test's fake bot service"
+"publish" = false
+
+["package"."version"]
+"workspace" = true
+
+["package"."edition"]
+"workspace" = true
+
+["package"."license"]
+"workspace" = true
+
+["package"."metadata"."link"]
+"schema" = 1
+"role" = "fixture"
+owner = "tests/fixtures/connection"
+
+["dependencies"."anyhow"]
+"workspace" = true
+
+["dependencies"."serde"]
+"workspace" = true
+
+["dependencies"."serde_json"]
+"workspace" = true
+
+["dependencies"."tokio"]
+"workspace" = true
+
+["dependencies".link-secret-contract]
+workspace = true
+
+["dependencies".link-connection-contract]
+workspace = true
+
+[lints]
+workspace = true
+
+["dependencies".link-format]
+workspace = true
+
+["dependencies".link-secretive]
+workspace = true
+
+["dependencies".link-fetch]
+workspace = true
+
+[lib]
+doctest = false
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true

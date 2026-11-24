@@ -1,0 +1,33 @@
+[package]
+authors.workspace = true
+name = "link-types"
+description = "`link-types` holds the shapes every module shares, such as an OS, a processor, a box's user, and a duration, with the report and MCP answers an action may give"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/types"
+
+[dependencies]
+link-actions.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions.workspace = true
+link-actions-build.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+toml.workspace = true

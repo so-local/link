@@ -1,0 +1,98 @@
+schema = 1
+
+[defines.LNK_SANDBOX_LEARN_FD]
+type = "string"
+description = "Into the sandbox, for its first program, which removes it: the descriptor it writes each program started to. A program inside that sets it only records what it runs itself."
+
+[defines.LNK_TEST_CA]
+type = "string"
+description = "A certificate authority's PEM file the sandbox's proxy trusts beside this machine's, for a test's own host over TLS. A debug build reads it; a release build doesn't."
+
+[defines.LNK_TEST_ON_CLOUD]
+type = "string"
+description = "`1`: the sandbox takes this machine for a cloud's, refusing `[lan]` what it refuses there (tests). Nothing makes a cloud's machine not one."
+
+[defines.LNK_TEST_RESOLVE]
+type = "string"
+description = "`name=address`, comma separated: the sandbox's proxy gives each name those addresses without asking this machine's resolver (tests, on a machine without DNS). A debug build reads it; a release build doesn't."
+
+[defines.SSH_ORIGINAL_COMMAND]
+type = "string"
+description = "The command an SSH client asked for, which `lnk sandbox enter`, a key's forced command, runs in the sandbox."
+
+[defines.LNK_CHECK_SECRET]
+type = "string"
+description = "The bait secret `lnk sandbox check` gives a helper it starts outside the sandbox, in its environment, for the probe that tries to read another program's environment: never a real secret."
+
+[defines."LNK_PROBE_*"]
+type = "string"
+description = "What `lnk sandbox check` hands each probe it runs inside the sandbox: its bait and what it tries (`LNK_PROBE_ARG`), the folders it reads or writes, the ports and machines it reaches."
+suffix = "What the probe is handed, as `ARG` or `CANARY`."
+
+[defines.DEBIAN_FRONTEND]
+type = "string"
+description = "How Debian's installer asks: `noninteractive` as the sandbox installs bubblewrap with apt on a box, where no one answers, so nothing waits on a question."
+
+[[uses]]
+name = "DBUS_SESSION_BUS_ADDRESS"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "DISPLAY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_INSTALLATION_DIR"
+access = ["read", "set", "unset"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SANDBOX_OPEN"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SECURITY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "WAYLAND_DISPLAY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LANG"
+access = ["set"]
+context = "runtime"
+
+[[uses]]
+name = "LD_PRELOAD"
+access = ["set"]
+context = "runtime"
+
+[readers]
+"commands::run::run" = "The variables a run is given: those it keeps, its caller's (`--with-fd`) and its wrap's."
+"check::run::run_probes" = "The variables the wrapped program a probe runs is given, from its wrap."
+"bridges::open::launch" = "The desktop session's variables, given to the program opening a page."
+"bridges::tools::here" = "Read names in the tool definition's environment bindings, with explicit NAME=value bindings supplied directly instead."
+"commands::enter::enter" = "Read only variable names explicitly supplied by --keep-env when entering the named user's sandbox."
+"commands::proxy::proxying" = "Read the caller-selected handoff variable for route data and the variable whose proxy URL supplies its authentication proof."
+"wrap::launch::prepare" = "Read names in the validated confinement given-variable list before preparing the sandbox environment."

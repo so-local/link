@@ -1,0 +1,8 @@
+schema = 1
+kind = "mini thread tools"
+current = 1
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/mini/threads/*.tools.json"
+encoding = "json"

@@ -1,0 +1,10 @@
+schema = 1
+# That an agent is carried by this machine's bridge:
+# `~/.lnk/safe/agents/bridges/agents/<agent key>.json`.
+kind = "shared bridge record"
+current = 1
+
+[[files]]
+location = "lnk.shared-bridges"
+path = "agents/*.json"
+encoding = "json"

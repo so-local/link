@@ -1,0 +1,9 @@
+# The abbreviations the docs check: a page spells each out the first time
+# it uses it, as "Agent State Protocol (ASP)", and uses only the
+# abbreviation after. Read by src/abbreviations.rs.
+
+[abbreviation.ACP]
+means = "Agent Client Protocol"
+
+[abbreviation.ASP]
+means = "Agent State Protocol"

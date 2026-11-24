@@ -1,0 +1,6 @@
+# The protocol of the question storage.owner: an owner's ID by its name.
+# One line from the asker, one back, each stating the version it speaks.
+name = "storage owner answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

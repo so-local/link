@@ -1,0 +1,10 @@
+schema = 1
+# A measure store file's header line, `~/.lnk/data/measures/<folder>/
+# <span>.jsonl`: the names of the measures its lines' values are in the
+# order of.
+kind = "measure store header"
+current = 1
+command = "lnk measure"
+# What happened, never rewritten by an upgrade: each record is read as
+# its schema says.
+holds = "history"

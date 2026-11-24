@@ -1,0 +1,2484 @@
+schema = 1
+
+# Every action takes the agent it acts on.
+[args]
+agent = { type = "string", format = "link-id", x-link-kind = "agent", description = "The agent, by its ID, agent:<id>; on the command line its name too, which is looked up in your agents and sent as its ID [default: the only one here]", x-link-cli = { short = "a" } }
+
+[verbs]
+action-bridge = { description = "Serve proved namespace actions outside agent sandboxes", effect = "insert" }
+agent = { description = "Hand a task to a subagent of the agent", effect = "insert" }
+ask = { description = "Ask a question on the side, outside the conversation", effect = "insert" }
+backup = { description = "Save a copy of something to bring back later", effect = "insert" }
+bridge = { description = "Carry the agent's connections for a harness that speaks none", effect = "insert" }
+bridges = { description = "Run the bridges an agent's sandbox reaches", effect = "insert" }
+chat = { description = "Ask a model for one answer", effect = "insert" }
+click = { description = "Click a point or an element", effect = "update" }
+close = { description = "Close what the tool has open", effect = "delete" }
+compact = { description = "Shorten a conversation now, keeping what matters", effect = "update" }
+context = { description = "Show what a model is given", effect = "find" }
+context-mcp = { description = "Serve an agent's context to its harness over MCP", effect = "insert" }
+count = { description = "Count a request's tokens", effect = "find" }
+definition = { description = "Find where a symbol is defined", effect = "find" }
+deliver = { description = "Deliver what waits for a harness", effect = "insert" }
+diagnostics = { description = "Show a file's errors and warnings", effect = "find" }
+drag = { description = "Drag from one point to another", effect = "update" }
+edit = { description = "Replace text in a file", effect = "update" }
+embed = { description = "Turn text into vectors", effect = "insert" }
+export = { description = "Write something out for another program or machine", effect = "insert" }
+fetch = { description = "Fetch a page", effect = "find" }
+fork = { description = "Start a new conversation from this one", effect = "insert" }
+glob = { description = "Find files by a glob", effect = "find" }
+goal = { description = "Pursue a goal until it's met", effect = "insert" }
+grep = { description = "Find lines by a regular expression", effect = "find" }
+join = { description = "Become a member", effect = "insert" }
+key = { description = "Press a key", effect = "update" }
+leave = { description = "Stop being a member", effect = "delete" }
+left = { description = "Record that something left this machine", effect = "insert" }
+links = { description = "Show what links to a note, and what it links to", effect = "find" }
+migrate = { description = "Move an agent from its harness's own setup into Link", effect = "insert" }
+move = { description = "Move something to another machine", effect = "update" }
+needs = { description = "Say what a start needs", effect = "find" }
+open = { description = "Open a page", effect = "insert" }
+pause = { description = "Pause the agent's turns", effect = "update" }
+plan = { description = "Plan the steps of a task", effect = "insert" }
+queue = { description = "Queue your next message after the answer", effect = "insert" }
+read = { description = "Read something", effect = "find" }
+receive = { description = "Take in what another machine sends", effect = "insert" }
+reconcile = { description = "Bring tasks in line with what ran", effect = "update" }
+references = { description = "Find where a symbol is used", effect = "find" }
+remember = { description = "Write a note to keep", effect = "update" }
+rename = { description = "Give something a new name", effect = "update" }
+reset = { description = "Put something back as it was", effect = "update" }
+restart = { description = "Stop and start again", effect = "update" }
+restore = { description = "Bring something back from a backup", effect = "update" }
+resume = { description = "Resume an earlier conversation, or the agent's turns", effect = "update" }
+rotate = { description = "Replace a secret with a new one", effect = "update" }
+route = { description = "Route one action's call", effect = "insert" }
+screenshot = { description = "Take a picture of the screen", effect = "find" }
+scroll = { description = "Scroll", effect = "update" }
+search = { description = "Search", effect = "find" }
+secret = { description = "Hand a harness a secret it uses", effect = "insert" }
+select = { description = "Choose an option", effect = "update" }
+send = { description = "Send a message", effect = "insert" }
+serve = { description = "Run a service until it's stopped", effect = "insert" }
+service = { description = "Run the background service", effect = "insert" }
+shared = { description = "Serve the shared folders of an agent's teams", effect = "insert" }
+state-send = { description = "Send an agent's state to another machine", effect = "insert" }
+status = { description = "Say how something is doing", effect = "find" }
+steer = { description = "Steer the answer being written", effect = "update" }
+transcribe = { description = "Turn speech into text", effect = "insert" }
+type = { description = "Type text", effect = "update" }
+unsandboxed = { description = "Run the agent's harness outside a sandbox", effect = "insert" }
+usage = { description = "Show what has been used", effect = "find" }
+verbose = { description = "Show or hide its tool calls", effect = "update" }
+write = { description = "Write something", effect = "update" }
+
+[actions."agent.agent.action-bridge"]
+description = "Serve proved namespace actions outside agent sandboxes"
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.action-bridge".args]
+keys = { type = "string", description = "The binding verification keys", required = true }
+runtime = { type = "string", description = "The machine runtime folder", required = true }
+settings = { type = "string", description = "The machine settings folder", required = true }
+socket = { type = "string", description = "The socket the proxy proves action calls on", required = true }
+
+[actions."agent.agent.backup"]
+description = """
+Back up your agent to your clouds: its files and what it knows
+
+`lnk storage push` of its files folder, with the harness's state (memory,
+conversations, skills; not its keys) in it as
+`Backups/<harness>.tar`, and its instructions, skills and
+conversations, in its own folder, as `Backups/Agent.tar`. Your agent is stopped meanwhile so the copy is
+whole.
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.backup".args]
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.agent.bridge"]
+description = """
+For `lnk agent start`: carry the agent's connections for a harness that
+speaks none (its background service)
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.bridges"]
+description = """
+For `lnk agent start`, where this machine's `shared_bridge` is on: one
+bridge carrying every agent's connections and messages here, and one
+scheduler runner a time zone, until none is left (its background service)
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.bridges".args]
+dir = { type = "string", description = "Its folder, where each agent it carries is kept", required = true, x-link-path = true, x-link-cli = { position = 1 } }
+
+[actions."agent.agent.connect"]
+description = """
+Connect your agent to Telegram, Slack, Discord or Signal
+
+Sets up the connection, the harness's own or one Link carries for it, so
+that only you can talk to your agent there. It stays when you switch
+harness (on one that speaks it) or move your agent.
+"""
+resource = "agent"
+role = "primary"
+output = "core.report"
+docs = "/agents#connect-your-channels"
+next = ["agent.agent.disconnect", "agent.agent.show", "agent.share.add", "agent.chat.start", "agent.agent.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start", "agent.harness.set"]
+
+[actions."agent.agent.connect".args]
+connection = { type = "string", description = "A connection: telegram reads the bot's token from LNK_TELEGRAM_TOKEN, slack its two tokens from LNK_SLACK_BOT_TOKEN and LNK_SLACK_APP_TOKEN, discord its bot's token from LNK_DISCORD_TOKEN, signal the agent's number and your own (`lnk agent connect signal` asks), or another connection module's", required = true, x-link-cli = { position = 1 } }
+secret = { type = "string", format = "link-id", description = "The bot token's secret, by its ID, secret:<id>, which the connection's service is given to pass, on an agent a cloud hosts; here the connection reads its token as it says" }
+
+[actions."agent.agent.context-mcp"]
+description = "Serve the agent's public context over MCP"
+resource = "agent"
+role = "plumbing"
+output = "core.mcp"
+
+[actions."agent.agent.context-mcp".args]
+agent-id = { type = "string", description = "The agent's ID", required = true }
+
+[actions."agent.agent.create"]
+description = """
+Make another agent, and start it (--agent <name> then picks it)
+
+It has its own settings, files, harness, bot and sandbox; the other
+agents can't reach its folder. `--agent <name>` then acts on it. It is
+made here, or with --on on a box of yours or a machine of your Local
+Cloud, or with --cloud by a cloud that hosts agents (`link`).
+"""
+rest-args = ["name", "from"]
+role = "primary"
+output = "life-agent-entry"
+spec = "agent"
+docs = "/agents/start/create#create-on-a-hosting-account"
+next = ["agent.agent.show", "agent.chat.start", "agent.agent.connect", "agent.log.show", "agent.agent.start", "agent.agent.stop", "agent.tool.list", "agent.agent.list", "agent.tool.add", "agent.harness.set", "agent.model.set"]
+fail = ["agent.model.set", "model.runtime.add", "agent.agent.show", "core.module.list", "agent.agent.create", "agent.agent.start", "agent.log.show", "agent.spec.show", "agent.agent.stop"]
+
+[actions."agent.agent.create".args]
+agent = false
+from = { type = "string", pattern = "^[a-z][a-z0-9-]*$", description = "A ready-made agent to start from, by its name, with its instructions, skills and settings: a cloud that hosts agents makes it from one it lists (`agent.ready-made.list`)" }
+workplace = { x-link-cli = { shared = "workplace" } }
+foreground = { type = "boolean", description = "Run it in this terminal instead of in the background" }
+let-sleep = { type = "boolean", description = "Let the machine sleep while it runs, this start alone: the next start keeps it awake again unless its specification's `[run] let_sleep` says otherwise" }
+name = { type = "string", description = "Its name: lowercase letters, digits and dashes, starting with a letter; not here or all, which are Link's words", required = true, x-link-cli = { position = 1 } }
+no-sandbox = { type = "boolean", description = "Run with no sandbox, from now on, until a start with --sandbox: the harness can then read your whole home folder (documents, SSH keys, browser data) and write outside its own. The only way to run without one, never implied by --yes. Available on a computer or box; refused where trusted machine policy forbids it (`unsandboxed = false` in agents.toml) or policy cannot be trusted", x-link-cli = { conflicts = ["sandbox"] } }
+sandbox = { type = "string", description = "A sandbox file, a TOML file of what you grant the agent whichever harness runs it (`lnk agent show --permissions` shows it): kept with its settings, in place of what `lnk agent permission add` and `remove` wrote. It runs in its sandbox from now on; given alone, as `--sandbox own`, it only runs in its own sandbox again, after --no-sandbox", x-link-path = true, x-link-cli = { default-missing = "own" } }
+spec = { type = "string", description = "A specification file, a TOML file of its opinions over Link's, its field flags laid over it (`lnk agent spec show` prints the whole): kept with its settings, read at every start", x-link-path = true }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.ready-made.list"]
+description = """
+List the ready-made agents a new agent may start from
+
+Each by its name, which agent create's from takes, with its title and
+what it does, from its archive. A cloud that hosts agents answers it,
+with every ready-made agent it runs.
+"""
+role = "secondary"
+surfaces = ["rest"]
+keeps = { for = "1h", shared = true }
+
+[actions."agent.ready-made.list".args]
+agent = false
+
+[actions."agent.agent.delete"]
+description = """
+Delete an agent here for good: its settings, harnesses and service, and
+its files after asking
+
+Its harnesses' installs, memory and conversations, its log, secrets and
+sandbox rules, and its memory's and scheduler's tools go. Its buckets
+stay in your clouds. Its files folder goes only when you say so
+(--delete-files); kept, its settings and files are one archive,
+~/Link/Archive/<name>-<date>.tar.gz, which lnk archive import brings back
+as a new agent, and a folder you chose stays where it is.
+"""
+role = "secondary"
+output = "core.report"
+docs = "/agents/start/delete#delete-your-agent"
+next = ["agent.agent.list", "agent.agent.create"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.delete", "agent.agent.stop"]
+
+[actions."agent.agent.delete".args]
+agent = false
+delete-files = { type = "boolean", description = "Delete its files folder too, when it's its own" }
+name = { type = "string", description = "An agent (`lnk agent list`)", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.agent.deliver"]
+description = """
+For `lnk agent move`: messages a cloud that hosts agents held while the
+agent was paused there, JSON lines on stdin, given to it as its connections' messages
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.disconnect"]
+description = """
+Disconnect your agent from a connection
+
+Forgets the connection's tokens and restarts your agent if it's running.
+A name no connection module has is refused; a connection that isn't
+connected is said, and nothing changes. The bot or app itself stays yours: delete it with BotFather
+(/deletebot), at api.slack.com/apps or at
+discord.com/developers/applications; unlink Signal on the phone
+(Linked Devices).
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/connections/connect/security#you-and-your-shared-chats"
+next = ["agent.agent.connect", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.agent.disconnect".args]
+connection = { type = "string", description = "A connection: telegram, slack, discord, signal, or another connection module's", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.agent.left"]
+description = """
+For `lnk agent move`, on the machine an agent left: it answers on
+machine `--on` (or cloud `--cloud`) now, so its settings, state and
+secrets here go, its files are kept 30 days (or as agents.toml's
+keep_moved says), and a note says where it went
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.left".args]
+workplace = { x-link-cli = { shared = "workplace" } }
+machine-id = { type = "string", description = "The machine's ID, so a machine renamed or made again under the name isn't taken for it" }
+
+[actions."agent.agent.list"]
+description = """
+List every agent, here and on each of your boxes
+
+Each with its harness, whether it runs, the memory it uses, what its
+model cost over the last day (with the measure module), and its files.
+"""
+rest-args = []
+role = "primary"
+output = "life-agents"
+docs = "/agents/start/create#run-more-than-one-agent"
+surfaces = ["cli", "rest", "tool"]
+next = ["agent.agent.show", "agent.agent.create", "agent.agent.move", "agent.agent.delete", "agent.agent.start"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "command", callers = ["owner", "agent"], limits = { bytes = 1048576, time_ms = 30000 } }
+
+[actions."agent.agent.list".args]
+agent = false
+here = { type = "boolean", description = "Only this machine's agents, without asking your boxes" }
+json = { x-link-cli = { shared = "json" } }
+refresh = { type = "boolean", description = "Ask your clouds for boxes made on your other computers too, not only\nthose this one knows" }
+
+[actions."agent.log.show"]
+description = """
+Show your agent's log, or watch what it does as it does it
+
+Each line shows its time on this machine's clock, a mark for a warning
+or an error, and the IDs that place it, short: its conversation (`chat`),
+turn and tool call. The same line written again in a row shows once,
+with how many times (`×3`). `--json` prints every line's record, one
+JSON object a line: `at` (RFC 3339, UTC), `level` (`info`, `warning` or
+`error`), `agent`, `chat`, `turn` and `call` where it has them, and
+`text`; a line its harness wrote outside Link's records as `{"text"}`.
+
+`--live` prints a line a step, as it happens: a message come, the model
+thinking (and, each minute it goes on, that it still is), a tool called
+and answered or failed, the answer sent with how long it took, and the
+agent stopping and starting. So a slow answer shows where it waits. It
+reads Link Harness's conversations; with another harness, only the
+starts and stops show.
+"""
+resource = "agent"
+role = "secondary"
+output = "life-log-line"
+docs = "/agents/start/log#read-the-log"
+next = ["agent.agent.show", "agent.agent.stop"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.log.show".args]
+follow = { type = "boolean", description = "Keep printing new lines", x-link-cli = { short = "f", conflicts = ["live"] } }
+json = { x-link-cli = { shared = "json" } }
+live = { type = "boolean", description = "Print what your agent does as it does it, until Ctrl-C", x-link-cli = { conflicts = ["json"] } }
+
+[actions."agent.agent.migrate"]
+description = """
+Bring an agent you already have under Link, keeping its harness: OpenClaw,
+Hermes or DeepSeek, installed here outside Link
+
+It says what it found and where each part goes before anything happens,
+then each step as it ends: its home copied into the agent's and checked,
+its secrets added to Link's, its own service stopped (never deleted).
+The original keeps working. Stopped partway, running it again resumes;
+`lnk agent delete <name>` clears it. --agent names the agent [default:
+main, else the harness's name]
+"""
+resource = "agent"
+role = "primary"
+output = "core.report"
+docs = "/agents#migrate-your-agent"
+next = ["agent.agent.show", "agent.chat.start", "agent.agent.start", "agent.agent.migrate", "agent.harness.set"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.migrate", "agent.agent.delete"]
+
+[actions."agent.agent.migrate".args]
+clean = { type = "boolean", description = "Once your agent answers under Link: remove the original install, every\nfile of it named first" }
+harness = { type = "string", description = "The harness to bring in, when more than one is installed: openclaw,\nhermes or deepseek" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.agent.move"]
+description = """
+Move an agent to one of your boxes, a cloud, or back here
+
+`lnk agent move aws` moves it to your box in the cloud aws,
+starting one first (billed by the cloud) if you have none; `--on mybox`
+to a box by its name. Its state, files, settings and phone come along,
+and it runs there instead; once it answers there, the machine it left
+deletes its copy (its files stay 30 days). Run it on this machine,
+wherever the agent is: `lnk agent move here --agent work`. `lnk agent
+move aws --image web-ready` starts a new box there from your
+image first.
+
+The agent is --agent (its name, or name@machine when two have it), else
+the only one.
+"""
+resource = "agent"
+role = "primary"
+output = "core.report"
+docs = "/agents/move#move-your-agent-to-the-cloud"
+next = ["agent.agent.show", "agent.chat.start", "agent.agent.move", "agent.agent.connect", "agent.tool.add", "agent.tool.list", "agent.harness.set", "agent.model.set", "agent.agent.stop"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.move"]
+
+[actions."agent.agent.move".args]
+workplace = { x-link-cli = { shared = "workplace" } }
+image = { type = "string", description = "A new box in the cloud account TO, from one of your images there (`lnk\nbox image list`): the agent moves onto a box already set up" }
+no-start = { type = "boolean", description = "Put the agent in place without starting it (tests)", x-link-cli = { hidden = true } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.agent.needs"]
+description = """
+For `lnk agent move`, on the machine an agent came to: what its harness
+needs beyond Link's defaults and hasn't been answered here, as JSON
+{"harness", "needs": [[need, why]], "running": [agent]}, each need a
+specification's flags (`--network.mode host`) or a risk's name
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.needs".args]
+add = { type = "array", items = { type = "string" }, description = "A need its harness asks for now, as the JSON names it, which the\nmachine running the move asked about and was allowed: granted to the\nharness, answered" }
+
+[actions."agent.agent.pause"]
+description = """
+For `lnk agent move`: the agent stops taking messages for its switch,
+finishes the turn it's in, then stops
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.question.list"]
+description = "Review owner questions, edit a draft or submit an exact response"
+resource = "agent"
+role = "primary"
+output = "life-question-delivery"
+docs = "/agents/more/interface/questions#list-and-answer-questions"
+next = ["agent.question.list", "agent.agent.show"]
+fail = ["agent.agent.show"]
+checks = ["questions"]
+
+[actions."agent.question.list".args]
+code = { type = "string", description = "The question's response code", x-link-cli = { position = 1 } }
+draft = { type = "string", description = "Save a complete draft from a JSON set submission without sending it", x-link-path = true, x-link-cli = { conflicts = ["submit"] } }
+json = { x-link-cli = { shared = "json" } }
+reply = { type = "string", description = "Submit this targeted text response", x-link-cli = { conflicts = ["draft", "submit"] } }
+submit = { type = "integer", description = "Submit exactly this saved draft revision" }
+
+[actions."agent.agent.receive"]
+description = """
+For `lnk agent move`: one phase of an agent's move from `lnk agent state-send`
+on stdin, into staging here; a switch put in place (as the agent it is,
+made if it isn't here) and started. A switch first says on stdout the key
+it made for this one move, which its secrets are sealed to
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+checks = ["receive"]
+
+[actions."agent.agent.receive".args]
+agent-id = { type = "string", description = "The agent's ID: what --have prints, or the only agent a stream may be of" }
+have = { type = "boolean", description = "Print what this machine holds of the agent, as JSON, and read nothing" }
+no-start = { type = "boolean", description = "Put it in place without starting it" }
+phase = { type = "string", description = "copy (into staging, printing what it holds) or switch (the default)" }
+
+[actions."agent.agent.restart"]
+description = "Stop your existing agent, then start it in the background with its saved settings"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/start/stop#stop-and-restart"
+next = ["agent.agent.show", "agent.chat.start", "agent.log.show", "agent.agent.connect", "agent.tool.add", "agent.tool.list", "agent.harness.set", "agent.model.set", "agent.agent.stop"]
+fail = ["agent.model.set", "model.runtime.add", "agent.agent.show", "agent.log.show", "agent.agent.start", "agent.spec.show", "agent.agent.stop"]
+
+[actions."agent.agent.restore"]
+description = """
+Bring back an agent from its bucket, or what it knew from its backup
+
+An agent here gets back what its harness knew at its last `lnk agent
+backup` (memory, conversations, skills), replacing what it knows now;
+its files, settings and secrets stay.
+
+An agent whose machine is gone: finds its bucket in your cloud accounts
+(`lnk cloud`) by its name, asks for the encryption password shown when
+the bucket was made, and puts back its files and what it knew, as the
+same agent. Its model credential and bot aren't in the bucket: asked again.
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+spec = "agent"
+next = ["agent.agent.start", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.restore", "agent.agent.start"]
+
+[actions."agent.agent.restore".args]
+foreground = { type = "boolean", description = "Run it in this terminal instead of in the background" }
+id = { type = "string", description = "Its ID, when buckets of two agents have that name" }
+let-sleep = { type = "boolean", description = "Let the machine sleep while it runs, this start alone: the next start keeps it awake again unless its specification's `[run] let_sleep` says otherwise" }
+name = { type = "string", description = "Its name [default: -a, else the only one here]", x-link-cli = { position = 1 } }
+no-sandbox = { type = "boolean", description = "Run with no sandbox, from now on, until a start with --sandbox: the harness can then read your whole home folder (documents, SSH keys, browser data) and write outside its own. The only way to run without one, never implied by --yes. Available on a computer or box; refused where trusted machine policy forbids it (`unsandboxed = false` in agents.toml) or policy cannot be trusted", x-link-cli = { conflicts = ["sandbox"] } }
+no-start = { type = "boolean", description = "Put it back without starting it (tests)", x-link-cli = { hidden = true } }
+sandbox = { type = "string", description = "A sandbox file, a TOML file of what you grant the agent whichever harness runs it (`lnk agent show --permissions` shows it): kept with its settings, in place of what `lnk agent permission add` and `remove` wrote. It runs in its sandbox from now on; given alone, as `--sandbox own`, it only runs in its own sandbox again, after --no-sandbox", x-link-path = true, x-link-cli = { default-missing = "own" } }
+spec = { type = "string", description = "A specification file, a TOML file of its opinions over Link's, its field flags laid over it (`lnk agent spec show` prints the whole): kept with its settings, read at every start", x-link-path = true }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.agent.resume"]
+description = """
+For `lnk agent move`: the agent takes messages again after a switch that
+failed, and starts
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.route"]
+description = """
+For `lnk agent move`, on the machine the agent runs on: route its
+traffic through its proxy to this upstream (`--direct`, a SOCKS
+address with `--socks`, or an HTTP proxy on this machine with `--http`),
+or `--none` for no route of its own (its proxy from this machine; with
+`lan`, the network as it is), and restart it
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.route".args]
+default = { type = "boolean", description = "This machine's default instead (a new box's setup): every agent made here from now on starts with it, and each agent here with no route yet gets it; a route set already stays" }
+direct = { type = "boolean", description = "Route directly, behind the proxy alone" }
+none = { type = "boolean", description = "Route through no upstream of its own" }
+socks = { type = "string", description = "Route through this SOCKS proxy: socks5://127.0.0.1:<port>, or socks5:// and its socket's absolute path" }
+http = { type = "string", description = "Route through this HTTP proxy on this machine's loopback (127.0.0.1:<port>), which is handed each name unresolved" }
+
+[actions."agent.agent.secret"]
+description = """
+Where the hosted model's credential is: `wire`, added by the agent's proxy
+outside its sandbox (the harness holds a placeholder), or `agent`, in
+the harness's own settings; and restart it. `wire` needs the filtering
+proxy (not with `[network] mode = "host"`)
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.secret".args]
+at = { type = "string", description = "`wire` or `agent`", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.agent.send"]
+description = """
+Send the owner or a teammate a message
+
+An agent's own tool; on the command line, `lnk agent chat send --to`
+sends the same. `--connection` sends the owner it where they are: a
+connected service (`slack`, `telegram`, `discord`, `signal`) or `cli`,
+their terminal on this computer, where it waits for `lnk agent chat`.
+"""
+resource = "agent"
+role = "secondary"
+output = "life-sent"
+docs = "/agents/more/interface/namespaces#limits"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], limits = { bytes = 8388608, time_ms = 600000 }, command = true }
+
+[actions."agent.agent.send".args]
+chat = { type = "string", description = "The owner's chat to reply in (`lnk agent chat list`), or the chat for a teammate's reply", x-link-cli = { conflicts = ["connection"] } }
+connection = { type = "string", description = "Where to message the owner: a connected service, or `cli` for this computer's `lnk agent chat`" }
+json = { x-link-cli = { shared = "json" } }
+teammate = { type = "string", description = "Send it to a teammate, by its name or ID" }
+text = { type = "string", description = "The message to send", required = true, x-link-cli = { position = 1 } }
+to-owner = { type = "boolean", description = "Send it to the owner" }
+
+[actions."agent.agent.shared"]
+description = """
+For `lnk agent start`, where this machine's `shared_harness` is on: the
+one harness of an owner's agents here, in one sandbox reaching each
+agent's own proxy, until none is left (its background service)
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.shared".args]
+dir = { type = "string", description = "Its folder, where each agent it serves is kept", required = true, x-link-path = true, x-link-cli = { position = 1 } }
+
+[actions."agent.agent.show"]
+diagnoses = "agent"
+description = """
+Show everything about this agent
+
+Its state, model, harness, tools, skills, connections, memory, sandbox,
+IDs and where each of its things is kept, in sections, and whether it
+is running and answering: it exits nonzero unless it answers. With
+`--json`, its entry as `lnk agent list` gives it, with its context window
+and answer budget.
+
+With `--instructions` the prompt your agent's model gets, exactly as its
+harness sends it; with `--permissions` what your agent may do beyond its
+harness's home, here (`lnk agent permission add` and `remove` change it). `lnk agent spec
+show` prints the specification it runs.
+
+With a name, that agent, as a diagnosis reads it: shown, answering or
+not, without failing.
+"""
+resource = "agent"
+role = "secondary"
+rest-args = ["agent"]
+output = "life-agent-entry"
+docs = "/agents/models/agent#set-its-model-and-how-hard-it-thinks"
+surfaces = ["cli", "rest", "tool"]
+next = ["agent.chat.start", "agent.log.show", "agent.agent.stop", "agent.agent.start", "agent.agent.restart", "agent.chat.list", "agent.team.list", "agent.task.list", "agent.skill.list", "agent.harness.list", "agent.model.list", "agent.spec.show", "agent.permission.add", "agent.permission.remove", "agent.harness-permission.list", "agent.state.export", "agent.chat.send"]
+fail = ["agent.agent.start", "agent.log.show", "agent.agent.list", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], limits = { bytes = 8388608, time_ms = 10000 }, command = true, names = ["/whoami"] }
+checks = ["harness_name"]
+
+[actions."agent.agent.show".args]
+harness = { type = "string", description = "A harness (`lnk agent harness list`) whose needs --permissions shows [default: your agent's]" }
+instructions = { type = "boolean", description = "Show the prompt your agent's model gets, exactly as its harness sends it" }
+json = { x-link-cli = { shared = "json" } }
+name = { type = "string", description = "An agent (`lnk agent list`): what `lnk agent show` shows of it, as typed blocks with --json", x-link-cli = { position = 1 } }
+on = { type = "string", description = "A machine (`lnk agent show` there passes it): the one the agent runs on, as the computer asking says", x-link-cli = { hidden = true } }
+permissions = { type = "boolean", description = "Show what your agent may do beyond its harness's home, here" }
+
+[actions."agent.agent.start"]
+description = """
+Start your agent (Link Harness by default), in the background
+
+Installs the harness the first time, gives it your settings, and keeps
+it running, sandboxed, and enables startup at login after a reboot.
+With no agent here, it
+makes the first, main, and asks for its model and which of Link's
+tools it gets. It ends with what `lnk agent show` shows, then
+`lnk agent chat` to talk to it.
+
+A hosted model's API key comes from its provider's variable,
+`ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `OPENROUTER_API_KEY`, or is
+asked for in the terminal, and is kept with the agent's settings: no
+flag takes it, since other users of this machine can see a command
+line. `ANTHROPIC_API_KEY=... lnk agent start` sets or renews it.
+"""
+resource = "agent"
+role = "primary"
+output = "core.report"
+spec = "agent"
+docs = "/agents#create-an-agent"
+next = ["agent.chat.start", "agent.agent.show", "agent.tool.add", "agent.harness.set", "agent.model.set", "agent.agent.connect", "agent.log.show", "agent.agent.stop", "agent.agent.move", "agent.agent.start", "agent.tool.list"]
+fail = ["agent.model.set", "model.runtime.add", "agent.agent.show", "core.module.list", "agent.agent.start", "agent.log.show", "agent.agent.create", "agent.agent.move", "box.box.run", "agent.agent.stop", "agent.spec.show"]
+
+[actions."agent.agent.start".args]
+foreground = { type = "boolean", description = "Run it in this terminal instead of in the background" }
+let-sleep = { type = "boolean", description = "Let the machine sleep while it runs, this start alone: the next start keeps it awake again unless its specification's `[run] let_sleep` says otherwise" }
+no-sandbox = { type = "boolean", description = "Run with no sandbox, from now on, until a start with --sandbox: the harness can then read your whole home folder (documents, SSH keys, browser data) and write outside its own. The only way to run without one, never implied by --yes. Available on a computer or box; refused where trusted machine policy forbids it (`unsandboxed = false` in agents.toml) or policy cannot be trusted", x-link-cli = { conflicts = ["sandbox"] } }
+sandbox = { type = "string", description = "A sandbox file, a TOML file of what you grant the agent whichever harness runs it (`lnk agent show --permissions` shows it): kept with its settings, in place of what `lnk agent permission add` and `remove` wrote. It runs in its sandbox from now on; given alone, as `--sandbox own`, it only runs in its own sandbox again, after --no-sandbox", x-link-path = true, x-link-cli = { default-missing = "own" } }
+spec = { type = "string", description = "A specification file, a TOML file of its opinions over Link's, its field flags laid over it (`lnk agent spec show` prints the whole): kept with its settings, read at every start", x-link-path = true }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.agent.state-send"]
+description = """
+For `lnk agent move`: one phase of this machine's agent's move, as a tar
+stream on stdout, each file with its SHA-256
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.state-send".args]
+harness-state = { type = "boolean", description = "With a copy: its harness's state too, so the switch sends only what changed of it" }
+held = { type = "string", description = "What the other end holds, as JSON (- for stdin): those files aren't sent again", x-link-path = true }
+move = { type = "string", description = "The move's ID, the same in its copy and its switch" }
+phase = { type = "string", description = "copy (its files and memory's index, while it runs) or switch (the rest, once it's paused; the default)" }
+seal-to = { type = "string", description = "The public key the other end made for this switch (`lnk agent receive` says it): its secrets are sealed to it" }
+without-model-credentials = { type = "boolean", description = "Keep model credentials here when the receiving machine supplies its own" }
+
+[actions."agent.agent.stop"]
+description = "Stop your agent"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use#one-running-in-a-terminal"
+next = ["agent.agent.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.agent.unsandboxed"]
+description = """
+For `lnk agent start`: run a harness with no sandbox (its background
+service), unless this machine forbids it (`unsandboxed = false` in
+~/.lnk/safe/agents/policy.toml); then its service stops, for good
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.agent.unsandboxed".args]
+agent-settings = { type = "string", description = "The agent's settings, whose `sandbox` it reads as it starts", required = true, x-link-path = true }
+command = { description = "The harness's command, after `--`", required = true, x-link-cli = { rest = true }, type = "array", items = { type = "string" } }
+machine-file = { type = "string", description = "This machine's agent policy file", required = true, x-link-path = true }
+service-file = { type = "string", description = "The service's own file, removed when it stops", required = true, x-link-path = true }
+
+[actions."agent.browser.click"]
+description = "Click an element of the open page"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser click", docs = "/agents/tools/browser/guide#click-type-and-select", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.click".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.browser.close"]
+description = "Close the page open in the agent's browser"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser close", docs = "/agents/tools/browser/guide#scroll-screenshot-and-close", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.close".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.browser.open"]
+description = "Open a page in the agent's browser"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show", "agent.browser.read", "agent.browser.click", "agent.browser.type", "agent.browser.select", "agent.browser.scroll", "agent.browser.screenshot", "agent.browser.close"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser open", docs = "/agents/tools/browser/guide#open-and-read", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.open".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.browser.read"]
+description = "Read the page open in the agent's browser"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser read", docs = "/agents/tools/browser/guide#open-and-read", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.read".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.browser.screenshot"]
+description = "Take a screenshot of the open page"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser screenshot", docs = "/agents/tools/browser/guide#scroll-screenshot-and-close", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.screenshot".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.browser.scroll"]
+description = "Scroll the open page"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser scroll", docs = "/agents/tools/browser/guide#scroll-screenshot-and-close", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.scroll".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.browser.select"]
+description = "Choose an option of a menu on the open page"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser select", docs = "/agents/tools/browser/guide#click-type-and-select", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.select".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.browser.type"]
+description = "Type into an element of the open page"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/browser/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "browser type", docs = "/agents/tools/browser/guide#click-type-and-select", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.browser.type".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.chat.ask"]
+description = "Ask a side question without adding it to the conversation"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#control-a-running-turn"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat ask", docs = "/agents/link/commands/chats#ask-on-the-side", command = true, names = ["/btw", "/side"] }
+
+[actions."agent.chat.ask".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+text = { type = "string", description = "The side question", x-link-cli = { position = 1 } }
+
+[actions."agent.chat.compact"]
+description = "Compact the current conversation"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#manage-history"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
+route = { bridge = "harness", callers = ["owner"], path = "chat compact", docs = "/agents/link/commands/chats#compact-it-now", command = true, names = ["/compact"] }
+
+[actions."agent.chat.compact".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.create"]
+description = "Start a fresh conversation in this chat"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#manage-history"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat create", docs = "/agents/link/commands#start-a-new-conversation", command = true, names = ["/new", "/clear"] }
+
+[actions."agent.chat.create".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.export"]
+description = """
+Export the current conversation
+
+With `--format`, every conversation kept another way is rewritten in
+that format, one `[storage] conversations` in a specification takes (`log`,
+`compact`, or a store driver such as `sqlite`). Set the specification's key the
+same, or new ones start its way. Stop your agent first.
+"""
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#manage-history"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
+route = { bridge = "harness", callers = ["owner"], path = "chat export", docs = "/agents/link/commands/chats#write-one-out", command = true, names = ["/export"] }
+
+[actions."agent.chat.export".args]
+chat = { type = "string", description = "The chat to act on", x-link-cli = { conflicts = ["format"] } }
+format = { type = "string", description = "Rewrite every conversation in this format, as `[storage] conversations` names one" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.fork"]
+description = "Copy the chat before an owner's message into a fresh Link chat, preserving the original"
+resource = "agent"
+role = "secondary"
+output = "chat"
+docs = "/agents/chat#fork-a-conversation"
+next = ["agent.chat.show", "agent.chat.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+route = { bridge = "harness", callers = ["owner"], path = "chat fork", docs = "/agents/link/commands/chats#fork-this-one", command = true, names = ["/fork"] }
+
+[actions."agent.chat.fork".args]
+before = { type = "integer", description = "The sequence number of the owner's message to edit; the copy ends before it", required = true }
+chat = { type = "string", description = "A chat (`lnk agent chat list`), such as `link:main`", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.chat.goal"]
+description = "Show, set or clear this chat's goal"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#goals-and-visibility"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat goal", docs = "/agents/link/commands#pursue-a-goal", command = true, names = ["/goal"] }
+
+[actions."agent.chat.goal".args]
+chat = { type = "string", description = "The chat to act on" }
+clear = { type = "boolean", description = "Clear the chat's goal", x-link-cli = { conflicts = ["condition"] } }
+condition = { type = "string", description = "The goal, a condition the chat works toward [default: show the goal]", x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.list"]
+description = "List this agent's Link conversations, when its harness supports typed history"
+resource = "agent"
+role = "secondary"
+output = "chat-list"
+docs = "/agents/harnesses/use#conversations-that-diverged"
+next = ["agent.chat.show", "agent.chat.fork", "agent.chat.start", "agent.chat.send", "agent.chat.export", "agent.chat.set"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.chat.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.queue"]
+description = "Queue the next message behind the current answer"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#control-a-running-turn"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat queue", docs = "/agents/link/commands/chats#queue-or-steer-your-next-message", command = true, names = ["/queue"] }
+
+[actions."agent.chat.queue".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+text = { type = "string", description = "The message to queue", x-link-cli = { position = 1 } }
+
+[actions."agent.chat.rename"]
+description = "Name the current conversation"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#manage-history"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat rename", docs = "/agents/link/commands/chats#name-this-one", command = true, names = ["/rename"] }
+
+[actions."agent.chat.rename".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+text = { type = "string", description = "The conversation's new name", x-link-cli = { position = 1 } }
+
+[actions."agent.chat.resume"]
+description = "Resume an earlier conversation"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#manage-history"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat resume", docs = "/agents/link/commands/chats#resume-an-earlier-one", command = true, names = ["/resume"] }
+
+[actions."agent.chat.resume".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+text = { type = "string", description = "The conversation to resume", x-link-cli = { position = 1 } }
+
+[actions."agent.chat.send"]
+description = """
+Send one message to your agent on Link's own connection
+
+Give --message, or pipe the message on stdin. For a live conversation,
+use `lnk agent chat`. While it answers, `--queue` sends the message after
+that answer, `--steer` lets it join the answer, and `--aside` asks a side
+question kept out of the conversation. `--team` messages a team through
+its lead, or `--member`. `--to` sends as the agent instead, to its owner
+or a teammate. Each answer shows as it's written; Ctrl-C
+stops waiting for it. It exits nonzero when the agent is stopped,
+fails or doesn't answer. An answer nobody waited for in the chat (a
+reminder, a turn you stopped) comes at the next message on it. An agent
+on a box answers from there, and one a cloud account hosts through that
+account's adapter, whose answers nobody waited for stay there. With a
+harness that speaks its own connections, this says so.
+"""
+resource = "agent"
+rest-args = ["agent", "chat", "message"]
+role = "secondary"
+output = "chat-event"
+stream = true
+docs = "/agents/chat#talk-to-it-here"
+next = ["agent.chat.show", "agent.chat.list", "agent.chat.fork", "agent.agent.show"]
+fail = ["agent.chat.send", "agent.chat.start", "agent.agent.show", "core.module.list", "agent.agent.connect", "agent.harness.set", "agent.agent.start", "agent.log.show"]
+
+[actions."agent.chat.send".args]
+action = { type = "string", description = "Run one agent action, such as model:show, then exit", x-link-cli = { conflicts = ["message", "aside", "queue", "steer", "to"] } }
+aside = { type = "boolean", description = "Ask it as a side question, answered apart and kept out of the conversation", x-link-cli = { requires = ["message"], conflicts = ["queue", "steer", "team", "to"] } }
+chat = { type = "string", description = "A chat (`lnk agent chat list`), such as `link:<name>` [default: main; with --team, one for that team; with --to, the owner's chat to reply in, or the chat for a teammate's reply]" }
+cloud = { x-link-cli = { shared = "cloud" } }
+connection = { type = "string", description = "With --to owner: where to message the owner, a connected service, or `cli` for this computer's `lnk agent chat`", x-link-cli = { requires = ["to"], conflicts = ["chat"] } }
+json = { x-link-cli = { shared = "json" } }
+member = { type = "string", description = "With --team: a unique member name within the team [default: its selected lead]", x-link-cli = { requires = ["team"] } }
+message = { type = "string", description = "Send this one message, print the answer and exit. On the command line,\nother processes here can read it; on stdin they can't", x-link-cli = { short = "m" } }
+queue = { type = "boolean", description = "Send it after the answer being written", x-link-cli = { requires = ["message"], conflicts = ["steer", "team", "to"] } }
+steer = { type = "boolean", description = "Let it join the answer being written", x-link-cli = { requires = ["message"], conflicts = ["team", "to"] } }
+stream-json = { type = "boolean", description = "Stream each event as a line of JSON for a remote client: its text as it comes, then how it ended", x-link-cli = { conflicts = ["json"] } }
+team = { type = "string", description = "Message this team through its lead (`lnk agent team list`), or team@account for hosting", x-link-cli = { conflicts = ["to"] } }
+to = { type = "string", description = "Send as the agent: `owner`, or a teammate as `teammate:<name or ID>`", pattern = "^(owner|teammate:.+)$", x-link-cli = { requires = ["message"], conflicts = ["stream-json"] } }
+
+[actions."agent.chat.get"]
+description = """
+Get one value of the current conversation: its goal
+
+`lnk agent chat get goal` says the goal the chat works toward, or that
+it has none.
+"""
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#goals-and-visibility"
+next = ["agent.chat.set", "agent.chat.start"]
+fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
+
+[actions."agent.chat.get".args]
+chat = { type = "string", description = "The chat to act on" }
+field = { enum = ["goal"], description = "The value to get: `goal`, the condition the chat works toward", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.set"]
+description = """
+Set one value of the current conversation: its goal, its name, or
+whether it shows each tool call
+
+`lnk agent chat set goal "the tests pass"` gives it a goal it works
+toward until it holds, and `--clear` takes it away; `lnk agent chat set
+name <name>` names it; `lnk agent chat set verbose on` shows each tool
+call, and `off` hides them.
+"""
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#manage-history"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
+
+[actions."agent.chat.set".args]
+chat = { type = "string", description = "The chat to act on" }
+clear = { type = "boolean", description = "Clear the goal instead of setting it", x-link-cli = { conflicts = ["value"] } }
+field = { enum = ["goal", "name", "verbose"], description = "The value to set: `goal`, a condition the chat works toward, `name`, the conversation's name, or `verbose`, whether it shows each tool call", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+value = { type = "string", description = "Its new value: a goal, a name, or on or off", x-link-cli = { position = 2 } }
+
+[actions."agent.chat.show"]
+description = """
+Print one of your agent's chats as you'd read it, wherever it's kept
+
+What was said, up to its last answer, without its tools' calls. A chat
+kept compact or by a store driver (`[storage] conversations` in its
+specification) has no copy on disk to read: this is how to read it. With a
+harness that can't print its chats, this says so. With `--status`, the
+current conversation's model and usage instead, from its running
+harness.
+"""
+resource = "agent"
+role = "secondary"
+output = "chat"
+docs = "/agents/chat#talk-to-it-here"
+next = ["agent.chat.list", "agent.chat.start", "agent.chat.send", "agent.chat.compact", "agent.chat.get", "agent.chat.export", "agent.chat.set", "agent.chat.stop"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start", "agent.chat.list", "agent.chat.start", "agent.log.show"]
+
+[actions."agent.chat.show".args]
+chat = { type = "string", description = "A chat (`lnk agent chat list`), such as `link:main` or `telegram:123456789`", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+status = { type = "boolean", description = "Show the chat's current conversation's model and usage, as its running harness says, instead of what was said" }
+
+[actions."agent.chat.start"]
+description = """
+Start a fresh live conversation with your agent; --chat selects an existing named chat
+
+`lnk agent chat -m "What can you do?"` opens it with that message
+already sent, then keeps talking. For one message from a script, with
+no conversation after it, use `lnk agent chat send`.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/chat#threads-and-scripts"
+default = true
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start", "agent.chat.list", "agent.chat.start", "agent.log.show"]
+
+[actions."agent.chat.start".args]
+chat = { type = "string", description = "Continue this named chat instead of opening a fresh one" }
+json = { x-link-cli = { shared = "json" } }
+message = { type = "string", description = "Open the chat with this first message, then keep talking", x-link-cli = { short = "m" } }
+
+[actions."agent.chat.status"]
+description = "Show the current conversation's model and usage"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#goals-and-visibility"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat status", docs = "/agents/link/commands#inspect-its-work", command = true, names = ["/status"] }
+
+[actions."agent.chat.status".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.steer"]
+description = "Let a message join the current answer"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#control-a-running-turn"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat steer", docs = "/agents/link/commands/chats#queue-or-steer-your-next-message", command = true, names = ["/steer"] }
+
+[actions."agent.chat.steer".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+text = { type = "string", description = "The message to join the answer", x-link-cli = { position = 1 } }
+
+[actions."agent.chat.stop"]
+description = """
+Stop the current answer
+
+In a live chat Ctrl-C does the same. `lnk agent chat stop --chat <name>`
+stops that chat's answer from another terminal or a script.
+"""
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#control-a-running-turn"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
+route = { bridge = "harness", callers = ["owner"], path = "chat stop", docs = "/agents/link/commands#stop-an-answer", command = true, names = ["/stop"] }
+
+[actions."agent.chat.stop".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.chat.verbose"]
+description = "Show or hide tool activity in this conversation"
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/chat#goals-and-visibility"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["agent.agent.show", "agent.agent.start"]
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "chat verbose", docs = "/agents/link/commands/chats#show-its-tool-calls", command = true, names = ["/verbose"] }
+
+[actions."agent.chat.verbose".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+text = { type = "string", description = "on or off [default: show which]", x-link-cli = { position = 1 } }
+
+[actions."agent.desktop.click"]
+description = "Click a point of the desktop"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/desktop/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "desktop click", docs = "/agents/tools/desktop/guide#click-scroll-and-drag", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.desktop.click".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.desktop.drag"]
+description = "Drag from one point of the desktop to another"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/desktop/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "desktop drag", docs = "/agents/tools/desktop/guide#click-scroll-and-drag", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.desktop.drag".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.desktop.key"]
+description = "Press a key or a combination on the desktop"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/desktop/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "desktop key", docs = "/agents/tools/desktop/guide#type-and-key", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.desktop.key".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.desktop.screenshot"]
+description = "Take a screenshot of the desktop"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/desktop/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show", "agent.desktop.click", "agent.desktop.drag", "agent.desktop.key", "agent.desktop.scroll", "agent.desktop.type"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "desktop screenshot", docs = "/agents/tools/desktop/guide#screenshot", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.desktop.screenshot".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.desktop.scroll"]
+description = "Scroll the desktop"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/desktop/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "desktop scroll", docs = "/agents/tools/desktop/guide#click-scroll-and-drag", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.desktop.scroll".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.desktop.type"]
+description = "Type text on the desktop"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/desktop/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "desktop type", docs = "/agents/tools/desktop/guide#type-and-key", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.desktop.type".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.definition"]
+description = "Find where a symbol is defined"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/code/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file definition", docs = "/agents/tools/code/guide#definitions-and-references", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.definition".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.diagnostics"]
+description = "List a file's errors and warnings"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/code/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file diagnostics", docs = "/agents/tools/code/guide#diagnostics", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.diagnostics".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.edit"]
+description = "Replace text in a file"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/file/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file edit", docs = "/agents/tools/file/guide#file__write-and-file__edit", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.edit".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.glob"]
+description = "Find files in the agent's files by a glob"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/file/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show", "agent.file.read", "agent.file.definition", "agent.file.references", "agent.file.diagnostics", "agent.file.edit", "agent.file.write"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file glob", docs = "/agents/tools/file/guide#file__glob-and-file__grep", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.glob".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.grep"]
+description = "Find lines in the agent's files by a regular expression"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/file/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show", "agent.file.glob", "agent.file.read", "agent.file.definition", "agent.file.references", "agent.file.diagnostics", "agent.file.edit", "agent.file.write"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file grep", docs = "/agents/tools/file/guide#file__glob-and-file__grep", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.grep".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.read"]
+description = "Read a file"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/file/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file read", docs = "/agents/tools/file/guide#file__read", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.read".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.references"]
+description = "Find where a symbol is used"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/code/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file references", docs = "/agents/tools/code/guide#definitions-and-references", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.references".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.file.write"]
+description = "Write a file"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/file/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "file write", docs = "/agents/tools/file/guide#file__write-and-file__edit", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.file.write".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.harness-permission.add"]
+description = """
+Allow something the harness asks for: a specification's flags, or a risk of its own
+
+Only what it says it needs (its question names each, as flags
+`--network.mode host`, or a risk's name); anything else is refused:
+`lnk agent permission add` grants to your agent. Restarts every agent here
+running it.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+spec = "sandbox.sandbox"
+docs = "/agents/harnesses/use/harness-permissions#allow-what-a-harness-needs"
+next = ["agent.harness-permission.list", "agent.harness.set"]
+fail = ["agent.agent.show", "core.module.list", "agent.permission.add", "agent.harness.list"]
+
+[actions."agent.harness-permission.add".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+risk = { type = "string", description = "A risk the harness named itself", x-link-cli = { position = 1 } }
+
+[actions."agent.harness-permission.remove"]
+description = """
+Take back something the harness needs: a specification's flags, or a risk of its own
+
+Not asked again (`add` gives it back, `reset` asks again); a
+harness that can't run without it then doesn't start. Restarts every
+agent here running it.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+spec = "sandbox.sandbox"
+docs = "/agents/harnesses/use/harness-permissions#allow-what-a-harness-needs"
+next = ["agent.harness-permission.list", "agent.harness-permission.add", "agent.harness.reset"]
+fail = ["agent.agent.show", "core.module.list", "agent.harness.list", "agent.harness-permission.list"]
+
+[actions."agent.harness-permission.remove".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+risk = { type = "string", description = "A risk the harness named itself", x-link-cli = { position = 1 } }
+
+[actions."agent.harness.check"]
+description = """
+Test its sandbox: try what it shouldn't be able to do
+
+From inside the sandbox, tries to read your home folder, reach other
+servers on this machine, read other programs' secrets..., and says what
+got through.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use/harness#inspect-the-sandbox"
+next = ["agent.harness-permission.list", "agent.harness.show"]
+fail = ["agent.agent.show", "core.module.list", "agent.harness.list"]
+checks = ["harness_name"]
+
+[actions."agent.harness.check".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+
+[actions."agent.harness.delete"]
+description = """
+Delete a harness completely: its home, any traces, and its grants
+
+Its home holds its install, settings, memory and conversations; traces
+are everything `show` finds of it elsewhere. Its grants go too, unless
+another agent here runs it.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use/harness#remove-the-harness"
+next = ["agent.harness.list", "agent.harness.set"]
+fail = ["agent.agent.show", "core.module.list", "agent.harness.list"]
+checks = ["harness_name"]
+
+[actions."agent.harness.delete".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.harness.list"]
+description = """
+List the harnesses, and which this agent runs
+
+Link's own, the ones installed beside it and the ones from outside.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use/harness#inspect-the-installation"
+next = ["agent.harness.set", "agent.harness-permission.list", "core.module.add", "agent.harness.show", "agent.harness.check", "agent.harness.run", "agent.harness.delete"]
+fail = ["agent.agent.show", "core.module.list"]
+checks = ["harness_name"]
+
+[actions."agent.harness.list".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+
+[actions."agent.harness-permission.list"]
+description = """
+Show what the harness said it needs here and you allowed (add / remove)
+
+For every agent here that runs it, beside what you grant each agent
+(`lnk agent show --permissions`).
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use/harness#inspect-and-change-grants"
+next = ["agent.harness-permission.add", "agent.harness-permission.remove", "agent.harness.reset", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list", "agent.harness.list"]
+checks = ["harness_name"]
+
+[actions."agent.harness-permission.list".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+
+[actions."agent.harness.reset"]
+description = """
+Forget what you answered the harness, so its next start asks again
+
+What it needs and doesn't have is asked at its next start, in a
+terminal; what it has stays.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use/harness#inspect-and-change-grants"
+next = ["agent.harness-permission.list", "agent.harness.set", "agent.agent.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.harness.list"]
+checks = ["harness_name"]
+
+[actions."agent.harness.reset".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+
+[actions."agent.harness.run"]
+description = """
+Run a command in its sandbox, as it runs for your agent
+
+With its home as HOME, your agent's files folder, its permissions and
+its proxy: what the command can reach is what the harness can. `run --
+curl -sI https://example.com`, or `run -- sh` for a shell. Exits with
+the command's status.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use/harness#inspect-the-sandbox"
+next = ["agent.harness.show"]
+fail = ["agent.agent.show", "core.module.list", "agent.harness.list"]
+checks = ["harness_name"]
+
+[actions."agent.harness.run".args]
+command = { description = "The command, after `--`", required = true, x-link-cli = { rest = true }, type = "array", items = { type = "string" } }
+harness = { type = "string", description = "The harness [default: the agent's]" }
+
+[actions."agent.harness.set"]
+description = """
+Set your agent's harness: one of Link's, or one from outside Link
+
+Your settings and files come along. `lnk agent harness list` lists them.
+"""
+resource = "agent"
+role = "primary"
+output = "core.report"
+docs = "/agents/harnesses/use#switch-in-one-command"
+next = ["agent.agent.show", "agent.harness-permission.list", "agent.harness.set", "core.module.add", "agent.chat.start", "agent.agent.connect", "agent.tool.add", "agent.tool.list", "agent.model.set", "agent.agent.stop"]
+fail = ["agent.model.set", "agent.agent.show", "agent.log.show", "core.module.list", "agent.harness.set", "agent.spec.show", "agent.agent.stop"]
+checks = ["harness_name"]
+
+[actions."agent.harness.set".args]
+foreground = { type = "boolean", description = "Run it in this terminal instead of in the background" }
+harness = { type = "string", description = "The harness to set (`lnk agent harness list`)", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.harness.show"]
+description = "Show where it lives for your agent, and anything of it outside its home"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/harnesses/use/harness#inspect-the-installation"
+next = ["agent.harness.check", "agent.harness.delete", "agent.agent.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.harness.list"]
+checks = ["harness_name"]
+
+[actions."agent.harness.show".args]
+harness = { type = "string", description = "The harness [default: the agent's]" }
+
+[actions."agent.memory.connect"]
+description = """
+For your agent's memory tool, when its engine serves many agents from
+one process: one session, on stdio, with the memory service your
+agents on this machine share, started first if it isn't running
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.mcp"
+
+[actions."agent.memory.connect".args]
+agent-id = { type = "string", description = "The agent's ID", required = true }
+dir = { type = "string", description = "The service's folder", required = true, x-link-path = true, x-link-cli = { position = 1 } }
+
+[actions."agent.memory.links"]
+description = "Show the links of a note"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/memory/guide#links"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "memory links", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.memory.list"]
+description = "List the agent's notes and files"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/memory/guide#list"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "memory list", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.memory.read"]
+description = "Read a note or a file of the agent's"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/memory/guide#search-and-read"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "memory read", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.memory.remember"]
+description = "Save a note"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/memory/guide#let-it-take-notes"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "memory remember", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.memory.search"]
+description = "Search the agent's notes and files"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/memory/guide#search-and-read"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "memory search", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.memory.serve"]
+description = """
+For your agent's memory tool: serve its engine's model outside its
+sandbox (`lnk model serve`) while the engine's command runs, with the
+model's address in its LNK_MEMORY_MODEL
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.mcp"
+
+[actions."agent.memory.serve".args]
+command = { description = "The engine's command, after `--`: its argument `LNK_MEMORY_MODEL=` gets\nthe model's address", required = true, x-link-cli = { rest = true }, type = "array", items = { type = "string" } }
+model = { type = "string", description = "The model to serve", required = true }
+
+[actions."agent.memory.service"]
+description = """
+Your agents' memory service: their engine, in one sandbox holding what
+each of theirs would, serving each session as the agent it names, until
+its last session ends. `lnk agent memory connect` starts it
+"""
+resource = "agent"
+role = "plumbing"
+output = "core.report"
+
+[actions."agent.memory.service".args]
+dir = { type = "string", description = "The service's folder", required = true, x-link-path = true, x-link-cli = { position = 1 } }
+generation = { type = "string", description = "What it serves, named", required = true, x-link-cli = { position = 2 } }
+
+[actions."agent.memory.show"]
+description = """
+Show which engine serves your agent's memory, over which folder, and
+where it reaches it
+
+With `--json` or `--request`, its memory's own answer, from the running
+agent.
+"""
+resource = "agent"
+role = "secondary"
+output = "memory.remembered"
+docs = "/agents/tools/memory/guide#inspect-memory"
+default = true
+next = ["agent.memory.start", "agent.memory.stop"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "memory show", limits = { bytes = 8388608, time_ms = 600000 }, command = true }
+
+[actions."agent.memory.show".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.memory.start"]
+description = "Serve a memory engine over your agent's files: link (the default)"
+resource = "agent"
+role = "primary"
+output = "core.report"
+docs = "/agents/tools/memory#memory-start"
+next = ["agent.memory.show"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.memory.start".args]
+engine = { type = "string", description = "The engine [default: link]", x-link-cli = { position = 1 } }
+
+[actions."agent.memory.stop"]
+description = "Stop serving your agent's memory (its files stay)"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/tools/memory/guide#stop-memory"
+next = ["agent.memory.show", "agent.memory.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.model.chat"]
+description = "Ask the model a question"
+resource = "agent"
+role = "secondary"
+output = "model.stream"
+docs = "/agents/models/more/api#request-inference"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.chat".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.context"]
+description = "Show what the agent's context is spent on"
+resource = "agent"
+role = "secondary"
+output = "model.context"
+docs = "/agents/models/more/api#inspect-the-grant"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.context".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.count"]
+description = "Count the tokens of a text"
+resource = "agent"
+role = "secondary"
+output = "model.counted"
+docs = "/agents/models/more/api#request-inference"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.count".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.embed"]
+description = "Embed texts with the model"
+resource = "agent"
+role = "secondary"
+output = "model.embedded"
+docs = "/agents/models/more/api#request-inference"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.embed".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.list"]
+description = "List the models the agent may use"
+resource = "agent"
+role = "secondary"
+output = "model.names"
+docs = "/agents/models/more/api#inspect-the-grant"
+next = ["agent.tool.list", "agent.agent.show", "agent.model.show", "agent.model.status", "agent.model.chat", "agent.model.embed", "agent.model.count", "agent.model.context", "agent.model.transcribe", "agent.model.usage"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.list".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.set"]
+description = """
+Set the agent's persistent model, or one conversation's model
+
+A hosted model takes its provider's API key from its variable,
+`ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `OPENROUTER_API_KEY`, else the
+key the agent keeps for that provider, else asks for it in the terminal
+and keeps it. No flag takes a key, since other users of this machine
+can see a command line: `ANTHROPIC_API_KEY=... lnk agent model set
+anthropic/claude-sonnet-5-5`. A running agent restarts with it once you
+say yes; where nothing asks, `lnk agent restart` restarts it.
+"""
+resource = "agent"
+role = "primary"
+output = "core.report"
+docs = "/agents/models/agent#switch-in-one-command"
+next = ["agent.chat.start", "agent.agent.show"]
+fail = ["model.runtime.add", "agent.agent.start", "agent.agent.show", "agent.log.show"]
+checks = ["model_route"]
+
+[actions."agent.model.set".args]
+chat = { type = "string", description = "The chat to act on" }
+json = { x-link-cli = { shared = "json" } }
+model = { type = "string", description = "The model to set, its name saying who serves it: `local/qwen3:8b`, `anthropic/claude-sonnet-5-5`, `openai/gpt-6.1-sol` or `openrouter/deepseek/deepseek-v4`", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.model.show"]
+description = "Show the model the agent uses"
+resource = "agent"
+role = "secondary"
+output = "model.shown"
+docs = "/agents/models/more/api#inspect-the-grant"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.show".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.status"]
+description = "Show whether the model is ready"
+resource = "agent"
+role = "secondary"
+output = "model.status"
+docs = "/agents/models/more/api#inspect-the-grant"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.status".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.transcribe"]
+description = "Transcribe audio with the model"
+resource = "agent"
+role = "secondary"
+output = "model.heard"
+docs = "/agents/models/more/api#request-inference"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.transcribe".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.model.usage"]
+description = "Show the agent's measured model usage"
+resource = "agent"
+role = "secondary"
+output = "model.usage"
+docs = "/agents/models/more/api#inspect-the-grant"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.model.usage".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.permission.add"]
+description = """
+Let your agent do more, whichever harness runs it: a specification's flags
+
+The flags `lnk sandbox run` takes, added to its sandbox file: `add
+--internet.hosts api.anthropic.com` a host its proxy lets it reach,
+`--internet.tcp github.com:22` an endpoint beyond HTTPS and HTTP (git over SSH, a
+database), `--tools.names gh` a tool that runs outside the sandbox (`lnk
+sandbox tool add`), `--internet.per_minute 600` at most that many calls a minute,
+`--files.read ~` your whole home, `--network.mode host` this machine's network
+as it is. Restarts it if it runs.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+spec = "sandbox.sandbox"
+docs = "/security/sandbox/permissions#choose-what-your-agent-can-reach"
+next = ["agent.permission.remove"]
+fail = ["agent.agent.show", "core.module.list", "agent.permission.add", "agent.agent.start"]
+
+[actions."agent.permission.remove"]
+description = """
+Take a grant of your agent's away again: a specification's flags
+
+Each item the flags name leaves its sandbox file: `remove --internet.hosts
+'*'` the internet, `--internet.tcp github.com:22` an endpoint, `--tools.names gh` a tool,
+`--internet.per_minute 600` its limit of calls, `--network.mode host` the network
+as it is (back to its proxy). Restarts it if it runs.
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+spec = "sandbox.sandbox"
+docs = "/security/sandbox/permissions#choose-what-your-agent-can-reach"
+next = ["agent.permission.add"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start", "agent.harness-permission.remove"]
+
+[actions."agent.question.create"]
+description = "Ask the owner a related set of questions and return its exact typed result"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["agent"], path = "question create", limits = { bytes = 1048576, time_ms = 86400000 }, carries = "mcp" }
+
+[actions."agent.question.read"]
+description = "Read one question of the calling work"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["agent"], path = "question read", limits = { bytes = 1048576, time_ms = 10000 }, carries = "mcp" }
+
+[actions."agent.question.stop"]
+description = "Cancel one question of the calling work"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["agent"], path = "question stop", limits = { bytes = 1048576, time_ms = 10000 }, carries = "mcp" }
+
+[actions."agent.share.add"]
+description = """
+Share a chat with your agent: a Slack connection, a Telegram group, a Discord connection
+
+Prints a one-time code: mention the bot with it in the chat within 10
+minutes, and whoever is in that chat can talk to your agent there as
+you do, mentioning it. They can make it do all it can, with its files,
+its tools and its memory, on your bill. Only you can share, stop sharing
+or approve what it asks, and their direct messages to the bot go
+unanswered. Your agent is stopped while the code is waited for, and
+needs a harness that can tell who's speaking (Link Harness).
+"""
+resource = "agent"
+role = "secondary"
+output = "share"
+docs = "/agents/connections/connect/share#share-it-with-a-chat"
+next = ["agent.share.list", "agent.agent.show", "agent.share.remove"]
+fail = ["agent.agent.show", "core.module.list", "agent.share.add", "agent.harness.set", "agent.agent.connect", "agent.agent.start"]
+
+[actions."agent.share.add".args]
+connection = { type = "string", description = "A connection the chat is on: slack, telegram or discord", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.share.list"]
+description = """
+List the chats your agent is shared with
+
+Each by its name and its id on the connection. Your agent's specification keeps
+them, as [access] message.
+"""
+resource = "agent"
+role = "secondary"
+docs = "/agents/connections/connect/share#see-and-end-a-share"
+next = ["agent.share.add", "agent.share.remove"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.share.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.share.remove"]
+description = """
+Stop sharing a chat with your agent
+
+Takes the chat out of your agent's specification and restarts your agent if it
+runs: from then on it answers only you there.
+"""
+resource = "agent"
+role = "secondary"
+output = "share"
+docs = "/agents/connections/connect/share#see-and-end-a-share"
+next = ["agent.share.list"]
+fail = ["agent.agent.show", "core.module.list", "agent.share.list", "agent.agent.start"]
+
+[actions."agent.share.remove".args]
+chat = { type = "string", description = "A chat, by its id or its name, as `lnk agent share list` lists it", required = true, x-link-cli = { position = 1 } }
+connection = { type = "string", description = "A connection the chat is on", required = true }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.skill.add"]
+description = "Copy a skill into your agent's skills/, named as its SKILL.md says"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/tools/use/skill#add-a-skill"
+next = ["agent.skill.list", "agent.harness.set", "agent.memory.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+checks = ["skill_add"]
+
+[actions."agent.skill.add".args]
+path = { type = "string", description = "A folder or a SKILL.md on this machine", x-link-cli = { position = 1, conflicts = ["url"] } }
+replace = { type = "boolean", description = "Replace a skill of the same name your agent has" }
+url = { type = "string", description = "A git URL, a file:// URL or a GitHub folder page" }
+
+[actions."agent.skill.list"]
+description = "List your agent's skills: each one's name and what it's for"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/tools/use/skill#see-installed-skills"
+next = ["agent.skill.add", "agent.skill.remove"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+route = { bridge = "harness", callers = ["owner"], path = "skill list", docs = "/agents/link/commands/skills#run-a-skill", command = true, names = ["/skills"] }
+
+[actions."agent.skill.remove"]
+description = "Remove a skill from your agent's skills/, by its name"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/tools/use/skill#remove-a-skill"
+next = ["agent.skill.list"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.skill.remove".args]
+name = { type = "string", description = "A skill (`lnk agent skill list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.skill.write"]
+description = """
+Write a skill from what the agent just did, or fix one that misled it
+
+Asked as a turn of its own, with Link's `learn` skill and what the owner
+says after it. Offered where the agent may write its `skills/`.
+"""
+resource = "agent"
+role = "secondary"
+output = "chat-turn"
+docs = "/agents/link/commands/skills#learn-a-skill"
+surfaces = []
+route = { bridge = "harness", callers = ["owner"], path = "skill write", command = true, names = ["/learn"] }
+
+[actions."agent.skill.write".args]
+what = { type = "string", description = "What to learn, or what went wrong", x-link-cli = { position = 1 } }
+
+[actions."agent.state.export"]
+description = "Export portable state, including retained conversation evidence where supported"
+resource = "agent"
+role = "secondary"
+output = "state"
+docs = "/agents/harnesses/use/state#export-agent-state"
+next = ["agent.chat.list"]
+fail = ["agent.agent.show"]
+
+[actions."agent.state.export".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.cron.create"]
+description = "Schedule a prompt for the agent by a cron, recurring or once"
+resource = "agent"
+role = "secondary"
+output = "scheduler-tool.scheduled"
+docs = "/agents/tools/scheduler/cron#schedule-a-prompt"
+next = ["agent.cron.list", "agent.cron.delete"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "cron create", limits = { bytes = 8388608, time_ms = 600000 }, command = true, names = ["/loop"] }
+
+[actions."agent.cron.create".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.cron.delete"]
+description = "Delete a schedule"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/scheduler/cron#list-or-delete-schedules"
+next = ["agent.cron.list"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "cron delete", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.cron.delete".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.cron.list"]
+description = "List the agent's schedules"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/scheduler/cron#list-or-delete-schedules"
+next = ["agent.cron.create", "agent.cron.delete"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "cron list", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.cron.list".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.task.agent"]
+description = "Give a task to an agent"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/scheduler/task#delegate-work"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "task agent", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.task.agent".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.task.list"]
+description = "List the agent's tasks"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/scheduler/task#inspect-or-stop-work"
+next = ["agent.tool.list", "agent.agent.show", "agent.task.read", "agent.task.run", "agent.task.stop", "agent.cron.create", "agent.task.agent"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "task list", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true, names = ["/tasks", "/ps"] }
+
+[actions."agent.task.list".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+all = { type = "boolean", description = "Every conversation's scheduled work and subagents, yours to see from this machine's command line, not only one conversation's" }
+
+[actions."agent.task.plan"]
+description = "List retained delegation proposals for revalidation"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["agent"], path = "task plan", limits = { bytes = 1048576, time_ms = 10000 }, carries = "mcp" }
+
+[actions."agent.task.read"]
+description = "Read a task's output"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/scheduler/task#inspect-or-stop-work"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "task read", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.task.read".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.task.reconcile"]
+description = "Keep or abandon an exact retained proposal after reviewing the current plan"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["agent"], path = "task reconcile", limits = { bytes = 1048576, time_ms = 10000 }, carries = "mcp" }
+
+[actions."agent.task.run"]
+description = "Run a shell command, waiting for it or in the background"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/scheduler/task#run-commands"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "task run", docs = "/agents/tools/run/guide#how-your-agent-calls-it", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.task.run".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.task.send"]
+description = "Send a message to a retained child without starting another task"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["agent"], path = "task send", limits = { bytes = 1048576, time_ms = 600000 }, carries = "mcp" }
+
+[actions."agent.task.stop"]
+description = "Stop a task"
+resource = "agent"
+role = "secondary"
+output = "core.mcp"
+docs = "/agents/tools/scheduler/task#inspect-or-stop-work"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "task stop", limits = { bytes = 8388608, time_ms = 600000 }, carries = "mcp", command = true }
+
+[actions."agent.task.stop".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.team-memory.start"]
+description = """
+Turn a team's memory on: one memory over its shared folder, handed to
+each member granted all of it (`--read .` or `--write .`)
+"""
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/team-memory#turn-it-on-and-off"
+next = ["agent.team.show", "agent.team-memory.stop"]
+fail = ["agent.team.list", "core.module.list", "agent.team-memory.stop"]
+
+[actions."agent.team-memory.start".args]
+agent = false
+team = { type = "string", description = "A team with a shared folder (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team-memory.stop"]
+description = "Turn a team's memory off (its folder and what it kept stay)"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/team-memory#turn-it-on-and-off"
+next = ["agent.team.show", "agent.team-memory.start"]
+fail = ["agent.team.list"]
+
+[actions."agent.team-memory.stop".args]
+agent = false
+team = { type = "string", description = "A team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.add"]
+description = "Add an agent to a team, or change its purpose or folders there"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team#manage-members"
+next = ["agent.team.list", "agent.team.move"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.list", "agent.team.add"]
+
+[actions."agent.team.add".args]
+agent = false
+member = { type = "string", description = "An agent (`lnk agent list`)", required = true }
+as = { type = "string", description = "Its name in the team (its own, else)" }
+purpose = { type = "string", description = "What it's for on the team, a line its teammates are told" }
+read = { type = "array", items = { type = "string" }, description = "A folder of the shared folder it only reads (repeatable; . for all of it)" }
+team = { type = "string", description = "A team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+write = { type = "array", items = { type = "string" }, description = "A folder of the shared folder it writes (repeatable; . for all of it)" }
+
+[actions."agent.team.backup"]
+description = "Back up a hosted team's shared folder"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/move#its-folder-there"
+next = ["agent.team.restore", "agent.team.list"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.team.backup".args]
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "A hosted team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.create"]
+description = """
+Make a team, with these agents on it, or as its specification says
+
+With `--spec <file>` and the team specification's field flags, the team as the
+file says: its members, made here where they're new, its roster and its
+settings, applied again to a team that's there (its running members
+restarted), and the team file it keeps printed. `--cloud` applies it by
+the cloud account that hosts the team, by the team ID in the file.
+"""
+role = "secondary"
+output = "core.report"
+spec = "team"
+docs = "/agents/team#make-a-team"
+next = ["agent.team.add", "agent.team.list"]
+fail = ["agent.agent.show", "core.module.list", "agent.team.list", "agent.agent.list"]
+
+[actions."agent.team.create".args]
+agent = false
+with = { type = "array", items = { type = "string" }, description = "An agent (`lnk agent list`) to put on the team (repeatable); --lead names the one that receives messages addressed to the team" }
+cloud = { x-link-cli = { shared = "cloud" } }
+no-folder = { type = "boolean", description = "No shared folder, and so no memory of the team's", x-link-cli = { conflicts = ["write", "read"] } }
+read = { type = "array", items = { type = "string" }, description = "A folder of the shared folder each member named only reads (repeatable; . for all of it)" }
+spec = { type = "string", description = "The team specification file to make the team from or apply again", x-link-path = true, x-link-cli = { conflicts = ["with", "no-folder", "write", "read"] } }
+team = { type = "string", description = "Its name [default: the specification's]", x-link-cli = { position = 1 } }
+write = { type = "array", items = { type = "string" }, description = "A folder of the shared folder each member named writes (repeatable; . for all of it)" }
+
+[actions."agent.team.delete"]
+description = "Delete a team: its members leave it, and its folder stays"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team#inspect-or-delete-a-hosted-team"
+next = ["agent.team.list"]
+fail = ["agent.agent.show", "core.module.list", "agent.team.delete"]
+
+[actions."agent.team.delete".args]
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "A team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.team-member.add"]
+description = "Add another account's hosted agent to a hosted team; its owner must join"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/team-members#invite-an-agent-from-another-account"
+next = ["agent.team.join", "agent.team.list"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.team-member.add".args]
+agent = false
+member = { type = "string", description = "The invited agent's account owner and permanent ID, owner/id", required = true }
+as = { type = "string", description = "Its name in the team (its ID, else)" }
+cloud = { x-link-cli = { shared = "cloud" } }
+purpose = { type = "string", description = "What it's for on the team, a line its teammates are told" }
+read = { type = "array", items = { type = "string" }, description = "A shared folder it only reads (repeatable; . for all)" }
+team = { type = "string", description = "A hosted team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+write = { type = "array", items = { type = "string" }, description = "A shared folder it writes (repeatable; . for all, the default)" }
+
+[actions."agent.team.join"]
+description = "Accept a hosted agent's invitation to another account's team"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/team-members#invite-an-agent-from-another-account"
+next = ["agent.team.list"]
+fail = ["agent.agent.show", "core.module.list"]
+checks = ["team_place"]
+
+[actions."agent.team.join".args]
+agent = false
+account = { x-link-cli = { shared = "account" } }
+member = { type = "string", description = "Your hosted agent's name or permanent ID", required = true }
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "The team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.leave"]
+description = "End your hosted agent's membership in another account's team"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/team-members#invite-an-agent-from-another-account"
+next = ["agent.team.list"]
+fail = ["agent.agent.show", "core.module.list"]
+checks = ["team_place"]
+
+[actions."agent.team.leave".args]
+agent = false
+account = { x-link-cli = { shared = "account" } }
+member = { type = "string", description = "Your hosted agent's name or permanent ID", required = true }
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "The team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.list"]
+description = "List the teams, each member's purpose and what it reaches"
+resource = "agent"
+role = "secondary"
+output = "teams-listed"
+docs = "/agents#build-a-team"
+next = ["agent.team.create", "agent.team.add", "agent.team.delete", "agent.team.show", "agent.team.join", "agent.team-member.add"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.team.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.team.move"]
+description = """
+Move a team with all its own members and its shared folder
+
+To a cloud that hosts teams (`--cloud`), or back here (`--here`).
+"""
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/move#move-a-team-to-a-cloud-that-hosts-agents"
+next = ["agent.team.list", "agent.team.backup"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.team.move".args]
+workplace = { x-link-cli = { shared = "workplace" } }
+team = { type = "string", description = "A team (`lnk agent team list`), as team@cloud when a cloud hosts it", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.team.remove"]
+description = "Remove an agent from a team"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team#manage-members"
+next = ["agent.team.list"]
+fail = ["agent.agent.show", "core.module.list", "agent.team.list"]
+
+[actions."agent.team.remove".args]
+agent = false
+member = { type = "string", description = "An agent (`lnk agent list`)", required = true }
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "A team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.restore"]
+description = "Restore a hosted team's shared folder from its backup"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team/move#its-folder-there"
+next = ["agent.team.list"]
+fail = ["agent.agent.show", "core.module.list"]
+
+[actions."agent.team.restore".args]
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "A hosted team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.show"]
+description = """
+Show a team, or with --member one of its members: its agent, purpose,
+state and what it reaches here, or accepted membership on a hosting cloud
+"""
+resource = "agent"
+role = "secondary"
+output = "teams-hosted-shown"
+docs = "/agents/team#manage-members"
+next = ["agent.team.list", "agent.team.add", "agent.team.remove", "agent.team.move", "agent.chat.send", "agent.team.start", "agent.team.stop", "agent.team.leave", "agent.team.backup", "agent.team.restore", "agent.team.delete"]
+fail = ["agent.team.list", "core.module.list"]
+
+[actions."agent.team.show".args]
+cloud = { x-link-cli = { shared = "cloud" } }
+json = { x-link-cli = { shared = "json" } }
+member = { type = "string", description = "One member of the team" }
+team = { type = "string", description = "A team (`lnk agent team list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.start"]
+description = "Start the team's members, keeping their permanent identities"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/team#its-file"
+next = ["agent.chat.send", "agent.team.show", "agent.team.stop"]
+fail = ["agent.model.set", "agent.team.list", "agent.agent.list"]
+
+[actions."agent.team.start".args]
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "Team whose members to start", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.team.stop"]
+description = "Stop the team's members, preserving agents, identities and files"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/more/interface/contract/team#standing-up-and-down"
+next = ["agent.team.show", "agent.team.start"]
+fail = ["agent.team.list", "agent.agent.list"]
+
+[actions."agent.team.stop".args]
+cloud = { x-link-cli = { shared = "cloud" } }
+team = { type = "string", description = "Team whose members to stop", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.tool-namespace.list"]
+description = "List the tools your agent has"
+resource = "agent"
+role = "secondary"
+output = "tool-namespaces"
+docs = "/agents/tools/use#inspect-available-actions"
+surfaces = ["tool"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "tool list", limits = { bytes = 8388608, time_ms = 600000 }, command = true, names = ["/tools"] }
+
+[actions."agent.tool.add"]
+description = "Give your agent a tool: memory, web, browser, desktop, scheduler, run, file, code or your own"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents#add-tools-and-skills"
+next = ["sandbox.tool.list", "agent.tool.add", "agent.tool.list", "agent.agent.show"]
+fail = ["agent.tool.list", "sandbox.tool.add", "agent.agent.show", "core.module.list", "agent.agent.move", "agent.agent.start"]
+
+[actions."agent.tool.add".args]
+tool = { type = "string", description = "The tool: memory (search over its files and conversations, and notes),\nweb (pages, and a search with a Brave Search or Tavily key, from\nBRAVE_API_KEY or TAVILY_API_KEY, or asked for), browser, desktop,\nscheduler, run, file, code, or another tool's name", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."agent.tool.list"]
+description = "List the tools your agent has"
+resource = "agent"
+role = "secondary"
+output = "tool-namespaces"
+docs = "/agents#add-tools-and-skills"
+default = true
+surfaces = ["cli", "tool"]
+next = ["agent.tool.add", "agent.tool.remove", "sandbox.tool.add", "agent.browser.open", "agent.desktop.screenshot", "agent.file.grep", "agent.web.search", "agent.team-memory.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+route = { bridge = "command", callers = ["owner", "agent"], limits = { bytes = 1048576, time_ms = 30000 } }
+
+[actions."agent.tool.list".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.tool.remove"]
+description = "Take a tool from your agent (what it kept stays)"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents#add-tools-and-skills"
+next = ["agent.tool.list", "sandbox.tool.remove", "agent.memory.start"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.tool.remove".args]
+tool = { type = "string", description = "The tool: memory, web, or another tool's name", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.web.fetch"]
+description = "Fetch a web page"
+resource = "agent"
+role = "secondary"
+output = "web-tool.page"
+docs = "/agents/tools/web/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "web fetch", docs = "/agents/tools/web/guide#what-a-fetch-gives", limits = { bytes = 8388608, time_ms = 600000 }, command = true }
+
+[actions."agent.web.fetch".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.web.search"]
+description = "Search the web"
+resource = "agent"
+role = "secondary"
+output = "web-tool.results"
+docs = "/agents/tools/web/guide#terminal-actions"
+next = ["agent.tool.list", "agent.agent.show", "agent.web.fetch"]
+fail = ["agent.agent.show", "core.module.list"]
+route = { bridge = "agent", callers = ["owner", "agent", "program"], path = "web search", docs = "/agents/tools/web/guide#search-with-your-key", limits = { bytes = 8388608, time_ms = 600000 }, command = true }
+
+[actions."agent.web.search".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."agent.webhook.create"]
+description = "Create a webhook, and print its address and its secret, once"
+resource = "agent"
+role = "primary"
+output = "webhook-secret"
+docs = "/agents/connections/connect/webhook#create-a-webhook"
+next = ["agent.webhook.list", "agent.agent.show"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.webhook.create".args]
+name = { type = "string", description = "Its name: what your agent sees it's from (webhook:<name>)", required = true, x-link-cli = { position = 1 } }
+questions-per-day = { type = "integer", description = "How many questions ({\"question\": \"...\"}) it may ask you on your chats a\nday [default: 20]" }
+sender = { enum = ["link", "github"], description = "The scheme that signs the posts: link or github" }
+
+[actions."agent.webhook.delete"]
+description = "Delete a webhook: its address takes no more posts, and its secrets are forgotten"
+resource = "agent"
+role = "secondary"
+output = "core.report"
+docs = "/agents/connections/connect/webhook#list-and-delete-them"
+next = ["agent.webhook.list"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.webhook.delete".args]
+name = { type = "string", description = "The webhook", required = true, x-link-cli = { position = 1 } }
+
+[actions."agent.webhook.list"]
+description = "List the agent's webhooks: each name, who signs it and its address, never its secret"
+resource = "agent"
+role = "secondary"
+output = "webhook"
+docs = "/agents/connections/connect/webhook#list-and-delete-them"
+next = ["agent.webhook.create", "agent.webhook.rotate", "agent.webhook.delete"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.webhook.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."agent.webhook.rotate"]
+description = """
+Give a webhook a new secret, printed once
+
+The previous one is still taken for 24 hours, while you give its sender
+the new one.
+"""
+resource = "agent"
+role = "secondary"
+output = "webhook-secret"
+docs = "/agents/connections/connect/webhook#give-it-a-new-secret"
+next = ["agent.webhook.list", "agent.webhook.rotate"]
+fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.webhook.rotate".args]
+done = { type = "boolean", description = "Its sender has the new secret: stop taking the previous one now, and make none" }
+name = { type = "string", description = "The webhook", required = true, x-link-cli = { position = 1 } }

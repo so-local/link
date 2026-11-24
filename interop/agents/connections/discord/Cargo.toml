@@ -1,0 +1,85 @@
+[package]
+authors.workspace = true
+name = "link-discord"
+description = "The Discord connection, `lnk-discord`, lets your agent answer you in Discord"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-discord"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+anyhow = "1"
+reqwest = { version = "0.13", default-features = false, features = ["stream", "json", "rustls-no-provider"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+# Discord's Gateway, where `connect` sees the owner's code arrive.
+tokio-tungstenite.workspace = true
+futures-util = { version = "0.3", features = ["sink"] }
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+# The rule a proxy holding the bot's token enforces (`rule`).
+[dependencies.link-secret-contract]
+workspace = true
+
+[dependencies.link-harness-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+[dev-dependencies]
+# A harness's ACP, faked, for the bridge's tests.
+link-connection-contract = { workspace = true, features = ["test-support"] }
+link-test-kit.workspace = true
+link-core = { workspace = true}
+axum = { version = "0.8", features = ["ws"] }
+# The agent on the mini harness every connection's tests run, from the core
+# beside this folder.
+link-harness-conformance = { workspace = true }
+
+# No debug info: it was most of `target/` (a full `cargo test` wrote
+# 20 GB with it). A panic still says where it happened; a backtrace names
+# functions only.
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+link-component-build.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.link-types]
+workspace = true

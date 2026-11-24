@@ -1,0 +1,65 @@
+[package]
+authors.workspace = true
+name = "link-browser-tool"
+description = "Link Browser (`lnk-browser-tool`) lets an agent open pages in a Chromium of its own, in a sandbox, then read, click, type into, and screenshot them"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-browser-tool"
+path = "src/main.rs"
+
+[dependencies]
+link-untrusted.workspace = true
+link-actions.workspace = true
+link-spec.workspace = true
+clap.workspace = true
+serde.workspace = true
+anyhow.workspace = true
+base64.workspace = true
+libc.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+# A page's address, checked before it's opened.
+url = "2"
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-browser-tool-contract]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.link-sandbox-client]
+workspace = true

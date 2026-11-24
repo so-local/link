@@ -1,0 +1,20 @@
+# One range of your network, through the proxy, and no internet.
+[spec]
+schema = 1
+[spec.lan]
+hosts = ["192.168.77.0/24"]
+
+[spec.commands]
+toolchains = ["shell"]
+
+[expect]
+reaches = ["192.168.77.5:80", "[::ffff:192.168.77.5]:80"]
+refused = [
+    "192.168.1.1:80",
+    "example.com",
+    "1.1.1.1:80",
+    "127.0.0.1:22",
+    "169.254.169.254:80",
+    "[64:ff9b::a9fe:a9fe]:80",
+    "[64:ff9b::7f00:1]:22",
+]

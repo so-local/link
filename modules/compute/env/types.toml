@@ -1,0 +1,379 @@
+schema = 1
+
+[checked]
+type = "object"
+description = "What env check read: the environment's name, and the hash and platform of its image"
+required = ["name", "hash", "os", "arch"]
+additionalProperties = false
+properties.name = { type = "string", description = "The environment's name" }
+properties.hash = { type = "string", description = "The hash its image is found by" }
+properties.os = "core.os"
+properties.arch = { enum = ["x86_64", "arm64"], description = "The processor its image is for" }
+
+[made]
+type = "object"
+description = "A box made as an environment says"
+required = ["box", "cloud"]
+additionalProperties = false
+properties.box = { type = "string", description = "The box's name" }
+properties.cloud = { type = "string", description = "The cloud account it's on" }
+
+[ended]
+type = "object"
+description = "How a run on the machine ended: its exit code"
+required = ["code"]
+additionalProperties = false
+properties.code = { type = "integer", description = "Its exit code, 0 when it passed" }
+
+[packed]
+type = "object"
+description = "An environment packed for another machine: its file and every file it names, each as text, with no secret's value"
+required = ["file", "hash", "files"]
+additionalProperties = false
+properties.file = { type = "string", description = "The file's name, among files" }
+properties.hash = { type = "string", description = "The hash its image is found by" }
+properties.files = { type = "object", additionalProperties = { type = "string" }, description = "Each file, by its name" }
+
+[prepared]
+type = "object"
+description = "An environment prepared on this machine: its file and where work starts"
+required = ["env", "workdir"]
+additionalProperties = false
+properties.env = { type = "string", x-link-path = true, description = "The environment file" }
+properties.workdir = { type = "string", x-link-path = true, description = "Where work starts" }
+
+[approval]
+type = "object"
+description = "Your yes to giving an environment file a secret it asks for"
+x-link-resource = { id = "resource" }
+required = ["spec", "name", "resource", "asks"]
+additionalProperties = false
+properties.spec = { type = "string", x-link-path = true, description = "The environment file, by its real path" }
+properties.name = { type = "string", description = "The environment's name" }
+properties.resource = { type = "string", format = "link-id", x-link-kind = "secret", description = "The secret, by its ID" }
+properties.asks = { type = "string", description = "The name the file asks the secret by" }
+
+[approvals]
+type = "object"
+description = "The secrets you've said yes to giving environment files"
+required = ["approvals"]
+additionalProperties = false
+properties.approvals = { type = "array", items = "approval" }
+
+[found]
+type = "object"
+description = "Whether you've said yes to giving the environment file a secret: the approval, when there's one"
+additionalProperties = false
+properties.approval = "approval"
+
+[env]
+type = "object"
+description = "An environment specification says what a machine has before work starts: its OS, where work starts, the values every run is given, the stages that set it up and the image they make, and the services it runs"
+x-link-spec = { kind = "env" }
+required = ["name", "version"]
+additionalProperties = false
+properties.secrets = "secrets"
+
+[env.properties.os]
+shape = "core.os"
+description = """
+The OS its machines run; none, any, and an image for each.
+
+`ubuntu-24.04` or `ubuntu-22.04`, as a box specification's. An OS named
+refuses a box or `here` running another, a Mac included."""
+
+[env.properties.name]
+type = "string"
+examples = ["web"]
+description = """
+Its name, which its boxes and images are named by.
+
+Lowercase letters, digits and dashes, starting with a letter, at
+most 30 characters."""
+
+[env.properties.version]
+type = "integer"
+minimum = 0
+description = """
+The environment file's version this Link reads, `1`.
+
+It describes the file's shape, independently of the repository or
+program versions its stages install."""
+
+[env.properties.workdir]
+type = "string"
+examples = ["app"]
+description = """
+Where work starts, from the home folder; none, the home folder.
+
+A relative folder, without `..`. Start stages, services, their
+`ready` and `reset`, job stages and agents begin here, and it is an
+agent's files folder. Image stages begin at home, so a clone can
+make this folder; a later run starting before it exists fails and
+names it."""
+
+[env.properties.variables]
+type = "object"
+additionalProperties = { type = "string" }
+examples = [{ LOG_LEVEL = "info" }]
+description = """
+Text given to every run as it is, by name: never a secret.
+
+Names are capital letters, digits and `_`, none of Link's (`LNK_...`,
+`PATH`, `HOME`, `USER`, `LOGNAME`, `SHELL`, `TERM`, `LANG`, `TZ`). A
+name like a secret's, such as `API_TOKEN`, is refused: a private
+value is a secret, named under `[secrets]`."""
+
+[env.properties.stage]
+type = "array"
+items = "step"
+examples = [[
+    { name = "build", run = "cargo build", sandbox = "build.toml", inputs = ["Cargo.lock"], when = "image", timeout = "30m" },
+    { name = "serve", run = "./serve", user = "builder", when = "start" },
+    { name = "together", parallel = [{ name = "test", run = "cargo test", sandbox = "build.toml" }] },
+]]
+description = """
+The stages, in order: the first that fails ends the build, the
+start or the job, naming it.
+
+A stage is one command, or a named group of commands run together
+(`parallel`)."""
+
+[env.properties.service]
+type = "array"
+items = "service"
+examples = [[
+    { name = "cache", run = "redis-server --port 6379", sandbox = "cache.toml", ready = { port = 6379, timeout = "30s" }, reset = "redis-cli flushall" },
+    { name = "health", run = "./health", user = "redis", ready = { run = "redis-cli ping", timeout = "30s" } },
+]]
+description = """
+The services it runs beside its stages, each kept running until
+it's stopped."""
+
+[secrets]
+type = "object"
+description = """
+The secrets its runs are given, by name: their values are this
+machine's, never the file's.
+
+Each is given to the environment only once you've said yes to that
+file (`lnk env approval add`), by its real path, its `name` and the
+secret's ID, so a copy or a move asks again, and field flags over
+it, another specification than the one you said yes to, ask for that run
+alone. A missing yes is refused before the file runs, naming the
+secret; `lnk env check` reads the file without one. Stages and jobs
+get the values, services variables alone, and an image build none,
+since an image keeps what its stages write."""
+additionalProperties = false
+
+[secrets.properties.names]
+type = "array"
+items = { type = "string" }
+examples = [["GITHUB_TOKEN"]]
+description = """
+Secrets given to runs as plain variables, by name.
+
+Each is created without `--host`; services and image builds get
+none of them."""
+
+[secrets.properties.sealed]
+type = "array"
+items = { type = "string" }
+examples = [["OPENAI_API_KEY"]]
+description = """
+Secrets the sandbox's proxy adds to requests for the host set
+with each value, by name. What runs never has them.
+
+Each is created with `--host`; stages get a placeholder, and the
+proxy puts the real value in only for that host."""
+
+[step]
+description = "A stage: one command (`run`), or a named group of commands run together (`parallel`)"
+oneOf = ["stage", "group"]
+x-link-markers = ["run", "parallel"]
+
+[stage]
+type = "object"
+description = "One command a machine runs as it's set up, in the sandbox specification it names"
+required = ["name", "run"]
+additionalProperties = false
+
+[stage.properties.user]
+shape = "core.user"
+description = """
+Who it runs as; none, the machine's user.
+
+`root` runs outside any sandbox, only while an image is built on a
+box made for it, with no `sandbox` and never at every start. A user
+added by `lnk box user add` runs in their own sandbox and home, with
+the variables and no `sandbox`, and must exist on the box. Naming
+the machine's own user is leaving it out."""
+
+[stage.properties.timeout]
+shape = "core.duration"
+description = """
+How long it may run; none, only the build's or the job's limit.
+
+From `1s` to `24h`, such as `30s`, `10m` or `2h`. The first limit
+reached wins, and a stage past its own fails the whole build or job."""
+
+[stage.properties.name]
+type = "string"
+description = """
+Its name, unique among the file's stages and parallel members.
+
+Lowercase letters, digits and dashes, starting with a letter, at
+most 30 characters."""
+
+[stage.properties.run]
+type = "string"
+description = "A command line, for `sh -c`."
+
+[stage.properties.sandbox]
+type = "string"
+x-link-path = "confined"
+examples = ["build.toml"]
+description = """
+The sandbox specification it runs in, from the file's folder.
+
+Required for an ordinary stage; a root stage, or one run as a named
+user of the box, has that user's boundary instead."""
+
+[stage.properties.inputs]
+type = "array"
+items = { type = "string", x-link-path = "confined" }
+examples = [["Cargo.lock"]]
+description = """
+Files, from the file's folder, whose contents count in the image's
+hash.
+
+So a dependency lockfile makes a new image when it changes."""
+
+[stage.properties.when]
+type = "string"
+enum = ["image", "start"]
+default = "image"
+description = """
+When it runs: while the image is built (`image`), saved in it, or at
+every start (`start`), never saved. A root stage runs only while an
+image is built."""
+
+[group]
+type = "object"
+description = "Commands started together, each in its own sandbox, its output lines starting with its name"
+required = ["name", "parallel"]
+additionalProperties = false
+
+[group.properties.timeout]
+shape = "core.duration"
+description = """
+How long each member still running may run, within the whole
+run's limit. From `1s` to `24h`."""
+
+[group.properties.name]
+type = "string"
+description = "The group's name, unique among the stages and their members."
+
+
+[group.properties.parallel]
+type = "array"
+items = "stage"
+minItems = 1
+description = """
+Its members, started together, each in its own sandbox, its output
+lines starting with its name.
+
+A failing member lets its peers finish, then ends the build or job
+with the first failing member's code, and later stages don't run.
+A member is never a group itself, and a group has at least one. In
+an environment, a group's members share their `when`, and its image
+hash counts the grouping, the members' order and the group's
+timeout."""
+
+[service]
+type = "object"
+description = "A service a machine runs beside its stages, kept running until it's stopped"
+required = ["name", "run", "ready"]
+additionalProperties = false
+
+[service.properties.ready]
+shape = "ready"
+description = """
+When it's ready, which a start waits for: a port taking a
+connection, or a command passing."""
+
+[service.properties.user]
+shape = "core.user"
+examples = ["redis"]
+description = """
+Who it runs as; none, the machine's user.
+
+`root`, Docker included, only on a box of its own. A service gets
+the variables, and one ready on a port serves the machine's
+loopback, which a sandbox reaches only where its `[localhost]
+ports` lets it."""
+
+[service.properties.name]
+type = "string"
+examples = ["cache"]
+description = """
+Its name, which `lnk env reset` and previews name it by.
+
+Lowercase letters, digits and dashes, starting with a letter, at
+most 30 characters, unique among the file's services."""
+
+[service.properties.run]
+type = "string"
+examples = ["redis-server --port 6379"]
+description = """
+A command line, for `sh -c`, that runs until it's stopped, once
+its `ready` has passed."""
+
+[service.properties.sandbox]
+type = "string"
+x-link-path = "confined"
+examples = ["cache.toml"]
+description = """
+The sandbox specification it runs in, from the file's folder.
+
+Required for an ordinary service; one run as `root` or a named user
+of the box has that user's boundary instead."""
+
+
+[service.properties.reset]
+type = "string"
+examples = ["redis-cli flushall"]
+description = """
+A command line putting it back as the image had it, for `lnk env
+reset`; none, there's nothing to run. A root service's reset runs
+as root."""
+
+[ready]
+type = "object"
+description = "When a service is ready, which a start waits for: a port taking a connection, or a command passing, one of them"
+additionalProperties = false
+
+[ready.properties.port]
+type = "integer"
+minimum = 1
+maximum = 65535
+examples = [6379]
+description = "Ready once this port of the machine's loopback takes a connection."
+
+[ready.properties.run]
+type = "string"
+examples = ["redis-cli ping"]
+description = "Ready once this command line, in the service's sandbox, passes."
+
+[ready.properties.timeout]
+shape = "core.duration"
+default = "1m"
+description = """
+How long it's waited on before the start fails, from `1s` to `24h`."""
+
+[image]
+type = "object"
+description = "An environment's image: a box's disk with its stages run, saved in a cloud account and named by its hash"
+required = ["hash"]
+additionalProperties = false
+properties.hash = { type = "string", description = "The image's hash, of its file's stages and the platform it's for" }

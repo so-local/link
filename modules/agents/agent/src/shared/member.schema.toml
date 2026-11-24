@@ -1,0 +1,10 @@
+schema = 1
+# What the owner's shared harness serves an agent with, while it runs:
+# `~/.lnk/data/agents/shared-harnesses/<owner>/agents/<agent key>.json`.
+kind = "shared harness member"
+current = 1
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/agents/*.json"
+encoding = "json"

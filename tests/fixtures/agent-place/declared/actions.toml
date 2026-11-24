@@ -1,0 +1,22 @@
+schema = 1
+
+# The commands of an account that hosts agents, declared by the agent
+# place contract (`link-agent-place`): the fixture answers each, its
+# request on standard input.
+[implements]
+agent-place = [
+    "agent-place.agent-place.agent-abort",
+    "agent-place.agent-place.agent-backup",
+    "agent-place.agent-place.agent-chat",
+    "agent-place.agent-place.agent-connect",
+    "agent-place.agent-place.agent-create",
+    "agent-place.agent-place.agent-in",
+    "agent-place.agent-place.agent-left",
+    "agent-place.agent-place.agent-list",
+    "agent-place.agent-place.agent-out",
+    "agent-place.agent-place.agent-receive",
+    "agent-place.agent-place.agent-restore",
+    "agent-place.agent-place.agent-runs",
+    "agent-place.agent-place.agent-send",
+    "agent-place.agent-place.agent-team",
+]

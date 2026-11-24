@@ -1,0 +1,207 @@
+schema = 1
+
+[defines.ALL_PROXY]
+type = "string"
+description = "This machine's proxy for every protocol, which Link hands the programs it installs and runs"
+
+[defines.AWS_RESPONSE_CHECKSUM_VALIDATION]
+type = "string"
+description = "When AWS's libraries check a response's checksum, which Link sets for rclone's run against a bucket that doesn't send one"
+
+[defines.GOOGLE_APPLICATION_CREDENTIALS]
+type = "string"
+description = "The key file a program using Google Cloud's libraries signs in with, which Link passes on only to a cloud's own run"
+
+[defines.HTTPS_PROXY]
+type = "string"
+description = "This machine's HTTPS proxy, which Link hands the programs it installs and runs"
+
+[defines.HTTP_PROXY]
+type = "string"
+description = "This machine's HTTP proxy, which Link hands the programs it installs and runs"
+
+[defines.LNK_CORE]
+type = "string"
+description = "A core program a test runs in place of the one built beside it, for tests"
+
+[defines.NODE_EXTRA_CA_CERTS]
+type = "string"
+description = "Certificates Node.js trusts besides its own"
+
+[defines.NODE_USE_ENV_PROXY]
+type = "string"
+description = "Node.js's switch to send its requests through `HTTPS_PROXY`, set to 1 for a program Link runs in Node"
+
+[defines.NO_PROXY]
+type = "string"
+description = "The hosts this machine reaches without its proxy"
+
+[defines.PLAYWRIGHT_BROWSERS_PATH]
+type = "string"
+description = "Where Playwright keeps the browsers it installs"
+
+[defines.SSL_CERT_FILE]
+type = "string"
+description = "The certificates this machine trusts, as OpenSSL and the programs built on it read them"
+
+[defines.TZ]
+type = "string"
+description = "The time zone a program reports its times in"
+
+[defines.all_proxy]
+type = "string"
+description = "`ALL_PROXY` as some programs spell it"
+
+[defines.http_proxy]
+type = "string"
+description = "`HTTP_PROXY` as some programs spell it"
+
+[defines.https_proxy]
+type = "string"
+description = "`HTTPS_PROXY` as some programs spell it"
+
+[defines.no_proxy]
+type = "string"
+description = "`NO_PROXY` as some programs spell it"
+
+[defines.npm_config_https_proxy]
+type = "string"
+description = "npm's HTTPS proxy"
+
+[defines.npm_config_noproxy]
+type = "string"
+description = "The hosts npm reaches without its proxy"
+
+[defines.CLICOLOR_FORCE]
+type = "string"
+description = "Set: colors even in a pipe or a file."
+
+[defines.COLUMNS]
+type = "string"
+description = "Your terminal's width, where Link can't ask the terminal."
+
+[defines.DBUS_SESSION_BUS_ADDRESS]
+type = "string"
+description = "Your desktop's bus, which a sandbox opens only when its specification grants the desktop."
+
+[defines.DISPLAY]
+type = "string"
+description = "Your X11 desktop, which a sandbox opens only when its specification grants the desktop."
+
+[defines.HOME]
+type = "string"
+description = "Must be absolute, or commands that delete or trust a folder refuse."
+
+[defines.HOSTNAME]
+type = "string"
+description = "This machine's name, where the system doesn't give one: scrubbed from reports."
+
+[defines.GIT_TERMINAL_PROMPT]
+type = "string"
+description = "Whether git may ask in a terminal for a credential: `0` keeps it from asking, as Link sets it for a git it runs alone."
+
+[defines.LANG]
+type = "string"
+description = "Your locale, kept for programs Link runs."
+
+[defines.LNK_EXE]
+type = "string"
+description = "The `lnk` that started a module, which it runs for other commands."
+
+[defines.LNK_GITHUB_URL]
+type = "string"
+description = "Where a module from outside Link is read from in place of `https://github.com` (tests): a location of the kinds `LNK_RELEASES_URL` takes, holding each repository's releases at `<owner>/<repo>/releases/latest/download`. Its pinned key is still checked."
+
+[defines.LNK_INSECURE]
+type = "string"
+description = "`1`: install without `ssh-keygen`, so without checking the signature."
+
+[defines.LNK_INSTALL_DIR]
+type = "string"
+description = "Where `lnk` goes; modules go next to it."
+
+[defines.LNK_INSTALLATION_DIR]
+type = "string"
+description = "This installation's folder [default: `~/.lnk`], for one process and what it runs: a sandbox's session whose settings can't be in the folder it writes. A relative value is ignored."
+
+[defines.LNK_MODULES]
+type = "string"
+description = "The module listing (`lnk module list --json`) `lnk` hands the module it runs, for that process alone, so its questions start no other `lnk`."
+
+[defines.LNK_NO_BROWSER]
+type = "string"
+description = "Set to open no browser: a command that would open a page, such as `lnk issue create` or `lnk agent connect`, prints its address instead"
+
+[defines.LNK_RELEASES_URL]
+type = "string"
+description = "Where releases are read from (tests, staging and dev builds). Signatures remain required. An HTTPS address with no login, backslash, query or fragment, a bucket of yours (s3://<bucket>/<folder> or gs://<bucket>/<folder>, read with that cloud's CLI and your login) or a folder here (file:///<folder>); debug builds also accept HTTP on this machine."
+
+[defines.LNK_TEST_RELEASE_SIGNERS]
+type = "string"
+description = "An allowed-signers file whose keys are trusted beside the built-in release signer (tests). Only debug builds read it."
+
+[defines.LNK_UPDATE_NOTICE]
+type = "string"
+description = "`off`: commands never check for or announce a newer release."
+
+[defines.LNK_VERSION]
+type = "string"
+description = "The release version to install, such as `0.14.0`. A released `lnk` refuses a version older than itself."
+
+[defines.LOGNAME]
+type = "string"
+description = "Who you are, where `USER` isn't set: kept for programs Link runs, and scrubbed from reports."
+
+[defines.NO_COLOR]
+type = "string"
+description = "Set: no colors. Colors show only on a terminal."
+
+[defines.PATH]
+type = "string"
+description = "Where Link finds the programs it runs, and the modules beside `lnk`."
+
+[defines.SHELL]
+type = "string"
+description = "Your shell, which a box opened here runs."
+
+[defines.SSH_CONNECTION]
+type = "string"
+description = "Set over SSH: logins print their address instead of opening a browser."
+
+[defines.SSH_TTY]
+type = "string"
+description = "Set over SSH: logins print their address instead of opening a browser."
+
+[defines.TERM]
+type = "string"
+description = "Your terminal's kind, kept for programs Link runs."
+
+[defines.TMPDIR]
+type = "string"
+description = "Where programs Link runs keep temporary files."
+
+[defines.USER]
+type = "string"
+description = "Who you are: named in a box's or a service's unit, kept for programs Link runs, and scrubbed from reports."
+
+[defines.WAYLAND_DISPLAY]
+type = "string"
+description = "Your Wayland desktop, which a sandbox opens only when its specification grants the desktop."
+
+[defines.XDG_CONFIG_HOME]
+type = "string"
+description = "Your settings folder (Linux) [default: `~/.config`]: where services' units and programs' dot files are."
+
+[defines.XDG_RUNTIME_DIR]
+type = "string"
+description = "Your runtime folder (Linux), where Link's sockets and services live."
+
+[[uses]]
+name = "LNK_ARTIFACT_CACHE"
+access = ["read", "set", "unset"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_INNER"
+access = ["read"]
+context = "runtime"

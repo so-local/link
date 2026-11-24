@@ -1,0 +1,4 @@
+schema = 1
+kind = "archive"
+current = 1
+command = "lnk archive export"

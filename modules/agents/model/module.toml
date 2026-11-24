@@ -1,0 +1,41 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+# What leads into the module from `lnk up`.
+next = ["model.model.install", "model.model.list", "model.model.serve"]
+recommends = [{dependency = "agent"}, {dependency = "sandbox"}]
+
+["module"]
+id = "model"
+"kind" = "module"
+owner = "modules/agents/model"
+
+["menu"]
+"label" = "Serve local models"
+"group" = "models"
+"default" = true
+"next" = "lnk model list"
+
+["documentation"]
+"topic" = "agents/models"
+"root" = "docs"
+
+[pins.ollama]
+file = "externals.json"
+pointer = "/ollama"
+
+[dependencies.ollama]
+kind = "external"
+id = "ollama"
+
+[dependencies.agent]
+kind = "module"
+id = "agent"
+
+[dependencies.sandbox]
+kind = "module"
+id = "sandbox"

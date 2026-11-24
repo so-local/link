@@ -1,0 +1,10 @@
+schema = 1
+# A teammate's messages taken today:
+# `~/.lnk/safe/agents/<agent>/received/<teammate>.json`.
+kind = "teammate messages taken"
+current = 1
+
+[[files]]
+location = "lnk.agents"
+path = "*/received/*.json"
+encoding = "json"

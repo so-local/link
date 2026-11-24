@@ -1,0 +1,119 @@
+# The phrases the docs never use for a Link concept, and what to say
+# instead, from AGENTS.md's Words: one list the `words` rule reads. A
+# phrase with a capital letter matches its case exactly; one without
+# matches any case. Each matches whole words, outside code and link
+# targets.
+
+# The pronouns a page's title never holds: a title stands alone, in a tab,
+# a search result or another page's index, where "it" names nothing. Say
+# the subject: "Choose What the Sandbox Can Reach".
+title-pronouns = [
+    "it", "its", "it's", "itself",
+    "they", "them", "their", "theirs", "themselves",
+]
+
+[[word]]
+say = "signer"
+not = ["signing key", "release key"]
+why = "\"Key\" names no Link concept: what signs is a signer"
+
+[[word]]
+say = "a credential, named by whose it is"
+not = ["model key", "provider key"]
+why = "\"Key\" names no Link concept: a secret that authorizes is a credential"
+
+[[word]]
+say = "here, or this machine"
+not = ["home machine", "local machine", "host machine"]
+why = "The machine you're typing on is here, and \"host\" names no Link concept"
+
+[[word]]
+say = "comes with, includes, provides or built-in, and ready-made only for the four agents"
+not = ["Link ships", "Local Link ships", "ships with", "shipped with", "the shipped", "a shipped", "shipped bundle", "shipped agents", "shipped harnesses"]
+why = "Ship names only the act of releasing (\"the release ships Friday\"), never what Link offers or contains"
+
+[[word]]
+say = "specification"
+not = ["spec", "specs"]
+why = "\"Spec\" is the command line's word (`--spec`, `lnk spec`), not prose's: a page writes it out, so a reader who never met it doesn't have to guess"
+
+[[word]]
+say = "configuration"
+not = ["config", "configs"]
+why = "Configuration is specifications and settings together, and prose writes it out"
+
+[[word]]
+say = "settings"
+not = ["preference", "preferences"]
+why = "A standing choice that isn't a specification is a setting"
+
+[[word]]
+say = "interoperability, or the adapters"
+not = ["interop"]
+why = "\"Interop\" is a folder's name, not a word: a reader who never met it can't guess it, so prose spells it out"
+
+# The IAM Model's Words Retired: what IAM's pages never say, each phrase
+# in its retired sense alone, so a word that stays in another sense
+# ("public key", "assign", "a role someone is assigned") still reads.
+# The `retired-words` rule reads them for the folders each workspace's
+# `iam-pages.toml` lists.
+
+[[retired]]
+say = "private key, public key, API key, signer, verifier, refresh token, access token, or credential"
+not = ["a key", "the key", "its key", "their key"]
+why = "\"Key\" alone says too many things"
+
+[[retired]]
+say = "log in"
+not = ["sign in", "signs in", "signed in", "signing in", "sign-in", "sign-ins"]
+why = "Signing means only signatures"
+
+[[retired]]
+say = "the refresh token or the login, outside an upstream issuer's own sessions"
+not = ["session token", "session tokens", "a Link session", "Link sessions"]
+why = "\"Session\" says too many things"
+
+[[retired]]
+say = "assignment; the verb is assign"
+not = ["a grant", "the grant", "the grants", "its grants", "their grants", "grant list"]
+why = "\"Grant\" as a noun says too many things"
+
+[[retired]]
+say = "nothing: an access token carries none, and the resource server decides"
+not = ["scope", "scopes", "scoped token", "scoped tokens"]
+why = "An access token carries no scope"
+
+[[retired]]
+say = "principal, or account at an issuer"
+not = ["identity", "identities"]
+why = "\"Identity\" says too many things"
+
+[[retired]]
+say = "refresh token"
+not = ["login credential", "sign-in credential", "customer credential", "renewal token", "renewal tokens"]
+why = "What a login answers is a refresh token"
+
+[[retired]]
+say = "client secret"
+not = ["service credential", "service credentials"]
+why = "What a service or box holds to log in is a client secret"
+
+[[retired]]
+say = "one-time code"
+not = ["wake proof", "wake proofs", "wake's proof"]
+why = "What a wake trades once is a one-time code"
+
+[[retired]]
+say = "resource server"
+not = ["IAM service", "IAM services"]
+why = "IAM is a protocol each node runs, never a service"
+
+[[retired]]
+say = "resource server; \"owner\" names only the person whose agent it is, or a role someone is assigned"
+not = ["owner claim", "the owner decides", "owners decide", "owning service"]
+why = "The resource server decides, and no token carries an owner"
+
+[[retired]]
+say = "party: principal, issuer, client, resource server, or directory"
+not = ["acts in the role of", "plays the role of"]
+why = "A role is only a named set of actions"

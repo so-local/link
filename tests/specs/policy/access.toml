@@ -1,0 +1,52 @@
+# Another account's cloud: the principal's policy and the cloud's [access] both say yes.
+[spec]
+schema = 1
+name = "friend"
+version = 1
+
+[[spec.allow]]
+actions = ["cloud.*"]
+on = ["*/cloud:*"]
+
+[access]
+read = ["*"]
+use = ["acct-friend"]
+admin = ["user:ownereqf7slq"]
+
+[expect]
+name = "friend"
+
+[[check]]
+as = "user:annbbwnrd2km"
+account = "acct-friend"
+action = "cloud.use"
+on = "acct-host/cloud:mac"
+said = "allowed by grant 1 and the resource's [access]"
+
+[[check]]
+as = "user:bobvctaa4sc1"
+account = "acct-stranger"
+action = "cloud.read"
+on = "acct-host/cloud:mac"
+said = "allowed by grant 1 and the resource's [access]"
+
+[[check]]
+as = "user:bobvctaa4sc1"
+account = "acct-stranger"
+action = "cloud.use"
+on = "acct-host/cloud:mac"
+said = "refused: the resource is another account's"
+
+[[check]]
+as = "user:annbbwnrd2km"
+account = "acct-friend"
+action = "cloud.admin"
+on = "acct-host/cloud:mac"
+said = "refused: the resource is another account's"
+
+[[check]]
+as = "user:annbbwnrd2km"
+account = "acct-friend"
+action = "cloud.use"
+on = "cloud:mine"
+said = "allowed by grant 1"

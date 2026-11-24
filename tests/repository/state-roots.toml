@@ -1,0 +1,2 @@
+# Link-owned hidden state has no exceptions outside Hidden.
+kept = []

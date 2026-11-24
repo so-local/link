@@ -1,0 +1,7 @@
+# The lifetime is independent of the machine's size.
+[spec]
+schema = 1
+deadline = "4h"
+
+[expect]
+size = "t3.small"

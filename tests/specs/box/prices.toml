@@ -1,0 +1,9 @@
+# Two of a size: the cheaper, though the adapter lists it second.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 4
+memory = "8 GB"
+
+[expect]
+size = "c7a.xlarge"

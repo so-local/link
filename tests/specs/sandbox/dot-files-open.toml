@@ -1,0 +1,13 @@
+# write_dot_files opens them for a folder it writes, as a sandbox that
+# commits needs.
+[spec]
+schema = 1
+[spec.files]
+write = ["app"]
+write_dot_files = ["app"]
+
+[spec.commands]
+toolchains = ["shell", "git"]
+
+[expect]
+dot_files_open = ["app"]

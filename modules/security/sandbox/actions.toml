@@ -1,0 +1,671 @@
+schema = 1
+
+[verbs]
+answer = { description = "Answer a question a sandbox waits on: allow its call once, or refuse it", effect = "insert" }
+bridge = { description = "Answer a sandbox's calls to its own routes on a socket, until none comes for a while", effect = "insert" }
+confine = { description = "Run a program under the sandbox's innermost walls", effect = "insert" }
+dns-socket = { description = "Listen for DNS inside a sandbox's network and hand the sockets over", effect = "insert" }
+enter = { description = "Run an SSH session or command in a sandbox", effect = "insert" }
+learn = { description = "Run a command with every program open and list those to allow", effect = "insert" }
+lookup = { description = "Say whether a Mach service is reachable", effect = "find" }
+loopback = { description = "Run a program whose only network is this machine's ports", effect = "insert" }
+mcp-namespace = { description = "Serve a namespace over existing MCP servers", effect = "insert" }
+mcp-remote = { description = "Speak MCP over standard input and output to a server at a URL", effect = "insert" }
+mcp-shared = { description = "Run a shared tool's server once for every session", effect = "insert" }
+on-stop = { description = "Name the command that stops a program running sandboxed in the background", effect = "find" }
+placeholders = { description = "Hold dot-file placeholders while a wrapped program runs, and sweep Link's data folders after", effect = "insert" }
+proxy = { description = "Run a sandbox's filtering proxy", effect = "insert" }
+proxy-inside = { description = "Run a program with its proxy's port, inside a sandbox", effect = "insert" }
+refusals = { description = "Run a sandboxed program, naming each program its specification refuses", effect = "insert" }
+try-exec = { description = "Try a way around a sandbox's program list", effect = "insert" }
+worker = { description = "Launch a box's worker with its own identity", effect = "insert" }
+workers = { description = "Install and maintain a box's worker launcher", effect = "update" }
+wrap = { description = "Write the command that runs another in a sandbox", effect = "find" }
+
+[actions."sandbox.sandbox.answer"]
+description = "Answer a question waiting: allow a call once, or refuse it"
+role = "secondary"
+output = "ended"
+next = ["sandbox.question.list"]
+docs = "/security/sandbox/tools/questions#answer-what-a-sandbox-asks"
+
+[actions."sandbox.sandbox.answer".args]
+id = { type = "string", description = "The question's id", required = true, x-link-cli = { position = 1 } }
+answer = { enum = ["yes", "no"], description = "Your answer", required = true, x-link-cli = { position = 2 } }
+
+[actions."sandbox.question.list"]
+description = """
+List the questions waiting on your answer
+
+A call that asks you first (a tool's, a page to open) asks in a dialog
+on this computer's screen, or on the terminal the sandbox was started
+from. With neither (a program in the background on a box), it waits here
+for two minutes, then it's no: `lnk sandbox answer` answers.
+"""
+role = "secondary"
+output = "asked"
+next = ["sandbox.sandbox.answer"]
+docs = "/security/sandbox/tools/questions#answer-what-a-sandbox-asks"
+
+[actions."sandbox.question.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."sandbox.sandbox.bridge"]
+description = """
+For `sandbox proxy`: answer a sandbox's calls to its tools, and to open
+pages in your browser, on a socket, until none comes for a while (a
+proxy starts it)
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.bridge".args]
+keys = { type = "string", x-link-path = true, description = "The keyring each call is proved against", required = true }
+runtime = { type = "string", x-link-path = true, description = "The runtime folder its sockets are in", required = true }
+settings = { type = "string", x-link-path = true, description = "Link's settings, whose user it serves", required = true }
+socket = { type = "string", x-link-path = true, description = "Its socket, where a proxy calls it", required = true }
+
+[actions."sandbox.sandbox.check"]
+description = """
+Test the sandbox: try from inside it what it shouldn't allow
+
+Sets up bait (a secret in your home folder and in Link's settings, a
+server on another localhost port, a program with the secret in its
+environment) and tries to reach each from inside a sandbox opened as the
+flags say. Exits 1 if something got through that shouldn't have.
+
+First it makes sure the sandbox can run on this machine. On Linux the
+sandbox is bubblewrap; where Ubuntu (23.10 and newer) keeps it from
+making the user namespaces it needs, this offers to allow it (with
+sudo), and with --yes installs and allows it where sudo needs no
+password. On macOS it is Seatbelt, always there. With --ready it stops
+there, trying nothing from inside.
+"""
+role = "secondary"
+output = "ended"
+next = ["sandbox.sandbox.run", "sandbox.sandbox.list", "sandbox.log.show", "sandbox.question.list", "sandbox.permission.list"]
+docs = "/security/sandbox/guide#sandbox-guide"
+spec = "sandbox"
+
+[actions."sandbox.sandbox.check".args]
+dot-files-closed = { type = "array", items = { type = "string", x-link-path = true }, description = "A folder it writes whose dot files it must not (repeatable)", x-link-cli = { hidden = true } }
+dot-files-open = { type = "array", items = { type = "string", x-link-path = true }, description = "A folder it writes whose dot files it must write too (repeatable)", x-link-cli = { hidden = true } }
+policy = { type = "boolean", description = """
+For other `lnk` commands: read the confinement to check as JSON on stdin,
+{"confinement"} (link_core::sandbox's Wrap)
+""", x-link-cli = { hidden = true } }
+reaches = { type = "array", items = { type = "string" }, description = """
+A host[:port] it must reach (repeatable; port 443 if none): fails unless
+its proxy takes it
+""", x-link-cli = { hidden = true } }
+reads = { type = "array", items = { type = "string", x-link-path = true }, description = "A folder it must read (repeatable): a shared folder it's granted", x-link-cli = { hidden = true } }
+refuses = { type = "array", items = { type = "string" }, description = "A host[:port] it must not reach (repeatable)", x-link-cli = { hidden = true } }
+refuses-program = { type = "array", items = { type = "string" }, description = "A program it must not run (repeatable)", x-link-cli = { hidden = true } }
+refuses-read = { type = "array", items = { type = "string", x-link-path = true }, description = "A folder it must not read (repeatable): a shared folder it isn't granted", x-link-cli = { hidden = true } }
+runs = { type = "array", items = { type = "string" }, description = "A program it must run (repeatable): a name on PATH, or a path", x-link-cli = { hidden = true } }
+upstream = { type = "string", description = """
+Where its internet traffic leaves from: direct, a SOCKS5 upstream on
+this machine (socks5://127.0.0.1:<port>, or socks5://<socket> with a
+Unix socket's absolute path), or an HTTP proxy on its loopback
+(http://127.0.0.1:<port>), handed each host's name [default: direct]
+""" }
+ready = { type = "boolean", description = "Only make sure the sandbox can run on this machine, trying nothing from inside" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."sandbox.sandbox.confine"]
+description = """
+Run a program under the seccomp filter (the first thing inside the
+sandbox, on Linux)
+"""
+role = "plumbing"
+output = "ended"
+checks = ["confined_as_asked"]
+
+[actions."sandbox.sandbox.confine".args]
+argv = { type = "array", items = { type = "string" }, description = "The program it runs, after `--`", required = true, x-link-cli = { rest = true, last = true } }
+exec = { type = "array", items = { type = "string", x-link-path = true }, description = "A program, or a folder of them, it may run (repeatable)" }
+file-wall = { type = "boolean", description = """
+Landlock's second file wall holds the grants again, beyond the mounts
+(Linux)
+""" }
+only = { type = "boolean", description = "Only the programs given with --exec run (Landlock)" }
+read = { type = "array", items = { type = "string", x-link-path = true }, description = "A path the file wall lets it read (repeatable, with --file-wall)" }
+worker-dir = { type = "string", x-link-path = true, description = "The working folder, entered after dropping privilege (Linux)" }
+worker-group = { type = "array", items = { type = "integer", minimum = 0, maximum = 4294967295 }, description = "A fresh, unprivileged worker group (repeatable, Linux)" }
+worker-user = { type = "integer", minimum = 0, maximum = 4294967295, description = "Drop all saved user IDs to this worker before entering (Linux)" }
+write = { type = "array", items = { type = "string", x-link-path = true }, description = "A path the file wall lets it write (repeatable, with --file-wall)" }
+
+[actions."sandbox.sandbox.connect"]
+description = """
+Join stdin and stdout to host:port through the sandbox's proxy (inside
+the sandbox): ssh's ProxyCommand
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.connect".args]
+host = { type = "string", description = "The host to reach", required = true, x-link-cli = { position = 1 } }
+port = { type = "integer", minimum = 0, maximum = 65535, description = "Its port", required = true, x-link-cli = { position = 2 } }
+
+[actions."sandbox.sandbox.dns-socket"]
+description = """
+For `sandbox proxy --dns` (Linux): join the network of bubblewrap's
+sandbox `pid`, as its owner, listen on its 127.0.0.1:53, and hand the
+sockets over `fd`
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.dns-socket".args]
+fd = { type = "integer", minimum = -2147483648, maximum = 2147483647, description = "The socket to hand the listening sockets over", required = true }
+pid = { type = "integer", minimum = 0, maximum = 4294967295, description = "The process of bubblewrap's sandbox, whose network it joins", required = true }
+
+[actions."sandbox.sandbox.enter"]
+description = """
+For sshd: a session in a sandbox, for a key that runs only this (a box
+user's, `lnk box user add`), whose sandbox is a specification and whose folder is
+the one place it writes; and a run as one, its command after `--`
+"""
+role = "plumbing"
+output = "ended"
+checks = ["entered_as_asked"]
+
+[actions."sandbox.sandbox.enter".args]
+command = { type = "array", items = { type = "string" }, description = "A run's command line, in place of the session's (SSH_ORIGINAL_COMMAND)", x-link-cli = { rest = true, last = true } }
+check = { type = "boolean", description = "Say what the sandbox opens, a line each, and run nothing" }
+folder = { type = "string", x-link-path = true, description = "The one folder the session writes, absolute", required = true }
+keep-env = { type = "array", items = { type = "string" }, description = "A variable of this environment the program is given, by name (repeatable)" }
+spec = { type = "string", x-link-path = true, description = "The session's sandbox, a specification file, read as any is, named for its file", required = true }
+
+[actions."sandbox.sandbox.learn"]
+description = """
+Run a command once with every program open, and list those to allow
+
+Runs it under the specification's other grants and the flags', records each
+program it starts, and prints the lines to add to [commands] allow,
+writing nothing. It never offers a program in a folder the sandbox may
+write or in /tmp, and marks interpreters, which run any code they're
+given. On macOS it reads what Seatbelt reports in the system log, which
+takes an admin user. `lnk sandbox learn --spec app.toml -- npm test`
+"""
+role = "secondary"
+output = "ended"
+next = ["sandbox.sandbox.run"]
+docs = "/security/sandbox/wall#naming-a-refused-program"
+spec = "sandbox"
+
+[actions."sandbox.sandbox.learn".args]
+commands = { type = "array", items = { type = "string" }, description = "The command, after `--`", required = true, x-link-cli = { rest = true } }
+upstream = { type = "string", description = """
+Where its internet traffic leaves from: direct, a SOCKS5 upstream on
+this machine (socks5://127.0.0.1:<port>, or socks5://<socket> with a
+Unix socket's absolute path), or an HTTP proxy on its loopback
+(http://127.0.0.1:<port>), handed each host's name [default: direct]
+""" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."sandbox.log.show"]
+description = """
+Show every call on the sandboxes' wires, their one way out
+
+One line per call on a sandbox's filtering proxy (a background program's, a box user's,
+a run's): when, which sandbox, the verb (connect, tcp, http, mcp, model,
+local-model, secret, port, dns, open, callback, browser, unknown; pause
+when its wire was paused), where to, whether it was allowed, and the
+bytes each way. Never a request's path, headers or body. Kept in Link's
+settings, which no sandbox reaches.
+"""
+role = "secondary"
+output = "log"
+next = ["sandbox.sandbox.list", "sandbox.sandbox.show"]
+docs = "/security/sandbox/security/log#see-every-call-on-the-wire"
+
+[actions."sandbox.log.show".args]
+json = { x-link-cli = { shared = "json" } }
+lines = { type = "integer", minimum = 0, description = "How many of the latest calls to show [default: 40]", x-link-cli = { short = "n" } }
+refused = { type = "boolean", description = "Only the calls refused" }
+sandbox = { type = "string", description = "Only this sandbox's calls (`main-link`, `alice`)" }
+
+[actions."sandbox.sandbox.list"]
+description = """
+List the sandboxes this machine knows, running or not
+
+Each sandbox whose proxy runs now, and each that has run (its calls are
+in `lnk sandbox log show`), with whether its way out is paused and why. A
+sandbox is paused by `lnk sandbox stop <name>`, or by its proxy when its calls
+looked like no normal work. With --paused, only those paused. Says too
+whether every wire is stopped (`lnk sandbox stop`).
+"""
+role = "secondary"
+output = "sandboxes"
+next = ["sandbox.sandbox.show", "sandbox.sandbox.start"]
+docs = "/security/sandbox/guide#stop-a-sandbox"
+
+[actions."sandbox.sandbox.list".args]
+json = { x-link-cli = { shared = "json" } }
+paused = { type = "boolean", description = "Only the sandboxes whose way out is paused, and why" }
+
+[actions."sandbox.sandbox.lookup"]
+description = """
+For `check` (macOS): exit 0 if the Mach service named is reachable from
+here
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.lookup".args]
+service = { type = "string", description = "The Mach service's name", required = true, x-link-cli = { position = 1 } }
+
+[actions."sandbox.sandbox.loopback"]
+description = "Run a program whose only network is this machine's ports"
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.loopback".args]
+argv = { type = "array", items = { type = "string" }, description = "The program it runs, after `--`", required = true, x-link-cli = { rest = true, last = true } }
+dir = { type = "string", x-link-path = true, description = "The folder of the sockets between the sandbox and this machine", required = true }
+inside = { type = "boolean", description = "Run inside the sandbox: serve those ports on its own loopback" }
+reach = { type = "string", description = "This machine's ports, comma-separated, it may reach" }
+
+[actions."sandbox.sandbox.mcp-namespace"]
+description = "Serve a host-defined namespace over existing MCP servers"
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.mcp-namespace".args]
+file = { type = "string", x-link-path = true, description = "The host's private namespace definition", required = true, x-link-cli = { position = 1 } }
+by = { enum = ["model", "owner"], default = "model", description = "Who makes its calls: the model, through the program running it, or the owner, from their own command line, whose calls skip each argument's ask (--ask-if) though never a whole call's" }
+
+[actions."sandbox.sandbox.mcp-remote"]
+description = """
+MCP over stdio to a server at a URL (outside the sandbox): a remote
+tool's command
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.mcp-remote".args]
+url = { type = "string", description = "The server's URL", required = true, x-link-cli = { position = 1 } }
+
+[actions."sandbox.sandbox.mcp-shared"]
+description = """
+A shared tool's hub (outside the sandbox): its server, run once for
+every session, which proxies start as they need it
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.mcp-shared".args]
+name = { type = "string", description = "The tool", required = true, x-link-cli = { position = 1 } }
+defined = { type = "string", description = "What its server runs as, the key its socket is named by", required = true, x-link-cli = { position = 2 } }
+dir = { type = "string", x-link-path = true, description = "Link's sandbox/ settings folder, as its proxy has it: its settings are read there" }
+runtime = { type = "string", x-link-path = true, description = "The runtime folder its socket is in, as its proxy has it" }
+
+[actions."sandbox.sandbox.on-stop"]
+description = """
+For a program that runs sandboxed in the background: the
+`lnk` command stopping it, which `lnk sandbox stop` runs after closing
+the wires; without one, it's forgotten
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.on-stop".args]
+name = { type = "string", description = "What it's known by (letters, digits, dashes)", required = true, x-link-cli = { position = 1 } }
+args = { type = "array", items = { type = "string" }, description = "`lnk`'s arguments: the command that stops it, without `lnk`", x-link-cli = { rest = true, last = true } }
+
+[actions."sandbox.permission.list"]
+description = "List what a sandbox can be opened to: a specification's sections and flags"
+role = "secondary"
+output = "ended"
+next = ["sandbox.sandbox.run"]
+fail = ["sandbox.sandbox.check"]
+docs = "/security/sandbox/security/permission#list-the-permissions"
+
+[actions."sandbox.sandbox.placeholders"]
+description = "Hold project dot-file placeholders while the wrapped program runs, and sweep what it made in Link's data folders."
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.placeholders".args]
+wanted = { type = "array", items = { type = "string" }, description = "Placeholder kind, absolute project folder, and relative path, in triples, a flag each (repeatable)." }
+swept = { type = "array", items = { type = "string" }, description = "In Link's data folders, a dot file's kind, absolute folder, and relative path, in triples, a flag each, removed when the program ends if it made one (repeatable)." }
+command = { type = "array", items = { type = "string" }, description = "The wrapped program and its unchanged arguments after --.", required = true, x-link-cli = { rest = true, last = true } }
+dir = { type = "string", x-link-path = true, description = "The trusted sandbox settings folder that records held placeholders.", required = true }
+
+[actions."sandbox.sandbox.proxy"]
+description = """
+Run a sandbox with its filtering proxy (outside the sandbox; `wrap`
+writes this command)
+"""
+role = "plumbing"
+output = "ended"
+checks = ["proxied_as_asked"]
+
+[actions."sandbox.sandbox.proxy".args]
+argv = { type = "array", items = { type = "string" }, description = "The program it runs, after `--`", x-link-cli = { rest = true, last = true } }
+agent-user = { type = "integer", minimum = 0, maximum = 4294967295, description = "The sandboxed program's user, by its uid, when the proxy runs as another: it takes in.sock only from it, and its folder is theirs by --group (2770)" }
+binder = { type = "integer", minimum = 0, maximum = 4294967295, description = "One more user, by its uid, whose bind it takes, with --blank: a service binding a proxy that runs as another user" }
+blank = { type = "boolean", description = """
+Linux: start holding nothing of anyone's, answering every request 503,
+until one bind arrives on --control
+""" }
+control = { type = "string", x-link-path = true, description = "The socket (made 0600) the one bind arrives on, with --blank" }
+desktop = { type = "array", items = { type = "string" }, description = """
+A variable of your desktop session, NAME=value, where it asks you and
+tells you (repeatable; Linux)
+""" }
+dir = { type = "string", x-link-path = true, description = "Linux: the folder of the sockets into the sandbox's network" }
+dns = { type = "boolean", description = """
+Linux: answer DNS in the sandbox's network (its tcp endpoints' names,
+its hosts'); argv is bubblewrap's, which waits for it
+""" }
+delete-routes = { type = "boolean", description = """
+Remove the --routes file once read: a run's, which nothing starts again
+(`lnk sandbox run` gives it)
+""" }
+group = { type = "integer", minimum = 0, maximum = 4294967295, description = "The group, by its gid, only the sandboxed program's user and the proxy's share, which the socket folder and its sockets are of" }
+hold = { type = "boolean", description = """
+Linux: run no program, until stopped: the sandbox it serves is started
+apart, and reaches it through --dir
+""" }
+host = { type = "array", items = { type = "string" }, description = "The only hosts it may reach (repeatable)" }
+lan = { type = "array", items = { type = "string" }, description = """
+A machine of your network it may reach: a name, an address, a range, or
+* for the private ranges (repeatable)
+""" }
+launch = { type = "string", x-link-path = true, description = "Private launch metadata, filled after the loopback listener binds" }
+listen = { type = "integer", minimum = 0, maximum = 65535, description = "macOS: the loopback port to serve the proxy on" }
+name = { type = "string", description = "The sandbox's name (its policy's), for the wire's log" }
+no-internet = { type = "boolean", description = "No internet: only --lan and its routes" }
+per-minute = { type = "integer", minimum = 0, maximum = 4294967295, description = "The most calls it takes within a minute" }
+pointed-by = { type = "string", description = """
+The variable whose address points its program here (HTTPS_PROXY), naming
+the run's password: a CONNECT or plain http:// request without it gets a
+407 (`lnk sandbox wrap` gives it for a proxy on this machine's loopback)
+""" }
+reach = { type = "string", description = "This machine's ports, comma-separated, it may reach" }
+routes = { type = "string", x-link-path = true, description = """
+A file with its routes (its tools, models, secrets, pages it opens) and
+who calls them (`lnk sandbox wrap` writes it, out of the sandbox's reach)
+""" }
+routes-handed = { type = "string", description = """
+The variable its routes and who calls them were handed by, on a pipe
+(`lnk sandbox run` hands them, never in a file)
+""" }
+serve = { type = "string", description = "Its own ports, comma-separated, served on this machine's loopback" }
+tcp = { type = "array", items = { type = "string" }, description = "An endpoint it may reach beyond HTTPS and HTTP (repeatable)" }
+upstream = { type = "string", description = """
+Where its internet traffic leaves from: direct, or a SOCKS5 upstream on
+this machine
+""" }
+url-secret = { type = "string", x-link-path = true, x-link-sensitive = true, description = """
+A file with the secret its routes' URLs carry (`lnk sandbox wrap` writes
+it); without it, no route that needs one
+""" }
+wire = { type = "string", x-link-path = true, description = """
+The folder of the wire's log and stop flag, in Link's settings [default:
+found from HOME, which the program starting the sandbox may set to its own]
+""" }
+
+[actions."sandbox.sandbox.proxy-inside"]
+description = "Run a program with its proxy port (inside the sandbox)"
+role = "plumbing"
+output = "ended"
+checks = ["proxied_inside_as_asked"]
+
+[actions."sandbox.sandbox.proxy-inside".args]
+argv = { type = "array", items = { type = "string" }, description = "The program it runs, after `--`", required = true, x-link-cli = { rest = true, last = true } }
+also = { type = "array", items = { type = "string" }, description = """
+Another proxy's folder of sockets and the port it's reached at inside,
+DIR=PORT (repeatable): one sandbox reaching several proxies
+""" }
+dir = { type = "string", x-link-path = true, description = "The folder of the sockets out of the sandbox's network", required = true }
+port = { type = "integer", minimum = 0, maximum = 65535, description = "The port its proxy listens on, inside", required = true }
+reach = { type = "string", description = "This machine's ports, comma-separated, it may reach" }
+shared = { type = "boolean", description = "Its folders are shared with their proxies by a group: in.sock is made 0660, of the folder's group" }
+tcp = { type = "array", items = { type = "string" }, description = """
+An endpoint named (repeatable): those it reaches by name are listened
+for inside
+""" }
+
+[actions."sandbox.sandbox.refusals"]
+description = """
+Run a sandboxed program, naming each program [commands] refuses it, from
+what Seatbelt reports in the system log (macOS)
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.refusals".args]
+argv = { type = "array", items = { type = "string" }, description = "The program it runs, after `--`", required = true, x-link-cli = { rest = true, last = true } }
+exec = { type = "array", items = { type = "string", x-link-path = true }, description = "A program, or a folder of them, it may run (repeatable)" }
+
+[actions."sandbox.sandbox.run"]
+description = """
+Run a command in the sandbox: your files and network closed
+
+It reads the system's programs and libraries, and nothing else of this
+machine unless opened here: not your home folder, not your other
+servers, not Link's settings, no network. Its environment is cleared but
+for PATH, HOME, TERM, the locale and who you are. `lnk sandbox run
+--commands.toolchains shell --files.write . -- bash` gives a shell that can
+change only this folder; `--internet.hosts '*'` gives it the internet but
+nothing on this machine or its networks. A run grants no program until
+`--commands.allow` or its specification names one.
+"""
+role = "secondary"
+output = "ended"
+fail = ["sandbox.sandbox.learn", "sandbox.sandbox.check"]
+docs = "/security/sandbox/guide#sandbox-guide"
+spec = "sandbox"
+
+[actions."sandbox.sandbox.run".args]
+commands = { type = "array", items = { type = "string" }, description = "The command, after `--`", required = true, x-link-cli = { rest = true } }
+upstream = { type = "string", description = """
+Where its internet traffic leaves from: direct, a SOCKS5 upstream on
+this machine (socks5://127.0.0.1:<port>, or socks5://<socket> with a
+Unix socket's absolute path), or an HTTP proxy on its loopback
+(http://127.0.0.1:<port>), handed each host's name [default: direct]
+""" }
+with-fd = { type = "integer", minimum = -2147483648, maximum = 2147483647, description = """
+For other `lnk` commands: a descriptor to read JSON from first, {"env",
+"named", "secrets", "serve", "write"}: what a command line shouldn't show
+""", x-link-cli = { hidden = true } }
+yes = { x-link-cli = { shared = "yes" } }
+
+
+[actions."sandbox.sandbox.show"]
+description = """
+Show each running sandbox: its proxy, and what it has carried each way
+
+Counted in bytes since its proxy started, for every call it let through:
+what the sandbox sent (up) and received (down). Read by `lnk measure`.
+With a name, that sandbox alone.
+"""
+role = "secondary"
+output = "carried"
+next = ["sandbox.sandbox.list", "sandbox.log.show"]
+docs = "/security/sandbox/guide#see-what-each-sandbox-sent"
+
+[actions."sandbox.sandbox.show".args]
+json = { x-link-cli = { shared = "json" } }
+name = { type = "string", description = "Only this sandbox (`main-link`, `alice`)", x-link-cli = { position = 1 } }
+
+[actions."sandbox.sandbox.start"]
+description = """
+Open the sandboxes' ways out again: every wire, or one sandbox's
+
+With no name, the wires stopped by `lnk sandbox stop` carry calls again;
+the programs that stopped with them stay stopped until started. With a
+name, that sandbox's way out opens again, whether `lnk sandbox stop
+<name>` closed it or its proxy did (`lnk sandbox list --paused` says
+why).
+"""
+role = "secondary"
+output = "ended"
+next = ["sandbox.sandbox.list"]
+docs = "/security/sandbox/guide#stop-a-sandbox"
+
+[actions."sandbox.sandbox.start".args]
+name = { type = "string", description = "Only this sandbox (`main-link`, `alice`; `lnk sandbox list` names them)", x-link-cli = { position = 1 } }
+
+[actions."sandbox.sandbox.stop"]
+description = """
+Stop every sandbox's way out at once, and the programs sandboxed here, or one sandbox's way out
+
+With no name, every wire refuses every call, those in progress end
+within a second, and every program running sandboxed here in the
+background stops (what asked to stop with it, `on-stop`). A sandbox
+without a wire (one with `[network] mode = "host"`) has the network
+directly, and only stopping it stops that. The log stays.
+
+With a name, only that sandbox's wire refuses every call, and its
+program keeps running. A sandbox's proxy closes its own wire this way
+when its calls look like no normal work: a burst of refused calls, many
+hosts or ports tried in turn, a cloud's metadata service asked for.
+`lnk sandbox start` opens them again.
+"""
+role = "secondary"
+output = "ended"
+next = ["sandbox.sandbox.start", "sandbox.sandbox.list"]
+docs = "/security/sandbox/guide#stop-a-sandbox"
+
+[actions."sandbox.sandbox.stop".args]
+name = { type = "string", description = "Only this sandbox (`main-link`, `alice`; `lnk sandbox list` names them)", x-link-cli = { position = 1 } }
+
+[actions."sandbox.tool.add"]
+description = """
+Add a tool: an MCP server that runs outside the sandbox
+
+For what the sandbox keeps out: your logins, the desktop, `gh` or `aws`
+with your credentials. It runs in / with your captured PATH and HOME,
+never in a sandbox. With --url, it's a server at a URL,
+reached from here with its headers (a token), which no sandbox sees. A
+sandbox reaches it only when named (`lnk sandbox run --commands.toolchains shell
+--tools.names <name> -- <command>`), on its proxy, and every call
+asks you first but those --allow names. Adding a name again replaces it.
+"""
+role = "secondary"
+output = "ended"
+checks = ["one_server"]
+next = ["sandbox.sandbox.run", "sandbox.tool-call.list"]
+fail = ["sandbox.tool.list"]
+docs = "/security/sandbox/reach#call-a-tool-that-runs-outside"
+
+[actions."sandbox.tool.add".args]
+name = { type = "string", description = "Its name: lowercase letters, digits and dashes (`gh`)", required = true, x-link-cli = { position = 1 } }
+command = { type = "array", items = { type = "string" }, description = "The server's command (stdio), after `--`", x-link-cli = { rest = true, last = true } }
+add = { type = "array", items = { type = "string" }, description = """
+A call that doesn't ask (repeatable): the server's own name for it, as
+`lnk sandbox tool-call list` lists them
+""" }
+ask = { enum = ["all", "none"], description = "Which calls ask you: all but those allowed, or none [default: all]" }
+ask-if = { type = "array", items = { type = "string", pattern = "^[^.]+\\.[^.]+$" }, description = """
+A call that asks by one of its boolean arguments, <call>.<argument>
+(repeatable): asked unless that argument is given false, even when
+--allow names the call (`schedule.recurring`)
+""" }
+ask-if-hint = { type = "string", description = """
+With --ask-if, what lets a call it asks by through, in the words of
+whoever added the tool (an owner's setting): named when the call is
+refused with no one to answer, since --allow doesn't
+""" }
+env = { type = "array", items = { type = "string" }, description = """
+A variable for its environment, NAME=value, or NAME for its value here
+(repeatable): `AWS_PROFILE`, `NODE_EXTRA_CA_CERTS`. A secret's name
+alone (`GITHUB_TOKEN`), never its value on the command line
+""" }
+header-file = { type = "string", x-link-path = true, description = """
+With --url, a file of headers sent with each request, `Name: value` a
+line (`Authorization: Bearer <token>`), or `-` for standard input: never
+on the command line, where other users of this machine can see them
+""" }
+shared = { type = "boolean", description = """
+One server for every session of every sandbox naming it, started when
+first needed and stopped once idle, not one each: a shared memory
+""" }
+url = { type = "string", description = """
+A server at a URL instead (streamable HTTP): https://, or http:// on
+this machine
+""" }
+
+[actions."sandbox.tool-call.list"]
+description = "List a tool's calls, from its server, started here"
+role = "secondary"
+output = "ended"
+docs = "/security/sandbox/tools/tool-calls#list-a-tools-calls"
+
+[actions."sandbox.tool-call.list".args]
+name = { type = "string", description = "The tool", required = true, x-link-cli = { position = 1 } }
+
+[actions."sandbox.tool.list"]
+description = "List the tools, and which calls ask"
+role = "secondary"
+output = "tools-listed"
+next = ["sandbox.tool.add"]
+fail = ["sandbox.sandbox.check"]
+docs = "/security/sandbox/tools#tools-and-asking"
+
+[actions."sandbox.tool.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."sandbox.tool.remove"]
+description = "Remove a tool: no sandbox reaches it anymore"
+role = "secondary"
+output = "ended"
+next = ["sandbox.tool.list"]
+fail = ["sandbox.tool.list"]
+docs = "/security/sandbox/reach#call-a-tool-that-runs-outside"
+
+[actions."sandbox.tool.remove".args]
+name = { type = "string", description = "The tool", required = true, x-link-cli = { position = 1 } }
+
+[actions."sandbox.sandbox.try-exec"]
+description = """
+For `check`: try a way around [commands] to run a program, exiting 0
+only if the program ran (so a leak is a success)
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.try-exec".args]
+how = { type = "string", description = """
+The way to try: ldso, preload, memfd, memfd-proc, memfd-huge or
+written-proc
+""", required = true }
+lib = { type = "string", x-link-path = true, description = "A library to preload (for the preload way)" }
+loader = { type = "string", x-link-path = true, description = "The dynamic loader (for the ldso way)" }
+payload = { type = "string", x-link-path = true, description = "A program that exits 0, to try to run around the list", required = true }
+write = { type = "string", x-link-path = true, description = "A folder the sandbox may write (for the written-file ways)" }
+
+[actions."sandbox.sandbox.worker"]
+description = "Launch an ordinary box's worker with an isolated host identity and state mounts"
+role = "plumbing"
+output = "ended"
+
+[actions."sandbox.sandbox.worker".args]
+argv = { type = "array", items = { type = "string" }, description = "The wrapped command, after `--`", required = true, x-link-cli = { rest = true, last = true } }
+parent-fd = { type = "array", items = { type = "integer", minimum = -2147483648, maximum = 2147483647 }, description = "The pinned lifetime of the controller (Linux)" }
+plan = { type = "string", x-link-path = true, description = "The controller's prepared worker plan", required = true }
+
+[actions."sandbox.sandbox.workers"]
+description = "Install and maintain an ordinary box's root worker launcher"
+role = "plumbing"
+output = "ended"
+checks = ["one_task"]
+
+[actions."sandbox.sandbox.workers".args]
+configure = { type = "boolean", description = "Root's configuration input, from the installer" }
+install = { type = "boolean", description = "Install the launcher for this box's controller" }
+reap = { type = "boolean", description = "Clean interrupted worker identities, as root" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."sandbox.sandbox.wrap"]
+description = """
+For other `lnk` commands: reads {"confinement", "argv"} as JSON on stdin and
+prints {"argv", "env"}, the command that runs argv in the sandbox and
+what to add to its environment
+"""
+role = "plumbing"
+output = "ended"

@@ -1,0 +1,9 @@
+schema = 1
+kind = "agents run"
+current = 1
+command = "lnk agent list"
+
+[[files]]
+location = "lnk.agent-places"
+path = "hosts.toml"
+encoding = "toml"

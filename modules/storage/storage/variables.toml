@@ -1,0 +1,26 @@
+schema = 1
+
+[defines.LNK_PERSONAL_DIR]
+type = "string"
+description = "Your files folder, an absolute path."
+
+[defines.LNK_RCLONE]
+type = "string"
+description = "Run this rclone instead, unchecked (tests)."
+
+[[uses]]
+name = "GOOGLE_APPLICATION_CREDENTIALS"
+access = ["unset", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "AWS_RESPONSE_CHECKSUM_VALIDATION"
+access = ["set"]
+context = "runtime"
+
+[namespaces]
+"RCLONE_*" = "rclone's own settings, each removed from its run so only Link's settings file sets it up"
+"AWS_*" = "AWS's sign-in variables, removed from a run that signs in as a cloud's own account"
+
+[readers]
+"rclone::running::command" = "A cloud's sign-in variables, as its account returns them, handed to rclone's run"

@@ -1,0 +1,11 @@
+schema = 1
+# A region's prices as an adapter read them, kept a while:
+# `~/.lnk/safe/clouds/prices/<kind>/prices/<place>.json`.
+kind = "cloud prices"
+current = 1
+command = "lnk cloud"
+
+[[files]]
+location = "lnk.prices"
+path = "*/prices/*.json"
+encoding = "json"

@@ -1,0 +1,47 @@
+[package]
+authors.workspace = true
+name = "link-sandbox-bridge"
+description = "The package `link-sandbox-bridge` defines what every bridge out of an agent's sandbox is"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/security/sandbox"
+
+[dependencies]
+anyhow.workspace = true
+# What a bridge asks of who may do what (`grants`).
+link-policy.workspace = true
+link-secretive.workspace = true
+futures-util.workspace = true
+ring.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+
+[dependencies.libc]
+workspace = true
+[features]
+# The test every bridge passes (`conformance`), for each bridge's tests.
+conformance = []
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-version]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-files]
+workspace = true

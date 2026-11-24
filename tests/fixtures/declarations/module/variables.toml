@@ -1,0 +1,5 @@
+schema = 1
+
+[defines.LNK_EXAMPLE_REGION]
+type = "string"
+description = "The region env probe reads when --region is absent"

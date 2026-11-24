@@ -1,0 +1,7 @@
+# Local Link repository metadata: declares this group's repository boundaries.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../docs/more/reference/files.md#layer
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+depends_on = ["packages", "core"]

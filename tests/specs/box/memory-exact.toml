@@ -1,0 +1,9 @@
+# A size in GB, exactly: between equals, the adapter's order.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 2
+memory = "8 GB"
+
+[expect]
+size = "t3.large"

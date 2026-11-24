@@ -1,0 +1,7 @@
+# Embedding models trained to be cut to fewer dimensions (Matryoshka
+# representation learning): their first dimensions hold most of what they
+# know, so memory keeps the first `[tool.memory] dimensions` as they are.
+# Any other model's vectors are turned by a fixed random rotation first
+# (`vectors.rs`). Qwen3 Embedding's model card says it supports any output
+# size from 32 dimensions, by cutting its vectors (MRL).
+cut = ["qwen3-embedding"]

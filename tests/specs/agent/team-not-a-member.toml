@@ -1,0 +1,11 @@
+# A team that doesn't list the agent sets nothing of it.
+[team.others]
+schema = 1
+id = "o4m9q2x7k1ab"
+name = "others"
+member.writer = { id = "g7h8j9k0m1n2" }
+settings.agent.turns = { rounds = 2 }
+
+[expect]
+values = { "turns.rounds" = 8 }
+from = { "turns.rounds" = "link" }

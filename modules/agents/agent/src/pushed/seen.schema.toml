@@ -1,0 +1,10 @@
+schema = 1
+# What an agent's hooks took, each kept until its keep ends:
+# `~/.lnk/safe/agents/<agent>/hooks-seen.json`.
+kind = "hook posts taken"
+current = 1
+
+[[files]]
+location = "lnk.agents"
+path = "*/hooks-seen.json"
+encoding = "json"

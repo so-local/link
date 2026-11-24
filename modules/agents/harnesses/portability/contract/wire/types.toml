@@ -1,0 +1,6 @@
+schema = 1
+
+[busy]
+type = "string"
+description = "What a message sent while a turn runs does. `queue`, it gets a turn of its own after; `steer`, it joins the running turn, at its next round; `interrupt`, the running turn ends now, and it gets a turn of its own."
+enum = ["queue", "steer", "interrupt"]

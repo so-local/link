@@ -1,0 +1,22 @@
+schema = 1
+
+# The protocol every store answers, declared once by its contract.
+[verbs]
+serve = { description = "Answer requests on standard input until it closes", effect = "insert" }
+
+[actions."store.store.serve"]
+description = "Answer storage requests on standard input"
+role = "plumbing"
+output = "served"
+
+[actions."store.record.show"]
+description = "Show one stored record"
+
+[actions."store.record.show".args]
+key = { type = "string", description = "The record, by its key", required = true, x-link-cli = { position = 1 } }
+
+[actions."store.record.delete"]
+description = "Delete one stored record"
+
+[actions."store.record.delete".args]
+key = { type = "string", description = "The record, by its key", required = true, x-link-cli = { position = 1 } }

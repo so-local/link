@@ -1,0 +1,33 @@
+schema = 1
+
+[defines.LNK_SERVICES]
+type = "string"
+description = "Set to off to disable background service management."
+
+[defines.LNK_TEST_SERVICE_SETTINGS]
+type = "string"
+description = "Debug builds only: select another service settings path while preserving root ownership, ancestor, mode and no-link trust checks."
+
+[[uses]]
+name = "USER"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_CONFIG_HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_INSTALLATION_DIR"
+access = ["set"]
+context = "runtime"
+
+[readers]
+"service::setenv_args" = "Each of this process's variables a unit is handed by name (`handed_on`): `HOME`, `PATH`, `LANG`, `XDG_CONFIG_HOME` and Link's own, never one naming a secret."
+"guest::worker::execute" = "The variables a guest's job is given, from its launch."

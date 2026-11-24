@@ -1,0 +1,11 @@
+# How long lnk-agent waits on an agent's harness (`waits.rs`), in
+# seconds.
+
+# A harness asked to stop: Link Harness's own bound for finishing the
+# turns it's answering, 30 s, and a moment to exit. One in a terminal
+# still running then is said not to stop; a shared one is killed.
+stop_secs = 35
+# One run of its health check, its sandbox's start included: one still
+# running then is ended, and the harness isn't answering. Link Harness's
+# own check gives up within 7 s.
+health_secs = 15

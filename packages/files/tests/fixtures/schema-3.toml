@@ -1,0 +1,5 @@
+schema = 3
+name = "web"
+
+[disk]
+size = 20

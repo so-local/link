@@ -1,0 +1,6 @@
+[spec]
+schema = 1
+extends = "link:other"
+
+[expect]
+invalid = "link:other"

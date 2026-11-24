@@ -1,0 +1,7 @@
+# The protocol of the question box.machine: one machine operation for
+# the VM provider, in an exchange of Box's own. One line from the asker,
+# one back, each stating the version it speaks.
+name = "box machine answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

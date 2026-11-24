@@ -1,0 +1,7 @@
+# The protocol of the question archive.carry, asked of the module that owns
+# a kind for each of its things an export writes. One line from the
+# asker, one back, each stating the version it speaks.
+name = "archive carry answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

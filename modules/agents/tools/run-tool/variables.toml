@@ -1,0 +1,20 @@
+schema = 1
+
+[[uses]]
+name = "LNK_RUN_CONTEXT"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["set"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_CORE"
+access = ["read"]
+context = "test"
+
+[readers]
+"spawn" = "The variables a run is given, as the model's call names them."
+"run_of" = "Read only the protected context variable, with --with-env; validate its typed agent, owner, binding lookup, and named routes before any task. The task never inherits that context."

@@ -1,0 +1,14 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+schema = 1
+
+# Core's shapes, which every module shares: a declaration names one as
+# `core.<name>` with no dependency, and `link-types` is their Rust.
+[module]
+id = "core"
+kind = "package"
+owner = "packages/types"

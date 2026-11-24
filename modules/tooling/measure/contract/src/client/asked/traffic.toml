@@ -1,0 +1,7 @@
+# The protocol of the question measure.traffic: what each sandbox's
+# proxy has carried. One line from the asker, one back, each stating the
+# version it speaks.
+name = "measure traffic answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

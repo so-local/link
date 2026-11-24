@@ -1,0 +1,37 @@
+# Every day, the public workspace's dependencies read again: who
+# publishes each crate and npm package, and the advisories against each
+# version locked (crates.io, npm's registry, OSV), then the trust check
+# run on what they say now. It fails on a new advisory or a package that
+# no longer passes; it changes nothing, and the fix is a pull request
+# (tests/repository/docs/more/developing/repository-checks.md).
+#
+# Actions are pinned to commits (tag in the comment), and no job gets a
+# secret.
+name: dependencies
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RUST_TOOLCHAIN: "1.99.0"
+
+jobs:
+  trust:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: read them again
+        run: LNK_TODAY="$(date -u +%F)" cargo test --locked -p link-repository-check --test repository -- --ignored refresh
+      - name: the trust check, on what they say now
+        run: cargo test --locked -p link-repository-check --test repository dependencies::every_crate_is_from

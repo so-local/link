@@ -1,0 +1,106 @@
+schema = 1
+
+# The commands an adapter (`lnk-<kind>`) answers when its account hosts
+# agents, declared once: `lnk agent` asks each of an account, its request
+# one JSON line on standard input. An adapter whose account hosts agents
+# lists them under [implements]; one that doesn't answers none of them.
+
+[verbs]
+agent-abort = { description = "Stop a move of an agent that's under way", effect = "delete" }
+agent-backup = { description = "Save a backup of an agent the account hosts", effect = "insert" }
+agent-chat = { description = "Send the owner's message to an agent the account hosts, and stream its answer back", effect = "insert" }
+agent-connect = { description = "Connect a chat app to an agent the account hosts", effect = "insert" }
+agent-create = { description = "Create an agent the account hosts, with the host's defaults", effect = "insert" }
+agent-in = { description = "Start moving an agent into the account", effect = "insert" }
+agent-left = { description = "Say what a move left behind to finish", effect = "find" }
+agent-list = { description = "List the agents the account hosts", effect = "find" }
+agent-out = { description = "Start moving an agent out of the account", effect = "insert" }
+agent-receive = { description = "Take in a moving agent's files, streamed on standard input", effect = "insert" }
+agent-restore = { description = "Restore an agent the account hosts from a backup", effect = "update" }
+agent-runs = { description = "Say whether the account runs agents", effect = "find" }
+agent-send = { description = "Stream a moving agent's files out, on standard output", effect = "find" }
+agent-team = { description = "Answer a request about a team of agents the account hosts", effect = "insert" }
+
+[actions."agent-place.agent-place.agent-abort"]
+description = "Answer the agent module's agent-abort request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-backup"]
+description = "Answer the agent module's agent-backup request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-chat"]
+description = "Answer the agent module's agent-chat request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-connect"]
+description = "Answer the agent module's agent-connect request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-create"]
+description = "Answer the agent module's agent-create request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-in"]
+description = "Answer the agent module's agent-in request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-left"]
+description = "Answer the agent module's agent-left request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-list"]
+description = "Answer the agent module's agent-list request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-out"]
+description = "Answer the agent module's agent-out request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-receive"]
+description = "Answer the agent module's agent-receive request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-restore"]
+description = "Answer the agent module's agent-restore request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-runs"]
+description = "Answer the agent module's agent-runs request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-send"]
+description = "Answer the agent module's agent-send request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"
+
+[actions."agent-place.agent-place.agent-team"]
+description = "Answer the agent module's agent-team request on standard input."
+role = "plumbing"
+stdin = "request"
+output = "reply"

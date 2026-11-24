@@ -1,0 +1,92 @@
+schema = 1
+
+[defines.LNK_OPENCLAW_MODEL_URL]
+type = "string"
+description = "The model's address in an OpenClaw provider's entry, reached through Link's proxy with the proxy's secret in it"
+
+[defines.LNK_OPENCLAW_GATEWAY_TOKEN]
+type = "string"
+description = "The OpenClaw gateway's token, kept in its .env and read back from it"
+
+[defines.NODE_OPTIONS]
+type = "string"
+description = "Node.js's options, which OpenClaw's gateway is started with, with Link's own added"
+
+[defines.OPENCLAW_HOME]
+type = "string"
+description = "Where OpenClaw keeps its configuration and state, which OpenClaw's processes never inherit: Link names their folders itself."
+
+[[uses]]
+name = "LNK_AGENT"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_FILES"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_OPENCLAW_MODEL_URL"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_OPENCLAW_GATEWAY_TOKEN"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "NODE_OPTIONS"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "NODE_OPTIONS"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "NODE_EXTRA_CA_CERTS"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "HOME"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "PATH"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_AGENT_ID"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_OWNER"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_SERVICES"
+access = ["forward"]
+context = "test"
+
+[readers]
+"serve" = "The variables OpenClaw's gateway and ACP processes are given, from the harness's launch."
+"configuring::openclaw" = "OpenClaw's file-safety variable (`FS_SAFE`), set on each OpenClaw process it runs."
+"configuring::configure" = "OpenClaw's file-safety variable (`FS_SAFE`), set on each OpenClaw process it configures."

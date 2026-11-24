@@ -1,0 +1,182 @@
+# Link's opinions: the spec every agent runs beneath its teams' and its
+# own (`lnk agent spec show` prints the whole of it, each key marked whose).
+schema = 1
+
+command_response = ""
+
+[model]
+thinking = "low"                  # on, a little, for a model that reasons
+thinking_budget = 2048            # tokens, for a model that takes a budget
+fallback = true                   # a turn its model can't answer goes to --fallback's model
+
+[model.anthropic]
+default = "claude-haiku-5-5"
+
+[model.openai]
+default = "gpt-6-luna"
+transcribe = "gpt-4o-mini-transcribe"  # what hears a voice note: OpenAI's, for every agent on it
+
+[model.openrouter]
+default = "anthropic/claude-haiku-5.5"
+
+[window]
+max = 128000                      # tokens at most, held to the model's own: no surprise bills
+unknown = 32768                   # tokens, for a model Link doesn't know
+margin = 0.125                    # an eighth kept back: tokens are counted roughly before a turn
+answer = 0.25                     # a quarter kept for the answer, at most the model's longest
+compact_at = 0.75                 # past three quarters of it, the oldest turns leave for a summary
+save_notes = true                 # and the model saves what matters to its notes first
+past_price_jump = false           # filled only up to where the model's price jumps
+
+[turns]
+rounds = 8
+calls = 16
+busy = "steer"                    # a message sent while it answers joins the answer
+renew = "10s"                     # how often a running turn renews its lease
+lapse = "60s"                     # a lease not renewed this long: its turn crashed
+
+[instructions]
+source = "link"                   # assemble sections; "none", or one Markdown file without additions
+base = "link"                     # Link's own words; "none", or a file in the agent's files
+environment = "link"              # its files folder and connections, as Link resolved them here
+skills = "link"                   # each skill's name and what it's for, from skills/<name>/SKILL.md
+persona = "instructions/persona.md"       # who it is, apart from any task: yours; "none"
+owner = "instructions/owner.md"           # who you are, as you wrote it; "none"
+standing = "instructions/instruction.md"   # yours, read as you edit it; "none"
+now = "link"                      # the date, time, connection and who's speaking, in each message
+notes = "memory/notes.md"   # what it noted for itself, with memory's remember; "none"
+repository = "link"               # the repository's AGENTS.md, else CLAUDE.md, nearest folder first; "none"
+
+[instructions.max]                # each section's most: what's past it is cut
+base = "16 KB"
+model = "8 KB"                    # instructions/models/<maker>/<model>/instruction.md, for the model it runs on
+tools = "8 KB"                    # what each tool says of itself, by whole tools
+environment = "4 KB"
+repository = "16 KB"              # the repository's AGENTS.md, else CLAUDE.md, nearest folder first
+skills = "8 KB"
+persona = "8 KB"
+owner = "8 KB"
+standing = "32 KB"
+now = "512 B"
+notes = "4 KB"
+
+[commands]                        # a message of yours that names one runs it
+help = true                       # /help: the commands that are on
+status = true                     # /status: the model and what the conversation holds
+create = true                     # /new: a new conversation in the same chat
+stop = true                       # /stop: the answer being written stopped
+model = true                      # /model: the model, or /model <name>, another of its provider's, for this conversation
+models = true                     # /models: the models its provider offers
+tasks = true                      # /tasks and /ps: running and scheduled work
+write = true                      # /learn: a skill written from what it just did, where it may write skills/
+skills = true                     # /skill:list, and /skill:<name> runs a skill, yours or the repository's
+goal = true                       # /goal: a goal it pursues after each answer, within [goals]
+resume = true                     # /chat:resume: the chat's conversations, or one taken up again
+fork = true                       # /chat:fork: a conversation holding this one as it stands
+rename = true                     # /chat:rename: this conversation's name
+export = true                     # /chat:export: this conversation written to a file
+queue = true                      # /chat:queue: the next message waits for the running turn
+steer = true                      # /chat:steer: the next message joins the running turn
+compact = true                    # /chat:compact: what's before your last message summarized now
+ask = true                        # /chat:ask: a question answered apart, nothing kept
+verbose = true                    # /chat:verbose: whether this chat shows each tool it calls
+
+[goals]                           # /goal <condition>: it goes on after each answer until it holds
+turns = 10                        # turns it takes on its own toward one, at most
+tokens = 1000000                  # tokens those turns spend, at most: whichever comes first
+
+[tools]
+answer = "32 KB"                  # what's kept of a tool's answer
+timeout = "5m"                    # a call, beside [connections] ask_wait for you to allow it
+
+[tool.mcp]
+enabled = false                   # add Link MCP explicitly: Link documentation and declared commands
+
+[tool.memory]
+keep = "10m"                      # its session, once no turn uses it
+max_age = "1h"
+tokens = 6000                     # what a search returns, at most
+model = "qwen3-embedding"         # what it searches by meaning with; "none": by words only
+notes = "4 KB"                    # how large its notes may grow: remember refuses past it
+dimensions = 256                  # of the model's, kept: fewer cost less memory and disk
+memory = "512 MB"                 # its service holds for the index, besides mapped pages
+reserve = "1 GB"                  # disk left free: indexing pauses below it
+file = "16 MB"                    # the largest file indexed
+threads = 1                       # indexing and embedding, so the machine stays usable
+deadline = "300ms"                # a search ranks this long, then answers with what it has
+folders = ["memory", "chats"]     # the agent's folders it indexes
+kept_off = "2 GB"                 # the largest index kept off the machine
+
+[tool.scheduler]
+per_day = 100                     # messages an agent is sent by schedules
+subagents = 5                     # at once
+hops = 8                          # messages in a chain, each sent by an agent
+late = "run"                      # a firing missed asleep: once, on waking
+ask = false                       # subagents and one-off schedules start without asking you
+recurring = "ask"                 # a recurring schedule the agent makes asks you first; "allow": it doesn't
+zone = "local"                    # times are this machine's
+interval = "5m"                   # the shortest a recurring schedule repeats
+firing = "30m"                    # the longest it waits on a firing: a subagent's work
+enabled = false                   # add scheduler explicitly for subagents and schedules
+driver = "service"                # what wakes it: the agent's bridge, "cron", the machine's calendar each minute, or "address", a machine running the agent only while it answers
+
+[tool.web]
+fetch = "24 KB"                   # of a page at once, the rest a call away: about 6,000 tokens
+
+[tool.run]                        # what it may run is its sandbox file's [commands]
+enabled = false                   # add run explicitly
+timeout = "2m"                    # a command, stopped a tenth before it so its output comes back
+output = "16 KB"                  # what's kept of a command's output, its start and its end
+background = 4                    # background commands at once; 0, none
+background_timeout = "1h"         # the longest one runs
+background_output = "16 MB"       # its output kept on disk, its end
+background_keep = "1d"            # its record and output, once it ended and was told
+background_per_day = 100          # started in a day: each one's ending starts a turn
+
+[tool.file]
+enabled = true                    # on: asked to, it changes its files, instructions and skills
+find = true                       # files found by name, lines by a pattern
+diffs = true                      # a write or replace answers with the change as a diff
+
+[tool.code]
+enabled = false                   # add code explicitly
+
+[tool.code.servers]               # language servers, each started when its language is first asked
+rust = { command = ["rust-analyzer"], files = ["rs"], roots = ["Cargo.toml"], settings = { rust-analyzer.workspace.symbol.search.kind = "all_symbols" } }
+go = { command = ["gopls"], files = ["go"], roots = ["go.mod"] }
+python = { command = ["pyright-langserver", "--stdio"], files = ["py", "pyi"], roots = ["pyproject.toml", "setup.py", "pyrightconfig.json"] }
+typescript = { command = ["typescript-language-server", "--stdio"], files = ["ts", "tsx", "js", "jsx", "mjs", "cjs"], roots = ["tsconfig.json", "jsconfig.json", "package.json"] }
+c = { command = ["clangd"], files = ["c", "h", "cc", "cpp", "cxx", "hpp", "hh"], roots = ["compile_commands.json", "CMakeLists.txt"] }
+java = { command = ["jdtls"], files = ["java"], roots = ["pom.xml", "build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts"] }
+kotlin = { command = ["kotlin-language-server"], files = ["kt", "kts"], roots = ["settings.gradle.kts", "settings.gradle", "build.gradle.kts", "build.gradle", "pom.xml"] }
+
+[connections]
+stream = true                     # an answer shown as it's written
+activity = "replace"              # each tool it calls above it, as it calls it: "keep" leaves them, "off"
+activity_mark = "›"               # what leads each call's line
+activity_separator = ": "         # between the call and what it works on: › file read: notes.md
+pace = "1s"                       # how often it's shown again, at least
+groups = "mention"                # in a group, only a message that mentions it
+images = true                     # a message's images reach it
+documents = true                  # a message's documents (PDF or text) reach it
+voice = true                      # a message's voice notes reach it, heard as their words by [model] transcribe
+ask_wait = "10m"                  # a question for you (a tool call, a page) waits this long: no answer is no
+cache = "auto"                    # its prompt cached as long as is expected to cost least
+compact_after = "auto"            # a quiet chat compacts just before its cache ends, when that costs less
+pauses = ["1m", "1m", "20m", "8h"]  # assumed of a new chat: quick replies, a pause, a night
+
+[storage]                         # Link Harness's: another harness keeps its own however it does
+conversations = "log"             # a line of JSON per event; "compact", or a store driver ("sqlite")
+
+[run]                             # where the machine's one bridge carries it (shared_bridge)
+idle_after = "5m"                 # this long with nothing to do, it holds nothing; "never"
+
+[connection.slack]
+working = "eyes"                  # a reaction while it answers
+
+[connection.discord]
+working = "eyes"                  # a reaction while it answers
+
+[connection.link]                 # lnk agent chat's conversations, mostly done once you leave them
+compact_after = "never"           # compacted only by tokens
+pauses = ["1m", "1m", "1m", "1d"]  # quick replies, then done

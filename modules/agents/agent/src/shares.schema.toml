@@ -1,0 +1,9 @@
+schema = 1
+kind = "agent shares"
+current = 1
+command = "lnk agent share"
+
+[[files]]
+location = "lnk.agents"
+path = "*/shares.json"
+encoding = "json"

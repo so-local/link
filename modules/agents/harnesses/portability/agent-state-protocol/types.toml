@@ -1,0 +1,104 @@
+schema = 1
+
+[destination-owner]
+type = "object"
+description = "Its owner, as if they'd sent it."
+required = ["kind"]
+additionalProperties = false
+
+[destination-owner.properties.kind]
+type = "string"
+description = "Where it goes: its owner, on a connection or the CLI inbox, or a thread."
+const = "owner"
+
+[destination-owner.properties.connection]
+type = "string"
+description = """
+The connection of the owner's direct chat it comes from
+(`slack`); left out, the CLI inbox.
+"""
+
+[destination-thread]
+type = "object"
+description = "A chat, as if sent there."
+required = ["kind", "thread"]
+additionalProperties = false
+
+[destination-thread.properties.kind]
+type = "string"
+description = "Where it goes: its owner, on a connection or the CLI inbox, or a thread."
+const = "thread"
+
+[destination-thread.properties.thread]
+type = "string"
+description = """
+The chat, by its connection and its id there
+(`slack:C0TEAM`).
+"""
+
+[destination]
+oneOf = ["destination-owner", "destination-thread"]
+examples = [{ kind = "owner", connection = "slack" }, { kind = "thread", thread = "slack:C0TEAM" }]
+
+[when-cron]
+type = "object"
+description = "On a cron line's times, in a zone."
+required = ["kind", "cron", "zone"]
+additionalProperties = false
+
+[when-cron.properties.kind]
+type = "string"
+description = "Which timing it is: cron, every so many seconds, or once at a time."
+const = "cron"
+
+[when-cron.properties.cron]
+type = "string"
+description = """
+Five fields: minute, hour, day of the month, month and day of
+the week (`0 9 * * 1-5`).
+"""
+
+[when-cron.properties.zone]
+type = "string"
+description = "The IANA time zone its times are in (`Europe/London`)."
+
+[when-every]
+type = "object"
+description = "Every so many seconds, counted from an anchor."
+required = ["kind", "seconds", "anchor"]
+additionalProperties = false
+
+[when-every.properties.kind]
+type = "string"
+description = "Which timing it is: cron, every so many seconds, or once at a time."
+const = "every"
+
+[when-every.properties.seconds]
+type = "integer"
+description = "How many seconds apart, at least one."
+minimum = 0
+
+[when-every.properties.anchor]
+type = "integer"
+description = "The Unix time, in seconds, its firings are counted from."
+minimum = 0
+
+[when-at]
+type = "object"
+description = "Once."
+required = ["kind", "at"]
+additionalProperties = false
+
+[when-at.properties.kind]
+type = "string"
+description = "Which timing it is: cron, every so many seconds, or once at a time."
+const = "at"
+
+[when-at.properties.at]
+type = "integer"
+description = "The Unix time, in seconds, it fires."
+minimum = 0
+
+[when]
+oneOf = ["when-cron", "when-every", "when-at"]
+examples = [{ kind = "cron", cron = "0 9 * * 1-5", zone = "Europe/London" }, { kind = "every", seconds = 3600, anchor = 0 }, { kind = "at", at = 1790000000 }]

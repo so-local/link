@@ -1,0 +1,51 @@
+# Core's shared runtime arguments: an action's `args` names one with
+# `x-link-cli = { shared = "<name>" }`, and it means the same everywhere.
+# Each is written as an argument is in actions.toml, with the help
+# link-component's shared.toml gives it (`output` owns --json, `confirm`
+# --yes), until every module is declared here. A table with `args` is a
+# group, taken whole by an argument of its name: each of its arguments,
+# and a positional after the action's own.
+
+[json]
+type = "boolean"
+description = "Print the answer as JSON for other programs"
+
+[yes]
+type = "boolean"
+description = "Say yes to what it would ask"
+
+[quiet]
+type = "boolean"
+description = "Say less, for another of Link's commands running it on the way"
+
+[request]
+type = "string"
+description = "JSON request file (default: standard input)"
+
+[cloud]
+type = "string"
+description = "A cloud account, as `lnk cloud list` names it"
+
+[owner]
+type = "string"
+description = "An owner's stable ID, <kind>:<id>, as the module that keeps that kind names it"
+
+[account]
+type = "string"
+description = "A Link account, by its username or ID"
+
+[remote]
+type = "string"
+description = "A storage remote that is no cloud account: s3, a folder or another rclone storage, as `lnk storage list` names it"
+
+# Where work goes: at most one place, --zone only with a cloud. The place
+# positional is short for --on <machine> where it names a machine of yours,
+# for --cloud <cloud> where it names a cloud account, and its value here
+# for --here.
+[workplace]
+description = "Where work goes"
+args.on = { type = "string", description = "A machine" }
+args.cloud = { type = "string", description = "A cloud account" }
+args.zone = { type = "string", description = "A region or zone of the cloud" }
+args.here = { type = "boolean", description = "This machine" }
+args.place = { type = "string", description = "A machine, a cloud account, or here: short for --on <machine>, --cloud <cloud> or --here", x-link-cli = { position = 1 } }

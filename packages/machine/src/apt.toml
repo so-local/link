@@ -1,0 +1,10 @@
+# How apt (Ubuntu's package manager) fetches on a machine Link sets up,
+# whose package mirror can be slow or end a download midway: it fetches
+# a failed download again rather than failing. A box gets these in
+# `file` at its first boot, so every apt on it retries, Link's and yours;
+# Link's own installs also give them on apt's command line, for a
+# computer that has no such file.
+
+retries = 3                           # apt fetches a failed or dropped download again, this many times
+timeout_seconds = 60                  # a connection that sends nothing this long is dropped, then retried
+file = "/etc/apt/apt.conf.d/80-lnk"   # where a box keeps them, read by every apt run on it

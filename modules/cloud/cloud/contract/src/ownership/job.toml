@@ -1,0 +1,5 @@
+journal = "job-identities.jsonl"
+identity-prefix = "lnk-job-"
+description-prefix = "Link job box "
+role = "lnkBoxEnd"
+permission = "compute.instances.delete"

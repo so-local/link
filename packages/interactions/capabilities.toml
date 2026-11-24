@@ -1,0 +1,51 @@
+review_bytes = 67108864
+
+[[source]]
+id = "agent"
+answer_kinds = ["confirmation", "text", "choice"]
+[[source]]
+id = "sandbox"
+answer_kinds = ["confirmation"]
+[[source]]
+id = "owner"
+answer_kinds = ["confirmation"]
+[[source]]
+id = "files"
+answer_kinds = ["confirmation"]
+[[source]]
+id = "webhook"
+answer_kinds = ["confirmation"]
+
+[[surface]]
+id = "terminal"
+on = ["linux", "macos"]
+[[surface]]
+id = "cli"
+on = ["linux", "macos"]
+[[surface]]
+id = "link"
+on = ["linux", "macos"]
+[[surface]]
+id = "native"
+on = ["linux"]
+review_bytes = 32768
+[[surface]]
+id = "native"
+on = ["macos"]
+review_bytes = 32768
+sets = false
+[[surface]]
+id = "telegram"
+on = ["linux", "macos"]
+reply_messages = true
+[[surface]]
+id = "slack"
+on = ["linux", "macos"]
+reply_messages = true
+[[surface]]
+id = "discord"
+on = ["linux", "macos"]
+reply_messages = true
+[[surface]]
+id = "signal"
+on = ["linux", "macos"]

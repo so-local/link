@@ -1,0 +1,88 @@
+[package]
+authors.workspace = true
+name = "link-env"
+description = "The env module, `lnk-env`, sets up machines from reviewed environment files"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-env"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+libc.workspace = true
+reqwest = { workspace = true, features = ["rustls-no-provider"] }
+serde.workspace = true
+serde_json.workspace = true
+ring.workspace = true
+tokio.workspace = true
+toml.workspace = true
+
+[dependencies.link-measure-contract]
+workspace = true
+
+[dependencies.link-env-contract]
+workspace = true
+
+[dependencies.link-sandbox-client]
+workspace = true
+
+[dependencies.link-secret-contract]
+workspace = true
+
+[dependencies.link-service]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies.link-env-fixture]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dev-dependencies.link-id]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true

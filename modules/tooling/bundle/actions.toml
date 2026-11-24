@@ -1,0 +1,74 @@
+schema = 1
+
+[actions."bundle.bundle.create"]
+description = """
+Build programs from source for their targets, then seal and sign them
+
+The bundle is a folder in the published release layout, which
+LNK_RELEASES_URL=file://<folder> installs from.
+"""
+docs = "/tooling/bundle#create-a-bundle"
+role = "primary"
+spec = "bundle"
+output = "made"
+next = ["bundle.bundle.show", "bundle.signer.create"]
+fail = ["bundle.bundle.create"]
+
+[actions."bundle.bundle.create".args]
+name = { type = "string", description = "A built-in bundle by name (`lnk bundle list`), its paths the folder it's run in", x-link-cli = { position = 1 } }
+signing-secret = { type = "string", x-link-path = true, description = "The signer's secret file, read only once every program is built [default: the named signer's, in `~/.lnk/safe/bundles/signers/<name>/secret`]" }
+
+[actions."bundle.bundle.list"]
+description = "List the bundles the module comes with, such as devbox and link"
+docs = "/tooling/bundle#prebuilt-bundles"
+role = "primary"
+output = "shelf"
+next = ["bundle.bundle.create", "bundle.spec.show"]
+
+[actions."bundle.bundle.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."bundle.bundle.show"]
+description = "Show a bundle's programs, their targets and architectures, its sums and signature checked"
+docs = "/tooling/bundle#check-a-bundle"
+role = "primary"
+output = "contents"
+diagnoses = "bundle"
+next = ["bundle.bundle.create"]
+
+[actions."bundle.bundle.show".args]
+folder = { type = "string", description = "The bundle's folder, or its name or version, kept in `~/.lnk/data/bundles`", required = true, x-link-cli = { position = 1 } }
+signer = { type = "string", description = "The signer it must be signed by: link, staging, or an allowed-signers file [default: Link's signer, said either way]" }
+root = { type = "boolean", description = "Print only its folder, checked, for another program to use" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."bundle.signer.create"]
+description = """
+Make a signer of your own, kept in the Safe, to sign bundles by its name
+
+Its secret, which only you read, and its one allowed-signers line, in
+`~/.lnk/safe/bundles/signers/<name>/`. A signer kept already, and Link's
+own, `link` and `staging`, are refused.
+"""
+docs = "/tooling/bundle/signers#make-a-signer"
+role = "secondary"
+output = "signer"
+next = ["bundle.signer.show", "bundle.bundle.create"]
+fail = ["bundle.signer.show"]
+
+[actions."bundle.signer.create".args]
+name = { type = "string", description = "Its name: lowercase letters, digits and dashes", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."bundle.signer.show"]
+description = "Show a signer of your own: its folder in the Safe and the line a machine trusts it by"
+docs = "/tooling/bundle/signers#where-signers-are-kept"
+role = "secondary"
+output = "signer"
+diagnoses = "signer"
+next = ["bundle.bundle.create"]
+fail = ["bundle.signer.create"]
+
+[actions."bundle.signer.show".args]
+name = { type = "string", description = "Its name (`lnk bundle create --signer <name>` made it, or `lnk bundle signer create`)", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }

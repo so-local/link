@@ -1,0 +1,11 @@
+schema = 1
+# A moved agent's model settings, without their credentials, kept while
+# the machine it went to supplies its own models:
+# `~/.lnk/safe/agents/transfers/moved/<id>.models`.
+kind = "moved agent models"
+current = 1
+
+[[files]]
+location = "lnk.moved"
+path = "*.models"
+encoding = "json"

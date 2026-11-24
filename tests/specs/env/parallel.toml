@@ -1,0 +1,9 @@
+[spec]
+schema = 1
+name = "app"
+version = 1
+[[spec.stage]]
+name = "deps"
+parallel = [ { name = "python", run = "true", sandbox = "deps.toml" }, { name = "web", run = "true", sandbox = "web.toml" } ]
+[expect]
+image = ["deps"]

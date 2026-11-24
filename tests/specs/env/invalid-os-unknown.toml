@@ -1,0 +1,9 @@
+# An OS a box can have.
+[spec]
+schema = 1
+name = "app"
+version = 1
+os = "debian-12"
+
+[expect]
+invalid = "unknown variant"

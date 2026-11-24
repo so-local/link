@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.tool.web]
+keep = "10m"
+
+[expect]
+invalid = "only [tool.memory] takes it"

@@ -1,0 +1,27 @@
+[package]
+authors.workspace = true
+name = "link-approvals"
+description = "Approvals holds the pure rules that bind an approval to one reviewed effect, decide it, and let it be claimed once"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/approvals"
+
+[dependencies]
+anyhow.workspace = true
+link-interactions-contract.workspace = true
+link-digest.workspace = true
+serde_json.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

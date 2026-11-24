@@ -1,0 +1,59 @@
+# How an action travels over HTTP, derived from its declaration and never
+# written in it: each effect's method and where its inputs go, the formats
+# a body may be in, and each named error's status. The errors' names and
+# shapes are core's (core/types.toml's error); this file
+# gives each name its status, and a test holds the two to the same names.
+
+# Each effect's method, and where its inputs go: a find and a delete take
+# every input as a query parameter and no body; an insert and an update
+# take what they act on as query parameters and the rest in a body.
+[effects.find]
+method = "GET"
+body = false
+
+[effects.insert]
+method = "POST"
+body = true
+
+[effects.update]
+method = "PUT"
+body = true
+
+[effects.delete]
+method = "DELETE"
+body = false
+
+# The formats a body may be in, by media type, and the one an answer is in
+# when a request names none. Only JSON is offered until a plan adds the
+# others.
+[formats]
+default = "json"
+offered = ["json"]
+
+[formats.media]
+json = "application/json"
+toml = "application/toml"
+xml = "application/xml"
+
+# A stream's framing, the same for every format: Server-Sent Events, each
+# event named by its type's tag.
+[streams]
+media = "text/event-stream"
+
+# Each named error's HTTP status.
+[status]
+bad-request = 400
+unauthorized = 401
+payment-required = 402
+forbidden = 403
+not-found = 404
+conflict = 409
+too-large = 413
+too-many-requests = 429
+internal = 500
+unavailable = 503
+
+# How long a find's answer declared to keep forever is kept, in seconds:
+# a year, as HTTP caches read it.
+[caching]
+forever-seconds = 31536000

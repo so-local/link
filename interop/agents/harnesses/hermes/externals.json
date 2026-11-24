@@ -1,0 +1,17 @@
+{
+  "hermes": {
+    "schema": 1,
+    "kind": "environment",
+    "version": "0.23.3",
+    "released": "2026-11-19",
+    "url": "https://raw.githubusercontent.com/NousResearch/hermes-agent/caafe5389ae585ef77387a962aee05b1bcf17029/scripts/install.sh",
+    "sha256": "c73dad4dcf7c9ecadb98578e28cc763d23d7be3fa1b513545319038795493214",
+    "archive": "none",
+    "program": "hermes-installer",
+    "reproducibility": "untracked",
+    "inputs": [
+      "upstream installer resolves its runtime and transitive packages at installation time"
+    ],
+    "commit": "caafe5389ae585ef77387a962aee05b1bcf17029"
+  }
+}

@@ -1,0 +1,14 @@
+schema = 1
+
+[defines.LNK_INTERACTIONS]
+type = "string"
+description = "The machine's interaction store, an absolute folder, for a harness whose HOME is its own: lnk-agent names it where the harness reaches Link's settings, and the harness's tool calls then carry their work's binding."
+
+[[uses]]
+name = "PATH"
+access = ["set"]
+context = "runtime"
+
+[readers]
+"native::command" = "The desktop session's variables, given to the system's dialog."
+"native::available" = "Check only DISPLAY and WAYLAND_DISPLAY from the shared desktop-session whitelist to select a native owner surface."

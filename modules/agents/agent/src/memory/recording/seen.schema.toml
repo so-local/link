@@ -1,0 +1,10 @@
+schema = 1
+# The generation a memory service's records make, and the records'
+# stamps it was made of: `generation.json` in the service's folder.
+kind = "memory service generation"
+current = 1
+
+[[files]]
+location = "lnk.shared-memory"
+path = "*/generation.json"
+encoding = "json"

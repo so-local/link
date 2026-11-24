@@ -1,0 +1,17 @@
+schema = 1
+# What a harness's adapter carries into a personal runtime's portable
+# history: the agent it's bound to, its budget and its memory, written
+# before the runtime starts: `.lnk/data/agents/context/handoff-settings.json`
+# in a harness home.
+kind = "portable continuation context"
+current = 1
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/*/.lnk/data/agents/context/handoff-settings.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.lnk/data/agents/context/handoff-settings.json"
+encoding = "json"

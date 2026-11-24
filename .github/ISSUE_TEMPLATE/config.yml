@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/so-local/link/security/advisories/new
+    about: Report vulnerabilities privately, never as an issue.
+  - name: Docs
+    url: https://www.local.link/
+    about: How each feature works, and how to build and run Link.

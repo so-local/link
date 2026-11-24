@@ -1,0 +1,6 @@
+schema = 1
+# A directory store's count of the bytes each bounded prefix holds and may
+# hold, kept beside its objects under the store's lock: `capacity.json`
+# in the store's folder.
+kind = "directory store capacity"
+current = 1

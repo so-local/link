@@ -1,0 +1,9 @@
+# How `lnk agent chat send` follows an agent that's moving (`following.rs`):
+# a message refused for now, or for an agent paused for its move's switch,
+# waits and is sent again where the agent is then, answered once.
+
+# The longest a message waits for its agent to land, in seconds: a team's
+# switch included.
+wait_secs = 600
+# How often it looks again meanwhile, in milliseconds.
+look_ms = 500

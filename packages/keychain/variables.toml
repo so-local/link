@@ -1,0 +1,5 @@
+schema = 1
+
+[defines.LNK_SECURITY]
+type = "string"
+description = "Debug builds only: a Keychain tool stand-in for tests, which enables Keychain access on the test host; release builds always run `/usr/bin/security`."

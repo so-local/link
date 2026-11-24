@@ -1,0 +1,12 @@
+# Missing means least: a stage with no sandbox has nowhere to run.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.stage]]
+name = "deps"
+run = "make deps"
+
+[expect]
+invalid = "stage deps has no sandbox"

@@ -1,0 +1,10 @@
+schema = 1
+# What the watcher remembers of counts between looks, `counted.json` in the measure store's folder.
+kind = "measure counts"
+current = 1
+command = "lnk measure"
+
+[[files]]
+location = "lnk.measures"
+path = "counted.json"
+encoding = "json"

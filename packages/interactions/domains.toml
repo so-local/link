@@ -1,0 +1,63 @@
+[[domain]]
+id = "question"
+label = "Question"
+sources = ["agent"]
+authorization = false
+
+[[domain]]
+id = "external.consent"
+label = "External Consent"
+sources = ["webhook"]
+authorization = false
+
+[[domain]]
+id = "tool.operation"
+label = "Tool Operation"
+sources = ["sandbox"]
+authorization = true
+
+[[domain]]
+id = "sandbox.permission"
+label = "Sandbox Permission"
+sources = ["sandbox"]
+authorization = true
+
+[[domain]]
+id = "sandbox.permission.network"
+parent = "sandbox.permission"
+label = "Sandbox Permission › Network"
+sources = ["sandbox"]
+authorization = true
+
+[[domain]]
+id = "sandbox.permission.files"
+parent = "sandbox.permission"
+label = "Sandbox Permission › Files"
+sources = ["sandbox"]
+authorization = true
+
+[[domain]]
+id = "sandbox.permission.programs"
+parent = "sandbox.permission"
+label = "Sandbox Permission › Programs"
+sources = ["sandbox"]
+authorization = true
+
+[[domain]]
+id = "sandbox.permission.services"
+parent = "sandbox.permission"
+label = "Sandbox Permission › Services"
+sources = ["sandbox"]
+authorization = true
+
+[[domain]]
+id = "configuration.change"
+label = "Configuration Change"
+sources = ["owner"]
+authorization = true
+
+[[domain]]
+id = "file.operation"
+label = "File Operation"
+sources = ["files"]
+authorization = true

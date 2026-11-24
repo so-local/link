@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "policy.action-pattern": {
+      "description": "Actions a grant allows: `<kind>.<verb>` from Link's one list, `<kind>.*` for every verb of a kind, or `*` for every action",
+      "examples": [
+        "cloud.read",
+        "cloud.*",
+        "*"
+      ],
+      "type": "string"
+    },
+    "policy.grant": {
+      "additionalProperties": false,
+      "description": "Some actions on some resources: every action named, on every resource\nnamed. Never a condition (an address, a time): an end is the\nprincipal's, and how much is the policy's `[action-pattern]\ntype = \"string\"\nexamples = [\"cloud.read\", \"cloud.*\", \"*\"]\ndescription = \"Actions a grant allows: `<kind>.<verb>` from Link's one list, `<kind>.*` for every verb of a kind, or `*` for every action\"\nx-link-checks = [\"action_pattern\"]\n\n[resource-pattern]\ntype = \"string\"\nexamples = [\"cloud:aws\", \"cloud:ci-*\", \"*\"]\ndescription = \"Resources a grant allows actions on: `[<account>|*/]<kind>:<id>`, its id whole or ending in `*` for every id it begins, or `*` for every resource of the principal's own account\"\nx-link-checks = [\"resource_pattern\"]\n\n[limits]`.",
+      "properties": {
+        "actions": {
+          "description": "The actions it allows, each `<kind>.<verb>` from Link's one list,\n`<kind>.*` for every verb of a kind, or `*` for every action.",
+          "examples": [
+            [
+              "cloud.read",
+              "cloud.use"
+            ]
+          ],
+          "items": {
+            "$ref": "#/$defs/policy.action-pattern",
+            "description": "Actions a grant allows: `<kind>.<verb>` from Link's one list, `<kind>.*` for every verb of a kind, or `*` for every action"
+          },
+          "type": "array"
+        },
+        "on": {
+          "description": "The resources it allows them on, each `[<account>|*/]<kind>:<id>`,\nits id whole or ending in `*` for every id it begins, or `*` for\nevery resource of the principal's own account.",
+          "examples": [
+            [
+              "cloud:aws",
+              "cloud:ci-*"
+            ]
+          ],
+          "items": {
+            "$ref": "#/$defs/policy.resource-pattern",
+            "description": "Resources a grant allows actions on: `[<account>|*/]<kind>:<id>`, its id whole or ending in `*` for every id it begins, or `*` for every resource of the principal's own account"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "actions",
+        "on"
+      ],
+      "type": "object"
+    },
+    "policy.limits": {
+      "additionalProperties": false,
+      "description": "How much an allowed principal may have, kept by the service that\nmeters it, never in `allows`'s yes or no. Left out, no limit of that\nkind but the service's own.",
+      "properties": {
+        "boxes": {
+          "description": "Boxes at once.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "cpus": {
+          "description": "CPUs a box.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "disk_gb": {
+          "description": "Disk a box, in GB.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hours": {
+          "description": "How long a box lives, in hours.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "memory_gb": {
+          "description": "Memory a box, in GB.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "policy.resource-pattern": {
+      "description": "Resources a grant allows actions on: `[<account>|*/]<kind>:<id>`, its id whole or ending in `*` for every id it begins, or `*` for every resource of the principal's own account",
+      "examples": [
+        "cloud:aws",
+        "cloud:ci-*",
+        "*"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A Policy Specification: an API key's scopes, a role, an agent's grants, a host's guest's. What isn't granted is refused.",
+  "properties": {
+    "allow": {
+      "default": [],
+      "description": "What it allows: each grant some actions on some resources.",
+      "items": {
+        "$ref": "#/$defs/policy.grant",
+        "description": "Some actions on some resources: every action named, on every resource\nnamed. Never a condition (an address, a time): an end is the\nprincipal's, and how much is the policy's `[action-pattern]\ntype = \"string\"\nexamples = [\"cloud.read\", \"cloud.*\", \"*\"]\ndescription = \"Actions a grant allows: `<kind>.<verb>` from Link's one list, `<kind>.*` for every verb of a kind, or `*` for every action\"\nx-link-checks = [\"action_pattern\"]\n\n[resource-pattern]\ntype = \"string\"\nexamples = [\"cloud:aws\", \"cloud:ci-*\", \"*\"]\ndescription = \"Resources a grant allows actions on: `[<account>|*/]<kind>:<id>`, its id whole or ending in `*` for every id it begins, or `*` for every resource of the principal's own account\"\nx-link-checks = [\"resource_pattern\"]\n\n[limits]`."
+      },
+      "type": "array"
+    },
+    "limits": {
+      "$ref": "#/$defs/policy.limits",
+      "description": "How much an allowed principal may have, each limit left out none but the service's own."
+    },
+    "name": {
+      "description": "What it's called.",
+      "examples": [
+        "ci"
+      ],
+      "type": "string"
+    },
+    "version": {
+      "description": "A whole number, yours to bump.",
+      "examples": [
+        1
+      ],
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "name",
+    "version"
+  ],
+  "type": "object",
+  "x-link-generator": "Generated by link-actions-surfaces from the module declarations: change those and regenerate, never this file."
+}

@@ -1,0 +1,202 @@
+schema = 1
+
+[defines.ANTHROPIC_API_KEY]
+type = "string"
+description = "The provider's own key variable, read by `lnk agent start`, `create`, `move` and `model set`: no flag takes a key. With no model yet, the one that is set (several set: refused, to unset all but one); with a hosted model, its provider's, to renew the key; with `--model`, the provider its name says; with a model on this computer, one that is set is asked about in a terminal (switch to that provider?), else said. Never passed to a harness or to a box."
+
+[defines.CURL_CA_BUNDLE]
+type = "string"
+description = "Certificates curl trusts, which a harness's installer is given."
+
+[defines.LNK_AGENT]
+type = "string"
+description = "The agent's name, for harness programs."
+
+[defines.LNK_AGENT_FOLDER]
+type = "string"
+description = "The agent's own folder (`~/Link/Agents/<name>/agent`), for a harness that keeps Link's collections (Link Harness): each one kept at `file` a folder of it."
+
+[defines.LNK_AGENT_ID]
+type = "string"
+description = "The agent's ID, for harness programs."
+
+[defines.LNK_AGENT_SERVICE]
+type = "string"
+description = "The service the agent acts as, its bare ID, for harness programs: what its bridge calls prove beside its ID."
+
+[defines.LNK_FALLBACK_CREDENTIAL]
+type = "string"
+description = "The fallback's key on `lnk agent start --model.fallback_model`, read before its provider's own variable."
+
+[defines.LNK_FILES]
+type = "string"
+description = "The agent's Home, its files folder, for harness programs."
+
+[defines.LNK_MEASURES]
+type = "string"
+description = "For harness programs: the file in the harness's home it may append its own measures to, as OTLP (`.lnk/safe/measures/measures.jsonl`), which `lnk measure` reads."
+
+[defines.LNK_OWNER]
+type = "string"
+description = "The agent's owner, for harness programs."
+
+[defines.LNK_PORT]
+type = "string"
+description = "The agent's base port, for harness programs: every agent's own."
+
+[defines.LNK_TEST_BRIDGE_NONE_FOR_MS]
+type = "string"
+description = "Debug builds only: milliseconds an empty shared bridge waits before it stops."
+
+[defines.LNK_TEST_MIGRATE_STOP]
+type = "string"
+description = "Debug builds only: stop migration before this numbered step so recovery can be tested."
+
+[defines.OPENAI_API_KEY]
+type = "string"
+description = "The provider's own key variable, read by `lnk agent start`, `create`, `move` and `model set`: no flag takes a key. With no model yet, the one that is set (several set: refused, to unset all but one); with a hosted model, its provider's, to renew the key; with `--model`, the provider its name says; with a model on this computer, one that is set is asked about in a terminal (switch to that provider?), else said. Never passed to a harness or to a box."
+
+[defines.OPENROUTER_API_KEY]
+type = "string"
+description = "The provider's own key variable, read by `lnk agent start`, `create`, `move` and `model set`: no flag takes a key. With no model yet, the one that is set (several set: refused, to unset all but one); with a hosted model, its provider's, to renew the key; with `--model`, the provider its name says; with a model on this computer, one that is set is asked about in a terminal (switch to that provider?), else said. Never passed to a harness or to a box."
+
+[defines.PIP_CERT]
+type = "string"
+description = "Certificates pip trusts, which a harness's installer is given."
+
+[defines.REQUESTS_CA_BUNDLE]
+type = "string"
+description = "Certificates Python's requests trusts, which a harness's installer is given."
+
+[[uses]]
+name = "HOME"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "LANG"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "TMPDIR"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_CONFIG_HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HTTPS_PROXY"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "HTTP_PROXY"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "ALL_PROXY"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "NO_PROXY"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "https_proxy"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "http_proxy"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "all_proxy"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "no_proxy"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "npm_config_https_proxy"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "npm_config_noproxy"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "SSL_CERT_FILE"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "NODE_EXTRA_CA_CERTS"
+access = ["read", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "BRAVE_API_KEY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "TAVILY_API_KEY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_NO_BROWSER"
+access = ["read"]
+context = "runtime"
+
+[readers]
+"shared::run" = "The variables a shared server is given, from its box."
+"run_file::add_with_env" = "The variables a run file's command is given, as its caller names them."
+"memory::engine::run" = "The variables the memory engine is given, from its launch."
+"machine::forward" = "The model credentials' variables (`settings::key_vars`), removed from a command forwarded to another machine."
+"launching::launch_after" = "The variables a launched harness is given, from its box."
+"idle::jobs::run_in_terminal" = "The variables a scheduled job's terminal run is given, from its box."
+"creating::new_on" = "The model credentials' variables (`settings::key_vars`), never handed to the command making a new agent."
+"confine::run_inside" = "The variables a confined run is given, from its box."
+"adapter::of_files" = "The variables an adapter is given as it reads its files: its box's, and the harness's port (`PORT_ENV`)."
+"adapter::install" = "The variables an adapter's installer is given: where it installs (`exec_variable`) and its box's."
+"adapter::command" = "The variables an adapter's command is given: its harness's, from the box it runs in."
+"adapter::step::command" = "The variables an adapter's step runs with, and no others: its sandbox's, its harness's and its home's."
+"settings::providers::key_in" = "Select the credential variable from the model provider registry or the saved hosted model; refuse ambiguous provider credentials."
+
+[[uses]]
+name = "LNK_INSTALLATION_DIR"
+access = ["set", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "GIT_TERMINAL_PROMPT"
+access = ["set"]
+context = "runtime"
+
+[namespaces]
+"LNK_*" = "Link's own variables, none holding a secret, forwarded whole to the agent's background bridges and its owner's shared harness service."

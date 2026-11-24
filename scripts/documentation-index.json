@@ -1,0 +1,535 @@
+{
+  "schema": 1,
+  "sites": [
+    {
+      "name": "docs",
+      "url": "https://docs.local.link",
+      "local": "http://localhost:3001",
+      "directory": "web/apps/docs",
+      "homepage": "README.md",
+      "assets": {
+        "web/apps/docs/src/app/icon.png": "/icon.png"
+      },
+      "tree": "open",
+      "roots": true
+    }
+  ],
+  "roots": [
+    {
+      "owner": "packages",
+      "directory": "packages"
+    },
+    {
+      "owner": "packages/artifact",
+      "directory": "packages/artifact"
+    },
+    {
+      "owner": "packages/archive",
+      "directory": "packages/archive"
+    },
+    {
+      "owner": "packages/digest",
+      "directory": "packages/digest"
+    },
+    {
+      "owner": "packages/untrusted",
+      "directory": "packages/untrusted"
+    },
+    {
+      "owner": "packages/keychain",
+      "directory": "packages/keychain"
+    },
+    {
+      "owner": "packages/runtime",
+      "directory": "packages/runtime"
+    },
+    {
+      "owner": "packages/settings",
+      "directory": "packages/settings"
+    },
+    {
+      "owner": ".",
+      "directory": "."
+    },
+    {
+      "owner": "modules/agents/harnesses/portability/agent-state-protocol",
+      "directory": "modules/agents/harnesses/portability/agent-state-protocol"
+    },
+    {
+      "owner": "core/cli",
+      "directory": "core/cli"
+    },
+    {
+      "owner": "packages/machine",
+      "directory": "packages/machine"
+    },
+    {
+      "owner": "core/framework",
+      "directory": "core/framework"
+    },
+    {
+      "owner": "packages/test-kit",
+      "directory": "packages/test-kit"
+    },
+    {
+      "owner": "interop/agents/connections/discord",
+      "directory": "interop/agents/connections/discord"
+    },
+    {
+      "owner": "interop/agents/connections/signal",
+      "directory": "interop/agents/connections/signal"
+    },
+    {
+      "owner": "interop/agents/connections/slack",
+      "directory": "interop/agents/connections/slack"
+    },
+    {
+      "owner": "interop/agents/connections/telegram",
+      "directory": "interop/agents/connections/telegram"
+    },
+    {
+      "owner": "interop/agents/harnesses",
+      "directory": "interop/agents/harnesses"
+    },
+    {
+      "owner": "interop/agents/harnesses/deepseek",
+      "directory": "interop/agents/harnesses/deepseek"
+    },
+    {
+      "owner": "interop/agents/harnesses/hermes",
+      "directory": "interop/agents/harnesses/hermes"
+    },
+    {
+      "owner": "interop/agents/harnesses/openclaw",
+      "directory": "interop/agents/harnesses/openclaw"
+    },
+    {
+      "owner": "packages/component",
+      "directory": "packages/component"
+    },
+    {
+      "owner": "modules/agents/agent",
+      "directory": "modules/agents/agent"
+    },
+    {
+      "owner": "modules/agents/connections",
+      "directory": "modules/agents/connections"
+    },
+    {
+      "owner": "modules/agents/connections/contract",
+      "directory": "modules/agents/connections/contract"
+    },
+    {
+      "owner": "modules/agents/connections/contract/policy",
+      "directory": "modules/agents/connections/contract/policy"
+    },
+    {
+      "owner": "modules/agents/connections/webhook",
+      "directory": "modules/agents/connections/webhook"
+    },
+    {
+      "owner": "modules/agents/harnesses",
+      "directory": "modules/agents/harnesses"
+    },
+    {
+      "owner": "modules/agents/harnesses/portability/contract",
+      "directory": "modules/agents/harnesses/portability/contract"
+    },
+    {
+      "owner": "modules/agents/harnesses/portability/contract/base",
+      "directory": "modules/agents/harnesses/portability/contract/base"
+    },
+    {
+      "owner": "modules/agents/harnesses/portability/contract/wire",
+      "directory": "modules/agents/harnesses/portability/contract/wire"
+    },
+    {
+      "owner": "modules/agents/harnesses/portability/conformance",
+      "directory": "modules/agents/harnesses/portability/conformance"
+    },
+    {
+      "owner": "modules/agents/harnesses/link",
+      "directory": "modules/agents/harnesses/link"
+    },
+    {
+      "owner": "modules/agents/model",
+      "directory": "modules/agents/model"
+    },
+    {
+      "owner": "modules/agents/stores",
+      "directory": "modules/agents/stores"
+    },
+    {
+      "owner": "modules/agents/stores/contract",
+      "directory": "modules/agents/stores/contract"
+    },
+    {
+      "owner": "modules/agents/tools",
+      "directory": "modules/agents/tools"
+    },
+    {
+      "owner": "modules/agents/tools/browser-tool",
+      "directory": "modules/agents/tools/browser-tool"
+    },
+    {
+      "owner": "modules/agents/tools/code-tool",
+      "directory": "modules/agents/tools/code-tool"
+    },
+    {
+      "owner": "modules/agents/tools/desktop-tool",
+      "directory": "modules/agents/tools/desktop-tool"
+    },
+    {
+      "owner": "modules/agents/tools/file-tool",
+      "directory": "modules/agents/tools/file-tool"
+    },
+    {
+      "owner": "modules/agents/tools/mcp",
+      "directory": "modules/agents/tools/mcp"
+    },
+    {
+      "owner": "modules/agents/tools/memory-tool",
+      "directory": "modules/agents/tools/memory-tool"
+    },
+    {
+      "owner": "modules/agents/tools/memory-tool/document-converter",
+      "directory": "modules/agents/tools/memory-tool/document-converter"
+    },
+    {
+      "owner": "modules/agents/tools/run-tool",
+      "directory": "modules/agents/tools/run-tool"
+    },
+    {
+      "owner": "modules/agents/tools/scheduler-tool",
+      "directory": "modules/agents/tools/scheduler-tool"
+    },
+    {
+      "owner": "modules/agents/tools/web-tool",
+      "directory": "modules/agents/tools/web-tool"
+    },
+    {
+      "owner": "modules/cloud/cloud",
+      "directory": "modules/cloud/cloud"
+    },
+    {
+      "owner": "modules/compute/box",
+      "directory": "modules/compute/box"
+    },
+    {
+      "owner": "modules/compute/box",
+      "directory": "modules/compute/box/contract"
+    },
+    {
+      "owner": "modules/security",
+      "directory": "modules/security"
+    },
+    {
+      "owner": "modules/security/sandbox",
+      "directory": "modules/security/sandbox"
+    },
+    {
+      "owner": "modules/security/secret",
+      "directory": "modules/security/secret"
+    },
+    {
+      "owner": "modules/storage/safe",
+      "directory": "modules/storage/safe"
+    },
+    {
+      "owner": "modules/storage/storage",
+      "directory": "modules/storage/storage"
+    },
+    {
+      "owner": "modules/tooling",
+      "directory": "modules/tooling"
+    },
+    {
+      "owner": "modules/tooling/bundle",
+      "directory": "modules/tooling/bundle"
+    },
+    {
+      "owner": "modules/tooling/archive",
+      "directory": "modules/tooling/archive"
+    },
+    {
+      "owner": "modules/tooling/archive/contract",
+      "directory": "modules/tooling/archive/contract"
+    },
+    {
+      "owner": "modules/tooling/manual",
+      "directory": "modules/tooling/manual"
+    },
+    {
+      "owner": "modules/tooling/spec",
+      "directory": "modules/tooling/spec"
+    },
+    {
+      "owner": "modules/tooling/measure",
+      "directory": "modules/tooling/measure"
+    },
+    {
+      "owner": "modules/tooling/measure/contract",
+      "directory": "modules/tooling/measure/contract"
+    },
+    {
+      "owner": "scripts",
+      "directory": "scripts"
+    },
+    {
+      "owner": "tests/docs",
+      "directory": "tests/docs"
+    },
+    {
+      "owner": "tests/repository",
+      "directory": "tests/repository"
+    },
+    {
+      "owner": "tests/timing",
+      "directory": "tests/timing"
+    },
+    {
+      "owner": "web",
+      "directory": "web"
+    },
+    {
+      "owner": "web/packages/flowers",
+      "directory": "web/packages/flowers"
+    },
+    {
+      "owner": "modules/agents/model/contract",
+      "directory": "modules/agents/model/contract"
+    },
+    {
+      "owner": "modules/agents/stores/file-store",
+      "directory": "modules/agents/stores/file-store"
+    },
+    {
+      "owner": "modules/agents/stores/sqlite-store",
+      "directory": "modules/agents/stores/sqlite-store"
+    },
+    {
+      "owner": "modules/agents/stores/bucket-store",
+      "directory": "modules/agents/stores/bucket-store"
+    },
+    {
+      "owner": "modules/agents/tools/scheduler-tool/contract",
+      "directory": "modules/agents/tools/scheduler-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/browser-tool/contract",
+      "directory": "modules/agents/tools/browser-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/code-tool/contract",
+      "directory": "modules/agents/tools/code-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/desktop-tool/contract",
+      "directory": "modules/agents/tools/desktop-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/file-tool/contract",
+      "directory": "modules/agents/tools/file-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/run-tool/contract",
+      "directory": "modules/agents/tools/run-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/web-tool/contract",
+      "directory": "modules/agents/tools/web-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/memory-tool/contract",
+      "directory": "modules/agents/tools/memory-tool/contract"
+    },
+    {
+      "owner": "modules/agents/tools/memory-tool/document-converter/contract",
+      "directory": "modules/agents/tools/memory-tool/document-converter/contract"
+    },
+    {
+      "owner": "modules/agents/agent/contract/place",
+      "directory": "modules/agents/agent/contract/place"
+    },
+    {
+      "owner": "modules/agents/agent/contract/spec",
+      "directory": "modules/agents/agent/contract/spec"
+    },
+    {
+      "owner": "modules/agents/agent/contract/identity",
+      "directory": "modules/agents/agent/contract/identity"
+    },
+    {
+      "owner": "modules/agents/agent/contract/team",
+      "directory": "modules/agents/agent/contract/team"
+    },
+    {
+      "owner": "modules/agents/agent/contract",
+      "directory": "modules/agents/agent/contract"
+    },
+    {
+      "owner": "modules/security/sandbox/bridge",
+      "directory": "modules/security/sandbox/bridge"
+    },
+    {
+      "owner": "modules/security/sandbox/confine",
+      "directory": "modules/security/sandbox/confine"
+    },
+    {
+      "owner": "modules/security/sandbox/bridge/binding",
+      "directory": "modules/security/sandbox/bridge/binding"
+    },
+    {
+      "owner": "modules/security/sandbox/contract/client",
+      "directory": "modules/security/sandbox/contract/client"
+    },
+    {
+      "owner": "modules/security/secret/contract",
+      "directory": "modules/security/secret/contract"
+    },
+    {
+      "owner": "modules/security/sandbox/proxy",
+      "directory": "modules/security/sandbox/proxy"
+    },
+    {
+      "owner": "modules/security/sandbox/contract",
+      "directory": "modules/security/sandbox/contract"
+    },
+    {
+      "owner": "modules/security/sandbox/contract/route",
+      "directory": "modules/security/sandbox/contract/route"
+    },
+    {
+      "owner": "modules/storage/storage/contract",
+      "directory": "modules/storage/storage/contract"
+    },
+    {
+      "owner": "packages/actions/surfaces",
+      "directory": "packages/actions/surfaces"
+    },
+    {
+      "owner": "packages/api",
+      "directory": "packages/api"
+    },
+    {
+      "owner": "packages/component/build",
+      "directory": "packages/component/build"
+    },
+    {
+      "owner": "packages/fetch",
+      "directory": "packages/fetch"
+    },
+    {
+      "owner": "packages/files",
+      "directory": "packages/files"
+    },
+    {
+      "owner": "packages/interactions",
+      "directory": "packages/interactions"
+    },
+    {
+      "owner": "packages/approvals",
+      "directory": "packages/approvals"
+    },
+    {
+      "owner": "packages/controls",
+      "directory": "packages/controls"
+    },
+    {
+      "owner": "packages/interactions/contract",
+      "directory": "packages/interactions/contract"
+    },
+    {
+      "owner": "packages/id",
+      "directory": "packages/id"
+    },
+    {
+      "owner": "packages/principal",
+      "directory": "packages/principal"
+    },
+    {
+      "owner": "packages/signer",
+      "directory": "packages/signer"
+    },
+    {
+      "owner": "packages/token",
+      "directory": "packages/token"
+    },
+    {
+      "owner": "packages/workplace",
+      "directory": "packages/workplace"
+    },
+    {
+      "owner": "packages/secretive",
+      "directory": "packages/secretive"
+    },
+    {
+      "owner": "packages/secretive/derive",
+      "directory": "packages/secretive/derive"
+    },
+    {
+      "owner": "packages/service",
+      "directory": "packages/service"
+    },
+    {
+      "owner": "packages/spec",
+      "directory": "packages/spec"
+    },
+    {
+      "owner": "packages/actions",
+      "directory": "packages/actions"
+    },
+    {
+      "owner": "packages/actions/build",
+      "directory": "packages/actions/build"
+    },
+    {
+      "owner": "packages/types",
+      "directory": "packages/types"
+    },
+    {
+      "owner": "packages/version",
+      "directory": "packages/version"
+    },
+    {
+      "owner": "tests/docs/code",
+      "directory": "tests/docs/code"
+    },
+    {
+      "owner": "interop/cloud/aws",
+      "directory": "interop/cloud/aws"
+    },
+    {
+      "owner": "interop/cloud/gcp",
+      "directory": "interop/cloud/gcp"
+    },
+    {
+      "owner": "modules/cloud/cloud/contract",
+      "directory": "modules/cloud/cloud/contract"
+    },
+    {
+      "owner": "packages/format",
+      "directory": "packages/format"
+    },
+    {
+      "owner": "packages/policy",
+      "directory": "packages/policy"
+    },
+    {
+      "owner": "modules/agents/harnesses/portability/hub",
+      "directory": "modules/agents/harnesses/portability/hub"
+    },
+    {
+      "owner": "modules/compute/env",
+      "directory": "modules/compute/env"
+    },
+    {
+      "owner": "modules/compute/env/contract",
+      "directory": "modules/compute/env/contract"
+    },
+    {
+      "owner": "modules/agents/harnesses/mini",
+      "directory": "modules/agents/harnesses/mini"
+    }
+  ]
+}

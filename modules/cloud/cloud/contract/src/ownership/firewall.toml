@@ -1,0 +1,24 @@
+# The firewall rules every Link box on Google Cloud shares, letting SSH in
+# and nothing else. A box carries `tag`. A launch outside a job makes the
+# rules the first time and deletes them with the project's last box; a
+# job's launch borrows them and never makes them, so the project's setup
+# does. The deny rule comes first, so a box is never let in on more than
+# SSH: ahead of the default network's rules (65534), behind the SSH rule
+# and any the user adds (1000 unless they say).
+tag = "lnk-box"
+
+[[rule]]
+name = "lnk-box-deny"
+action = "deny"
+rules = ["all"]
+sources = ["0.0.0.0/0"]
+priority = 65000
+description = "Link boxes: nothing in but SSH (lnk box)"
+
+[[rule]]
+name = "lnk-box-ssh"
+action = "allow"
+rules = ["tcp:22"]
+sources = ["0.0.0.0/0"]
+priority = 1000
+description = "Link boxes: SSH in (lnk box)"

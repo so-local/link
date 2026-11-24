@@ -1,0 +1,6 @@
+[spec]
+schema = 1
+deadline = "8d"
+
+[expect]
+invalid = "seven days"

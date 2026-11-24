@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.connections]
+ask_wait = "25h"
+
+[expect]
+invalid = "ask_wait is a second at least, and a day at most"

@@ -1,0 +1,8 @@
+schema = 1
+kind = "agent policy"
+current = 1
+command = "lnk agent"
+
+[[files]]
+location = "lnk.agent-policy"
+encoding = "toml"

@@ -1,0 +1,41 @@
+[package]
+name = "link-mcp"
+description = "Link MCP offers Local Link commands as tools to a client that speaks the Model Context Protocol (MCP)"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-mcp"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+link-actions.workspace = true
+link-component.workspace = true
+link-core.workspace = true
+link-files.workspace = true
+link-format.workspace = true
+link-secretive.workspace = true
+link-settings.workspace = true
+link-spec.workspace = true
+toml.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

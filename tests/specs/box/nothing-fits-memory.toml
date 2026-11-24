@@ -1,0 +1,12 @@
+# Nothing fits: the nearest on each side.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 4
+memory = { min = "6 GB", max = "8 GB" }
+
+[run]
+kind = "gcp"
+
+[expect]
+error = "the largest with 4 CPUs has 4 GB, under your min of 6 GB; the smallest with 4 CPUs has 16 GB, over your max of 8 GB"

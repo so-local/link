@@ -1,0 +1,5 @@
+schema = 1
+kind = "sandbox"
+current = 1
+command = "lnk sandbox spec show"
+about = "A sandbox specification is a TOML file saying what a program may write, read and reach, each section one grant: everything it leaves out stays closed. `lnk sandbox run` runs a program in one, and an agent's grants are one too."

@@ -1,0 +1,6 @@
+# A flag is read as its field is.
+[run]
+flags = ["--machine.cpus", "four"]
+
+[expect]
+invalid = "untagged enum CountRange"

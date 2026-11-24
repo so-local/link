@@ -1,0 +1,14 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+schema = 1
+
+# Core's program, `lnk`: its own commands, which the shapes in
+# link-actions' core folder join as one module.
+[module]
+id = "core"
+kind = "program"
+owner = "core/cli"

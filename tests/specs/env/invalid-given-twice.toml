@@ -1,0 +1,12 @@
+# A name is a variable, a secret or a sealed secret: one of them.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[spec.secrets]
+names = ["STRIPE_KEY"]
+sealed = ["STRIPE_KEY"]
+
+[expect]
+invalid = "STRIPE_KEY is given twice"

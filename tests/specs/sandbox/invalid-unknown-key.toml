@@ -1,0 +1,8 @@
+# A key no section has is refused.
+[spec]
+schema = 1
+[spec.internet]
+host = ["*"]
+
+[expect]
+invalid = "unknown field `host`"

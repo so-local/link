@@ -1,0 +1,59 @@
+schema = 1
+
+# The cloud adapter protocol's actions this adapter answers: lnk box,
+# lnk storage and lnk cloud call each as `lnk-gcp <verb>`.
+[implements]
+cloud-contract = [
+    "cloud-contract.cloud-contract.add-key",
+    "cloud-contract.cloud-contract.bucket-credential",
+    "cloud-contract.cloud-contract.buckets",
+    "cloud-contract.cloud-contract.cleanup",
+    "cloud-contract.cloud-contract.defaults",
+    "cloud-contract.cloud-contract.describe",
+    "cloud-contract.cloud-contract.disconnect",
+    "cloud-contract.cloud-contract.hostkeys",
+    "cloud-contract.cloud-contract.image-list",
+    "cloud-contract.cloud-contract.image-remove",
+    "cloud-contract.cloud-contract.image-save",
+    "cloud-contract.cloud-contract.label",
+    "cloud-contract.cloud-contract.launch",
+    "cloud-contract.cloud-contract.list",
+    "cloud-contract.cloud-contract.object-read",
+    "cloud-contract.cloud-contract.remove",
+    "cloud-contract.cloud-contract.remove-keys",
+    "cloud-contract.cloud-contract.revoke-key",
+    "cloud-contract.cloud-contract.save-hostkeys",
+    "cloud-contract.cloud-contract.sizes",
+    "cloud-contract.cloud-contract.start",
+    "cloud-contract.cloud-contract.state",
+    "cloud-contract.cloud-contract.stop",
+    "cloud-contract.cloud-contract.storage",
+    "cloud-contract.cloud-contract.tag",
+    "cloud-contract.cloud-contract.tunnel",
+    "cloud-contract.cloud-contract.upload-once",
+    "cloud-contract.cloud-contract.wait",
+]
+
+[verbs]
+resource-journal-schema = { description = "Print the resource journal protocol's schema", effect = "find" }
+
+[actions."gcp.gcp.connect"]
+description = """
+Connect a Google Cloud account
+
+What `lnk cloud connect gcp` runs: it signs in on this terminal and
+prints the account it describes.
+"""
+role = "plumbing"
+output = "cloud-contract.account"
+
+[actions."gcp.gcp.connect".args]
+name = { type = "string", default = "gcp", description = "What to call the account" }
+project = { type = "string", description = "The project new things go in [default: --credential-file's, else gcloud's]" }
+zone = { type = "string", description = "The zone new machines go in [default: gcloud's, else us-central1-a]" }
+credential-file = { type = "string", x-link-path = true, description = "A service account's credential file, instead of your gcloud login" }
+
+[actions."gcp.gcp.resource-journal-schema"]
+description = "Print the resource journal protocol schema."
+role = "plumbing"
+output = "cloud-contract.journal-schema"

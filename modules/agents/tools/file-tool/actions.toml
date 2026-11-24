@@ -1,0 +1,178 @@
+schema = 1
+
+[verbs]
+apply = { description = "Apply one file change on the stdin line, inside the sandbox it runs in", effect = "update" }
+bridge = { description = "Serve the files of a bridged machine as an MCP server over stdio", effect = "insert" }
+serve = { description = "Serve the tool to a harness as an MCP server over stdio, until its input closes", effect = "insert" }
+read = { description = "Read a file, for a model calling the tool", effect = "find" }
+write = { description = "Write a file whole, for a model calling the tool", effect = "update" }
+edit = { description = "Replace text in a file, for a model calling the tool", effect = "update" }
+glob = { description = "Find files by a glob, for a model calling the tool", effect = "find" }
+grep = { description = "Find lines by a regular expression, for a model calling the tool", effect = "find" }
+
+# What the program gives its tool calls at runtime: the sentence saying a
+# change answers as a diff, where it does, and whether it finds.
+[tools]
+fills = ["diff"]
+conditions = ["find"]
+
+[actions."file-tool.file-tool.apply"]
+description = """
+Run each call on its input, a line each ({"name", "arguments"}), over --files, the
+agent's instructions/, skills/ and chats/ in its own folder
+--agent-folder beside it, writing only in the folders --write names
+(repeatable), and print each answer as a line:
+{"ok": ...} or {"error": "..."}. Each --team-folder <name>=<folder> is at
+teams/<name>/ of a call's paths, reaching only the folders of it
+--team-write and --team-read name (<name>/<folder>, or <name>/. for all).
+"""
+role = "plumbing"
+output = "applied"
+
+[actions."file-tool.file-tool.apply".args]
+agent-folder = { type = "string", x-link-path = true, description = "The agent's own folder, its instructions, skills and chats", required = true }
+files = { type = "string", x-link-path = true, description = "The agent's files folder", required = true }
+team-folder = { type = "array", items = { type = "string", pattern = "^[^=/]+=" }, description = "A team's folder at teams/<name>/, <name>=<folder> (repeatable)" }
+team-read = { type = "array", items = { type = "string", pattern = "^[^/]+/" }, description = "A folder of a team it reads, <name>/<folder> (repeatable)" }
+team-write = { type = "array", items = { type = "string", pattern = "^[^/]+/" }, description = "A folder of a team it writes, <name>/<folder> (repeatable)" }
+whole = { type = "boolean", description = "Write the whole files folder" }
+write = { type = "array", items = { type = "string" }, description = "A folder it writes in (repeatable)" }
+
+[actions."file-tool.file-tool.bridge"]
+description = """
+Serve read, write, edit, glob and grep as an MCP server over stdio on the
+agent's Home through the files bridge at --socket, where Home is kept in
+a bucket, and on its own instructions/ and skills/ through the storage
+bridge at --store, where they're kept apart from Home: each call proved
+as agent --as of the Link account --account, with its key in
+the keyring at --keyring (this machine's, if left out), writing only in the
+folders --write names (repeatable). A write names the version of the
+file it read, so a file changed since is refused and read again.
+--no-find leaves glob and grep out, and --no-diffs the diff a write or
+edit answers with.
+"""
+role = "plumbing"
+output = "served"
+
+[actions."file-tool.file-tool.bridge".args]
+account = { type = "string", description = "The Link account the agent is of", required = true }
+as = { type = "string", description = "The agent each call is proved as, by its ID", required = true }
+keyring = { type = "string", x-link-path = true, description = "The keyring the agent's key is in [default: this machine's]" }
+no-diffs = { type = "boolean", description = "Leave out the diff a write or edit answers with" }
+no-find = { type = "boolean", description = "Leave glob and grep out" }
+socket = { type = "string", x-link-path = true, description = "The files bridge's socket", required = true }
+store = { type = "string", x-link-path = true, description = "The storage bridge's socket, where the agent's instructions and skills are kept", required = true }
+write = { type = "array", items = { type = "string" }, description = "A folder it writes in (repeatable)" }
+
+[actions."file-tool.file-tool.install"]
+description = "Nothing to install: this program is the tool."
+role = "plumbing"
+output = "installed"
+
+[actions."file-tool.file-tool.serve"]
+description = """
+Serve read, write, edit, glob and grep as an MCP server over stdio, the
+calls run in the command after `--` (`lnk sandbox run` and its flags,
+then lnk-file-tool apply), started at the first call and kept for the
+next, each call a line on its input. --no-find leaves glob and grep out,
+and --no-diffs the diff a write or edit answers with. Each --team-bridge
+<team> is a team whose folder is kept elsewhere: a call at teams/<team>/
+goes through the files bridge at --socket instead, proved as --as of the Link
+account --account with its key in the keyring at --keyring, as bridge's are.
+--write, --whole, --team-write and --team-read repeat apply's grants, which
+its instructions say to the model.
+"""
+role = "plumbing"
+output = "served"
+checks = ["team_bridge"]
+
+[actions."file-tool.file-tool.serve".args]
+account = { type = "string", description = "The Link account the agent is of" }
+as = { type = "string", description = "The agent each call is proved as, by its ID" }
+command = { type = "array", items = { type = "string" }, description = "The command its calls run in: lnk sandbox run and its flags, then lnk-file-tool apply", required = true, x-link-cli = { rest = true, last = true } }
+keyring = { type = "string", x-link-path = true, description = "The keyring the agent's key is in [default: this machine's]" }
+no-diffs = { type = "boolean", description = "Leave out the diff a write or edit answers with" }
+no-find = { type = "boolean", description = "Leave glob and grep out" }
+socket = { type = "string", x-link-path = true, description = "The files bridge's socket" }
+team-bridge = { type = "array", items = { type = "string" }, description = "A team whose folder is kept elsewhere, reached through the files bridge (repeatable)" }
+team-read = { type = "array", items = { type = "string", pattern = "^[^/]+/" }, description = "A folder of a team it reads, <name>/<folder>, as apply's, said in its instructions (repeatable)" }
+team-write = { type = "array", items = { type = "string", pattern = "^[^/]+/" }, description = "A folder of a team it writes, <name>/<folder>, as apply's, said in its instructions (repeatable)" }
+whole = { type = "boolean", description = "It writes the whole files folder, as apply's --whole, said in its instructions" }
+write = { type = "array", items = { type = "string" }, description = "A folder it writes in, as apply's --write, said in its instructions (repeatable)" }
+
+
+# The calls a model makes, as `serve` and `bridge` offer them (`tools/list`):
+# Claude Code's Read, Write, Edit, Glob and Grep, by their names and
+# arguments, each argument declared with dashes and called with
+# underscores (`file_path`).
+[actions."file-tool.file-tool.read"]
+description = "Gives a text file of your files folder, each line after its number and an arrow ('     1→'), whole lines, at most 24 KB a call: the answer says where it stopped, and 'offset' reads on. An image (PNG, JPEG, GIF, WebP) or a PDF of at most 2 MiB is given whole, for you to see."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."file-tool.file-tool.read".tool]
+name = "read"
+open-world = false
+
+[actions."file-tool.file-tool.read".args]
+file-path = { type = "string", maxLength = 4096, description = "A file's path in your files folder, as 'work/notes.md'.", required = true, x-link-summary = 1 }
+offset = { type = "integer", minimum = 1, description = "The line to start from, counted from 1; left out, the first." }
+limit = { type = "integer", minimum = 1, description = "How many lines to give at most; left out, as many as fit." }
+
+[actions."file-tool.file-tool.write"]
+description = "Writes a text file whole, making it and its folders if they're missing, in a folder you may write.{diff}"
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."file-tool.file-tool.write".tool]
+name = "write"
+open-world = false
+
+[actions."file-tool.file-tool.write".args]
+file-path = { type = "string", maxLength = 4096, description = "A file's path in your files folder, as 'work/notes.md'.", required = true, x-link-summary = 1 }
+content = { type = "string", description = "The file's whole text.", required = true }
+
+[actions."file-tool.file-tool.edit"]
+description = "Replaces text in a file you may write: 'old_string' exactly as it is in the file, found once unless 'replace_all'. Leave out the line numbers and arrows 'read' puts before each line.{diff}"
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."file-tool.file-tool.edit".tool]
+name = "edit"
+open-world = false
+
+[actions."file-tool.file-tool.edit".args]
+file-path = { type = "string", maxLength = 4096, description = "A file's path in your files folder, as 'work/notes.md'.", required = true, x-link-summary = 1 }
+old-string = { type = "string", description = "The text to replace, exactly as the file holds it, its spaces and line ends included, without the line numbers 'read' shows.", required = true }
+new-string = { type = "string", description = "The text to put in its place: empty removes it.", required = true }
+replace-all = { type = "boolean", description = "Every time it's found." }
+
+[actions."file-tool.file-tool.glob"]
+description = "Finds files in your files folder by a glob of their name or path, at most 100, a path a line. Hidden files, what a .gitignore names and folders too deep are passed over, and a last line says how many."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."file-tool.file-tool.glob".tool]
+name = "glob"
+open-world = false
+when = "find"
+
+[actions."file-tool.file-tool.glob".args]
+pattern = { type = "string", minLength = 1, description = "A glob of a file's name, or of its path below 'path' when it holds '/': '*.rs', 'src/**/test_*.py'. Any case.", required = true, x-link-summary = 1 }
+path = { type = "string", maxLength = 4096, description = "Where to look, a folder of your files folder; left out or empty, your files folder (not your instructions, skills or conversations, which are found when named).", x-link-summary = 2 }
+
+[actions."file-tool.file-tool.grep"]
+description = "Finds a regular expression in the files of your files folder, at most 100 answers: the files that hold it (the default), each line with its path and number ('output_mode' content), or each file's count. Hidden files, what a .gitignore names, files over 1 MiB and binary files are passed over, and a last line says how many."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."file-tool.file-tool.grep".tool]
+name = "grep"
+open-world = false
+when = "find"
+
+[actions."file-tool.file-tool.grep".args]
+pattern = { type = "string", minLength = 1, description = "A regular expression a line matches (escape '.', '(' and the like for literal text; start it with (?i) for any case).", required = true, x-link-summary = 1 }
+path = { type = "string", maxLength = 4096, description = "Where to look, a folder of your files folder; left out or empty, your files folder (not your instructions, skills or conversations, which are found when named).", x-link-summary = 2 }
+glob = { type = "string", description = "Only the files this glob names, of their name or of their path below 'path' when it holds '/': '*.rs'. Any case.", x-link-summary = 3 }
+output-mode = { type = "string", enum = ["files_with_matches", "content", "count"], description = "What it gives: files_with_matches, the files that hold a match (the default); content, each matching line as path:line:text; or count, each file's matching lines as path:count." }

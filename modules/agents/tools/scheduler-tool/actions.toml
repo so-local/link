@@ -1,0 +1,248 @@
+schema = 1
+
+[verbs]
+serve = { description = "Serve the tool to a harness as an MCP server over stdio, until its input closes", effect = "insert" }
+task = { description = "Start a subagent, for a model calling the tool", effect = "insert" }
+schedule = { description = "Send the agent a prompt by a cron, once or every time it matches, for a model calling the tool", effect = "insert" }
+send = { description = "Send a teammate a message, for a model calling the tool", effect = "insert" }
+message = { description = "Send a retained child a message, for a model calling the tool", effect = "insert" }
+compact = { description = "Keep a conversation's idle compaction, for its harness alone", effect = "update" }
+
+# What the program gives its tool calls at runtime: whom it may send to,
+# where a schedule's answer may go, and whether it's on a team.
+[tools]
+fills = ["teammates", "answers"]
+conditions = ["team"]
+
+[groups.flags]
+description = "Where the jobs are kept, the caps, the agent's teams and what wakes the runner: each the agent's specification's or Link's to say"
+args.agent-id = { type = "string", description = "The agent's ID, on a team" }
+args.as = { type = "string", description = "The agent it acts as, by its ID, proved with its key" }
+args.connection = { type = "array", items = { type = "string", pattern = "^[a-z0-9][a-z0-9-]*$" }, description = "A connection the agent is connected to, whose owner's direct chat a schedule's answer may go to (repeatable)" }
+args.definitions = { type = "string", x-link-path = true, description = "The agent's schedule definitions, projected into its jobs at the start" }
+args.driver = { enum = ["service", "cron", "address"], default = "service", description = "What wakes the runner: service, cron or address" }
+args.floor = { enum = ["owner", "member"], description = "The agent's floor, the least standing anyone reaches it with: owner while only its owner messages it, member once a chat is shared with it or it's on a team. A call that says no standing keeps it, and a call's own never goes above it" }
+args.hops = { type = "integer", minimum = 1, maximum = 4294967295, description = "The most messages down a chain, the agent's specification's" }
+args.interval = { type = "string", format = "duration", description = "The shortest a recurring schedule may repeat, the agent's specification's" }
+args.keyring = { type = "string", x-link-path = true, description = "The keyring its key is in [default: this machine's]" }
+args.late = { enum = ["run", "skip"], description = "What a firing missed while it was off does: run it, or skip it" }
+args.per-day = { type = "integer", minimum = 1, maximum = 4294967295, description = "The most firings a day, the agent's specification's" }
+args.socket = { type = "string", x-link-path = true, description = "The machine's socket, told when the jobs are next due, with --driver address" }
+args.state = { type = "string", x-link-path = true, description = "The folder its jobs and locks are kept in" }
+args.store-bridge = { type = "string", x-link-path = true, description = "The store bridge its jobs are kept through, in place of --state" }
+args.subagents = { type = "integer", minimum = 1, maximum = 4294967295, description = "The most subagents at once, the agent's specification's" }
+args.team-id = { type = "array", items = { type = "string", pattern = "^[^=]+=" }, description = "A team it's on, <name>=<id> (repeatable)" }
+args.team-owner = { type = "array", items = { type = "string", pattern = "^[^=]+=" }, description = "A relayed team's owner, <team>=<account> (repeatable)" }
+args.team-relay = { type = "string", description = "The team relay reaching teammates off this machine" }
+args.teammate = { type = "array", items = { type = "string", pattern = "^[^/=]+/[^=]+=" }, description = "Another member of a team it's on, <team>/<name>=<agent id> (repeatable)" }
+args.time-zone = { type = "string", description = "Its times' time zone: local, or a zone such as Europe/Paris" }
+args.timeout = { type = "string", format = "duration", description = "How long the runner waits on a firing" }
+args.way-in = { type = "string", x-link-path = true, description = "The agent's bridge's way in, each firing a call through it" }
+args.way-in-of = { type = "array", items = { type = "string", pattern = "^[^=]+=" }, description = "A teammate's way in on this machine, <agent id>=<socket> (repeatable)" }
+
+[actions."scheduler-tool.cron.install"]
+description = """
+Have the machine's calendar (launchd on a Mac, the user's crontab
+elsewhere) start `run --driver cron` with run's flags once a minute, as
+--label (the agent's name), its output added to cron.log in --state;
+remove stops it. Its paths must be absolute: the calendar starts it from
+your home.
+"""
+role = "plumbing"
+
+[actions."scheduler-tool.cron.install".args]
+label = { type = "string", description = "The calendar entry's label", required = true }
+flags = { group = "flags" }
+
+[actions."scheduler-tool.cron.uninstall"]
+description = "Stop the machine's calendar waking the runner, the entry by its label"
+role = "plumbing"
+
+[actions."scheduler-tool.cron.uninstall".args]
+label = { type = "string", description = "The calendar entry's label", required = true }
+
+[actions."scheduler-tool.scheduler-tool.install"]
+description = "Nothing to install: this program is the tool."
+role = "plumbing"
+output = "installed"
+
+[actions."scheduler-tool.scheduler-tool.run"]
+description = """
+Fire each job in --state as it falls due, kept to serve's caps and
+--time-zone, through the agent's bridge's way in (--way-in, a Unix socket),
+each proved as agent --as with its key from the machine's keyring
+(--keyring, else Link's), for good: a failed firing tried again a few
+times, a firing given up on past --timeout (a duration, 30m). A message
+to a teammate goes to its bridge's way in (--way-in-of <agent
+id>=<socket>), and its answer comes back as a message from it. One
+that isn't on this machine goes through the team relay (--team-relay
+<url>) of each team given its owner (--team-owner <team>=<account>),
+signed in as --agent-id with its own token, and what the relay kept
+for the agent comes in at each look.
+With --driver cron, the machine's calendar wakes it (cron install): it
+fires what's due, waits for those firings to end, and stops. With
+--driver address, a machine that runs the agent only while it answers
+starts it: it fires what's due, tells the machine's --socket (a Unix
+socket) when the rest are next due, proved as agent --as, and stops;
+nothing of it runs between. With --store-bridge, as serve.
+
+With --agents, one runner fires for every agent <file> lists (a JSON
+list, each agent's flags as run takes them alone), all in --time-zone. The
+file is read again when it changes: an agent gone stops once its
+firings end, and with none left the runner ends.
+"""
+role = "plumbing"
+output = "fired"
+checks = ["agents"]
+
+[actions."scheduler-tool.scheduler-tool.run".args]
+agents = { type = "string", x-link-path = true, description = "A JSON file of many agents' run flags, each as it would run alone, with --time-zone" }
+flags = { group = "flags" }
+
+[actions."scheduler-tool.scheduler-tool.serve"]
+description = """
+Serve the scheduler as an MCP server over stdio (task, message,
+schedule, list, read, cancel, schedules, unschedule), its jobs in --state, kept to the caps the agent's specification gives:
+--per-day, --subagents, --hops, --late run|skip; its times in --time-zone
+(local, this machine's, or a zone's name such as Europe/Paris). An agent
+on a team gets send too, to the --teammate <team>/<name>=<agent id>s of
+each --team-id <name>=<id>, its messages from --agent-id <id>.
+With --driver address, after each call that changes the jobs it tells
+the machine's --socket (a Unix socket) when they're next due, proved
+as agent --as with its key from --keyring (else Link's). With
+--store-bridge (a Unix socket), the jobs are kept through the machine's
+store bridge, off the machine, each call proved as agent --as; --state
+keeps only the machine's locks.
+"""
+role = "plumbing"
+output = "served"
+
+[actions."scheduler-tool.scheduler-tool.serve".args]
+flags = { group = "flags" }
+
+# The calls a model makes, as `serve` offers them (`tools/list`).
+[actions."scheduler-tool.scheduler-tool.message"]
+description = "Send a message to an existing retained child by ID. This preserves the child and its original return destination; it cannot resume a paused child or release an owner hold."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.scheduler-tool.message".tool]
+name = "message"
+open-world = false
+
+[actions."scheduler-tool.scheduler-tool.message".args]
+id = { type = "string", description = "The retained child's task ID, as task__list gives it.", required = true, x-link-summary = 1 }
+message = { type = "string", description = "The message, whole.", required = true }
+
+[actions."scheduler-tool.scheduler-tool.task"]
+description = "Launch a subagent: a new conversation of yours, now, with this prompt. Its answer comes back here as a message from it, so you can launch several at once, say you've launched them, and answer from their results when they arrive."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.scheduler-tool.task".tool]
+name = "task"
+open-world = false
+
+[actions."scheduler-tool.scheduler-tool.task".args]
+description = { type = "string", description = "A short (3-5 word) description of the task, which task__list shows.", x-link-summary = 1 }
+prompt = { type = "string", description = "The task for it to do, whole: it sees nothing else of this conversation.", required = true, x-link-summary = 2 }
+tools = { type = "array", items = { type = "string" }, description = "The tools it may use, by the names you have them: some of yours, or none. Left out, it gets all of yours." }
+model = { type = "string", description = "The model it runs on, or an alias your specification names (high, low). Left out, the one this conversation runs on." }
+after = { type = "array", items = { type = "string" }, description = "The IDs of this conversation's subagents or messages it waits on: it starts once each answered, and is cancelled if one failed or was cancelled." }
+
+[actions."scheduler-tool.scheduler-tool.schedule"]
+description = "Schedule a prompt for yourself at a future time, by a standard 5-field cron in your time zone: recurring (the default) fires on every match until deleted; recurring false fires once, at the next match, then is gone, for 'remind me at X' with the minute, hour, day of the month and month pinned. Each time it fires you get the prompt in a new conversation of its own, which sees nothing of this one, and your answer there goes to this chat, or where 'answer' says. For a check that should tell your owner only when there's news ('every morning, look at X and tell me if it changed'), set answer to nowhere and write the prompt to message your owner with agent__send only when there is some: a quiet day then sends nothing. Returns a job ID cron__delete takes."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.scheduler-tool.schedule".tool]
+name = "schedule"
+open-world = false
+
+[actions."scheduler-tool.scheduler-tool.schedule".args]
+cron = { type = "string", description = "Standard 5-field cron expression in your time zone, M H DoM Mon DoW: */15 * * * * is every 15 minutes, 0 6 * * 1-5 six on weekdays, 30 14 28 2 * Feb 28 at 2:30pm.", required = true, x-link-summary = 1 }
+prompt = { type = "string", description = "The prompt you'll get at each fire time, whole: it's all you'll see of this conversation then.", required = true, x-link-summary = 2 }
+recurring = { type = "boolean", x-link-asks = true, description = "true (the default): fire on every match until deleted. false: fire once, at the next match, then be gone, for a one-shot reminder with its minute, hour, day of the month and month pinned." }
+answer = { type = "string", x-link-fill = "answers", description = "Where your answer goes: here for this chat, nowhere to keep it private, cli for your owner's command line, or a connected service's name, for your owner's direct chat there. nowhere, with a prompt that messages your owner with agent__send when there's news, is a check that speaks only then." }
+
+[actions."scheduler-tool.scheduler-tool.send"]
+description = "Send a message to a teammate now, or to every one of a team ('to' the team's name). It lands in your conversation with them, and each answer comes back here as a message from them, so say you've sent it and end your turn."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.scheduler-tool.send".tool]
+name = "send"
+open-world = false
+when = "team"
+
+[actions."scheduler-tool.scheduler-tool.send".args]
+to = { type = "string", x-link-fill = "teammates", description = "A teammate's name, or your team's for all of them.", required = true, x-link-summary = 1 }
+message = { type = "string", description = "The message, whole: they see nothing else of this conversation.", required = true }
+
+[actions."scheduler-tool.job.list"]
+description = "List what's scheduled in this conversation, the subagents it started that haven't answered yet, and how those that ended did: the soonest 100, and how many more ('cut'). Each 'id' is what task__read and task__stop take."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.job.list".tool]
+name = "list"
+open-world = false
+
+[actions."scheduler-tool.job.stop"]
+description = "Cancel a schedule or a subagent by its 'id', as task__list gives it, with every subagent it started and everything waiting on it. A subagent already at work isn't stopped: it finishes its turn and its answer still comes, and where its harness admitted it, cancelling it is refused."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.job.stop".tool]
+name = "cancel"
+open-world = false
+
+[actions."scheduler-tool.job.stop".args]
+id = { type = "string", required = true, x-link-summary = 1 }
+
+[actions."scheduler-tool.scheduled-job.list"]
+description = "List this conversation's schedules alone, the soonest 100, and how many more ('cut'): no subagent and no message to a teammate. Each 'id' is what cron__delete takes."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.scheduled-job.list".tool]
+name = "schedules"
+open-world = false
+
+[actions."scheduler-tool.scheduled-job.delete"]
+description = "Delete one of this conversation's schedules by its 'id', as cron__list gives it, with everything waiting on it. Refuses a subagent or a message to a teammate, which task__stop cancels."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.scheduled-job.delete".tool]
+name = "unschedule"
+open-world = false
+
+[actions."scheduler-tool.scheduled-job.delete".args]
+id = { type = "string", required = true, x-link-summary = 1 }
+
+[actions."scheduler-tool.job.show"]
+description = "Read the full exact job, including a retained delegation proposal, by ID before revalidating it against the current plan."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.job.show".tool]
+name = "read"
+open-world = false
+
+[actions."scheduler-tool.job.show".args]
+id = { type = "string", required = true, x-link-summary = 1 }
+
+# The harness's own call, never a model's: the namespaces declare it so
+# (`harness = true`) and offer it to no model.
+[actions."scheduler-tool.scheduler-tool.compact"]
+description = "Keep this conversation's idle compaction due 'after' seconds from now, moving the one waiting; with no 'after', take it away. Made by the conversation's harness when a turn ends, never by its model."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."scheduler-tool.scheduler-tool.compact".tool]
+name = "compact"
+open-world = false
+
+[actions."scheduler-tool.scheduler-tool.compact".args]
+after = { type = "integer", minimum = 1, maximum = 4294967295, description = "How many seconds of quiet from now it's due. Left out, the waiting one is taken away." }

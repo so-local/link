@@ -1,0 +1,12 @@
+# Matching needs the adapter's sizes: when listing them fails, its
+# error is the one said.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 4
+
+[run]
+sizes_error = "lnk-aws sizes: An error occurred (UnauthorizedOperation) when calling DescribeInstanceTypes"
+
+[expect]
+error = "UnauthorizedOperation"

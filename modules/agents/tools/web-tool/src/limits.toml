@@ -1,0 +1,74 @@
+# What the tool admits from its caller, read once (`limits.rs`).
+
+# The longest message line it reads from its harness, in bytes: a call is
+# a URL or a query, far smaller. A longer line is skipped to its end and
+# answered with an error, never held whole.
+line-max-bytes = 1048576
+
+# What it reads of a page before deciding how to read the rest.
+# How much of a page's start a `<meta>` naming its character set is
+# looked for in, in bytes, as browsers look.
+meta-scan-bytes = 1024
+# How much of a body of no type is looked at for HTML, in bytes.
+sniff-bytes = 512
+# How much of a page is read at a time, in bytes, so a page sent a
+# little at a time still ends at the deadline.
+read-chunk-bytes = 65536
+# The longest character reference's name it reads (`&#x1F600;`), in
+# bytes; a longer one is kept as it is.
+entity-name-max = 10
+
+# How much of a page a fetch returns at once when the agent's spec
+# doesn't say (`[tool.web] fetch`), in bytes: Link's spec's, which a test
+# holds it to. Whatever the spec says is kept from `fetch-least-bytes` to
+# `fetch-max-bytes`, the bounds the spec's own check holds it to.
+fetch-bytes = 24576
+fetch-least-bytes = 1024
+fetch-max-bytes = 1048576
+
+# The most of a page it reads, in bytes, a guard against a page that
+# never ends.
+page-max-bytes = 5242880
+
+# The most redirects it follows for one page, as browsers do.
+redirects = 10
+
+# How long a page or a search may take, its body included, in seconds: a
+# guard against a server that never answers or answers a byte at a time;
+# the harness's own timeout for a call is longer. And how long
+# connecting may take.
+timeout-seconds = 30
+connect-seconds = 10
+
+# How many results a search gives when not asked; the most is `search`'s
+# declared `count` maximum (`actions.toml`).
+results = 5
+
+# How many of the last pages fetched are kept for their next parts, and
+# for how long, in seconds: a page read a part at a time is fetched and
+# converted once.
+pages = 3
+page-kept-seconds = 300
+
+# The most calls answered at once: a round's calls, and a bound on the
+# threads and pages a client that sends calls without end can make it
+# hold.
+calls = 16
+
+# How many pages are made markdown at once: a page's tree and its
+# markdown take up to about 18 times the page, 90 MB for one of 5 MB, so
+# the rest wait their turn.
+conversions = 2
+
+# The deepest a page's elements may nest for its markdown: far past any
+# page of content, well within the stack. A deeper page is read as text.
+depth-max = 512
+
+# The most hosts a pages client keeps pinned to the addresses they were
+# checked at: past it, the next fetch makes a new client, with none.
+pinned-max = 1024
+
+# The search APIs' addresses, by the name `LNK_WEB_SEARCH` takes.
+[addresses]
+brave = "https://api.search.brave.com/res/v1/web/search"
+tavily = "https://api.tavily.com/search"

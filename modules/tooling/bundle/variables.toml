@@ -1,0 +1,24 @@
+schema = 1
+
+[[uses]]
+name = "LNK_BUILD"
+access = ["set"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_COMPONENTS"
+access = ["set", "unset"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_DEV_SIGNER"
+access = ["unset"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_PROD_SIGNER"
+access = ["unset"]
+context = "runtime"
+
+[readers]
+"compile::cargo" = "The signer's variable the build reads, `LNK_DEV_SIGNER` or `LNK_PROD_SIGNER`, set from the bundle's signer."

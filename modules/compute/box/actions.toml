@@ -1,0 +1,421 @@
+schema = 1
+
+[verbs]
+copy = { description = "Copy files from this computer to a box, over SSH", effect = "insert" }
+end-here = { description = "End a disposable box by its first-boot policy", effect = "delete" }
+forward = { description = "Offer a box a proxy whose connections leave from this computer", effect = "insert" }
+machine = { description = "Exchange one versioned machine request", effect = "insert" }
+network-forward = { description = "Open a captured guest's approved filtering proxy bridge", effect = "insert" }
+resource-journal-schema = { description = "Print the resource journal protocol's schema", effect = "find" }
+ssh = { description = "Open a shell on a box, or run a command there", effect = "insert" }
+
+[actions."box.box.check"]
+description = """
+Check a specification's attachments in a cloud account, or plan it for a cloud of
+one kind, making nothing
+
+Looks up the network, identity, address and disks the specification attaches,
+from `--spec` and its field flags, and says they're present; the cloud
+refuses missing ones before it launches anything.
+
+With `--plan <kind>`, prints what the specification asks of a box in a cloud of
+that kind instead: its table for that cloud laid over and every default
+filled in, the request a job carries to the box that runs it. No cloud
+account is read.
+"""
+role = "secondary"
+docs = "/config/specs/guides/box#check-attachments-first"
+spec = "box"
+checks = ["spec"]
+output = "checked"
+next = ["box.box.create", "box.size.list"]
+fail = ["cloud.cloud.list", "cloud.cloud.connect", "core.core.upgrade", "box.box.check"]
+
+[actions."box.box.check".args]
+place = { type = "string", description = "A cloud account (`lnk cloud list`): short for --cloud <cloud>", x-link-cli = { position = 1 } }
+cloud = { type = "string", description = "A cloud account (`lnk cloud list`)" }
+zone = { type = "string", description = "A region or zone of the cloud, its table's region" }
+plan = { type = "string", description = "A cloud's kind (`aws`, as `lnk cloud list` says): print what the specification asks of a box there instead, reading no account" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.box.copy"]
+description = """
+Copy files from this computer to a box, over SSH
+
+`lnk box copy web-1 deps.toml install.sh setup` puts both in the folder
+setup in the box's home folder, making it if it's missing. Over the
+box's SSH, as `lnk box ssh` reaches it: never the relay.
+"""
+role = "secondary"
+docs = "/services/boxes/ssh#copy-files-to-a-box"
+output = "said"
+next = ["box.box.ssh", "box.box.run"]
+fail = ["box.box.start", "box.box.delete", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.copy".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+files = { type = "array", items = { type = "string" }, description = "The files to copy, each keeping its name and permissions", required = true, x-link-cli = { position = 2 } }
+dest = { type = "string", description = "A folder on the box, from its home folder", required = true, x-link-cli = { position = 3 } }
+
+[actions."box.box.create"]
+description = """
+Make a box in a cloud account, with `lnk` on it
+
+`lnk box create aws` makes one in the account you connected as aws
+(`lnk cloud list`), named aws-1 (then aws-2, ...), with `lnk` on it,
+signed in as you. `lnk box spec show` prints the specification its field flags
+make, and `lnk box size list aws` the machines they'd pick.
+"""
+role = "primary"
+docs = "/services/boxes/guide#create-a-box"
+spec = "box"
+checks = ["spec"]
+output = "said"
+next = ["box.box.ssh", "box.box.stop", "box.box.list", "box.image.create", "box.box.delete"]
+fail = ["box.box.create", "box.size.list", "box.image.list", "box.box.start", "box.box.delete", "box.box.ssh", "box.box.stop", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect", "core.core.upgrade", "box.spec.show"]
+
+[actions."box.box.create".args]
+place = { type = "string", description = "A cloud account, or here: short for --cloud <cloud> or --here", x-link-cli = { position = 1 } }
+cloud = { type = "string", description = "The one to make the box in (`lnk cloud list`)" }
+here = { type = "boolean", description = "Make a box here, in its sandbox (or none, with --no-sandbox), its home in ~/Link/Boxes" }
+on = { type = "string", description = "Not taken: use --cloud or --here when creating a box", x-link-cli = { hidden = true } }
+zone = { type = "string", description = "A region or zone of the cloud" }
+name = { type = "string", description = "What to call a new box [default: <specification name, else account>-<n>]" }
+image = { type = "string", description = "A new box's disk from one of your images in that account (`lnk box image list`)" }
+image-hash = { type = "string", description = "A new box's disk from your newest ready image in that account saved with this hash (`lnk box image create --hash`)", x-link-cli = { conflicts = ["image"] } }
+bundle = { type = "string", description = "Make it from a bundle you built: the name of one `lnk bundle create` kept, such as devbox (`lnk bundle list`), or its folder by a path, such as ./devbox. That bundle's own `lnk` makes the box and installs the bundle on it" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."box.box.delete"]
+description = """
+Delete a box and its disk
+
+What Link made for boxes there (a firewall rule, a key) goes too, once
+no Link box there uses it.
+"""
+role = "secondary"
+docs = "/services/boxes/lifecycle/delete#what-deletion-does"
+output = "said"
+next = ["box.box.list"]
+fail = ["box.box.stop", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.delete".args]
+name = { type = "string", description = "The box (`lnk box list`)", x-link-cli = { position = 1 } }
+id = { type = "string", description = "Remove by immutable cloud ID; already gone is success" }
+cloud = { type = "string", description = "The cloud account of the machine --id names (`lnk cloud list`)" }
+zone = { type = "string", description = "The region or zone containing --id" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."box.box.end-here"]
+description = "End a disposable box using its first-boot policy"
+role = "plumbing"
+output = "said"
+
+[actions."box.box.forward"]
+description = """
+Offer a box a SOCKS proxy whose connections leave from this computer
+
+`ssh -R`, until it drops.
+"""
+role = "secondary"
+docs = "/services/boxes/ssh#forward-home-to-a-box"
+output = "said"
+next = ["box.box.ssh", "box.box.list"]
+fail = ["box.box.forward", "box.box.start", "box.box.delete", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.forward".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+port = { type = "integer", minimum = 0, maximum = 65535, description = "The port on the box's loopback" }
+socket = { type = "string", description = "A Unix socket instead, at this path in the box's home folder: only its user reaches it, and no SSH setting opens it to the network", x-link-cli = { conflicts = ["port"] } }
+
+[actions."box.box.forward".args.proxy-port]
+type = "integer"
+minimum = 0
+maximum = 65535
+required = true
+description = """
+A port on this machine's loopback, a SOCKS proxy the box's connections
+go to, one that refuses this machine and its networks.
+Needed: ssh's own SOCKS, which refuses nothing, is never used"""
+
+[actions."box.key.show"]
+description = """
+Print Link's SSH key to your boxes, its public half
+
+The key every box lets you in by, made the first time it's needed. Give
+its public half to a machine that lets you in by your key.
+"""
+role = "primary"
+docs = "/services/boxes/user/key#show-the-key"
+output = "said"
+next = ["box.user.add"]
+fail = ["box.box.list"]
+
+[actions."box.key.show".args]
+secret-file = { type = "boolean", description = "Print where its secret half is instead, for ssh's -i" }
+
+[actions."box.box.list"]
+description = """
+List your boxes: where, how big, their address and state
+
+Asks each connected cloud account for the boxes tagged as yours, so
+boxes made on another of your computers are found too (and kept here
+from then on).
+"""
+role = "primary"
+docs = "/services/boxes/guide#list-your-boxes"
+surfaces = ["cli", "tool"]
+output = "boxes"
+next = ["box.box.ssh", "box.box.show", "box.box.start", "box.box.stop", "box.box.delete", "box.box.create", "cloud.cloud.connect", "box.box.check"]
+fail = ["box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.list".args]
+place = { type = "string", description = "A cloud account (`lnk cloud list`): short for --cloud <cloud>, with --tag", x-link-cli = { position = 1 } }
+cloud = { type = "string", description = "Only the boxes of this cloud account found by --tag (`lnk cloud list`)", x-link-cli = { conflicts = ["here"] } }
+tag = { type = "array", items = { type = "string" }, description = "Filter by KEY=VALUE across owners and regions" }
+refresh = { type = "boolean", description = "Ask each box's cloud for its state now" }
+all-regions = { type = "boolean", description = "On AWS, look in every region the account has enabled, not only those your boxes are in (the default with none known)" }
+here = { type = "boolean", description = "Only the boxes this computer knows, without asking the clouds" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.box.list".route]
+bridge = "command"
+callers = ["owner", "agent"]
+limits = { bytes = 1048576, time_ms = 120000 }
+
+[actions."box.box.machine"]
+description = "Exchange one versioned machine-input, binding or VM box request"
+role = "plumbing"
+output = "said"
+
+[actions."box.box.network-forward"]
+description = "Open only the captured guest's approved filtering proxy bridge"
+role = "plumbing"
+output = "said"
+
+[actions."box.box.network-forward".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."box.box.resource-journal-schema"]
+description = "Print the resource journal protocol schema."
+role = "plumbing"
+output = "said"
+
+[actions."box.box.run"]
+description = """
+Run `lnk` on a box
+
+`lnk box run aws-1 -- agent show`. Its input and output pass through
+as they are: `lnk agent move` pipes an agent through it.
+"""
+role = "secondary"
+docs = "/services/boxes/ssh#run-lnk-on-a-box"
+output = "said"
+next = ["box.box.ssh", "box.box.copy"]
+fail = ["box.box.start", "box.box.delete", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.run".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+args = { type = "array", items = { type = "string" }, description = "lnk's arguments there", required = true, x-link-cli = { rest = true } }
+
+[actions."box.box.show"]
+description = """
+Show a box: where it is, how big, its address and state, as this computer last saw it
+
+Asks no cloud: `lnk box list --refresh` does.
+"""
+diagnoses = "box"
+role = "secondary"
+docs = "/services/boxes/guide#show-one-box"
+output = "said"
+next = ["box.box.ssh", "box.box.list", "box.spec.show", "box.user.list", "box.key.show"]
+fail = ["box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.show".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.box.ssh"]
+description = "Open a shell on a box, or run a command there"
+role = "secondary"
+docs = "/services/boxes/ssh#open-a-shell-on-a-box"
+output = "said"
+next = ["box.box.run", "box.box.copy", "box.box.forward"]
+fail = ["box.box.create", "box.box.start", "box.box.delete", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.ssh".args]
+name = { type = "string", description = "The box [default: the only one]", x-link-cli = { position = 1 } }
+command = { type = "array", items = { type = "string" }, description = "A command to run instead of a shell: several words are a command and its arguments, each arriving whole; one word is a shell line of its own", x-link-cli = { rest = true } }
+
+[actions."box.box.start"]
+description = """
+Start a stopped box again
+
+`lnk box stop` stopped it, or its cloud did (a spot box). A new box is
+`lnk box create <cloud>`.
+"""
+role = "secondary"
+docs = "/services/boxes/lifecycle#start-a-box"
+surfaces = ["cli", "tool"]
+output = "said"
+next = ["box.box.ssh"]
+fail = ["box.box.start", "box.box.ssh", "box.box.delete", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.start".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."box.box.start".route]
+bridge = "command"
+callers = ["owner", "agent"]
+limits = { bytes = 1048576, time_ms = 120000 }
+
+[actions."box.box.stop"]
+description = """
+Stop a box (its disk stays)
+
+Its disk is still billed until `lnk box delete`; `lnk box start <name>`
+starts it again.
+"""
+role = "secondary"
+docs = "/services/boxes/lifecycle#stop-a-box"
+surfaces = ["cli", "tool"]
+output = "said"
+next = ["box.box.start", "box.box.delete", "box.box.list"]
+fail = ["box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."box.box.stop".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."box.box.stop".route]
+bridge = "command"
+callers = ["owner", "agent"]
+limits = { bytes = 1048576, time_ms = 120000 }
+
+[actions."box.image.create"]
+description = """
+Save a box's disk as an image in its cloud account
+
+The box is stopped while it's saved, then started again. Its lnk is
+signed out first, so the image holds no login, and a box with an agent
+on it, or holding other secrets (git credentials, a token in .npmrc or
+.pypirc, a cloud CLI's login), is refused. The image is billed to the
+account every month, by its size.
+"""
+role = "secondary"
+docs = "/services/boxes/image#create-an-image"
+output = "said"
+next = ["box.image.list", "box.image.delete", "box.box.create", "box.box.start"]
+fail = ["box.image.create", "box.image.delete", "box.box.start", "box.box.ssh", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect", "agent.agent.move"]
+
+[actions."box.image.create".args]
+name = { type = "string", description = "The box (`lnk box list`)", required = true, x-link-cli = { position = 1 } }
+image = { type = "string", description = "What to call the image: lowercase letters, digits and dashes", required = true, x-link-cli = { position = 2 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."box.image.create".args.hash]
+type = "string"
+description = """
+A hash of what made it (your setup script, its specifications, a lockfile), which
+`lnk box image list --hash` and `lnk box create --image-hash` find it by:
+lowercase letters, digits and dashes, at most 63"""
+
+[actions."box.image.delete"]
+description = "Delete an image, and its copy of the disk"
+role = "secondary"
+docs = "/services/boxes/image#delete-an-image"
+output = "said"
+next = ["box.image.list"]
+fail = ["box.image.list", "cloud.cloud.list", "cloud.cloud.connect", "box.image.delete"]
+
+[actions."box.image.delete".args]
+image = { type = "string", description = "The image (`lnk box image list <cloud>`)", required = true, x-link-cli = { position = 1 } }
+place = { type = "string", description = "A cloud account (`lnk cloud list`): short for --cloud <cloud>", x-link-cli = { position = 2 } }
+cloud = { type = "string", description = "A cloud account (`lnk cloud list`)" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."box.image.list"]
+description = "List the images Link made for you in a cloud account"
+role = "secondary"
+docs = "/services/boxes/image#list-images"
+output = "images"
+next = ["box.image.create", "box.box.create", "box.image.delete"]
+fail = ["box.box.list", "cloud.cloud.list", "cloud.cloud.connect", "box.image.list"]
+
+[actions."box.image.list".args]
+place = { type = "string", description = "A cloud account (`lnk cloud list`): short for --cloud <cloud>", x-link-cli = { position = 1 } }
+cloud = { type = "string", description = "A cloud account (`lnk cloud list`)" }
+hash = { type = "string", description = "Only the images saved with this hash, newest first" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.size.list"]
+description = """
+List the machines a box could be, best first, making nothing
+
+What `lnk box create <cloud>` would pick for a specification and its flags,
+then the rest that fit.
+"""
+role = "secondary"
+docs = "/services/boxes/size#list-matching-machines"
+spec = "box"
+checks = ["spec"]
+output = "sizes"
+next = ["box.box.create", "box.box.check"]
+fail = ["cloud.cloud.list", "cloud.cloud.connect", "box.size.list"]
+
+[actions."box.size.list".args]
+place = { type = "string", description = "A cloud account (`lnk cloud list`): short for --cloud <cloud>", x-link-cli = { position = 1 } }
+cloud = { type = "string", description = "A cloud account (`lnk cloud list`)" }
+zone = { type = "string", description = "A region or zone of the cloud" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.user.add"]
+description = """
+Let someone SSH into this box as a Linux user of their own, in their sandbox
+
+Makes the user with their own home, the one folder they write, and lets
+their key do nothing but enter their sandbox: a shell, a command, scp or
+sftp, with no network unless their specification opens one, and no port, agent or
+X11 forwarding. Root keeps their key and specification, where they can't change
+them. Adding a user again replaces their key and sandbox.
+"""
+role = "secondary"
+docs = "/services/boxes/user#add-a-user"
+output = "said"
+next = ["box.user.list", "box.box.ssh"]
+fail = ["box.box.create", "box.user.list", "box.key.show", "box.box.ssh"]
+
+[actions."box.user.add".args]
+name = { type = "string", description = "Their user's name: lowercase letters, digits, `_` and `-`", required = true, x-link-cli = { position = 1 } }
+public-key = { type = "string", description = "Their public key (`ssh-ed25519 AAAA...`), or its .pub file", required = true }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."box.user.add".args.sandbox]
+type = "string"
+x-link-path = true
+required = true
+description = """
+Their sandbox's specification (`lnk sandbox spec show --help`), `~` their home. Its
+[commands] must let /bin/bash run, which their session is"""
+
+[actions."box.user.list"]
+description = "List this box's users"
+role = "secondary"
+docs = "/services/boxes/user#list-users"
+output = "users"
+next = ["box.user.remove", "box.user.add"]
+fail = ["box.box.create", "box.key.show", "box.box.ssh"]
+
+[actions."box.user.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.user.remove"]
+description = "Remove a user and their key (their folder stays unless asked)"
+role = "secondary"
+docs = "/services/boxes/user#remove-a-user"
+output = "said"
+next = ["box.user.list"]
+fail = ["box.box.create", "box.user.list", "box.box.ssh"]
+
+[actions."box.user.remove".args]
+name = { type = "string", description = "The user (`lnk box user list`)", required = true, x-link-cli = { position = 1 } }
+delete-folder = { type = "boolean", description = "Delete their folder too" }

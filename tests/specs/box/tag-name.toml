@@ -1,0 +1,8 @@
+# Name is AWS's name tag, Link's.
+[spec]
+schema = 1
+[spec.machine.tags]
+Name = "web"
+
+[expect]
+invalid = "is Link's own"

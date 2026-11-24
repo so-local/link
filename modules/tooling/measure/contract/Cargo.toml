@@ -1,0 +1,53 @@
+[package]
+authors.workspace = true
+name = "link-measure-contract"
+description = "`link-measure-contract` holds Local Link's measures"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/tooling/measure"
+
+[dependencies]
+[dependencies.serde_json]
+workspace = true
+
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-service]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-format]
+workspace = true

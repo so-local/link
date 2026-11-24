@@ -1,0 +1,5 @@
+api = "https://cloudbilling.googleapis.com/v1/services/6F81-5844-456A/skus"
+pages = 20
+page_size = 5000
+page_bytes = 33554432
+request_seconds = 60

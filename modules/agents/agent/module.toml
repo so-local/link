@@ -1,0 +1,155 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+# What leads into the module from `lnk up`.
+next = ["agent.agent.start", "agent.agent.create", "agent.agent.list", "agent.agent.connect", "agent.agent.move", "agent.agent.migrate", "agent.question.list", "agent.harness.set", "agent.model.set", "agent.memory.start", "agent.webhook.create"]
+guest_service = true
+"requires" = [{ "dependency" = "sandbox" }, { "dependency" = "model" }]
+"recommends" = [{ "dependency" = "memory-tool" }, { "dependency" = "mcp" }, { "dependency" = "web-tool" }, { "dependency" = "browser-tool" }, { "dependency" = "desktop-tool" }, { "dependency" = "storage" }, {dependency = "bucket-store"}, { "dependency" = "measure" }, { "dependency" = "box" }, { "dependency" = "cloud" }, {dependency = "discord"}, {dependency = "file-store"}, {dependency = "file-tool"}, {dependency = "code-tool"}, {dependency = "harness"}, {dependency = "run-tool"}, {dependency = "scheduler-tool"}, {dependency = "secret"}, {dependency = "signal"}, {dependency = "slack"}, {dependency = "sqlite-store"}, {dependency = "telegram"}, {dependency = "webhook-connection"}]
+answers = ["archive.check", "archive.running", "archive.carry", "archive.missing", "archive.adopt", "storage.folders", "storage.home", "storage.owner", "measure.agents", "measure.inventory", "sandbox.grants", "box.removed", "secret.copies", "secret.grantee", "secret.token"]
+
+["module"]
+id = "agent"
+"kind" = "module"
+owner = "modules/agents/agent"
+
+["dependencies"."box"]
+"kind" = "module"
+"id" = "box"
+
+["dependencies"."storage"]
+"kind" = "module"
+"id" = "storage"
+
+["dependencies"."cloud"]
+"kind" = "module"
+"id" = "cloud"
+
+["dependencies".memory-tool]
+"kind" = "module"
+"id" = "memory-tool"
+
+["dependencies".desktop-tool]
+"kind" = "module"
+"id" = "desktop-tool"
+
+["dependencies".browser-tool]
+"kind" = "module"
+"id" = "browser-tool"
+
+["dependencies".web-tool]
+"kind" = "module"
+"id" = "web-tool"
+
+["dependencies"."measure"]
+"kind" = "module"
+"id" = "measure"
+
+["dependencies"."model"]
+"kind" = "module"
+"id" = "model"
+
+["dependencies"."sandbox"]
+kind = "module"
+id = "sandbox"
+
+["dependencies".bucket-store]
+kind = "module"
+id = "bucket-store"
+
+["dependencies".discord]
+kind = "module"
+id = "discord"
+
+["dependencies".file-store]
+kind = "module"
+id = "file-store"
+
+["dependencies".file-tool]
+kind = "module"
+id = "file-tool"
+
+["dependencies".code-tool]
+kind = "module"
+id = "code-tool"
+
+["dependencies".link-harness]
+kind = "module"
+id = "harness"
+
+["dependencies".run-tool]
+kind = "module"
+id = "run-tool"
+
+["dependencies".scheduler-tool]
+kind = "module"
+id = "scheduler-tool"
+
+["dependencies".harness-wire]
+kind = "package"
+id = "harness-wire"
+
+["dependencies".agent-state-protocol]
+kind = "package"
+id = "agent-state-protocol"
+
+["dependencies".store]
+kind = "package"
+id = "store"
+
+["dependencies".memory]
+kind = "package"
+id = "memory"
+
+["dependencies".interactions]
+kind = "package"
+id = "interactions"
+
+["dependencies".connection-policy]
+kind = "package"
+id = "connection-policy"
+
+["dependencies".secret]
+kind = "module"
+id = "secret"
+
+["dependencies".signal]
+kind = "module"
+id = "signal"
+
+["dependencies".slack]
+kind = "module"
+id = "slack"
+
+["dependencies".sqlite-store]
+kind = "module"
+id = "sqlite-store"
+
+["dependencies".telegram]
+kind = "module"
+id = "telegram"
+
+["dependencies".webhook-connection]
+kind = "module"
+id = "webhook-connection"
+
+["menu"]
+"label" = "Manage agents"
+"group" = "agents"
+"default" = true
+"next" = "lnk agent start"
+
+["documentation"]
+"topic" = "agents"
+"root" = "docs"
+
+["removal"]
+"parts" = ["agents"]
+
+[dependencies.mcp]
+kind = "module"
+id = "mcp"

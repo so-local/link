@@ -1,0 +1,11 @@
+schema = 1
+# How to take away the calendar entry waking an agent's scheduler,
+# `~/.lnk/safe/agents/<name>/scheduler-cron.json`.
+kind = "agent scheduler calendar"
+current = 1
+command = "lnk agent start"
+
+[[files]]
+location = "lnk.agents"
+path = "*/scheduler-cron.json"
+encoding = "json"

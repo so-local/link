@@ -1,0 +1,99 @@
+[package]
+authors.workspace = true
+name = "link-sandbox-route"
+description = "The package `link-sandbox-route` defines a route, a way out of a sandbox beside the network that the sandbox's proxy mounts under `/_link/` and a bridge outside the sandbox serves"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/security/sandbox"
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.futures-util]
+workspace = true
+
+[dependencies.http-body-util]
+workspace = true
+
+[dependencies.hyper]
+workspace = true
+
+[dependencies.hyper-util]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.link-sandbox-bridge]
+workspace = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.rustls]
+workspace = true
+
+[dependencies.rustls-platform-verifier]
+workspace = true
+
+[dependencies.tokio-rustls]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.tokio]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dev-dependencies.tokio]
+workspace = true
+features = ["test-util"]
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-service]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true

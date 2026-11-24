@@ -1,0 +1,5 @@
+calls = 8
+message_max = 1048576
+stderr_max = 16384
+protocol_version = "2025-06-18"
+instructions = "You are running through Link. Consult manual__show for accurate Link setup and command documentation. When asked what you can do, inspect agent__tool__list, and agent__show where it is offered, then consult manual__show for capabilities the owner could enable. Installed capabilities are not necessarily enabled. Explain available options without claiming ungranted tools. Read calls are allowed; changes require the caller's approval. Permission grants, credentials and tool installation are not offered."

@@ -1,0 +1,82 @@
+"bin" = [{ "name" = "lnk-agent-place-fixture", "path" = "src/main.rs", "test" = false }]
+
+["package"]
+authors.workspace = true
+"name" = "link-agent-place-fixture"
+"description" = "`lnk-agent-place-fixture` demonstrates how a host serves agents, as the hosted-agent contract describes, using inspectable files instead of running agents"
+"publish" = false
+
+["package"."version"]
+"workspace" = true
+
+["package"."edition"]
+"workspace" = true
+
+["package"."license"]
+"workspace" = true
+
+["package"."metadata"."link"]
+"schema" = 1
+"role" = "fixture"
+owner = "tests/fixtures/agent-place"
+
+["dependencies"."anyhow"]
+"workspace" = true
+
+["dependencies"."serde_json"]
+"workspace" = true
+
+["dependencies"."tar"]
+"version" = "0.4"
+"default-features" = false
+
+["dependencies".link-cloud-contract]
+workspace = true
+
+
+["dependencies".link-connection-contract]
+workspace = true
+
+["dependencies".link-agent-contract]
+workspace = true
+features = ["moving"]
+
+["dependencies".link-machine]
+workspace = true
+
+["dependencies".link-agent-place]
+workspace = true
+
+[lints]
+workspace = true
+
+["dependencies".link-settings]
+workspace = true
+
+["dependencies".link-secretive]
+workspace = true
+
+[dependencies]
+link-id.workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.serde]
+workspace = true

@@ -1,0 +1,15 @@
+schema = 1
+kind = "upgrade note"
+current = 2
+
+# Another file of state, converted beside the settings.
+[[files]]
+location = "lnk.envs"
+path = "note.toml"
+encoding = "toml"
+
+[[steps]]
+from = 1
+rename = { said = "text" }
+since = "0.2.0"
+until = "0.4.0"

@@ -1,0 +1,10 @@
+# What coach may do on this machine: write its files folder (its logs and
+# plans) and its own instructions and skills, and reach its hosted model
+# through its proxy. It runs no program, so there is no [commands].
+schema = 1
+[files]
+write = [".", "instructions", "skills"]
+
+[internet]
+# Its model is hosted: the proxy must let it through.
+hosts = ["*"]

@@ -1,0 +1,67 @@
+# What each of the sandbox's toolchains lets run. A toolchain is a name a
+# spec's `[commands] toolchains` gives, standing for programs it names, so
+# a grant always says what it lets run; its names and what each means are
+# declared once, as the `toolchain` type in the module's `types.toml`, and
+# this file has a table for each, no more and no fewer. A toolchain's
+# `programs` are found on PATH, as `allow`'s are,
+# and those this machine lacks are left out. Its `folders` are where those
+# programs keep the programs they run themselves (rustup's toolchains,
+# a compiler's own), each one this machine has. Its `builds` are folders
+# a build writes its own programs to (build scripts, tests, a package's
+# commands), each beside the project file that makes it, in a folder the
+# sandbox writes: Rust's `target/` only where `Cargo.toml` is.
+
+[shell]
+programs = [
+  "sh", "bash", "dash", "zsh", "ls", "cat", "head", "tail", "wc", "sort", "uniq", "cut",
+  "tr", "grep", "sed", "awk", "find", "diff", "mkdir", "cp", "mv", "rm",
+  "touch", "date", "env", "xargs", "tee", "basename", "dirname", "jq",
+  "curl", "true", "false", "echo", "printf", "test", "chmod", "ln",
+  "readlink", "realpath", "pwd", "sleep", "id", "uname", "tar", "gzip", "seq", "stat",
+  "mktemp", "od", "sha256sum", "rmdir",
+]
+folders = []
+builds = []
+
+[git]
+programs = ["git", "ssh"]
+folders = ["/usr/lib/git-core/", "/usr/libexec/git-core/"]
+builds = []
+
+[rust]
+programs = [
+  "cargo", "rustc", "rustup", "rustdoc", "rustfmt", "cargo-clippy",
+  "clippy-driver", "rust-analyzer", "cc", "c++", "ld", "ar",
+]
+folders = ["~/.rustup/toolchains/", "/usr/lib/gcc/", "/usr/libexec/gcc/"]
+builds = [{ folder = "target/", beside = "Cargo.toml" }]
+
+[node]
+programs = ["node", "npm", "npx", "corepack", "pnpm", "yarn", "bun", "typescript-language-server"]
+folders = []
+builds = [{ folder = "node_modules/", beside = "package.json" }]
+
+[python]
+programs = ["python3", "python", "pip", "pip3", "uv", "uvx", "poetry", "tox", "pyright-langserver"]
+folders = ["~/.local/share/uv/python/"]
+builds = [{ folder = ".venv/", beside = "pyproject.toml" }, { folder = ".venv/", beside = "requirements.txt" }]
+
+[go]
+programs = ["go", "gofmt", "gopls", "golangci-lint"]
+folders = ["/usr/local/go/", "/usr/lib/go/"]
+builds = []
+
+[c]
+programs = ["cc", "c++", "gcc", "g++", "clang", "clang++", "clangd", "make", "cmake", "ctest", "ninja", "valgrind", "ld", "ar", "as"]
+folders = ["/usr/lib/gcc/", "/usr/libexec/gcc/"]
+builds = []
+
+[desktop]
+programs = ["Xvfb", "xkbcomp", "sh"]
+folders = []
+builds = []
+
+[jvm]
+programs = ["java", "javac", "jar", "kotlin", "kotlinc", "gradle", "mvn", "jdtls", "kotlin-language-server"]
+folders = []
+builds = [{ folder = "build/", beside = "build.gradle" }, { folder = "build/", beside = "build.gradle.kts" }, { folder = "target/", beside = "pom.xml" }]

@@ -1,0 +1,249 @@
+schema = 1
+
+# What the model routes answer, each the action's output: an agent's
+# bridge enforces the route, and `--json` prints the same shape.
+
+[names]
+type = "array"
+description = "Plain model names, from the granted provider or this machine"
+items = { type = "string" }
+
+[status]
+type = "object"
+description = "Whether the model endpoint is ready, and the models it has loaded"
+required = ["ready", "loaded"]
+additionalProperties = false
+properties.ready = { type = "boolean", description = "Whether it answers" }
+properties.loaded = { type = "array", items = { type = "string" }, description = "The models it has loaded" }
+
+[tokens]
+type = "object"
+description = "What a response cost in tokens, as the provider counts them"
+required = ["input", "output", "cached"]
+additionalProperties = false
+properties.input = { type = "integer", minimum = 0, description = "The whole prompt, cached or not" }
+properties.output = { type = "integer", minimum = 0, description = "The answer, thinking included" }
+properties.cached = { type = "integer", minimum = 0, description = "Of the prompt, those read from the provider's cache" }
+
+[usage]
+type = "object"
+description = "The calling agent's measured model usage"
+required = ["requests", "unmetered", "tokens"]
+additionalProperties = false
+properties.requests = { type = "integer", minimum = 0, description = "The calls made" }
+properties.unmetered = { type = "integer", minimum = 0, description = "The calls whose answer gave no usage" }
+properties.tokens = "tokens"
+
+[embedded]
+type = "object"
+description = "Each text's embedding, in the order asked"
+required = ["vectors"]
+additionalProperties = false
+properties.vectors = { type = "array", items = { type = "array", items = { type = "number" } }, description = "One vector a text" }
+
+[heard]
+type = "object"
+description = "What the audio said"
+required = ["text"]
+additionalProperties = false
+properties.text = { type = "string", description = "Its transcript" }
+
+[counted]
+type = "object"
+description = "How many tokens the text is, by the model's tokenizer"
+required = ["tokens"]
+additionalProperties = false
+properties.tokens = { type = "integer", minimum = 0 }
+
+[price]
+type = "object"
+description = "What a model costs, in US dollars a million tokens"
+required = ["input", "output"]
+additionalProperties = false
+properties.input = { type = "number", description = "A million tokens of the prompt" }
+properties.output = { type = "number", description = "A million tokens of the answer, thinking included" }
+properties.cached = { type = "number", description = "A million tokens of the prompt read from the provider's cache; left out, as input" }
+
+[jump]
+type = "object"
+description = "A price a model charges for a long prompt: past tokens of prompt, the whole call costs price"
+required = ["tokens", "price"]
+additionalProperties = false
+properties.tokens = { type = "integer", minimum = 0, description = "The prompt's size past which its price applies, in tokens" }
+properties.price = "price"
+
+[offer]
+type = "object"
+description = "One lifetime a provider's prompt cache offers, and what writing to it costs"
+required = ["lasts", "write"]
+additionalProperties = false
+properties.lasts = { type = "string", description = "How long it keeps a prompt from the request that wrote or last read it (5m, 1h)" }
+properties.write = { type = "number", minimum = 1, description = "What a token written to it costs, as a multiple of the input price" }
+
+[thinks]
+description = "How a model is asked to think, as its provider documents it"
+enum = ["no", "adaptive", "budget", "effort"]
+
+[facts]
+type = "object"
+description = "One model's facts, each optional, so a file may correct one field of Link's"
+additionalProperties = false
+properties.window = { type = "integer", minimum = 0, description = "Its whole window, the answer included, in tokens" }
+properties.answer = { type = "integer", minimum = 0, description = "The longest answer it writes, in tokens" }
+properties.thinking = "thinks"
+properties.price = "price"
+properties.above = { type = "array", items = "jump", description = "Where its price jumps, lowest first" }
+properties.cache = { type = "array", items = "offer", description = "What its provider's prompt cache offers, the lifetime it keeps unasked first" }
+
+[capability]
+description = "Something a model can do"
+enum = ["completion", "tools", "vision", "embedding", "thinking"]
+
+[shown]
+type = "object"
+description = "What Link knows of a model: its facts, and what its runtime says of it"
+required = ["name"]
+additionalProperties = false
+properties.facts = "facts"
+properties.name = { type = "string", description = "The model, as it was asked for" }
+properties.family = { type = "string", description = "Its family or architecture (llama, qwen3)" }
+properties.parameters = { type = "string", description = "Its size in parameters, as its runtime writes it (8.0B)" }
+properties.quantization = { type = "string", description = "How its weights are quantized (Q4_K_M)" }
+properties.context = { type = "integer", minimum = 0, description = "The window its runtime runs it with, in tokens, when it says" }
+properties.trained = { type = "integer", minimum = 0, description = "The window it was trained for, in tokens, when its runtime says" }
+properties.capabilities = { type = "array", items = "capability", description = "What it can do, each once" }
+properties.endpoint = "status"
+
+[how]
+description = "How a share's tokens are known: the measured prompt split by weight, or its weight alone"
+enum = ["apportioned", "estimated"]
+
+[share]
+type = "object"
+description = "A part of the prompt's tokens, as reported"
+required = ["path", "bytes", "tokens", "how"]
+additionalProperties = false
+properties.path = { type = "string", description = "The part" }
+properties.bytes = { type = "integer", minimum = 0 }
+properties.tokens = { type = "integer", minimum = 0 }
+properties.how = "how"
+properties.cost = { type = "number", description = "What its tokens cost, in US dollars, where the price is known" }
+
+[snapshot]
+type = "object"
+description = "One call's prompt, part by part"
+required = ["seq", "at", "parts"]
+additionalProperties = false
+properties.seq = { type = "integer", minimum = 1, description = "Its place in its chat" }
+properties.at = { type = "integer", minimum = 0, description = "When it was asked, in seconds since the Unix epoch" }
+properties.model = { type = "string", description = "The model it asked" }
+properties.window = { type = "integer", minimum = 0, description = "The window it was sent, in tokens" }
+properties.tokens = "tokens"
+properties.answer_cost = { type = "number", description = "What its answer cost, in US dollars, where its price is known" }
+properties.parts = { type = "array", items = "share" }
+
+[kept]
+type = "object"
+description = "A chat the bridge keeps calls of"
+required = ["chat", "calls", "at"]
+additionalProperties = false
+properties.chat = { type = "string" }
+properties.calls = { type = "integer", minimum = 0, description = "Its calls so far, those dropped from its file among them" }
+properties.at = { type = "integer", minimum = 0, description = "Its latest call's time" }
+properties.parent = { type = "string", description = "The chat that asked for its work, as its latest call said" }
+
+[report]
+type = "object"
+description = "A chat's report: its latest call, and each part summed over its kept calls"
+required = ["chat", "calls", "latest", "over"]
+additionalProperties = false
+properties.chat = { type = "string" }
+properties.calls = { type = "integer", minimum = 0 }
+properties.latest = "snapshot"
+properties.over = { type = "array", items = "share", description = "Each part's tokens summed over the chat's kept calls" }
+properties.answer_cost = { type = "number", description = "What its kept calls' answers cost, in US dollars, where every price is known" }
+
+[context]
+type = "object"
+description = "What the calling agent's model calls are spent on: the chats kept, the latest first, and the report of the chat asked, else of the latest"
+required = ["chats"]
+additionalProperties = false
+properties.chats = { type = "array", items = "kept" }
+properties.chat = "report"
+
+[call]
+type = "object"
+description = "A tool call the model made"
+required = ["id", "name", "arguments"]
+additionalProperties = false
+properties.id = { type = "string", description = "The model's id for it, which its answer names" }
+properties.name = { type = "string", description = "The tool, by the name the model was given (memory__search)" }
+properties.arguments = { x-link-any = true, description = "What it's called with: a JSON object" }
+
+[answered]
+type = "object"
+description = "A completed model response, in every provider's same shape"
+required = ["text", "calls", "thinking", "tokens", "latency_ms", "interrupted"]
+additionalProperties = false
+properties.text = { type = "string" }
+properties.calls = { type = "array", items = "call" }
+properties.thinking = { type = "array", items = { x-link-any = true }, description = "Its thinking, as its provider wrote it" }
+properties.model = { type = "string", description = "The model that answered, where the provider said" }
+properties.response_id = { type = "string", description = "The provider's id for the response, where it gave one" }
+properties.tokens = "tokens"
+properties.latency_ms = { type = "integer", minimum = 0 }
+properties.cost = { type = "number", description = "What it cost, in US dollars, where its price is known" }
+properties.interrupted = { type = "boolean", description = "Whether it was stopped before it finished" }
+
+[failure]
+description = "Why a chat failed"
+enum = ["unreached", "too_long", "overloaded", "refused"]
+
+[stream]
+description = "A model chat's stream: text as it comes, then one completed response, or an error, each told apart by its event"
+oneOf = [
+    { type = "object", required = ["event", "text"], additionalProperties = false, properties = { event = { const = "text" }, text = { type = "string" } } },
+    { type = "object", required = ["event", "answer"], additionalProperties = false, properties = { event = { const = "answer" }, answer = "answered" } },
+    { type = "object", required = ["event", "kind", "message"], additionalProperties = false, properties = { event = { const = "error" }, kind = "failure", message = { type = "string" } } },
+]
+
+# What the commands a person runs here answer with --json.
+
+[runtime]
+type = "object"
+description = "A model runtime on this machine, and the models it runs"
+x-link-resource = { id = "name" }
+required = ["name", "base_url", "models", "state"]
+additionalProperties = false
+properties.name = { type = "string", description = "What it's called" }
+properties.base_url = { type = "string", description = "Its address" }
+properties.models = { type = "array", items = { type = "string" }, description = "The models it runs" }
+properties.added = { type = "boolean", description = "Whether lnk model runtime add added it" }
+properties.state = "runtime-state"
+
+[runtime-state]
+description = "Whether it answers at its address: with models, with none, or not at all, an added address listed until lnk model runtime remove forgets it"
+enum = ["running", "no_models", "not_answering"]
+
+[runtimes]
+type = "array"
+description = "The model runtimes on this machine"
+items = "runtime"
+
+[serving]
+type = "object"
+description = "The API being served, said once it's serving"
+required = ["url", "description"]
+additionalProperties = false
+properties.url = { type = "string", description = "Its address on this machine" }
+properties.description = { type = "string" }
+
+[bridged]
+type = "object"
+description = "Calls answered on the bridge's socket until none came for a while"
+additionalProperties = false
+
+[thinking]
+type = "string"
+description = "How hard a model thinks: `off`, `low`, `medium` or `high`."
+enum = ["off", "low", "medium", "high"]

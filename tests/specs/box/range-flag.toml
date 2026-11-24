@@ -1,0 +1,6 @@
+# A range on the command line, its ends a table.
+[run]
+flags = ["--machine.cpus", "{min=8}", "--machine.memory", "{max='16 GB'}"]
+
+[expect]
+size = "c7i.2xlarge"

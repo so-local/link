@@ -1,0 +1,8 @@
+# The smallest with 4 to 8 CPUs; between equals, the cheaper.
+[spec]
+schema = 1
+[spec.machine]
+cpus = { min = 4, max = 8 }
+
+[expect]
+size = "c7a.xlarge"

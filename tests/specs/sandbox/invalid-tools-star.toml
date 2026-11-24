@@ -1,0 +1,8 @@
+# Each tool runs with your logins, so it is named.
+[spec]
+schema = 1
+[spec.tools]
+names = ["*"]
+
+[expect]
+invalid = "name them"

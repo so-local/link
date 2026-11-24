@@ -1,0 +1,8 @@
+home = ".deepseek/home"
+max_bytes = 50331648
+current_version = 4
+max_depth = 8
+# In `dsh`'s home: the user-level instructions it reads at each session's
+# start, and the skills folder it scans (its `.system` child is its own).
+instructions = "AGENTS.md"
+skills = "skills"

@@ -1,0 +1,57 @@
+schema = 1
+
+[env]
+type = "object"
+description = "What every box made from it has"
+x-link-spec = { kind = "env" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", pattern = "^[a-z0-9-]+$", description = "Its name: lowercase letters, digits and dashes" }
+properties.workdir = { type = "string", x-link-path = true, description = """
+Where a run starts, from the home folder
+
+A relative path is the home folder's, and an absolute one is used as
+written.""" }
+properties.variables = { type = "object", additionalProperties = { type = "string" }, description = "Not secret: given to every run as written" }
+properties.stages = { type = "array", items = "stage", description = "The stages, in order" }
+properties.box = "box.machine"
+
+[stage]
+type = "object"
+required = ["name", "run"]
+additionalProperties = false
+properties.name = { type = "string" }
+properties.run = { type = "string", description = "A command line, for sh -c" }
+properties.timeout = { type = "string", format = "duration", description = "How long it may run" }
+
+[created]
+type = "object"
+x-link-display = { key = "box" }
+required = ["box", "cloud"]
+additionalProperties = false
+properties.box = { type = "string", format = "link-id", x-link-kind = "box" }
+properties.cloud = { type = "string" }
+
+[approval]
+type = "object"
+x-link-resource = { id = "secret" }
+required = ["secret", "file"]
+additionalProperties = false
+properties.secret = { type = "string", format = "link-id", x-link-kind = "secret" }
+properties.file = { type = "string", x-link-path = true }
+
+[tools]
+type = "object"
+description = "Each tool by name, Link's own typed and any other passed on"
+additionalProperties = "tool"
+properties.web = "tool"
+
+[tool]
+type = "object"
+description = "One tool"
+additionalProperties = false
+properties.enabled = { type = "boolean" }
+
+[compact-at]
+description = "When to compact: a share of the window, or never"
+oneOf = [{ type = "number", minimum = 0, maximum = 1 }, { const = "never" }]

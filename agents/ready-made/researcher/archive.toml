@@ -1,0 +1,9 @@
+schema = 1
+title = "Researcher"
+description = "A research agent that searches the web and writes cited reports"
+
+[map]
+"link.agents" = "Agents"
+"link.agent-settings" = "Safe/Agents"
+
+["agent.researcher"]

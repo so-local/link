@@ -1,0 +1,192 @@
+schema = 1
+
+[verbs]
+serve = { description = "Serve the tool to a harness as an MCP server over stdio, until its input closes", effect = "insert" }
+open = { description = "Open a page, for a model calling the tool", effect = "insert" }
+read = { description = "Read the page, for a model calling the tool", effect = "find" }
+click = { description = "Click a part of the page, for a model calling the tool", effect = "update" }
+type = { description = "Type into a field of the page, for a model calling the tool", effect = "update" }
+select = { description = "Choose an option of the page, for a model calling the tool", effect = "update" }
+scroll = { description = "Scroll the page, for a model calling the tool", effect = "find" }
+screenshot = { description = "See the page, for a model calling the tool", effect = "find" }
+dialog = { description = "Answer the page's next question, for a model calling the tool", effect = "update" }
+key = { description = "Press a key on the page, for a model calling the tool", effect = "update" }
+back = { description = "Go back a page, for a model calling the tool", effect = "update" }
+hover = { description = "Move the pointer over a part, for a model calling the tool", effect = "find" }
+close = { description = "Close the conversation's page, for a model calling the tool", effect = "delete" }
+
+# What the program gives its tool calls at runtime: whose words a page's
+# are, said as the server says it.
+[tools]
+fills = ["authors"]
+
+[actions."browser-tool.browser-tool.install"]
+description = "Nothing to install: this program is the tool."
+role = "plumbing"
+output = "installed"
+
+[actions."browser-tool.browser-tool.serve"]
+description = """
+Serve the browser as an MCP server over stdio. Chromium starts at the first
+call, in the sandbox after --, writing only its profile and reaching the
+internet hosts --internet-host names (repeatable; * any, none no internet)
+through the sandbox's proxy: nothing on this machine or its networks but a
+host --private-host names (repeatable): a host of your network, or
+localhost:<port> for a port of this machine. Each conversation has a page of
+its own: one standing as the owner (its call's standing, at most --floor)
+opens in the profile's context, with its sign-ins; any other in a context of
+its own, which keeps nothing.
+"""
+role = "plumbing"
+output = "served"
+
+[actions."browser-tool.browser-tool.serve".args]
+chromium = { type = "string", x-link-path = true, description = "The Chromium program, as an agent's [tool.browser] program names it [default: found]" }
+floor = { enum = ["owner", "member"], default = "member", description = "The agent's floor, the least standing anyone reaches it with: owner while only its owner messages it, member once a chat is shared with it or it's on a team. A call that says no standing stands at it, and a call's own never goes above it" }
+internet-host = { type = "array", items = { type = "string", pattern = "^\\S+$" }, description = "An internet host it may reach, as the agent's [internet] hosts name it; * any (repeatable)" }
+private-host = { type = "array", items = { type = "string", pattern = "^\\S+$" }, description = "A private host it may reach (repeatable)" }
+profile = { type = "string", x-link-path = true, description = "The browser's profile folder", required = true }
+sandbox = { type = "array", items = { type = "string" }, description = "The sandbox each runs under: a program and its flags", required = true, x-link-cli = { rest = true, last = true } }
+
+
+# The calls a model makes, as `serve` offers them (`tools/list`).
+[actions."browser-tool.browser-tool.open"]
+description = "Open a page in the browser by its URL, wait for it to load, and read it: its text, each part you can click or type into numbered ([3]). Pages on this machine or its network aren't opened. {authors}"
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.open".tool]
+name = "open"
+open-world = true
+
+[actions."browser-tool.browser-tool.open".args]
+url = { type = "string", description = "The page's address: http:// or https://.", required = true, x-link-summary = 1 }
+
+[actions."browser-tool.browser-tool.read"]
+description = "Read the page as it is now: its text, each part you can click or type into numbered ([3]), 24 KB at a time. Read again after the page changes: the numbers are the last read's."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.read".tool]
+name = "read"
+open-world = true
+
+[actions."browser-tool.browser-tool.read".args]
+start = { type = "integer", minimum = 0, description = "The byte of the page's text to start from, as the last read said (0 if left out)." }
+
+[actions."browser-tool.browser-tool.click"]
+description = "Click a part of the page, by its number: a link, a button, a box to tick. Says where the page is then."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.click".tool]
+name = "click"
+open-world = true
+
+[actions."browser-tool.browser-tool.click".args]
+part = { type = "integer", minimum = 1, description = "The part's number, as the last read or open gave it: [3] is 3.", required = true, x-link-summary = 1 }
+
+[actions."browser-tool.browser-tool.type"]
+description = "Type text into a field of the page, by its number, replacing what it held; with 'submit', press Enter after, as sending a form or a search does."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.type".tool]
+name = "type"
+open-world = true
+
+[actions."browser-tool.browser-tool.type".args]
+part = { type = "integer", minimum = 1, description = "The part's number, as the last read or open gave it: [3] is 3.", required = true, x-link-summary = 1 }
+text = { type = "string", description = "What to type.", required = true }
+submit = { type = "boolean", description = "Press Enter after (false if left out)." }
+
+[actions."browser-tool.browser-tool.select"]
+description = "Choose options of a choice on the page (a drop-down), by its number and the options' text: one for a choice of one, each given for a choice of many, the rest unchosen."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.select".tool]
+name = "select"
+open-world = true
+
+[actions."browser-tool.browser-tool.select".args]
+part = { type = "integer", minimum = 1, description = "The part's number, as the last read or open gave it: [3] is 3.", required = true, x-link-summary = 1 }
+values = { type = "array", items = { type = "string" }, minItems = 1, description = "The options to choose, each as the read shows it, or its value.", required = true, x-link-summary = 2 }
+
+[actions."browser-tool.browser-tool.scroll"]
+description = "Scroll the page down or up by most of a window, or a part into view by its number. A screenshot shows what's in view."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.scroll".tool]
+name = "scroll"
+open-world = true
+
+[actions."browser-tool.browser-tool.scroll".args]
+direction = { type = "string", enum = ["down", "up"], description = "Down if left out.", x-link-summary = 1 }
+part = { type = "integer", minimum = 1, description = "A part's number to bring into view, instead.", x-link-summary = 2 }
+
+[actions."browser-tool.browser-tool.screenshot"]
+description = "See the page: an image of what the browser's window shows."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.screenshot".tool]
+name = "screenshot"
+open-world = true
+
+[actions."browser-tool.browser-tool.dialog"]
+description = "Say how the page's next confirm, prompt, or leave-page question is answered: OK, or dismissed, as each is unless this says OK. An alert is always answered OK. Call it when a note says the page asked, then do again what asked it."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.dialog".tool]
+name = "dialog"
+open-world = true
+
+[actions."browser-tool.browser-tool.dialog".args]
+accept = { type = "boolean", description = "True to answer it OK; false, or left out, to dismiss it.", x-link-summary = 1 }
+prompt-text = { type = "string", description = "What to answer a prompt with." }
+
+[actions."browser-tool.browser-tool.key"]
+description = "Press a key on the page, where its focus is: a character (a, A, 1, /), Enter, Escape, Tab, Backspace, Delete, Space, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, PageUp, PageDown, Home, or End, held with Control, Alt, Meta, or Shift joined by + (Control+a, Shift+Tab). Says where the page is then."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.key".tool]
+name = "key"
+open-world = true
+
+[actions."browser-tool.browser-tool.key".args]
+key = { type = "string", minLength = 1, maxLength = 64, description = "The key, or a combination: Enter, a, Control+a.", required = true, x-link-summary = 1 }
+
+[actions."browser-tool.browser-tool.back"]
+description = "Go back to the page before this one, as a browser's back button does. Says where the page is then."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.back".tool]
+name = "back"
+open-world = true
+
+[actions."browser-tool.browser-tool.hover"]
+description = "Move the pointer over a part, by its number, as a menu that opens on hover needs. Read the page after to see what opened."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.hover".tool]
+name = "hover"
+open-world = true
+
+[actions."browser-tool.browser-tool.hover".args]
+part = { type = "integer", minimum = 1, description = "The part's number, as the last read or open gave it: [3] is 3.", required = true, x-link-summary = 1 }
+
+[actions."browser-tool.browser-tool.close"]
+description = "Close this conversation's page. The browser's sign-ins stay for the next page opened."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."browser-tool.browser-tool.close".tool]
+name = "close"
+open-world = false
+

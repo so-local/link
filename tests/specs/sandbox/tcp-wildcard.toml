@@ -1,0 +1,19 @@
+# A database's names under one domain, on one port: never the domain
+# itself, another one, or another port.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["*.abc.mongodb.net"]
+tcp = ["*.abc.mongodb.net:27017"]
+
+[spec.commands]
+toolchains = ["shell"]
+
+[expect]
+reaches = ["shard-00-00.abc.mongodb.net:27017"]
+refused = [
+    "abc.mongodb.net:27017",
+    "shard-00-00.other.mongodb.net:27017",
+    "shard-00-00.abc.mongodb.net:27018",
+    "shard-00-00.abc.mongodb.net:22",
+]

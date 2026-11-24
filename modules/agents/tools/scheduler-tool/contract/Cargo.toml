@@ -1,0 +1,70 @@
+[package]
+authors.workspace = true
+name = "link-scheduler-tool-contract"
+description = "`link-scheduler-tool-contract` holds the flags the agent module starts Link Scheduler with, taken from the agent's specification and teams, and the caps that every machine running the tool obeys"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/tools/scheduler-tool"
+
+[dependencies.link-agent-spec]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.jiff]
+workspace = true
+
+[dependencies.link-agent-state-protocol]
+workspace = true
+
+[dependencies.link-id]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+

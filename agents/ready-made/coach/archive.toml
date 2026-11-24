@@ -1,0 +1,9 @@
+schema = 1
+title = "Coach"
+description = "A personal coach that keeps a fitness plan with you and checks in on it"
+
+[map]
+"link.agents" = "Agents"
+"link.agent-settings" = "Safe/Agents"
+
+["agent.coach"]

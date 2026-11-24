@@ -1,0 +1,12 @@
+# A grant's actions and resources are of one kind.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[[spec.allow]]
+actions = ["box.ssh"]
+on = ["cloud:aws"]
+
+[expect]
+invalid = "is a box's, so never on"

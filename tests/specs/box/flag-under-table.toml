@@ -1,0 +1,12 @@
+# A flag sets its key alone, as the file's line would: on its cloud, a
+# table's pinned size still wins.
+[spec]
+schema = 1
+[spec.machine.aws]
+size = "m7i.2xlarge"
+
+[run]
+flags = ["--machine.cpus", "2", "--machine.memory", "8GB"]
+
+[expect]
+size = "m7i.2xlarge"

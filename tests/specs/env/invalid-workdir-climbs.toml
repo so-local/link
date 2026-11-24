@@ -1,0 +1,9 @@
+# The workdir is in the home folder.
+[spec]
+schema = 1
+name = "app"
+version = 1
+workdir = "../app"
+
+[expect]
+invalid = "workdir \"../app\" isn't a folder from the home folder"

@@ -1,0 +1,61 @@
+[package]
+authors.workspace = true
+name = "link-file-store"
+description = "`lnk-file-store` is the driver of the `file` place"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+doctest = false
+
+[[bin]]
+name = "lnk-file-store"
+path = "src/main.rs"
+
+[dependencies]
+# Conversations kept compact before go on compact.
+anyhow.workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+features = ["compact"]
+
+[dependencies.link-core]
+workspace = true
+[dev-dependencies]
+link-test-kit.workspace = true
+link-store-contract = { workspace = true, features = ["test-support"] }
+serde_json.workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+link-component-build.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true

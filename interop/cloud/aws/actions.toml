@@ -1,0 +1,51 @@
+schema = 1
+
+# The cloud adapter protocol's actions this adapter answers: lnk box,
+# lnk storage and lnk cloud call each as `lnk-aws <verb>`.
+[implements]
+cloud-contract = [
+    "cloud-contract.cloud-contract.add-key",
+    "cloud-contract.cloud-contract.bucket-credential",
+    "cloud-contract.cloud-contract.buckets",
+    "cloud-contract.cloud-contract.cleanup",
+    "cloud-contract.cloud-contract.defaults",
+    "cloud-contract.cloud-contract.describe",
+    "cloud-contract.cloud-contract.disconnect",
+    "cloud-contract.cloud-contract.hostkeys",
+    "cloud-contract.cloud-contract.image-list",
+    "cloud-contract.cloud-contract.image-remove",
+    "cloud-contract.cloud-contract.image-save",
+    "cloud-contract.cloud-contract.label",
+    "cloud-contract.cloud-contract.launch",
+    "cloud-contract.cloud-contract.list",
+    "cloud-contract.cloud-contract.object-read",
+    "cloud-contract.cloud-contract.remove",
+    "cloud-contract.cloud-contract.remove-keys",
+    "cloud-contract.cloud-contract.revoke-key",
+    "cloud-contract.cloud-contract.save-hostkeys",
+    "cloud-contract.cloud-contract.sizes",
+    "cloud-contract.cloud-contract.start",
+    "cloud-contract.cloud-contract.state",
+    "cloud-contract.cloud-contract.stop",
+    "cloud-contract.cloud-contract.storage",
+    "cloud-contract.cloud-contract.tag",
+    "cloud-contract.cloud-contract.tunnel",
+    "cloud-contract.cloud-contract.upload-once",
+    "cloud-contract.cloud-contract.wait",
+]
+
+[actions."aws.aws.connect"]
+description = """
+Connect an AWS account
+
+What `lnk cloud connect aws` runs: it signs in on this terminal and
+prints the account it describes.
+"""
+role = "plumbing"
+output = "cloud-contract.account"
+
+[actions."aws.aws.connect".args]
+name = { type = "string", default = "aws", description = "What to call the account" }
+region = { type = "string", description = "The region new things go in [default: your aws login's, else us-east-1]" }
+profile = { type = "string", description = "The profile of your aws login to use [default: default]", x-link-cli = { env = "AWS_PROFILE" } }
+key-id = { type = "string", description = "The access ID of an aws credential; its secret is asked for" }

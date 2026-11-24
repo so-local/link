@@ -1,0 +1,8 @@
+schema = 1
+
+[defines.LNK_HISTORY_PROTOCOL]
+type = "string"
+description = "The history protocol version a program asking `lnk` for the release's history states: `lnk upgrade` asking the downloaded core, or a module its own core (`link_spec::history::PROTOCOL_VARIABLE`). The core answers in it, and refuses one below the oldest it accepts, naming the upgrade."
+
+[readers]
+"history::variables_set" = "Check only the retired variable names in a program's history, without displaying values."

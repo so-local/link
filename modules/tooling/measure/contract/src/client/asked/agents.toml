@@ -1,0 +1,6 @@
+# The protocol of the question measure.agents: the agents running here.
+# One line from the asker, one back, each stating the version it speaks.
+name = "measure agents answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

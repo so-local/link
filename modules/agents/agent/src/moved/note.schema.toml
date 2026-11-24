@@ -1,0 +1,11 @@
+schema = 1
+# A note that an agent left this machine, and where it went:
+# `~/.lnk/safe/agents/transfers/moved/<id>.toml`.
+kind = "move note"
+current = 1
+command = "lnk agent move"
+
+[[files]]
+location = "lnk.moved"
+path = "*.toml"
+encoding = "toml"

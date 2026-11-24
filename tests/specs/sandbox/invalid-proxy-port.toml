@@ -1,0 +1,8 @@
+# main's proxy is another sandbox's way out.
+[spec]
+schema = 1
+[spec.localhost]
+ports = [40781]
+
+[expect]
+invalid = "Link's proxy"

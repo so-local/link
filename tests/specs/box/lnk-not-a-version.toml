@@ -1,0 +1,8 @@
+# A version is three numbers, perhaps with a prerelease.
+[spec]
+schema = 1
+[spec.lnk]
+version = "latest"
+
+[expect]
+invalid = "\"latest\" is not a version"

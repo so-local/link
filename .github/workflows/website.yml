@@ -1,0 +1,43 @@
+# The website, web/, builds from every folder's docs (src/docs.ts
+# reads each folder's docs/), so a change to any of them can
+# break it: lint and build it when one changes, on every pull request into
+# main, as checks.yml runs: this keeps a broken website out of main.
+#
+# It uses the runner's own Node (20.9 or newer, as web/package.json asks)
+# and only actions/checkout, pinned to a commit (tag in the comment).
+name: website
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "README.md"
+      - "**/docs/**"
+      - "web/**"
+      - "**/module.toml"
+      - "**/actions.toml"
+      - "**/Cargo.toml"
+      - "scripts/documentation*.json"
+      - ".github/workflows/website.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: web
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: node --version
+      # No package's install script runs: the build needs none.
+      - run: npm ci --no-audit --no-fund --ignore-scripts
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build

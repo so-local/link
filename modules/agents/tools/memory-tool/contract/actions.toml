@@ -1,0 +1,70 @@
+schema = 1
+
+# The protocol every memory engine answers, declared once: `lnk agent
+# memory start <engine>` runs an engine's program, `lnk-<engine>`, with
+# one of these. Each engine lists the ones it answers under [implements].
+[verbs]
+serve-many = { description = "Serve every agent of an owner from one process, on a Unix socket", effect = "insert" }
+
+[actions."memory.memory.install"]
+description = "Install the engine, or leave it as it is, asking nothing"
+role = "plumbing"
+output = "installed"
+
+[actions."memory.launch.show"]
+description = """
+Print how to serve the folder, the agent's Home or a team's shared
+folder, as JSON: an MCP server over stdio, keeping what it keeps (its
+index, its database) in <state>, and reading the agent's conversations
+and skills in its own folder <agent> where it's given. Its opinions are
+the agent's specification's, from LNK_MEMORY_SPEC; where LNK_MEMORY_NOTES names
+the agent's notes, it may serve remember too, writing them.
+"""
+role = "plumbing"
+output = "launch"
+
+[actions."memory.launch.show".args]
+agent = { type = "string", x-link-path = true, description = "The agent's own folder, its conversations and skills there", x-link-cli = { position = 3 } }
+folder = { type = "string", x-link-path = true, description = "The folder it serves: the agent's Home", required = true, x-link-cli = { position = 1 } }
+state = { type = "string", x-link-path = true, description = "The folder its index is kept in", required = true, x-link-cli = { position = 2 } }
+
+[actions."memory.memory.serve-many"]
+description = """
+Serve every agent <agents> names (a JSON file: each agent's ID, the serve
+command line command printed for it, and its environment) from one
+process, on the Unix socket <socket>. A session's first line names its
+agent ({"agent": "<id>"}), or binds it ({"agent", "bound": {"owner",
+"key", "files"?, "storage"?, "notes"?}}), or is a control ({"changed":
+{"owner", "agent", "path"}}, {"flush": {"owner", "agent"}}, {"end":
+{"owner", "agent"}}), answered {"ok": true} or with why not; the rest is
+MCP, as the agent's command line speaks it over stdio, answered from
+that agent's index and notes alone. A bound agent's collections are read
+and written through its bridges, with its key: its conversations, notes
+and index's copy through the storage bridge, its memory/ through the
+files bridge where Home is kept in a bucket. Its index is a cache of the
+copy (in --cache for one <agents> doesn't name), written back once a
+minute while it changes, and at flush; at end its key is dropped. Embeds
+with --embed's model at --embed-url for one <agents> doesn't name.
+Sessions are taken from this user's processes, and --peer's; with
+--socket-group, the socket is shared with that group (mode 660) in a
+folder no one else enters. A bound agent's bridges must be --files-bridge, --storage-bridge,
+or its own <folder>/<agent>/storage.sock in --bridges. It ends, its
+socket removed, once no session has been open for 5 seconds; with
+--stay, never. Link runs it, one for an owner's agents on this machine.
+"""
+role = "plumbing"
+output = "served"
+checks = ["embedding"]
+
+[actions."memory.memory.serve-many".args]
+agents = { type = "string", x-link-path = true, description = "A JSON file of the agents it serves", x-link-cli = { position = 2 } }
+bridges = { type = "string", x-link-path = true, description = "The folder each agent's own storage bridge is in" }
+cache = { type = "string", x-link-path = true, description = "The folder the index of an agent it doesn't name is kept in" }
+embed = { type = "string", description = "The embedding model it searches by meaning with" }
+embed-url = { type = "string", description = "An embeddings server already running, for the model" }
+files-bridge = { type = "string", x-link-path = true, description = "The files bridge a bound agent may name" }
+peer = { type = "string", description = "Another user whose sessions it takes" }
+socket = { type = "string", x-link-path = true, description = "The Unix socket it serves on", required = true, x-link-cli = { position = 1 } }
+socket-group = { type = "string", description = "The group its socket is shared with, for --peer" }
+stay = { type = "boolean", description = "Run for good, never ending idle" }
+storage-bridge = { type = "string", x-link-path = true, description = "The storage bridge a bound agent may name" }

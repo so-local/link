@@ -1,0 +1,16 @@
+# link-id's limits: what `limits.rs` reads once, each named there.
+
+# A new ID's candidate: `candidate_length` characters of
+# `candidate_alphabet`, which fit a file name, a service name, a cloud
+# tag or label, and a bucket name. Fixed once IDs are saved: machines'
+# saved IDs are checked against it.
+candidate_length = 12
+candidate_alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+# How many candidates `reserve` draws before it gives up: a ledger that
+# refuses this many in a row is broken, not unlucky.
+reserve_attempts = 32
+
+# How many parents an execution may have above it, so a chain of
+# executions starting executions ends.
+parent_depth = 16

@@ -1,0 +1,13 @@
+# The languages a page may be translated into: `<page>.<language>.md`
+# beside its English `<page>.md`, where the language is one of these,
+# alone or with a region in capitals (`pt-BR`). English is the pages' own
+# language, never a translation. Read by `link_component::languages` and
+# by the websites' build (`web/packages/site/src/languages.ts`).
+languages = [
+    "af", "ar", "bg", "bn", "ca", "cs", "cy", "da", "de", "el", "es", "et",
+    "eu", "fa", "fi", "fr", "ga", "gl", "gu", "he", "hi", "hr", "hu", "hy",
+    "id", "is", "it", "ja", "ka", "kk", "km", "kn", "ko", "lt", "lv", "mk",
+    "ml", "mn", "mr", "ms", "mt", "my", "nb", "ne", "nl", "nn", "no", "pa",
+    "pl", "pt", "ro", "ru", "sk", "sl", "sq", "sr", "sv", "sw", "ta", "te",
+    "th", "tr", "uk", "ur", "uz", "vi", "zh",
+]

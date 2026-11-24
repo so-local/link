@@ -1,0 +1,9 @@
+schema = 1
+kind = "sandbox grants"
+current = 1
+command = "lnk agent"
+
+[[files]]
+location = "lnk.sandbox-grants"
+path = "*.json"
+encoding = "json"

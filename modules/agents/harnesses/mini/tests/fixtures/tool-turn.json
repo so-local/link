@@ -1,0 +1,24 @@
+{
+  "messages": [{"role": "user", "text": "Read note.txt."}],
+  "replies": [
+    {
+      "role": "assistant",
+      "text": "I will read the note.",
+      "calls": [{"id": "read-1", "name": "files__read", "arguments": {"path": "note.txt"}}],
+      "thinking": [{"type": "thinking", "thinking": "Read before answering.", "signature": "fixture-signature"}]
+    },
+    {"role": "assistant", "text": "The note says hello."}
+  ],
+  "results": [{"call": "read-1", "text": "hello", "failed": false, "parts": []}],
+  "expected": [
+    {"role": "user", "text": "Read note.txt."},
+    {
+      "role": "assistant",
+      "text": "I will read the note.",
+      "calls": [{"id": "read-1", "name": "files__read", "arguments": {"path": "note.txt"}}],
+      "thinking": [{"type": "thinking", "thinking": "Read before answering.", "signature": "fixture-signature"}]
+    },
+    {"role": "user", "answers": [{"call": "read-1", "text": "hello", "failed": false, "parts": []}]},
+    {"role": "assistant", "text": "The note says hello."}
+  ]
+}

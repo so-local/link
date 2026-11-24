@@ -1,0 +1,4 @@
+# Link Harness's port when it runs outside Link. Link gives every agent a
+# block of ports of its own (`LNK_PORT`), and the harness serves at its
+# first.
+default = 18800

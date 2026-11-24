@@ -1,0 +1,4 @@
+# What a harness that runs its tools' commands needs to run, beside its
+# own install: the sandbox's toolchains its tools' commands use, each
+# standing for the programs it names (the sandbox spec's `toolchain`).
+toolchains = ["shell", "git", "node", "python"]

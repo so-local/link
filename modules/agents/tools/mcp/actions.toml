@@ -1,0 +1,15 @@
+schema = 1
+
+[verbs]
+serve = { description = "Answer a client over a protocol until it stops", effect = "insert" }
+
+[actions."mcp.mcp.serve"]
+description = "Serve Link's declared command tools over the Model Context Protocol on stdio"
+role = "primary"
+docs = "/agents/tools/mcp#add-local-link-to-another-mcp-client"
+default = true
+output = "served"
+
+[actions."mcp.mcp.serve".args]
+agent = { type = "string", description = "Bind agent commands to this agent, hiding the selector from model inputs; `lnk agent` passes it when it registers the tool", x-link-cli = { hidden = true } }
+read-calls = { type = "boolean", description = "Print the names of read-only calls for sandbox tool registration, without serving" }

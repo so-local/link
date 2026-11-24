@@ -1,0 +1,13 @@
+# A host's port beyond HTTPS, as git over SSH needs.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["github.com"]
+tcp = ["github.com:22"]
+
+[spec.commands]
+toolchains = ["shell"]
+
+[expect]
+reaches = ["github.com:22", "github.com:443"]
+refused = ["github.com:23", "gitlab.com:22", "github.com:80"]

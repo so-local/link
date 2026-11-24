@@ -1,0 +1,20 @@
+# Failures that are the machine's, not a change's: a test whose panic
+# says `says` failed for this reason, and `fix` is what to run or set.
+# `lnk-test-timing --flakes` sorts each failure against these
+# (`link_test_timing::check`).
+schema = 1
+
+[[signature]]
+name = "programs not built"
+says = "isn't built: the programs a test runs are built first"
+fix = "build them first, with the command the message names (cargo build --workspace --bins)"
+
+[[signature]]
+name = "a required capability missing"
+says = "is set, but it lacks"
+fix = "this machine lacks what the named LNK_REQUIRE_* variable requires: provide it, or unset the variable (Test Environments)"
+
+[[signature]]
+name = "programs from another commit"
+says = "was built from commit"
+fix = "build them together, with the command the message names"

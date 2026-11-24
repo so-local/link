@@ -1,0 +1,63 @@
+[package]
+authors.workspace = true
+name = "link-repository-check"
+description = "Repository Checks read the whole repository rather than one package's code"
+publish = false
+autotests = false
+
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "tests/repository"
+
+[[test]]
+name = "repository"
+path = "tests/main.rs"
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-component]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-test-kit]
+workspace = true
+
+[dependencies.regex]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dev-dependencies.link-component-build]
+workspace = true
+
+[dev-dependencies.link-core]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true

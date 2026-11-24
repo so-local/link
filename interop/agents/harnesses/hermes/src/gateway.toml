@@ -1,0 +1,7 @@
+argv = ["--profile", "default", "gateway", "run", "--quiet"]
+state_file = "gateway_state.json"
+ready_state = "running"
+poll_ms = 20
+shutdown_seconds = 15
+managed_env = "LNK_HERMES_MANAGED_GATEWAY"
+managed_value = "1"

@@ -1,0 +1,38 @@
+[package]
+authors.workspace = true
+name = "link-token"
+description = "Link's one access token, a short signed JWT saying who acts and from which kind of client, never what's allowed, and the long-lived values traded for one"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/token"
+
+[lib]
+doctest = false
+
+[dependencies]
+anyhow.workspace = true
+link-actions.workspace = true
+link-id.workspace = true
+link-principal.workspace = true
+link-secretive.workspace = true
+link-signer.workspace = true
+# A random secret's checksum and its hash (`secret`).
+link-digest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lints]
+workspace = true

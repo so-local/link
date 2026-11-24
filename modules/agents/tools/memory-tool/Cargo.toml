@@ -1,0 +1,117 @@
+[package]
+authors.workspace = true
+name = "link-memory-tool"
+description = "Link Memory (`lnk-memory-tool`) runs locally and lets an agent search, read, and list its folder with no credential"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+# One test program, tests/main.rs, with every file a module of it.
+autotests = false
+
+[[test]]
+name = "memory"
+path = "tests/main.rs"
+
+[[bin]]
+name = "lnk-memory-tool"
+path = "src/main.rs"
+
+[dependencies]
+link-untrusted.workspace = true
+link-actions.workspace = true
+link-spec.workspace = true
+clap.workspace = true
+link-agent-contract.workspace = true
+link-sandbox-binding.workspace = true
+libc.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+# Its limits, read from `src/limits.toml`.
+toml.workspace = true
+# The embedding model, on this machine (`lnk model serve`): plain HTTP.
+reqwest = { workspace = true, features = ["blocking", "json"] }
+
+# SQLite's full-text search (FTS5), compiled in: no system library. Its
+# online backup, for the copy of the index written back beside Home.
+rusqlite = { version = "0.41", features = ["bundled", "backup"] }
+# Search by words: Tantivy's inverted index, in a folder beside the
+# SQLite file, ranking the best passages by BM25 without scoring every
+# match. Mapped files and its English stemmer; nothing stored, so no
+# document store compression.
+tantivy = { version = "0.27", default-features = false, features = ["mmap", "stemmer"] }
+# The index's copy kept off the machine, written and read as one tar
+# stream of its files.
+tar = { version = "0.4", default-features = false }
+# What Link Document Converter answers: the text of PDFs and Word documents in
+# memory/, read by its program in a child holding none of this one's keys.
+link-document-converter-contract.workspace = true
+
+[dependencies.link-harness-contract]
+workspace = true
+
+[dependencies.link-sandbox-bridge]
+workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+features = ["compact", "files-client"]
+
+[dependencies.link-agent-spec]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.link-harness-wire]
+workspace = true
+
+[dependencies.link-memory-tool-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+[dev-dependencies]
+link-test-kit.workspace = true
+regex.workspace = true
+link-agent-contract = { workspace = true, features = ["test-support"] }
+link-store-contract = { workspace = true, features = ["files-bridge", "test-support"] }
+link-core = { workspace = true}
+# The files bridge's server, which its tests run it against.
+# To make an index of the layout before, and see it brought up.
+rusqlite = { version = "0.41", features = ["bundled"] }
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dev-dependencies.link-secret-contract]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-types]
+workspace = true

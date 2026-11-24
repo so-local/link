@@ -1,0 +1,39 @@
+schema = 1
+
+[defines.LNK_CRONTAB]
+type = "string"
+description = "A program to stand in for crontab in tests: the scheduler's cron driver writes its line through it, on a Mac too"
+
+[defines.LNK_TEST_SCHEDULER_WAKE]
+type = "string"
+description = "Set by the runner's test of a wake beside another runner's firing, to run that test alone in a child of its own"
+
+[[uses]]
+name = "LNK_TEST_SCHEDULER_WAKE"
+access = ["read", "set"]
+context = "test"
+
+[[uses]]
+name = "LNK_SERVICES"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_CRONTAB"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "TZ"
+access = ["set"]
+context = "runtime"
+
+[[uses]]
+name = "TZ"
+access = ["read", "set"]
+context = "test"
+
+[[uses]]
+name = "LNK_CORE"
+access = ["read"]
+context = "test"

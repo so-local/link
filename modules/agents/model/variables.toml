@@ -1,0 +1,35 @@
+schema = 1
+
+[defines.LNK_MODEL_URL]
+type = "string"
+description = "The calling agent's granted model namespace, which the typed model commands call when it's set"
+
+[[uses]]
+name = "LNK_MODEL_URL"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_MODEL_URL"
+access = ["unset", "forward"]
+context = "test"
+
+[[uses]]
+name = "HOME"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_SERVICES"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "XDG_CONFIG_HOME"
+access = ["unset"]
+context = "test"

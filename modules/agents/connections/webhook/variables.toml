@@ -1,0 +1,26 @@
+schema = 1
+
+[[uses]]
+name = "HOME"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "PATH"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_EXE"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_SERVICES"
+access = ["forward"]
+context = "test"

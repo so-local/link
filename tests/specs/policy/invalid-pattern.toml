@@ -1,0 +1,12 @@
+# A star ends a pattern, or is one: nothing else is a pattern.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[[spec.allow]]
+actions = ["cloud.use"]
+on = ["cloud:ci-*-linux"]
+
+[expect]
+invalid = "its id isn't one"

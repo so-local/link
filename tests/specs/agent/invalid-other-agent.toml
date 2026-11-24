@@ -1,0 +1,6 @@
+[spec]
+schema = 1
+name = "writer"
+
+[expect]
+invalid = "the spec is writer's"

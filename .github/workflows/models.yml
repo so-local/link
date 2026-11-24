@@ -1,0 +1,57 @@
+# Started by hand: refreshes what Link knows of models (window, longest
+# answer, how it thinks, prices) with OpenRouter's current figures for
+# every model it lists, and opens a pull request into dev with the
+# change, so a release ships only figures that were committed and
+# reviewed. OpenRouter's public models API needs no key, and lists the
+# models of every provider Link reaches. The refreshed file must read
+# back whole and still describe Link's own default models, or the run
+# stops; a model's change past what the committed file makes plausible
+# (a window halved, a price tenfold) keeps the committed figure, with a
+# warning. No job gets a secret: the pull request is opened with the
+# run's own token.
+name: models
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # As checks.yml's.
+  RUST_TOOLCHAIN: "1.99.0"
+  MODELS: modules/agents/model/contract/src/models/link.toml
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: dev
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
+      - name: Refresh the models file
+        run: |
+          curl -fsS --retry 3 https://openrouter.ai/api/v1/models -o "$RUNNER_TEMP/models.json"
+          cargo run --locked -p link-model --example refresh-models -- "$RUNNER_TEMP/models.json" "$MODELS"
+          cargo test --locked -p link-model-contract --lib models::
+      - name: Open a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- "$MODELS"; then
+            echo "The models file already has OpenRouter's current figures."
+            exit 0
+          fi
+          day=$(date -u +%F)
+          branch=models/$day-$GITHUB_RUN_ID
+          git switch -c "$branch"
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898299+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Models: OpenRouter's figures of $day" -- "$MODELS"
+          git push -q origin "$branch"
+          gh pr create --base dev --head "$branch" \
+            --title "Models: OpenRouter's figures of $day" \
+            --body "Refreshed by the models workflow, run $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID."

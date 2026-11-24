@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "module": {"id": "worker", "kind": "harness"},
+  "dependencies": {
+    "engine": {"kind": "external", "id": "example-engine", "version": "1"},
+    "guard": {"kind": "module", "id": "guard"},
+    "namespaces": {"kind": "capability", "id": "linux.user-namespaces", "min_abi": 1}
+  },
+  "commands": {
+    "install": {"help": "Install the engine."},
+    "health": {
+      "help": "Check the engine.",
+      "options": {"mode": {"type": "string", "values": ["restricted", "unrestricted"]}},
+      "requires": [
+        {"dependency": "engine"},
+        {"dependency": "guard", "command": "wrap", "options": {"mode": {"from": "mode"}}},
+        {"dependency": "namespaces", "when": {"os": ["linux"], "options": {"mode": "restricted"}}}
+      ]
+    }
+  },
+  "pins": {"engine-server": {"file": "pins.json", "pointer": "/engine"}},
+  "documentation": {"topic": "agents/harnesses/worker", "root": "docs"},
+  "menu": {"label": "Example engine", "group": "harnesses"},
+  "removal": {"paths": ["state/worker"], "help": "Remove engine state."}
+}

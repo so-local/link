@@ -1,0 +1,11 @@
+# The same words on Google Cloud.
+[spec]
+schema = 1
+[spec.machine]
+gpus = { min = 1, model = "nvidia-l4" }
+
+[run]
+kind = "gcp"
+
+[expect]
+size = "g2-standard-4"

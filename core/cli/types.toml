@@ -1,0 +1,59 @@
+schema = 1
+
+[module]
+type = "object"
+description = "A module Link knows: one of Link's own, or one added from outside Link"
+x-link-resource = { id = "name" }
+required = ["name", "installed"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name: the module is lnk-<name>" }
+properties.installed = { type = "boolean", description = "Whether its program is next to lnk or on the PATH" }
+properties.kind = { type = "string", description = "Its declared component kind, when this build supplies it" }
+properties.description = { type = "string", description = "What the component does, from its declaration" }
+properties.source = { type = "string", description = "For one from outside Link, the repository it was added from, https://github.com/<owner>/<repo>" }
+properties.signer = { type = "string", description = "For one from outside Link, the signer its releases must be signed with" }
+properties.answers = { type = "array", items = { type = "string" }, description = "The questions it answers, as storage.folders" }
+
+[folder]
+type = "object"
+description = "A location in the map: its ID and where it is on this machine"
+x-link-resource = { id = "location" }
+required = ["location", "path"]
+additionalProperties = false
+properties.location = { type = "string", description = "The location's key: link for the Link folder" }
+properties.path = { type = "string", x-link-path = true, description = "Where it is on this machine" }
+
+[map]
+type = "object"
+description = "The map: each location, by its key, and where it is on this machine"
+additionalProperties = { type = "string", x-link-path = true }
+
+[variable]
+type = "object"
+description = "An environment variable a command reads, by its name, never its value"
+x-link-resource = { id = "name" }
+required = ["name", "command", "about"]
+additionalProperties = false
+properties.name = { type = "string", description = "The variable's name" }
+properties.command = { type = "string", description = "The command that reads it" }
+properties.about = { type = "string", description = "What it sets" }
+
+[staging]
+type = "array"
+description = "Old atomic-write staging files in your data, none deleted"
+items = { type = "string", x-link-path = true }
+
+[steps]
+description = "The command's declared next steps, as its help declares them"
+x-link-any = true
+
+[kept]
+description = "With --parts, what Link's installed modules keep, by part; otherwise what uninstalling removed"
+x-link-any = true
+
+[issue]
+type = "object"
+description = "A bug report: the last failure's fields, scrubbed of what's private"
+required = ["title"]
+additionalProperties = false
+properties.title = { type = "string", description = "The report's title, from the failure's headline" }

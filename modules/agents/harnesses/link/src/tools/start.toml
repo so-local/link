@@ -1,0 +1,9 @@
+# How a tool's start is asked again, in milliseconds (`sessions.rs`).
+busy_retry_ms = 100
+grant_retry_ms = 500
+# How long a tool's start may run in all, in milliseconds. A turn waits
+# for it only as long as it lets a tool start (30 s); a start still going
+# then goes on, and the turns after wait for it, never a new one. The
+# sandbox gives a server 60 s to wait for others' starts and 120 s to
+# start.
+limit_ms = 180000

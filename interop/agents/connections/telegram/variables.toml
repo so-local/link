@@ -1,0 +1,30 @@
+schema = 1
+
+[defines.LNK_TELEGRAM_API]
+type = "string"
+description = "Telegram's Bot API, for tests"
+
+[defines.LNK_TELEGRAM_TOKEN]
+type = "string"
+description = "The bot token from BotFather, read by connect, which asks for it when it's unset; no flag takes a connection's token"
+carries = { secret = "telegram.bot_token" }
+
+[[uses]]
+name = "LNK_TELEGRAM_API"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TELEGRAM_TOKEN"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TELEGRAM_API"
+access = ["set", "forward"]
+context = "test"
+
+[[uses]]
+name = "NO_PROXY"
+access = ["set", "forward"]
+context = "test"

@@ -1,0 +1,7 @@
+# The protocol of the question lnk.account: who is signed in here, asked
+# of the module that keeps the login. One line from the asker, one back,
+# each stating the version it speaks.
+name = "lnk account answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

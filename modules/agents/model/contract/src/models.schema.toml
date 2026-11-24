@@ -1,0 +1,8 @@
+schema = 1
+kind = "model facts"
+current = 1
+command = "lnk model"
+
+[[files]]
+location = "lnk.model-facts"
+encoding = "toml"

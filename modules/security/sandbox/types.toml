@@ -1,0 +1,314 @@
+schema = 1
+
+# The sandbox spec: a TOML file whose sections are its only grants
+# (`docs/config/specs/sandbox.md`). A section left out stays closed,
+# `[commands]` too: a spec with no sections reads none of your files,
+# reaches no network and runs no program.
+
+[sandbox]
+type = "object"
+description = "A sandbox, written down: each section one grant, and everything it leaves out closed"
+x-link-spec = { kind = "sandbox" }
+additionalProperties = false
+properties.name = { type = "string", description = "Text: what it's called, to tell specifications apart.", examples = ["app"] }
+properties.version = { type = "integer", minimum = 0, maximum = 4294967295, description = "A whole number, yours to bump when you change it." }
+properties.files = "files"
+properties.network = "network"
+properties.internet = "internet"
+properties.lan = "lan"
+properties.localhost = "localhost"
+properties.tools = "tools"
+properties.browser = "browser"
+properties.commands = "commands"
+properties.teams = { type = "object", additionalProperties = "team-folders", description = """
+Of each shared folder it reaches, by the folder's name, what it
+writes and only reads; one not here it can't reach. Only the program
+that starts the sandbox knows where each shared folder is, so it's
+that program's grant, and a sandbox run of its own refuses it.
+""", x-link-unavailable = "a grant from the program that starts the sandbox, which a sandbox run of its own refuses" }
+
+[files]
+type = "object"
+description = """
+Your folders it reads and writes: a section needs `write` or `read`.
+`read = ["~"]` is your whole home, never Link's settings, and a
+project's dot files that run outside (`.git` among them) stay read only
+unless `write_dot_files` names their folder.
+"""
+additionalProperties = false
+properties.write = { type = "array", items = { type = "string" }, description = "Folders it reads and writes.", examples = [["~/code/app"]] }
+properties.read = { type = "array", items = { type = "string" }, description = "Folders it reads; `\"~\"`, your whole home.", examples = [["~/Documents/reports"]] }
+properties.write_dot_files = { type = "array", items = { type = "string" }, description = """
+Folders of `write` whose outside dot files it writes too.
+
+Those are the dot files that run outside the sandbox: `.git`,
+`.envrc`, `.vscode` and `.idea`.
+""", examples = [["~/code/app"]] }
+properties.hide = { type = "array", items = { type = "string" }, description = """
+Folders closed whatever else opens them.
+
+The folders of `write` and `read` in them stay open, and it adds
+up across the default table, an OS's and the flags.
+""", examples = [["~/code/app/secrets"]] }
+properties.macos = { shape = "files", description = "macOS's own keys for this section: each one given replaces the section's there, but `hide`, which adds up." }
+properties.linux = { shape = "files", description = "Linux's own keys for this section: each one given replaces the section's there, but `hide`, which adds up." }
+
+[network]
+type = "object"
+description = """
+How it reaches the network: through Link's filtering proxy, the default,
+or this machine's network as it is, with no proxy between.
+"""
+additionalProperties = false
+properties.mode = "network-mode"
+properties.macos = { shape = "network", description = "macOS's own keys for this section: each one given replaces the section's there." }
+properties.linux = { shape = "network", description = "Linux's own keys for this section: each one given replaces the section's there." }
+
+[network-mode]
+enum = ["proxy", "host"]
+description = """
+`"proxy"`, the default, or `"host"`, with no proxy.
+
+`"host"` is this machine's network as it is, so nothing is
+filtered or logged and the sections a proxy carries are refused
+beside it; of the loopback, every port on Linux, `[localhost]
+ports` on macOS.
+"""
+
+[internet]
+type = "object"
+description = """
+Public hosts it reaches, through Link's proxy and logged; never this
+machine or its network. A section needs `hosts`.
+"""
+additionalProperties = false
+properties.hosts = { type = "array", items = { type = "string" }, description = """
+Hosts, or `["*"]` for any public host.
+
+Each is a name (`api.openai.com`), the names under one
+(`*.github.com`) or an address.
+""", examples = [["api.openai.com", "github.com"]] }
+properties.tcp = { type = "array", items = { type = "string" }, description = "`host:port` endpoints it reaches beyond HTTPS and HTTP.", examples = [["github.com:22"]] }
+properties.per_minute = { type = "integer", minimum = 0, maximum = 4294967295, description = "A whole number, at least 1: the most calls a minute.", examples = [600] }
+properties.macos = { shape = "internet", description = "macOS's own keys for this section: each one given replaces the section's there." }
+properties.linux = { shape = "internet", description = "Linux's own keys for this section: each one given replaces the section's there." }
+
+[lan]
+type = "object"
+description = """
+Other machines of your network it reaches, through Link's proxy; never
+this machine or a cloud's metadata service. A section needs `hosts`.
+"""
+additionalProperties = false
+properties.hosts = { type = "array", items = { type = "string" }, description = """
+Hosts, or `["*"]` for the private ranges.
+
+Each is a name, an address or a range (`192.168.1.0/24`).
+""", examples = [["nas.local", "192.168.1.0/24"]] }
+properties.macos = { shape = "lan", description = "macOS's own keys for this section: each one given replaces the section's there." }
+properties.linux = { shape = "lan", description = "Linux's own keys for this section: each one given replaces the section's there." }
+
+[localhost]
+type = "object"
+description = """
+Servers on this machine it calls, each port named; a model's for
+inference only. A section needs `ports` or `models`.
+"""
+additionalProperties = false
+properties.ports = { type = "array", items = "port", description = """
+Port numbers, or `["*"]` for every port.
+
+`["*"]` only with `[network] mode = "host"`. Left out, only
+`models` are reached.
+""" }
+properties.models = { type = "array", items = { type = "integer", minimum = 0, maximum = 65535 }, description = """
+Ports of local model runtimes, for inference only.
+
+Each is reached through the proxy, never as a raw port; alone, the
+section needs no `ports`.
+""", examples = [[11434]] }
+properties.macos = { shape = "localhost", description = "macOS's own keys for this section: each one given replaces the section's there." }
+properties.linux = { shape = "localhost", description = "Linux's own keys for this section: each one given replaces the section's there." }
+
+[port]
+oneOf = [{ type = "integer", minimum = 0, maximum = 65535 }, { const = "*" }]
+description = "A port, or `\"*\"`."
+examples = [8080, "*"]
+
+[tools]
+type = "object"
+description = """
+Your tools from `lnk sandbox tool add`, MCP tools which run outside the
+sandbox with your logins, asking you. A section needs `names`.
+"""
+additionalProperties = false
+properties.names = { type = "array", items = { type = "string" }, description = "Your tools' names, as `lnk sandbox tool add` named them.", examples = [["gh"]] }
+properties.macos = { shape = "tools", description = "macOS's own keys for this section: each one given replaces the section's there." }
+properties.linux = { shape = "tools", description = "Linux's own keys for this section: each one given replaces the section's there." }
+
+[browser]
+type = "object"
+description = """
+Pages it may ask you to open in your browser, asking you each time. A
+section needs `hosts`.
+"""
+additionalProperties = false
+properties.hosts = { type = "array", items = { type = "string" }, description = "Hosts a page may be on, or `[\"*\"]` for any.", examples = [["github.com"]] }
+properties.macos = { shape = "browser", description = "macOS's own keys for this section: each one given replaces the section's there." }
+properties.linux = { shape = "browser", description = "Linux's own keys for this section: each one given replaces the section's there." }
+
+[commands]
+type = "object"
+description = """
+The programs it may run: a section needs `allow` or
+`toolchains`, and with a specification one left out runs nothing.
+"""
+additionalProperties = false
+properties.allow = { type = "array", items = { type = "string" }, description = """
+Programs, folders of them ending `/`, or `["*"]` for any.
+
+A program is a name on `PATH` or a path. `["*"]` stands alone.
+""", examples = [["sh", "git", "/usr/lib/git-core/"]] }
+properties.toolchains = { type = "array", items = "toolchain", description = """
+Toolchains, each standing for the programs it names (`lnk sandbox permission list` lists each one's programs).
+
+A toolchain also runs the programs its own programs keep, and those a
+build writes under the folders it writes, such as Rust's build scripts.
+""", examples = [["rust", "git"]] }
+properties.developer_tools = { type = "boolean", description = """
+`true`: Xcode's and the Command Line Tools' programs.
+
+They're read only and may run, so git and compilers run, on macOS; it
+means nothing elsewhere.
+""", examples = [true] }
+properties.macos = { shape = "commands", description = "macOS's own keys for this section: each one given replaces the section's there." }
+properties.linux = { shape = "commands", description = "Linux's own keys for this section: each one given replaces the section's there." }
+
+[toolchain]
+type = "string"
+description = "A toolchain: a name standing for the programs it lets run, so a grant always says what it lets run"
+enum = ["shell", "git", "rust", "node", "python", "go", "c", "desktop", "jvm"]
+x-link-values = { shell = "A shell and the everyday programs a script runs", git = "Git, with its own programs and ssh, which it runs for a remote", rust = "Rust: Cargo, rustc and rust-analyzer, with rustup's toolchains, the linker, proc-macro servers, and a build's scripts and tests", node = "Node.js and its package managers (npm, pnpm, Yarn, Bun), with a package's commands", python = "Python and its project tools (pip, uv, Poetry, tox), with a virtual environment's programs", go = "Go, its language server and golangci-lint", c = "C and C++ compilers, make, CMake and Ninja, Valgrind, and clangd", desktop = "An X server with no screen (Xvfb), and the keymap compiler and shell it runs", jvm = "Java and Kotlin, their builds (Gradle, Maven), and their language servers" }
+
+[team-folders]
+type = "object"
+description = """
+What of a shared folder the sandbox may reach: folders of it it
+writes, and those it only reads, each a folder's name in it (`drafts`),
+or `.` for the whole folder. The rest of it is closed.
+"""
+additionalProperties = false
+properties.write = { type = "array", items = { type = "string" }, default = [], description = """
+Folders of the shared folder it reads and writes, each a
+folder's name in it, or `.` for all of it.
+""", examples = [["drafts"]] }
+properties.read = { type = "array", items = { type = "string" }, default = [], description = "Folders of the shared folder it only reads.", examples = [["sources"]] }
+
+# What the commands answer.
+
+[ended]
+type = "object"
+description = "A run that ended, said with no answer of its own: its exit code is the run's"
+additionalProperties = false
+
+[entry]
+type = "object"
+description = "One call on a sandbox's wire, as its log keeps it"
+required = ["time", "sandbox", "verb", "to", "outcome", "up", "down"]
+additionalProperties = false
+properties.time = { type = "integer", minimum = 0, description = "Seconds since 1970, UTC" }
+properties.sandbox = { type = "string", description = "The sandbox, by its name" }
+properties.verb = { type = "string", description = "What it asked: an HTTP method, CONNECT, or the wire's own word" }
+properties.to = { type = "string", description = "Where it asked to go" }
+properties.outcome = { enum = ["allowed", "ended", "refused", "failed"], description = "Allowed, ended with what it carried, refused by the sandbox's rules, or allowed and failed" }
+properties.up = { type = "integer", minimum = 0, description = "Bytes it sent" }
+properties.down = { type = "integer", minimum = 0, description = "Bytes it received" }
+properties.why = { type = "string", description = "Why a failed call failed, when Link knows" }
+
+[log]
+type = "array"
+items = "entry"
+description = "The latest calls on the sandboxes' wires, a line each"
+
+[sandboxes]
+type = "object"
+description = "Whether every wire is stopped, and each sandbox this machine knows"
+required = ["stopped", "sandboxes"]
+additionalProperties = false
+properties.stopped = { type = "boolean", description = "Whether every wire is stopped" }
+properties.sandboxes = { type = "array", items = "known-sandbox", description = "Each sandbox whose proxy runs or that has run, by name" }
+
+[known-sandbox]
+type = "object"
+description = "A sandbox this machine knows: whether its proxy runs, and why its way out is paused if it is"
+required = ["sandbox", "state"]
+additionalProperties = false
+properties.sandbox = { type = "string", description = "The sandbox, by its name" }
+properties.state = { enum = ["running", "ended"], description = "Running, its proxy up now; or ended, its calls only in the log" }
+properties.paused = { type = "string", description = "Why its way out is paused, left out while it's open" }
+
+[carried]
+type = "array"
+items = "proxy-traffic"
+description = "What each running sandbox's proxy has carried"
+
+[proxy-traffic]
+type = "object"
+description = "What one sandbox's proxy has carried, in bytes each way"
+required = ["pid", "sandbox", "up", "down"]
+additionalProperties = false
+properties.pid = { type = "integer", minimum = 0, description = "The proxy's process" }
+properties.sandbox = { type = "string", description = "The sandbox, by its name" }
+properties.up = { type = "integer", minimum = 0, description = "Bytes sent" }
+properties.down = { type = "integer", minimum = 0, description = "Bytes received" }
+properties.started = { type = "integer", minimum = 0, description = "When the proxy started, so its record isn't taken for a later process's" }
+
+[permission]
+type = "object"
+description = "One section of a sandbox's specification: its field flags on this system, and what it opens"
+required = ["section", "flags", "about"]
+additionalProperties = false
+properties.section = { type = "string", description = "The section, by its key (`files`)" }
+properties.flags = { type = "array", items = { type = "string" }, description = "Its field flags, each its key path (`--files.write`)" }
+properties.about = { type = "string", description = "What it opens" }
+
+[tool-call]
+type = "object"
+description = "A call a tool's server offers, and whether it asks you first"
+required = ["call", "asks"]
+additionalProperties = false
+properties.call = { type = "string", description = "The server's own name for it" }
+properties.asks = { type = "boolean", description = "Whether it asks you before it runs" }
+properties.about = { type = "string", description = "What its server says it does" }
+
+[tool]
+type = "object"
+description = "A tool from lnk sandbox tool add: an MCP server run outside the sandbox, with your logins"
+x-link-resource = { id = "name" }
+required = ["name", "argv", "ask"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name, which a specification's [tools] names" }
+properties.argv = { type = "array", items = { type = "string" }, description = "The command that runs its server" }
+properties.ask = { enum = ["all", "none"], description = "Which calls ask you: all but those allowed, or none" }
+properties.allow = { type = "array", items = { type = "string" }, description = "The calls that never ask you" }
+properties.ask_if = { type = "array", items = { type = "string" }, description = "The calls that ask by one of their boolean arguments, each <call>.<argument>" }
+properties.shared = { type = "boolean", description = "One server for every sandbox naming it" }
+
+[tools-listed]
+type = "array"
+items = "tool"
+description = "Every tool, a line each"
+
+[asked]
+type = "array"
+items = "question"
+description = "Each question waiting on your answer, a line each"
+
+[question]
+type = "object"
+description = "A question a sandbox waits on: its question, how it was delivered, and the code an answer names"
+required = ["question", "delivery", "response_code"]
+additionalProperties = false
+properties.question = { x-link-any = true, description = "The question set, as the interactions wire writes it" }
+properties.delivery = { x-link-any = true, description = "Its delivery to this computer, as the interactions wire writes it" }
+properties.response_code = { type = "string", description = "The code lnk sandbox answer names it by" }

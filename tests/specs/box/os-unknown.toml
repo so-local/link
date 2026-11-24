@@ -1,0 +1,8 @@
+# An OS from Link's list only.
+[spec]
+schema = 1
+[spec.machine]
+os = "ubuntu-20.04"
+
+[expect]
+invalid = "unknown variant `ubuntu-20.04`"

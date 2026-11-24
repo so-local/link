@@ -1,0 +1,12 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+schema = 1
+
+[module]
+id = "agent-state-protocol"
+kind = "package"
+owner = "modules/agents/harnesses/portability/agent-state-protocol"

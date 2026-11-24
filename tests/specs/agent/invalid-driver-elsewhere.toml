@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.tool.memory]
+driver = "cron"
+
+[expect]
+invalid = "only [tool.scheduler] takes it"

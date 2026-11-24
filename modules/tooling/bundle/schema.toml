@@ -1,0 +1,5 @@
+schema = 1
+kind = "bundle"
+current = 1
+command = "lnk bundle spec show"
+about = "A bundle specification says which of Link's programs `lnk bundle create` builds from source, for which targets, and how it seals and signs them into one release folder."

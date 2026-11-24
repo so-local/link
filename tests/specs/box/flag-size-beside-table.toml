@@ -1,0 +1,12 @@
+# A size flag beside a table's CPUs makes the same table a file would:
+# one would be ignored.
+[spec]
+schema = 1
+[spec.machine.aws]
+cpus = 8
+
+[run]
+flags = ["--machine.aws.size", "t3.small"]
+
+[expect]
+invalid = "gives size and cpus"

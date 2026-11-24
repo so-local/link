@@ -1,0 +1,9 @@
+# size and cpus in one table: one would be ignored.
+[spec]
+schema = 1
+[spec.machine.gcp]
+size = "e2-small"
+cpus = 2
+
+[expect]
+invalid = "[machine.gcp] gives size and cpus"

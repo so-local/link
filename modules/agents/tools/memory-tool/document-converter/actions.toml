@@ -1,0 +1,15 @@
+schema = 1
+
+[actions."document-converter.text.show"]
+description = """
+Print the text of the document on stdin, a PDF (pdf) or a Word document
+(docx), or why it has none, as JSON: {"text": "..."} or {"unread":
+"..."}. Link Memory runs it as a child holding no secret, for each
+document it indexes.
+"""
+role = "plumbing"
+output = "extracted"
+
+[actions."document-converter.text.show".args]
+format = { shape = "format", description = "The document's format: pdf or docx", required = true, x-link-cli = { position = 1 } }
+

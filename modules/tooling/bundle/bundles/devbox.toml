@@ -1,0 +1,12 @@
+# bundle.toml
+# A dev box: this computer's lnk, the modules that make a box and reach
+# its cloud, the modules every box installs beside lnk (secret and
+# sandbox), and what an agent moved there runs (agent, its link harness,
+# model, which serves its model calls, and mcp with the manual it needs),
+# for this computer and for the box, built from this checkout and signed
+# with your own dev signer, made on first use.
+schema = 1
+program = ["lnk", "lnk-box", "lnk-cloud", "lnk-aws", "lnk-gcp", "lnk-secret", "lnk-sandbox", "lnk-agent", "lnk-harness", "lnk-model", "lnk-mcp", "lnk-manual"]
+target = ["host", "x86_64-unknown-linux-musl"]
+build = "dev"
+signer = "dev"

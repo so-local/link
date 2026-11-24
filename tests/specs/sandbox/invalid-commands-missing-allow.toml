@@ -1,0 +1,8 @@
+# A commands section must give its required allow field.
+[spec]
+schema = 1
+[spec.commands]
+developer_tools = true
+
+[expect]
+invalid = "[commands] needs allow"

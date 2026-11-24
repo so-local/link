@@ -1,0 +1,8 @@
+schema = 1
+
+# A module binding a kind a package owns: it shows it with its own
+# `spec show`.
+[actions."guard.guard.check"]
+description = "Check a caller against a rules file"
+spec = "rules.rules"
+output = "checked"

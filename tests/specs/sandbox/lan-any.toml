@@ -1,0 +1,25 @@
+# `*` is the private ranges: never this machine, link-local, a metadata
+# service or the internet, however written. A name with no address
+# (`.invalid`, or any on a machine without DNS) reaches nothing.
+[spec]
+schema = 1
+[spec.lan]
+hosts = ["*"]
+
+[spec.commands]
+toolchains = ["shell"]
+
+[expect]
+reaches = ["10.255.255.1:80"]
+refused = [
+    "example.com",
+    "lnk-check.invalid",
+    "100.64.0.1:80",
+    "127.0.0.1:22",
+    "[::1]:22",
+    "169.254.169.254:80",
+    "169.254.1.1:80",
+    "[::ffff:169.254.169.254]:80",
+    "[2002:a9fe:a9fe::1]:80",
+    "[fe80::1]:80",
+]

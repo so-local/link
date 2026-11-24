@@ -1,0 +1,8 @@
+[spec]
+schema = 1
+[spec.tool.run]
+background = 0
+
+[expect]
+values = { "tool.run.background" = 0, "tool.run.background_timeout" = "1h", "tool.run.background_keep" = "1d" }
+from = { "tool.run.background" = "yours", "tool.run.background_output" = "link" }

@@ -1,0 +1,98 @@
+# Every variable Link knows in a harness's .env, and what `lnk agent
+# migrate` makes of it; read once into `Variables`. A variable not here is
+# left in the original, its use unknown, and the plan says so.
+#
+# becomes = "model": the agent's model key, when its value is that
+#   provider's key; a second one is left in the original.
+# becomes = "connection": a bot's token, handed to its connection's connect as
+#   `handed_as`, never a variable of the harness's.
+# becomes = "secret": given to the agent sealed as `sealed` says (a
+#   secret's host, header and format, as `lnk secret add` takes them).
+# becomes = "setting": no secret, kept in the copy as it is.
+#
+# `unless` names variables that, set beside it, send it somewhere its name
+# doesn't say (a proxy, another provider's API): it's then left in the
+# original, and the plan names the variable and where it sends it.
+
+# Hosted models' keys.
+
+[variable.ANTHROPIC_API_KEY]
+becomes = "model"
+provider = "anthropic"
+unless = ["ANTHROPIC_BASE_URL"]
+
+[variable.OPENAI_API_KEY]
+becomes = "model"
+provider = "openai"
+unless = ["OPENAI_BASE_URL", "OPENAI_API_BASE"]
+
+[variable.OPENROUTER_API_KEY]
+becomes = "model"
+provider = "openrouter"
+unless = ["OPENROUTER_BASE_URL"]
+
+# Where a model's requests go instead of its provider's API.
+
+[variable.ANTHROPIC_BASE_URL]
+becomes = "setting"
+
+[variable.OPENAI_BASE_URL]
+becomes = "setting"
+
+[variable.OPENAI_API_BASE]
+becomes = "setting"
+
+[variable.OPENROUTER_BASE_URL]
+becomes = "setting"
+
+# Bots, each its connection's.
+
+[variable.TELEGRAM_BOT_TOKEN]
+becomes = "connection"
+connection = "telegram"
+handed_as = "LNK_TELEGRAM_TOKEN"
+
+[variable.DISCORD_BOT_TOKEN]
+becomes = "connection"
+connection = "discord"
+handed_as = "LNK_DISCORD_TOKEN"
+
+[variable.SLACK_BOT_TOKEN]
+becomes = "connection"
+connection = "slack"
+handed_as = "LNK_SLACK_BOT_TOKEN"
+
+[variable.SLACK_APP_TOKEN]
+becomes = "connection"
+connection = "slack"
+handed_as = "LNK_SLACK_APP_TOKEN"
+
+# Services' keys, each sealed for the one host its API is at.
+
+[variable.GITHUB_TOKEN]
+becomes = "secret"
+unless = ["GITHUB_API_URL"]
+sealed = { host = "api.github.com" }
+
+[variable.TAVILY_API_KEY]
+becomes = "secret"
+sealed = { host = "api.tavily.com" }
+
+[variable.EXA_API_KEY]
+becomes = "secret"
+sealed = { host = "api.exa.ai", header = "x-api-key" }
+
+[variable.FIRECRAWL_API_KEY]
+becomes = "secret"
+unless = ["FIRECRAWL_API_URL"]
+sealed = { host = "api.firecrawl.dev" }
+
+[variable.ELEVENLABS_API_KEY]
+becomes = "secret"
+sealed = { host = "api.elevenlabs.io", header = "xi-api-key" }
+
+[variable.GITHUB_API_URL]
+becomes = "setting"
+
+[variable.FIRECRAWL_API_URL]
+becomes = "setting"

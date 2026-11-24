@@ -1,0 +1,94 @@
+schema = 1
+
+[verbs]
+account-input = { description = "Take one connected account, versioned, on standard input", effect = "insert" }
+account-input-schema = { description = "Say which version of a connected account account-input takes", effect = "find" }
+env = { description = "Print an account with what its cloud's CLI needs to act as it, keys included", effect = "find" }
+
+[actions."cloud.cloud.account-input"]
+description = "Accept one versioned connected account on standard input."
+role = "plumbing"
+output = "accepted"
+
+[actions."cloud.cloud.account-input-schema"]
+description = "Print the connected-account input schema."
+role = "plumbing"
+output = "input-schema"
+
+[actions."cloud.cloud.connect"]
+description = """
+Connect an AWS or Google Cloud account, for buckets and boxes
+
+Reuses your aws or gcloud login, or asks for a credential: the one sign-in
+everything in Link uses there. Nothing is made in it: `lnk storage create
+<kind> --cloud <name>` makes buckets there, and `lnk box create <name>`
+machines.
+"""
+role = "primary"
+docs = "/services/cloud/guide#connect-a-cloud-account"
+output = "listed"
+next = ["cloud.cloud.list", "storage.storage.create", "box.box.create"]
+fail = ["cloud.cloud.connect"]
+
+[actions."cloud.cloud.connect".args]
+kind = { type = "string", description = "A kind of cloud: aws or gcp", required = true, x-link-cli = { position = 1 } }
+name = { type = "string", description = "What to call it [default: its kind]; lets you connect two accounts of one kind" }
+region = { type = "string", description = "aws: the region new things go in [default: your aws login's, else us-east-1]" }
+profile = { type = "string", description = "aws: the profile of your aws login to use [default: AWS_PROFILE, else default]" }
+key-id = { type = "string", description = "aws: The access ID of an AWS credential from the AWS console; its secret is asked for" }
+project = { type = "string", description = "gcp: the project new things go in [default: --credential-file's, else gcloud's]" }
+zone = { type = "string", description = "gcp: the zone new machines go in [default: gcloud's, else us-central1-a]" }
+credential-file = { type = "string", x-link-path = true, description = "gcp: A service account's credential file, instead of your gcloud login" }
+setting = { type = "array", items = { type = "string" }, description = "Another adapter's own setting, KEY=VALUE, given to it as it is: never a secret, which it asks for" }
+quiet = { x-link-cli = { shared = "quiet" } }
+
+[actions."cloud.cloud.disconnect"]
+description = """
+Forget an account and its credential (deletes nothing in it)
+
+Its buckets and boxes wait until you connect it again: `lnk storage
+disconnect` forgets its buckets.
+"""
+role = "primary"
+docs = "/services/cloud/guide#disconnect-an-account"
+output = "forgotten"
+next = ["cloud.cloud.connect", "storage.storage.disconnect"]
+fail = ["cloud.cloud.list"]
+
+[actions."cloud.cloud.disconnect".args]
+name = { type = "string", description = "The account, as `lnk cloud list` names it", required = true, x-link-cli = { position = 1 } }
+
+[actions."cloud.cloud.env"]
+description = "For other lnk commands: an account as JSON, with what its cloud's CLI needs to act as it, keys included"
+role = "plumbing"
+output = "cloud-contract.account"
+next = ["cloud.cloud.list"]
+fail = ["cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."cloud.cloud.env".args]
+name = { type = "string", description = "The account, as `lnk cloud list` names it", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."cloud.cloud.list"]
+description = "List the cloud accounts you connected"
+role = "secondary"
+docs = "/services/cloud/guide#connect-a-cloud-account"
+output = "accounts"
+next = ["cloud.cloud.show", "cloud.cloud.connect"]
+fail = ["cloud.cloud.connect"]
+
+[actions."cloud.cloud.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."cloud.cloud.show"]
+description = "Show a cloud account: its kind, place and who it signs in as, without its credential"
+role = "primary"
+docs = "/services/cloud/guide#show-an-account"
+output = "listed"
+diagnoses = "account"
+next = ["cloud.cloud.disconnect", "cloud.cloud.list"]
+fail = ["cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."cloud.cloud.show".args]
+name = { type = "string", description = "The account, as `lnk cloud list` names it", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }

@@ -1,0 +1,8 @@
+# A spec in a folder it writes could widen its next run.
+[spec]
+schema = 1
+[spec.files]
+write = ["."]
+
+[expect]
+invalid = "change its own next run"

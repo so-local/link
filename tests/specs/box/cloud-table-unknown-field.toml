@@ -1,0 +1,8 @@
+# A cloud's table is as strict as [machine].
+[spec]
+schema = 1
+[spec.machine.third]
+spots = true
+
+[expect]
+invalid = "[machine.third] spots isn't one of its fields"

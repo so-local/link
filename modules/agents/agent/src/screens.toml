@@ -1,0 +1,8 @@
+# The display numbers agents' desktops take (`screens.rs`). Each number
+# taken is reserved in your user's runtime folder (`layout.toml`'s
+# `displays`), so an idle agent's number never goes to another of yours.
+
+# The first a desktop takes, past those a person's own X servers use.
+first_display = 100
+# How many numbers it looks through from there.
+displays = 900

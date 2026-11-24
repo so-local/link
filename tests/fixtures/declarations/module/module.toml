@@ -1,0 +1,31 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+schema = 1
+# What leads into the module from `lnk up`.
+next = ["env.env.create", "env.env.probe"]
+# It answers a question of a module below it, and runs a guest service.
+answers = ["measure.traffic"]
+guest_service = true
+
+[module]
+id = "env"
+kind = "module"
+owner = "modules/compute/env"
+
+# Each kind of dependency with its own keys.
+[dependencies.filter]
+kind = "capability"
+id = "linux.landlock"
+min_abi = 1
+
+[dependencies.wall]
+kind = "external"
+id = "bubblewrap"
+
+# The parts it keeps, which core's uninstall reports and removes.
+[removal]
+parts = ["environments"]

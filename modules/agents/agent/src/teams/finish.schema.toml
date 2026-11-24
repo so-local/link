@@ -1,0 +1,9 @@
+schema = 1
+kind = "team move finish"
+current = 1
+command = "lnk agent team move"
+
+[[files]]
+location = "lnk.team-moving"
+path = "*/finish.json"
+encoding = "json"

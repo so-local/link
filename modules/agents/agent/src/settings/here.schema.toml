@@ -1,0 +1,9 @@
+schema = 1
+kind = "agent machine records"
+current = 1
+command = "lnk agent create"
+
+[[files]]
+location = "lnk.agents"
+path = "*/here.toml"
+encoding = "toml"

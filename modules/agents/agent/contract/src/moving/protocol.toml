@@ -1,0 +1,7 @@
+# The move protocol: the stream an agent moves in, from one machine or
+# cloud to another, whose manifest states the version it speaks in its
+# `format`. A receiver reads streams from `oldest` to `current`.
+name = "move"
+current = 4
+oldest = 4
+upgrade = "lnk upgrade"

@@ -1,0 +1,51 @@
+schema = 1
+
+[readers]
+"harness::run_installer_with" = "The variables an adapter gives its installer's tools, each named in its programs.toml, such as where they install what they download."
+
+[defines.LNK_RUN]
+type = "string"
+description = "The run tool's address in a harness's environment: its commands, each in a sandbox of its own"
+
+[defines.LNK_FILE]
+type = "string"
+description = "The file tool's address in a harness's environment: its files read and written as its sandbox file says"
+
+[defines.LNK_CODE]
+type = "string"
+description = "The code tool's address in a harness's environment: its project's language servers, each in a sandbox"
+
+[[uses]]
+name = "LNK_PORT"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_AGENT_ID"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_OWNER"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "NODE_EXTRA_CA_CERTS"
+access = ["set", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "SSL_CERT_FILE"
+access = ["set", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "NODE_EXTRA_CA_CERTS"
+access = ["unset", "forward"]
+context = "test"
+
+[[uses]]
+name = "SSL_CERT_FILE"
+access = ["unset", "forward"]
+context = "test"

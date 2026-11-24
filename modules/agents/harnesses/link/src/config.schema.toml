@@ -1,0 +1,14 @@
+schema = 1
+kind = "link harness configuration"
+current = 1
+command = "lnk agent start"
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/link/config.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/config.json"
+encoding = "json"

@@ -1,0 +1,8 @@
+# GB, MB or TB only.
+[spec]
+schema = 1
+[spec.machine]
+memory = "8 gigs"
+
+[expect]
+invalid = "isn't a size"

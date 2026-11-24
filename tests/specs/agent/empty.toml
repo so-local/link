@@ -1,0 +1,4 @@
+# No spec of its own: Link's, whole.
+[expect]
+values = { "turns.rounds" = 8, "name" = "scout", "window.unknown" = 32768 }
+from = { "turns.rounds" = "link", "name" = "yours" }

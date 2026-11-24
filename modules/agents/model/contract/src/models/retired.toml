@@ -1,0 +1,25 @@
+# The models Link's file no longer describes, each by its plain name
+# (lowercase, `.` read as `-`, no router's prefix or dated suffix), with
+# the current model of its line that replaces it, as Link's file names
+# it. A refresh adds none of them back, under any router's name for it:
+# Link describes only the models their providers currently offer.
+
+[retired]
+"claude-fable-5-1" = "claude-fable-5-2"
+"claude-fable-5" = "claude-fable-5-2"
+"claude-opus-5" = "claude-opus-5-5"
+"claude-opus-4-8" = "claude-opus-5-5"
+"claude-opus-4-7" = "claude-opus-5-5"
+"claude-opus-4-6" = "claude-opus-5-5"
+"claude-sonnet-5" = "claude-sonnet-5-5"
+"claude-sonnet-4-6" = "claude-sonnet-5-5"
+"claude-haiku-4-5" = "claude-haiku-5-5"
+"gpt-6-sol" = "gpt-6.1-sol"
+"gpt-5" = "gpt-6.1-sol"
+"gpt-5-mini" = "gpt-6-luna"
+"gpt-5-nano" = "gpt-6-luna"
+"gpt-4-1" = "gpt-6.1-sol"
+"gpt-4-1-mini" = "gpt-6-luna"
+"gpt-4-1-nano" = "gpt-6-luna"
+"gpt-4o" = "gpt-6.1-sol"
+"gpt-4o-mini" = "gpt-6-luna"

@@ -1,0 +1,12 @@
+# A `*.` endpoint takes its port on every loopback address in the
+# sandbox, where a [localhost] port already listens.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["*"]
+tcp = ["*.example.com:8080"]
+[spec.localhost]
+ports = [8080]
+
+[expect]
+invalid = "every loopback address"

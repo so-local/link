@@ -1,0 +1,11 @@
+[spec]
+schema = 1
+[spec.turns]
+rounds = 3
+
+[spec.connection.slack]
+stream = false
+
+[expect]
+values = { "turns.rounds" = 3, "turns.calls" = 16, "connection.slack.stream" = false, "connection.slack.working" = "eyes" }
+from = { "turns.rounds" = "yours", "turns.calls" = "link", "connection.slack.working" = "link" }

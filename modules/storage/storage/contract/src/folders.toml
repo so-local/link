@@ -1,0 +1,7 @@
+# The protocol of the question storage.folders: the folders a module
+# keeps, each by its owner. One line from the asker, one back, each
+# stating the version it speaks.
+name = "storage folders answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

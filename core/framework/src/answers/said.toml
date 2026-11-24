@@ -1,0 +1,12 @@
+# How much of a failed program's stderr is read, and how much its error
+# ends with: what `answers.rs` reads once into `Said`. Enough to name the
+# cause, never a whole log in memory or in someone's terminal.
+
+# Of its stderr, at most this many bytes read; the rest is drained unread.
+bytes = 65536
+
+# Its last non-empty lines, at most this many.
+lines = 3
+
+# Of them, at most this many characters, the end kept.
+chars = 500

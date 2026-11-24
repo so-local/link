@@ -1,0 +1,8 @@
+# A region in the cloud's own characters.
+[spec]
+schema = 1
+[spec.machine.aws]
+region = "us-east-2 --profile=x"
+
+[expect]
+invalid = "isn't a cloud's region"

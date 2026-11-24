@@ -1,0 +1,4 @@
+agents = ".openclaw/agents"
+database = "agent/openclaw-agent.sqlite"
+sessions = "sessions"
+max_bytes = 50331648

@@ -1,0 +1,55 @@
+schema = 1
+
+[defines.LNK_TEST_NOTES_PARENT]
+type = "string"
+description = "A folder the notes test, on a Mac, saves beneath where memory's sandbox can't read it; the test runs only when it's set"
+
+[[uses]]
+name = "LNK_TEST_NOTES_PARENT"
+access = ["read"]
+context = "test"
+
+[[uses]]
+name = "LNK_MEMORY_SPEC"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_MEMORY_NOTES"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_MEMORY_FROM"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_MEMORY_MODEL"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_AGENT_ID"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_OWNER"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_AGENT"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_MEMORY_DRIVER"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["set"]
+context = "runtime"

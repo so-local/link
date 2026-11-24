@@ -1,0 +1,24 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+"requires" = [{ "dependency" = "cloud" }]
+
+["module"]
+id = "gcp"
+"kind" = "module"
+owner = "interop/cloud/gcp"
+
+["dependencies"."cloud"]
+"kind" = "module"
+"id" = "cloud"
+
+["dependencies"."cloud-contract"]
+"kind" = "package"
+"id" = "cloud-contract"
+
+["removal"]
+"parts" = ["clouds"]

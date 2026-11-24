@@ -1,0 +1,431 @@
+schema = 1
+
+# What the hosting commands carry, field by field: each `agent-*`
+# command reads one `request` as a JSON line on standard input and
+# prints one `reply` on standard output. `link_agent_place`'s `Request`
+# and `Reply` are generated from these.
+
+[request]
+type = "object"
+description = "One agent-* command's request, one JSON line on standard input: the account, with its secrets, and what the command acts on"
+required = ["account"]
+additionalProperties = false
+properties.account = { shape = "cloud-contract.account", description = "The account the command acts as" }
+properties.create = { shape = "create", description = "`agent-create`: the blank agent to make" }
+properties.connect = { shape = "connect", description = "`agent-connect`: the connection the host makes for one of its agents" }
+properties.team = { shape = "team-action", description = "`agent-team`: what to do with a team" }
+properties.agent = { shape = "hosted-agent", description = "`agent-in` and `agent-out`, and `agent-receive` and `agent-send` with phase `files`: the agent" }
+
+[request.properties.owner]
+type = "string"
+description = "`agent-list`: whose agents; left out, every owner's."
+
+[request.properties.size]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "`agent-in`: the bytes of the agent's Home and memory's index."
+
+[request.properties.move]
+type = "string"
+description = "`agent-receive`, `agent-send`, `agent-left` and `agent-abort`: the move, as `agent-in` or `agent-out` named it."
+
+[request.properties.phase]
+type = "string"
+description = "`agent-receive` and `agent-send`: `copy`, `switch` or `files`."
+
+[request.properties.have]
+type = "object"
+description = "`agent-send`: what the other end holds, each file's SHA-256 by its path."
+additionalProperties = { type = "string" }
+
+[request.properties.seal_to]
+type = "string"
+format = "seal-to"
+description = "`agent-send`'s switch: the public key the receiving end made and said, which the switch's secrets are sealed to."
+
+[request.properties.thread]
+type = "string"
+description = "`agent-chat`: the `link` thread (`link:<name>`)."
+
+[request.properties.text]
+type = "string"
+description = "`agent-chat`: the owner's message."
+
+[reply]
+type = "object"
+description = "What an account that hosts agents answers an agent-* request with, one JSON line on standard output"
+additionalProperties = false
+properties.agent = { shape = "hosted-agent", description = "`agent-create`: the agent created, by its stable ID" }
+properties.team = { shape = "team-reply", description = "`agent-team`: what the team command answers" }
+properties.refused = { shape = "refused", description = "`agent-in` and `agent-out`: the move isn't allowed now" }
+
+[reply.properties.message]
+type = "string"
+description = "What the host says, for a person."
+
+[reply.properties.managed_models]
+type = "boolean"
+description = "`agent-in`: the host supplies models, so the source keeps its own model and fallback credentials and sends neither model setting; left out, it doesn't."
+
+[reply.properties.seal_to]
+type = "string"
+format = "seal-to"
+description = "`agent-in`: the public key this move's switch stream is sealed to."
+
+[reply.properties.size]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "`agent-out`: the bytes of the agent's Home and memory's index."
+
+[reply.properties.runs_agents]
+type = "boolean"
+description = "`agent-runs`: whether the account runs agents."
+
+[reply.properties.agents]
+type = "array"
+description = "`agent-list`: the agents it hosts. Left out when the reply doesn't say, which never counts as an answer that it hosts none."
+items = "hosted-agent"
+
+[reply.properties.move]
+type = "string"
+description = "`agent-in` and `agent-out`: the move they started."
+
+[reply.properties.have]
+type = "object"
+description = "`agent-in` and `agent-receive` (copy, files): what it holds of the agent, each file's SHA-256 by its path."
+additionalProperties = { type = "string" }
+
+[reply.properties.answers]
+type = "boolean"
+description = "`agent-receive` (switch): the agent answers there now."
+
+[reply.properties.machine]
+type = "string"
+description = "`agent-receive` (switch): the machine it answers on, by its name."
+
+[reply.properties.team_held]
+type = "object"
+description = "A whole team's exit: the messages held for each member, by the receiving agent's ID."
+additionalProperties = { type = "array", items = "held" }
+
+[reply.properties.held]
+type = "array"
+description = "`agent-left`: the messages that came while it was paused there."
+items = "held"
+default = []
+
+[reply.properties.at]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "`agent-backup` and `agent-restore`: when the backup was taken, in Unix seconds."
+
+[hosted-agent]
+type = "object"
+description = "An agent, as the agent-* commands name it"
+required = ["id", "name"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its ID, as every machine knows it." }
+properties.name = { type = "string", description = "Its name." }
+properties.owner = { type = "string", description = "Whose it is (`acct-<id>`), when it has an owner." }
+properties.state = { type = "string", description = "`agent-list`: `running`, `paused`, `moving` and the like, as the cloud says; left out when it says none." }
+
+[create]
+type = "object"
+description = "A new agent's name, and the ready-made agent it starts from; its model, harness and credentials are the host's"
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", description = "The agent's name." }
+properties.from = { type = "string", description = "The ready-made agent it starts from, one the host lists; left out for a blank agent." }
+
+[connect]
+type = "object"
+description = "A hosted connection's fields, as its service takes them from a form"
+required = ["connection", "token"]
+additionalProperties = false
+properties.connection = { type = "string", description = "The chat app's connection." }
+properties.token = { type = "string", x-link-sensitive = true, description = "The chat app's token." }
+properties.user = { type = "string", description = "Who on the chat app it answers." }
+
+[refused]
+type = "object"
+description = "Why a cloud that hosts agents refused a move or a chat, and when it may be asked again"
+required = ["why"]
+additionalProperties = false
+properties.why = { type = "string", description = "Why, for a person." }
+
+[refused.properties.retry_at]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = """
+When it may be asked again, in Unix seconds. On a chat, it says the
+message wasn't taken, for now (the agent is moving): sent again then,
+where the agent is, it's answered once.
+"""
+
+[held]
+type = "object"
+description = "A message that came for an agent while it was paused on a cloud that hosts agents"
+required = ["connection", "chat", "from", "text"]
+additionalProperties = false
+properties.connection = { type = "string", description = "The connection it came on." }
+properties.chat = { type = "string", description = "The chat it's in." }
+properties.from = { type = "string", description = "Who sent it there, as the connection's pairing names them." }
+properties.text = { type = "string", description = "Its text." }
+
+[held.properties.generation]
+type = "string"
+description = """
+The move whose switch made the agent's new generation, by its ID: only
+the agent that arrived by that move takes it, never the one it left or
+a later one. Left out from a cloud that names none.
+"""
+
+[team-action]
+description = "`agent-team`'s request: what to do with a team, by its `action`"
+oneOf = ["team-chat", "team-list", "team-folder", "team-backup", "team-restore", "team-begin-in", "team-begin-out", "team-get", "team-put", "team-apply", "team-start", "team-stop", "team-delete", "team-invites", "team-join", "team-leave"]
+
+[team-chat]
+type = "object"
+description = "An owner's message to a team, carried by `agent-chat` with its thread and text, never by `agent-team`"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "chat" }
+properties.team = { type = "string", description = "The team." }
+properties.member = { type = "string", description = "The member it's for; left out, the team's lead." }
+
+[team-list]
+type = "object"
+description = "List the teams the account hosts"
+required = ["action"]
+additionalProperties = false
+properties.action = { const = "list" }
+
+[team-folder]
+type = "object"
+description = "A team's folder, carried by `agent-receive` and `agent-send` with phase `files`"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "folder" }
+properties.team = { type = "string", description = "The team." }
+
+[team-backup]
+type = "object"
+description = "Back a team up where it's hosted"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "backup" }
+properties.team = { type = "string", description = "The team." }
+
+[team-restore]
+type = "object"
+description = "Restore a team from its last backup"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "restore" }
+properties.team = { type = "string", description = "The team." }
+
+[team-begin-in]
+type = "object"
+description = "Start moving a team into the account"
+required = ["action", "file", "agents", "size"]
+additionalProperties = false
+properties.action = { const = "begin-in" }
+properties.file = { type = "string", description = "The team's file, as TOML." }
+properties.agents = { type = "array", items = "hosted-agent", description = "Its members." }
+
+[team-begin-in.properties.size]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "The bytes of its members' Homes and memory's indexes."
+
+[team-begin-out]
+type = "object"
+description = "Start moving a team out of the account"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "begin-out" }
+properties.team = { type = "string", description = "The team." }
+
+[team-get]
+type = "object"
+description = "Read a team's file"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "get" }
+properties.team = { type = "string", description = "The team." }
+
+[team-put]
+type = "object"
+description = "Replace a team's file, if it's still the version read"
+required = ["action", "team", "file", "version"]
+additionalProperties = false
+properties.action = { const = "put" }
+properties.team = { type = "string", description = "The team." }
+properties.file = { type = "string", description = "The team's file, as TOML." }
+
+[team-put.properties.version]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "The version it replaces."
+
+[team-apply]
+type = "object"
+description = "Create or update a team from its file"
+required = ["action", "file", "version"]
+additionalProperties = false
+properties.action = { const = "apply" }
+properties.file = { type = "string", description = "The team's file, as TOML." }
+
+[team-apply.properties.version]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "The version it replaces, or 0 for a new team."
+
+[team-start]
+type = "object"
+description = "Start a team's members"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "start" }
+properties.team = { type = "string", description = "The team." }
+
+[team-stop]
+type = "object"
+description = "Stop a team's members"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "stop" }
+properties.team = { type = "string", description = "The team." }
+
+[team-delete]
+type = "object"
+description = "Delete a team"
+required = ["action", "team"]
+additionalProperties = false
+properties.action = { const = "delete" }
+properties.team = { type = "string", description = "The team." }
+
+[team-invites]
+type = "object"
+description = "List the teams an agent is invited to"
+required = ["action", "agent"]
+additionalProperties = false
+properties.action = { const = "invites" }
+properties.agent = { type = "string", description = "The agent, by its ID." }
+
+[team-join]
+type = "object"
+description = "Join an agent to another account's team"
+required = ["action", "owner", "team", "agent"]
+additionalProperties = false
+properties.action = { const = "join" }
+properties.owner = { type = "string", description = "The team owner's account." }
+properties.team = { type = "string", description = "The team." }
+properties.agent = { type = "string", description = "The agent, by its ID." }
+
+[team-leave]
+type = "object"
+description = "Take an agent off another account's team"
+required = ["action", "owner", "team", "agent"]
+additionalProperties = false
+properties.action = { const = "leave" }
+properties.owner = { type = "string", description = "The team owner's account." }
+properties.team = { type = "string", description = "The team." }
+properties.agent = { type = "string", description = "The agent, by its ID." }
+
+[team-reply]
+type = "object"
+description = "What `agent-team` answers, by its action"
+additionalProperties = false
+properties.file = { shape = "team-file", description = "`get`: the team's file" }
+properties.movement = { shape = "movement", description = "`begin-in` and `begin-out`: the team's move" }
+properties.teams = { type = "array", items = "hosted-team", description = "`list`: the teams the account hosts." }
+properties.invites = { type = "array", items = "invitation", description = "`invites`: the teams the agent is invited to." }
+
+[team-reply.properties.version]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "`put` and `apply`: the file's new version."
+
+[team-reply.properties.at]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "`backup` and `restore`: when the backup was taken, in Unix seconds."
+
+[team-file]
+type = "object"
+description = "A team's file as its host keeps it"
+required = ["file", "version", "joined"]
+additionalProperties = false
+properties.file = { type = "string", description = "The team's file, as TOML." }
+
+[team-file.properties.version]
+type = "integer"
+minimum = 0
+maximum = 9223372036854775807
+description = "Its version, which a `put` names."
+
+[team-file.properties.joined]
+type = "array"
+description = "The agents of other accounts that joined, each the principal it acts as."
+items = { type = "string", pattern = "^(user|service):[^:]+$", examples = ["service:k3m4n5p6q7r8"] }
+
+[hosted-team]
+type = "object"
+description = "A team the account hosts"
+required = ["id", "name", "members"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its ID." }
+properties.name = { type = "string", description = "Its name." }
+properties.members = { type = "array", items = { type = "string" }, description = "Its members, by their IDs." }
+properties.owner = { type = "string", description = "The team owner's account (`acct-<32 hex>`), as the host names it on its team relay; left out from a host that doesn't say." }
+properties.relay = { type = "string", description = "Where the team's relay is (`https://<host>`), for a member that runs on a machine of yours; left out from a host without one." }
+properties.files = { type = "string", description = "Where the team's folder service is (`https://<host>/<path>`, before `/v1`), for a member that runs on a machine of yours; left out from a host without one." }
+
+[invitation]
+type = "object"
+description = "A team an agent is invited to"
+required = ["owner", "team", "name", "agent", "write", "read", "joined"]
+additionalProperties = false
+properties.owner = { type = "string", description = "The team owner's account." }
+properties.team = { type = "string", description = "The team's ID." }
+properties.name = { type = "string", description = "The team's name." }
+properties.agent = { type = "string", description = "The agent invited, by its ID." }
+properties.purpose = { type = "string", description = "What it's for on the team." }
+properties.write = { type = "array", items = { type = "string" }, description = "The folders of the team's folder it may write." }
+properties.read = { type = "array", items = { type = "string" }, description = "The folders of the team's folder it may only read." }
+properties.joined = { type = "boolean", description = "Whether it has joined." }
+
+[movement]
+type = "object"
+description = "A move of a team: each member's stream keeps its ordinary move ID"
+required = ["id", "file", "members", "folder"]
+additionalProperties = false
+properties.id = { type = "string", description = "The team's move." }
+properties.file = { type = "string", description = "The team's file, as TOML." }
+properties.members = { type = "array", items = "moving-member", description = "Its members' moves." }
+properties.folder = { type = "string", description = "The team folder's move." }
+
+[moving-member]
+type = "object"
+description = "One member of a moving team"
+required = ["id", "name", "movement"]
+additionalProperties = false
+properties.id = { type = "string", description = "The agent's ID." }
+properties.name = { type = "string", description = "Its name." }
+properties.movement = { type = "string", description = "Its own move." }
+properties.managed_models = { type = "boolean", description = "The destination supplies this member's models; its source keeps and leaves out its model credentials, as for one hosted agent's move. Left out, it doesn't." }
+
+[moving-member.properties.seal_to]
+type = "string"
+format = "seal-to"
+description = "The public key this member's switch stream is sealed to."

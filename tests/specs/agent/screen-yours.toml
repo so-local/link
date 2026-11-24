@@ -1,0 +1,8 @@
+[spec]
+schema = 1
+[spec.tool.browser]
+enabled = true
+
+[expect]
+values = { "tool.browser.enabled" = true }
+from = { "tool.browser.enabled" = "yours" }

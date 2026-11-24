@@ -1,0 +1,204 @@
+schema = 1
+
+[verbs]
+probe = { description = "Read every kind of argument and answer what it read", effect = "find" }
+push = { description = "Send files to where the environment runs", effect = "update" }
+compact = { description = "Make what was said shorter, keeping its sense", effect = "update" }
+setup = { description = "Make a machine ready for the environment, making no box", effect = "update" }
+status = { description = "Say in a line how the environment is", effect = "find" }
+export = { description = "Write what is kept, for another program to read", effect = "find" }
+wrap = { description = "Run a program inside the environment", effect = "insert" }
+inspect = { description = "Look inside the environment, for whoever works in it", effect = "find" }
+steer = { description = "Steer what the environment is doing, mid-turn", effect = "update" }
+
+# What the program gives its tool actions at runtime.
+[tools]
+fills = ["deepest", "places"]
+conditions = ["inside"]
+
+# Every action takes the agent it's for, declared once.
+[args]
+agent = { type = "string", description = "The agent it's for", x-link-cli = { short = "a" } }
+
+[actions."env.env.create"]
+description = "Make a box from an environment file"
+spec = "env"
+output = "created"
+role = "primary"
+docs = "/services/environments#create-a-box"
+checks = ["env_named"]
+next = ["env.env.probe", "env.spec.show"]
+fail = ["env.env.create", "env.env.status"]
+
+[actions."env.env.create".args]
+cloud = { type = "string", description = "The cloud account to make it on", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+json = { x-link-cli = { shared = "json" } }
+quiet = { x-link-cli = { shared = "quiet" } }
+
+[actions."env.approval.add"]
+description = "Give an environment file a secret it asks for, ahead of its run"
+default = true
+
+[actions."env.approval.add".args]
+secret = { type = "string", description = "The secret, by its name", required = true, x-link-cli = { position = 1 } }
+file = { type = "string", x-link-path = true, description = "The environment file", required = true }
+
+[actions."env.env.probe"]
+description = "Read every kind of argument and answer what it read"
+output = "probed"
+checks = ["probe_count"]
+
+[actions."env.env.probe".args]
+verbose = { type = "boolean", description = "Say more", x-link-cli = { short = "v" } }
+count = { type = "integer", minimum = 1, maximum = 5, description = "How many" }
+ratio = { type = "number", description = "A share" }
+tag = { type = "array", items = { type = "string" }, description = "A tag, repeated for more" }
+ports = { type = "array", items = "port", description = "A port, repeated for more" }
+size = "size"
+region = { type = "string", description = "Where", x-link-cli = { env = "LNK_EXAMPLE_REGION" } }
+upstream = { type = "string", description = "Where it reaches, direct unless it says", default = "direct" }
+lines = { type = "integer", minimum = 1, description = "How many lines it shows", default = 40 }
+prefix = { type = "string", description = "What each line begins with, nothing unless it says", default = "" }
+owner = { type = "string", format = "link-id", x-link-kind = "user", description = "Who asks" }
+command = { type = "array", items = { type = "string" }, description = "What to run", x-link-cli = { rest = true } }
+sandbox = { type = "string", x-link-path = true, description = "Run it sandboxed, by this spec or the default one", x-link-cli = { default-missing = "sandbox.toml", conflicts = ["silent"] } }
+silent = { type = "boolean", description = "Say nothing", x-link-cli = { hidden = true } }
+
+# How the agent's bridge offers it, its answer the action's output.
+[actions."env.env.probe".route]
+bridge = "agent"
+callers = ["owner", "agent"]
+limits = { bytes = 65536, time_ms = 30000 }
+command = true
+names = ["/probe"]
+
+[actions."env.profile.set"]
+description = "Set a machine profile from its spec"
+spec = "profile"
+
+# A positional list before a rest: the rest is taken only after --, and
+# named first alphabetically, it's still added after the positionals.
+[actions."env.env.push"]
+description = "Send files, passing a copier's own flags on"
+output = "probed"
+
+[actions."env.env.push".args]
+files = { type = "array", items = { type = "string" }, description = "The files", required = true, x-link-cli = { position = 1 } }
+timing = { group = "timing" }
+args = { type = "array", items = { type = "string" }, description = "The copier's own flags", x-link-cli = { rest = true } }
+
+# A command an agent's harness runs itself, and a command line's too:
+# callers, and no limits.
+[actions."env.env.compact"]
+description = "Compact what the environment has said so far"
+output = "probed"
+
+[actions."env.env.compact".route]
+bridge = "harness"
+callers = ["owner"]
+command = true
+names = ["/compact"]
+
+# A command the harness alone runs: on no surface but its route.
+[actions."env.env.steer"]
+description = "Steer what the environment is doing, mid-turn"
+output = "probed"
+surfaces = []
+
+[actions."env.env.steer".route]
+bridge = "harness"
+callers = ["owner"]
+command = true
+
+# Where it goes, by core's shared workplace group, taken whole.
+[actions."env.env.setup"]
+description = "Set up the environment where it says"
+output = "probed"
+
+[actions."env.env.setup".args]
+workplace = { x-link-cli = { shared = "workplace" } }
+request = { x-link-cli = { shared = "request" } }
+native-only = { type = "boolean", description = "With --here, refuse what needs a host", x-link-cli = { requires = ["here"] } }
+
+# A show action diagnosing its kind for lnk issue create, served as a command
+# tool through lnk that only reads.
+[actions."env.approval.show"]
+description = "Show an approval, its state for an issue"
+diagnoses = "approval"
+
+[actions."env.approval.show".args]
+agent = false
+secret = { type = "string", description = "The secret, by its name", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."env.approval.show".route]
+bridge = "command"
+callers = ["agent"]
+limits = { bytes = 4096, time_ms = 2500 }
+
+# A command tool answering text.
+[actions."env.env.status"]
+description = "Say in a line how the environment is"
+output = "status"
+
+# It's for no agent: it leaves the module-wide agent out.
+[actions."env.env.status".args]
+agent = false
+
+[actions."env.env.status".route]
+bridge = "command"
+callers = ["agent"]
+command = true
+limits = { bytes = 1024, time_ms = 2500 }
+
+# Named output on a verb implying another, implied only when none is named.
+[actions."env.env.delete"]
+description = "Delete the environment, saying what it did"
+output = "core.report"
+
+# A group of plumbing alone, run bare by Link: its default is plumbing too,
+# and the group is hidden.
+[actions."env.state.show"]
+description = "Answer the environment's state, for Link"
+role = "plumbing"
+default = true
+output = "probed"
+
+[actions."env.state.export"]
+description = "Write the environment's state, for Link"
+role = "plumbing"
+output = "probed"
+
+# An action an agent calls as a tool, never typed on the command line:
+# its MCP call's name, offered while the program says it's inside, its
+# title showing where and how deep, its choices of where and its most
+# depth given by the program.
+[actions."env.env.inspect"]
+description = "Look inside the environment, at most {deepest} deep"
+surfaces = ["tool"]
+output = "probed"
+
+[actions."env.env.inspect".tool]
+name = "inspect"
+when = "inside"
+
+[actions."env.env.inspect".args]
+depth = { type = "integer", minimum = 1, maximum = 9, description = "How deep it looks", x-link-summary = 2 }
+place = { type = "string", x-link-fill = "places", description = "Where it looks", x-link-summary = 1 }
+
+# Arguments two actions take together, one Rust type in each.
+[groups.timing]
+description = "When and how often it runs"
+args.times = { type = "integer", minimum = 1, maximum = 9, default = 1, description = "How many times it runs" }
+args.pause = { type = "string", format = "duration", description = "How long between runs" }
+
+# A program taken only after --: a mistyped flag before it is refused.
+[actions."env.env.wrap"]
+description = "Run a program inside the environment"
+output = "probed"
+
+[actions."env.env.wrap".args]
+quick = { type = "boolean", description = "Skip the slow parts" }
+timing = { group = "timing" }
+program = { type = "array", items = { type = "string" }, description = "The program and its arguments", x-link-cli = { rest = true, last = true } }

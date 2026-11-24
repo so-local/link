@@ -1,0 +1,142 @@
+# Link browser's limits and lists, read once into `settings::Settings`.
+
+# How much of a page's text a read returns at once, in bytes, the rest a
+# call away (`start`), the call's notes counted in it.
+read_bytes = 24576
+
+# How long a call to the browser may take, and the browser to start, in
+# milliseconds.
+call_ms = 30000
+start_ms = 60000
+
+# How long a page may take to load before its answer says it's still
+# loading, and how long an action waits to see whether it starts
+# loading one, in milliseconds.
+load_ms = 30000
+settle_ms = 500
+
+# How often a page's load is looked at for its dialogs while it loads,
+# and how long a page that stopped without loading waits for the
+# browser to tell of a download, in milliseconds.
+load_poll_ms = 200
+download_ms = 500
+
+# How far a scroll moves the page, as a share of the window's height,
+# and how long it waits for the page to draw before saying where it is,
+# in milliseconds.
+scroll_share = 0.8
+scroll_ms = 150
+
+# Closing the browser: how long it's given to close, then how long to
+# end, looked at every `end_poll_ms`, in milliseconds.
+close_ms = 5000
+end_ms = 5000
+end_poll_ms = 50
+
+# The window's size in pixels, which a screenshot is.
+width = 1280
+height = 800
+
+# The oldest Chromium major version the browser starts. An older one is
+# refused by name, as its known holes stay open: Chromium runs without
+# its own sandbox on Linux, so Link's sandbox is the only wall.
+minimum_major = 120
+
+# The most bytes of what a page wrote that one note holds: a dialog's
+# words, a title, an address, a download's name, or a choice's options.
+note_bytes = 2048
+
+# The most bytes of notes one answer holds; those past it are cut, and
+# the answer says how many. They count against a read's 24 KB.
+notes_bytes = 8192
+
+# The most bytes of DevTools events kept unread for one page, its
+# oldest dropped past it, so one page's events never push out
+# another's; an event larger than this is dropped as it comes.
+events_bytes = 1048576
+
+# The most bytes one DevTools message may hold: a screenshot of a large
+# page is several megabytes as base64. A larger one ends the browser.
+message_bytes = 67108864
+
+# The DevTools events the browser reads; any other is dropped as it
+# comes, as is one of a frame or tab no conversation's page holds.
+events = [
+  "Page.frameStartedLoading",
+  "Page.frameStoppedLoading",
+  "Page.loadEventFired",
+  "Page.javascriptDialogOpening",
+  "Page.fileChooserOpened",
+  "Browser.downloadWillBegin",
+  "Target.targetCreated",
+]
+
+# The most conversations' pages kept open at once: past it, the one used
+# least recently is closed, with its browser context. A page unused for
+# `idle_ms` milliseconds is closed too. A conversation whose page was
+# closed opens a new one at its next call.
+pages_max = 16
+
+# What Chromium writes on the line that says why it stopped, which a
+# startup failure names before a crash's stack and registers bury it.
+causes = ["FATAL:", "Check failed", "Received signal", "ERROR:"]
+idle_ms = 1800000
+
+# Where browsers keep your own profiles, under your home: never one for
+# this tool, which would open with your sign-ins.
+own_profiles = [
+  ".config/google-chrome",
+  ".config/google-chrome-beta",
+  ".config/google-chrome-unstable",
+  ".config/google-chrome-canary",
+  ".config/chromium",
+  ".config/microsoft-edge",
+  ".config/microsoft-edge-beta",
+  ".config/microsoft-edge-dev",
+  ".config/BraveSoftware",
+  "snap/chromium",
+  ".var/app/org.chromium.Chromium",
+  ".var/app/com.google.Chrome",
+  ".var/app/com.google.ChromeDev",
+  ".var/app/com.microsoft.Edge",
+  ".var/app/com.microsoft.EdgeDev",
+  ".var/app/com.brave.Browser",
+  "Library/Application Support/Google/Chrome",
+  "Library/Application Support/Google/Chrome Beta",
+  "Library/Application Support/Google/Chrome Dev",
+  "Library/Application Support/Google/Chrome Canary",
+  "Library/Application Support/Chromium",
+  "Library/Application Support/Microsoft Edge",
+  "Library/Application Support/Microsoft Edge Beta",
+  "Library/Application Support/Microsoft Edge Dev",
+  "Library/Application Support/Microsoft Edge Canary",
+  "Library/Application Support/BraveSoftware",
+]
+
+# The keys `key` presses by name, as Playwright's `press` names them; a
+# single character it types as it is: each one's DevTools `code`, its
+# Windows virtual key code, and the text it types, if any.
+[keys]
+Enter = { code = "Enter", virtual = 13, text = "\r" }
+Escape = { code = "Escape", virtual = 27 }
+Tab = { code = "Tab", virtual = 9 }
+Backspace = { code = "Backspace", virtual = 8 }
+Delete = { code = "Delete", virtual = 46 }
+Space = { code = "Space", virtual = 32, text = " " }
+ArrowUp = { code = "ArrowUp", virtual = 38 }
+ArrowDown = { code = "ArrowDown", virtual = 40 }
+ArrowLeft = { code = "ArrowLeft", virtual = 37 }
+ArrowRight = { code = "ArrowRight", virtual = 39 }
+PageUp = { code = "PageUp", virtual = 33 }
+PageDown = { code = "PageDown", virtual = 34 }
+Home = { code = "Home", virtual = 36 }
+End = { code = "End", virtual = 35 }
+
+# The modifiers a `key` combination holds before its key ("Control+a"),
+# as Playwright's `press` names them: each one's DevTools `code`, its
+# Windows virtual key code, and its bit in DevTools' `modifiers`.
+[modifiers]
+Alt = { code = "AltLeft", virtual = 18, bit = 1 }
+Control = { code = "ControlLeft", virtual = 17, bit = 2 }
+Meta = { code = "MetaLeft", virtual = 91, bit = 4 }
+Shift = { code = "ShiftLeft", virtual = 16, bit = 8 }

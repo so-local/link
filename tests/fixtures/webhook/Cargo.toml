@@ -1,0 +1,42 @@
+"bin" = [{ "name" = "lnk-webhook-fixture", "path" = "src/main.rs", "test" = false }]
+
+["package"]
+authors.workspace = true
+"name" = "link-webhook-fixture"
+"description" = "`lnk-webhook-fixture` demonstrates a pushed connection's signature check and accept-or-drop verdict"
+"publish" = false
+
+["package"."version"]
+"workspace" = true
+
+["package"."edition"]
+"workspace" = true
+
+["package"."license"]
+"workspace" = true
+
+["package"."metadata"."link"]
+"schema" = 1
+"role" = "fixture"
+owner = "tests/fixtures/webhook"
+
+["dependencies"."anyhow"]
+"workspace" = true
+
+["dependencies"."serde_json"]
+"workspace" = true
+
+["dependencies".link-connection-contract]
+workspace = true
+
+[lints]
+workspace = true
+
+["dependencies".link-secretive]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true

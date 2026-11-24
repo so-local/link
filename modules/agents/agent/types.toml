@@ -1,0 +1,2674 @@
+# The agent module's shapes: its agent and team spec kinds, the outputs
+# of its actions and the resources they're on.
+schema = 1
+
+[agent]
+type = "object"
+description = """
+An agent, written down: the file `lnk agent start --spec` reads and
+`lnk agent spec show` prints.
+"""
+x-link-spec = { kind = "agent" }
+x-link-checks = ["agent"]
+additionalProperties = false
+properties.approvals = "interactions.interaction-opinions"
+properties.isolation = "agent-isolation"
+properties.extends = "agent-extends"
+properties.harness = "agent-harness"
+properties.model = "agent-model"
+properties.window = "agent-window"
+properties.turns = "agent-turns"
+properties.instructions = "agent-instructions"
+properties.commands = "agent-commands"
+properties.goals = "agent-goals"
+properties.tools = { shape = "agent-tool", examples = [{ answer = "32 KB", timeout = "30s", strangers = ["web__fetch"] }] }
+properties.connections = "connection-policy.connection"
+properties.storage = "store.storage"
+properties.run = "agent-run"
+properties.access = "agent-message-access"
+
+[agent.properties.schedules]
+type = "array"
+description = "Schedule definitions owned by this agent, independent of its harness."
+items = "agent-schedule"
+
+[agent.properties.env]
+type = "string"
+description = "Environment input for future agent creation, relative to this file."
+x-link-path = true
+examples = ["env.toml"]
+
+[agent.properties.name]
+type = "string"
+description = """
+The agent's own name, no other: lowercase letters, digits and dashes. A
+specification naming another agent is refused.
+"""
+examples = ["main"]
+
+[agent.properties.version]
+type = "integer"
+maximum = 4294967295
+description = """
+A whole number of yours, to say which revision of the specification this
+is; Link reads nothing from it.
+"""
+minimum = 0
+examples = [3]
+
+[agent.properties.command_response]
+type = "string"
+description = "Text shown before a command's harness answer; empty disables it."
+examples = ["> "]
+
+[agent.properties.tool]
+type = "object"
+description = "Each tool's own, by its name (`memory`)."
+propertyNames = { type = "string", x-link-ref = "tool", description = "A tool's name, read as the name it has today" }
+additionalProperties = "agent-tool"
+examples = [{ memory = { keep = "30d", max_age = "1d", tokens = 4000, model = "local/qwen3:8b", notes = "4 KB" }, scheduler = { enabled = true, per_day = 20, subagents = 2, hops = 3, late = "skip", ask = true, recurring = "ask", zone = "Europe/London", interval = "10m", firing = "1m", driver = "service" }, web = { fetch = "24 KB", hosts = ["docs.rs", "*.wikipedia.org"] }, run = { output = "16 KB", background = 2, background_timeout = "1h", background_output = "16 MB", background_keep = "1d", background_per_day = 10 }, file = { find = true, diffs = true }, code = { servers = { rust = { command = ["rust-analyzer"], files = ["rs"], roots = ["Cargo.toml"] } } }, browser = { timeout = "1m", headless = true } }]
+
+[agent.properties.connection]
+type = "object"
+description = "Each connection's own, by its module's name (`slack`)."
+additionalProperties = "connection-policy.connection"
+examples = [{ slack = { working = "eyes", stream = true, activity = "keep", activity_mark = "*", activity_separator = " - ", pace = "1s", steered = "wave", groups = "mention", images = true, documents = true, voice = true } }]
+
+[agent-schedule]
+type = "object"
+description = """
+A schedule the agent keeps: a message sent to it at a time, as if
+from where it goes.
+"""
+required = ["name", "when", "message", "to", "enabled"]
+additionalProperties = false
+properties.when = "agent-state-protocol.when"
+properties.to = "agent-state-protocol.destination"
+
+[agent-schedule.properties.name]
+type = "string"
+description = """
+Its name, unique among the agent's schedules, which its record
+knows it by.
+"""
+examples = ["morning"]
+
+[agent-schedule.properties.message]
+type = "string"
+description = "The message the agent is sent when it fires."
+examples = ["Summarize what came in overnight."]
+
+[agent-schedule.properties.enabled]
+type = "boolean"
+description = "Whether it fires; false keeps it, firing nothing."
+
+[agent-isolation]
+type = "object"
+description = """
+An agent specification's `[isolation]`: the VM a new agent is made in, its
+only key a specification may set.
+"""
+additionalProperties = false
+
+[agent-isolation.properties.vm]
+type = "string"
+description = """
+The VM specification a new agent is made in, relative to this file. This
+build has no VM provider, so a specification naming one is refused, never
+run in a sandbox instead.
+"""
+x-link-path = true
+x-link-unavailable = "this build of Link has no VM provider"
+
+[agent-extends]
+type = "string"
+description = "What a specification starts from. `link`, link's specification, as when it's left out; `none`, nothing: every key is the file's own."
+enum = ["link", "none"]
+
+[agent-harness]
+type = "object"
+required = ["name"]
+additionalProperties = false
+# `--harness openclaw` is `--harness.name openclaw`.
+x-link-shorthand = "name"
+
+[agent-harness.properties.name]
+type = "string"
+description = """
+The harness's name, as `lnk agent harness list` names it (`link`,
+`openclaw`): lowercase letters, digits and dashes.
+"""
+examples = ["link"]
+
+[agent-model]
+type = "object"
+description = "The model, and how it's asked."
+additionalProperties = false
+properties.thinking = "model.thinking"
+properties.anthropic = "agent-provider-model"
+properties.openai = "agent-provider-model"
+properties.openrouter = "agent-provider-model"
+properties.ollama = "agent-provider-model"
+properties.local = "agent-provider-model"
+
+[agent-model.properties.default]
+type = "string"
+description = """
+The model when the agent names none.
+
+In `[model]`, named with who serves it (`local/qwen3:8b`,
+`anthropic/claude-opus-5-5`); in a provider's table, as that provider
+names it. Link's specification sets `claude-haiku-5-5` on Anthropic, `gpt-6-luna`
+on OpenAI and `anthropic/claude-haiku-5.5` on OpenRouter. `lnk agent
+start --model.default <model>` selects it for the agent.
+"""
+examples = ["anthropic/claude-sonnet-5-5"]
+
+[agent-model.properties.allow]
+type = "array"
+description = "The only models it may run; left out, any."
+items = { type = "string" }
+examples = [["anthropic/claude-sonnet-5-5"]]
+
+[agent-model.properties.answer]
+type = "integer"
+maximum = 4294967295
+description = """
+The longest answer, in tokens, as you set it, at least 256; left out,
+`[window] answer`'s share of the window, at most the model's own.
+"""
+minimum = 0
+examples = [4096]
+
+[agent-model.properties.thinking_budget]
+type = "integer"
+maximum = 4294967295
+description = """
+The most tokens it thinks, at least 1024, for a model that thinks within
+a budget. Link's specification sets 2048.
+"""
+minimum = 0
+examples = [2048]
+
+[agent-model.properties.transcribe]
+type = "string"
+description = """
+The model of its provider a voice note is heard with, its words the
+message's (`[connections] voice`); left out, or `"none"`, a voice note
+is left out, and the agent told so. Link's specification sets OpenAI's
+`gpt-4o-mini-transcribe`.
+"""
+examples = ["gpt-4o-mini-transcribe"]
+
+[agent-model.properties.fallback]
+type = "boolean"
+description = """
+Whether a turn its model can't answer goes to the fallback model,
+`fallback_model`: the model is off, the turn's prompt is past its
+window, or its provider is busy (429, or a 5xx). False, it fails,
+and the agent keeps no fallback.
+"""
+
+[agent-model.properties.fallback_model]
+type = "string"
+description = """
+The hosted model used when falling back, named as `default` names
+one (`anthropic/claude-sonnet-5-5`), or one of `aliases`. Its
+credential is its provider's, or `LNK_FALLBACK_CREDENTIAL`'s. Link
+Harness falls back; a harness that can't says so.
+"""
+examples = ["anthropic/claude-haiku-5-5"]
+
+[agent-model.properties.aliases]
+type = "object"
+description = """
+Names for models, each a word for a model as its provider names it
+(`high = "claude-opus-5-5"`): `/model:set high`, a subagent started on
+`high` and a fallback of `high` each run that model. Only `[model]`
+takes the table, never a provider's, and Link's specification has none.
+"""
+additionalProperties = { type = "string" }
+
+[agent-provider-model]
+type = "object"
+description = """
+A provider's table of `[model]`: the keys that differ by provider,
+each replacing `[model]`'s for an agent thinking with one of its
+models. It holds no tables of its own.
+"""
+additionalProperties = false
+properties.thinking = "model.thinking"
+
+[agent-provider-model.properties.default]
+type = "string"
+description = """
+The model when the agent names none, as this provider names it
+(`claude-sonnet-5-5`).
+"""
+examples = ["claude-sonnet-5-5"]
+
+[agent-provider-model.properties.allow]
+type = "array"
+description = "The only models of this provider it may run; left out, `[model]`'s."
+items = { type = "string" }
+examples = [["claude-sonnet-5-5"]]
+
+[agent-provider-model.properties.answer]
+type = "integer"
+maximum = 4294967295
+description = "The longest answer, in tokens, at least 256."
+minimum = 0
+examples = [4096]
+
+[agent-provider-model.properties.thinking_budget]
+type = "integer"
+maximum = 4294967295
+description = """
+The most tokens it thinks, at least 1024, for a model that thinks
+within a budget.
+"""
+minimum = 0
+examples = [2048]
+
+[agent-provider-model.properties.transcribe]
+type = "string"
+description = """
+The model of this provider a voice note is heard with; `"none"`,
+none.
+"""
+examples = ["none"]
+
+[agent-window]
+type = "object"
+description = "How much of the model's window a turn fills."
+additionalProperties = false
+properties.compact_at = "agent-compact-at"
+
+[agent-window.properties.max]
+type = "integer"
+maximum = 4294967295
+description = """
+The window a turn fills, in tokens, at least 1024: yours or a team's as
+set, Link's held to the model's own window; left out, the model's whole
+window. Link's specification sets 128000.
+"""
+minimum = 0
+examples = [128000]
+
+[agent-window.properties.unknown]
+type = "integer"
+maximum = 4294967295
+description = """
+The window of a model Link doesn't know, in tokens, at least 1024.
+Link's specification sets 32768.
+"""
+minimum = 0
+examples = [32768]
+
+[agent-window.properties.margin]
+type = "number"
+description = """
+The share of the window kept back, from 0 to under 0.5: tokens are
+counted roughly before a turn, exactly by the provider after (`0.125`,
+an eighth). Link's specification sets 0.125.
+"""
+examples = [0.125]
+
+[agent-window.properties.answer]
+type = "number"
+description = """
+The share of the window kept for the answer, over 0 and under 1 and
+under 1 with `margin`, at most the model's longest, where `[model]
+answer` doesn't say. Link's specification sets 0.25.
+"""
+examples = [0.25]
+
+[agent-window.properties.save_notes]
+type = "boolean"
+description = """
+Whether, before it compacts, the model is asked to save what matters to
+its notes, where it has a tool to (`memory__remember`), in a
+conversation you spoke in, never one of others' messages alone. Link's
+specification sets true.
+"""
+
+[agent-window.properties.past_price_jump]
+type = "boolean"
+description = """
+Whether a turn fills the window past its model's first price jump, where
+a long prompt costs more (the model's facts' `above`, as `lnk model
+show` prints them).
+
+False fills the window only up to that size, `max` included, so the
+conversation compacts within it; true fills the whole window, each call
+past the jump at its higher price. Link's specification sets false.
+"""
+
+[agent-compact-at]
+description = "When a conversation is compacted (`[window] compact_at`): once it fills this share of what the window holds of it, or `never`."
+examples = [0.8, "never"]
+oneOf = [{ type = "number", description = "Once it fills this share of what the window holds of it" }, { const = "never", description = "Never" }]
+
+[agent-turns]
+type = "object"
+description = "How long a turn may go on."
+additionalProperties = false
+properties.busy = "harness-wire.busy"
+
+[agent-turns.properties.rounds]
+type = "integer"
+maximum = 4294967295
+description = "The most rounds of calls in one turn, from 1. Link's specification sets 8."
+minimum = 0
+examples = [8]
+
+[agent-turns.properties.calls]
+type = "integer"
+maximum = 4294967295
+description = "The most calls one answer makes, from 1. Link's specification sets 16."
+minimum = 0
+examples = [16]
+
+[agent-turns.properties.renew]
+type = "string"
+description = """
+How often a running turn renews its lease, at least `"1s"`. Link's specification
+sets `"10s"`.
+"""
+format = "duration"
+examples = ["10s"]
+
+[agent-turns.properties.lapse]
+type = "string"
+description = """
+How long a lease not renewed lasts before its turn is taken for crashed
+and finished, more than twice `renew`. Link's specification sets `"60s"`.
+"""
+format = "duration"
+examples = ["60s"]
+
+[agent-instructions]
+type = "object"
+description = """
+What it's told to be: one file, nothing, or Link's sections. With
+Link's assembly, where each section of its prompt comes from,
+and how large each may be. A section's source is `link` (Link's own),
+`none`, or a file in the agent's files folder (`instructions/base.md`).
+The model's and the tools' have no source: its file in
+`instructions/models/` and what each tool says of itself, so only
+their most is set. The repository's is `link` (its `AGENTS.md` files)
+or `none`.
+"""
+additionalProperties = false
+properties.max = "agent-sections-max"
+
+[agent-instructions.properties.source]
+type = "string"
+description = """
+The whole prompt's source: `"link"`, as left out, assembles the sections
+below; a Markdown file in the agent's files
+(`"instructions/instruction.md"`) supplies the whole system prompt, read
+again each turn without headings, templates, model overrides or message
+times; `"none"` supplies none.
+
+A file is read up to 64 KB, its outer whitespace trimmed; a missing,
+empty or linked one supplies nothing. Section sources and sizes hold
+only with `"link"`, and with `extends = "none"` a file or `"none"` needs
+no section keys. Only a harness whose contract takes instructions, as
+Link Harness does, takes the table: a start refuses it for any other.
+"""
+examples = ["link"]
+
+[agent-instructions.properties.base]
+type = "string"
+description = """
+The prompt's first section, what any agent of yours is: `link` (Link's,
+a personal agent who answers briefly), `none`, or a file in its files
+(`instructions/base.md`). Link's specification sets `"link"`.
+"""
+examples = ["link"]
+
+[agent-instructions.properties.environment]
+type = "string"
+description = """
+The fourth section, what it runs with here as Link resolved it at its
+start: where its files are, which folders it may change, its
+connections; `link`, `none` or a file. Link's specification sets `"link"`.
+"""
+examples = ["link"]
+
+[agent-instructions.properties.skills]
+type = "string"
+description = """
+The fifth section, each skill's name and what it's for, from
+`skills/<name>/SKILL.md` in its files, sorted by name; `link`, `none` or
+a file. Link's specification sets `"link"`.
+"""
+examples = ["link"]
+
+[agent-instructions.properties.persona]
+type = "string"
+description = """
+The sixth section, who it is apart from any task (its name, its voice,
+its character): a file of yours in its files, read at each message, or
+`none`. Link's specification sets `"instructions/persona.md"`.
+"""
+examples = ["instructions/persona.md"]
+
+[agent-instructions.properties.owner]
+type = "string"
+description = """
+The seventh section, who you are (your name, your work, the people in
+your life, how you like things): a file of yours in its files, read at
+each message, or `none`. Link's specification sets `"instructions/owner.md"`.
+"""
+examples = ["instructions/owner.md"]
+
+[agent-instructions.properties.standing]
+type = "string"
+description = """
+The eighth section, your standing instructions: a file in its files it
+may edit, read at each message, or `none`. Link's specification sets
+`"instructions/instruction.md"`.
+"""
+examples = ["instructions/instruction.md"]
+
+[agent-instructions.properties.now]
+type = "string"
+description = """
+The date, the time here, the connection and who's speaking, at the head
+of each message, never in the system prompt: `link` or `none`. Link's
+specification sets `"link"`.
+"""
+examples = ["link"]
+
+[agent-instructions.properties.notes]
+type = "string"
+description = """
+The ninth section, what the agent noted for itself, the file its
+memory's `remember` writes, read at each message, or `none`. Link's specification
+sets `"memory/notes.md"`; the old `instructions/notes.md` reads as it.
+"""
+examples = ["memory/notes.md"]
+
+[agent-instructions.properties.repository]
+type = "string"
+description = """
+What the repository it works in says of itself: `link` (its `AGENTS.md`,
+else `CLAUDE.md`, nearest folder first) or `none`. A feature's switch,
+off when left out.
+"""
+examples = ["link"]
+
+[agent-sections-max]
+type = "object"
+description = "Each section's most ([`Instructions::max`])."
+additionalProperties = false
+
+[agent-sections-max.properties.base]
+type = "string"
+description = "The base section: its most (`\"16 KB\"`), past which it's cut."
+examples = ["16 KB"]
+
+[agent-sections-max.properties.model]
+type = "string"
+description = """
+The model's own section, the second, from
+`instructions/models/<maker>/<model>/instruction.md` in its files: its
+most, past which it's cut. It has no source key.
+"""
+examples = ["16 KB"]
+
+[agent-sections-max.properties.tools]
+type = "string"
+description = """
+The tools' section, the third, what each tool says of itself: its most,
+past which tools are cut whole. It has no source key.
+"""
+examples = ["16 KB"]
+
+[agent-sections-max.properties.environment]
+type = "string"
+description = "What it runs with here: its most (`\"16 KB\"`), past which it's cut."
+examples = ["16 KB"]
+
+[agent-sections-max.properties.repository]
+type = "string"
+description = """
+What the repository it works in says of itself: its most (`"16 KB"`),
+past which it's cut.
+"""
+examples = ["16 KB"]
+
+[agent-sections-max.properties.skills]
+type = "string"
+description = "Its skills: its most (`\"16 KB\"`), past which it's cut."
+examples = ["16 KB"]
+
+[agent-sections-max.properties.persona]
+type = "string"
+description = "Who it is: its most (`\"16 KB\"`), past which it's cut."
+examples = ["16 KB"]
+
+[agent-sections-max.properties.owner]
+type = "string"
+description = "Who its owner is: its most (`\"16 KB\"`), past which it's cut."
+examples = ["16 KB"]
+
+[agent-sections-max.properties.standing]
+type = "string"
+description = """
+What its owner tells it to be: its most (`"16 KB"`), past which it's
+cut.
+"""
+examples = ["16 KB"]
+
+[agent-sections-max.properties.now]
+type = "string"
+description = """
+The date, connection and speaker at the head of each message: its most
+(`"16 KB"`), past which it's cut.
+"""
+examples = ["16 KB"]
+
+[agent-sections-max.properties.notes]
+type = "string"
+description = """
+What the agent noted for itself: its most (`"16 KB"`), past which it's
+cut.
+"""
+examples = ["16 KB"]
+
+[agent-commands]
+type = "object"
+description = """
+Its commands: a message of its owner's that names one (`/new`) runs
+it in place of a turn. Each is on when it's true here; left out, off.
+"""
+additionalProperties = false
+properties.help = { description = "`/help`: the commands that are on.", type = "boolean" }
+properties.stop = { description = "`/stop`: the answer being written stopped.", type = "boolean" }
+properties.rename = { description = "`/chat:rename`: this conversation's name.", type = "boolean" }
+
+[agent-commands.properties.status]
+type = "boolean"
+description = "`/status`: the model and what the conversation holds."
+
+[agent-commands.properties.create]
+type = "boolean"
+description = "`/new`: a new conversation in the same chat."
+
+[agent-commands.properties.model]
+type = "boolean"
+description = "`/model`: the model, or a switch to another of its provider's."
+
+[agent-commands.properties.models]
+type = "boolean"
+description = "`/models`: the models offered by its provider."
+
+[agent-commands.properties.tasks]
+type = "boolean"
+description = "`/tasks` and `/ps`: its running and scheduled work."
+
+[agent-commands.properties.write]
+type = "boolean"
+description = """
+`/learn`: a skill written from what it just did, where it may
+write `skills/` with its file tool.
+"""
+
+[agent-commands.properties.goal]
+type = "boolean"
+description = """
+`/goal`: a goal it pursues after each answer until it holds,
+within `[goals]`' limits.
+"""
+
+[agent-commands.properties.resume]
+type = "boolean"
+description = "`/chat:resume`: the chat's conversations, or one taken up again."
+
+[agent-commands.properties.fork]
+type = "boolean"
+description = "`/chat:fork`: a conversation holding this one as it stands."
+
+[agent-commands.properties.export]
+type = "boolean"
+description = "`/chat:export`: this conversation written to a file."
+
+[agent-commands.properties.queue]
+type = "boolean"
+description = "`/chat:queue`: the next message waits for the running turn."
+
+[agent-commands.properties.steer]
+type = "boolean"
+description = """
+`/chat:steer`: the next message joins the running turn, where
+`[turns] busy` steers.
+"""
+
+[agent-commands.properties.compact]
+type = "boolean"
+description = "`/chat:compact`: what's before the last message summarized now."
+
+[agent-commands.properties.ask]
+type = "boolean"
+description = "`/chat:ask`: a question answered apart, nothing kept."
+
+[agent-commands.properties.skills]
+type = "boolean"
+description = "`/skill:list`, and each skill run as `/skill:<name>`."
+
+[agent-commands.properties.verbose]
+type = "boolean"
+description = "`/chat:verbose`: whether the chat shows each tool call."
+
+[agent-goals]
+type = "object"
+description = """
+How long a goal is pursued, turn after turn, before it's left:
+whichever is reached first.
+"""
+additionalProperties = false
+
+[agent-goals.properties.turns]
+type = "integer"
+maximum = 4294967295
+description = """
+The most turns it takes on its own toward a goal, after the one that set
+it, from 1 to 1000. Link's specification sets 10.
+"""
+minimum = 0
+examples = [10]
+
+[agent-goals.properties.tokens]
+type = "integer"
+description = """
+The most tokens those turns spend, its prompts' and answers', at least
+1000: Link's specification sets 1000000.
+"""
+minimum = 0
+examples = [1000000]
+
+[agent-tool]
+type = "object"
+description = """
+A tool's opinions (`[tools]` for every tool, `[tool.<name>]` for one).
+Link's tools' keys are typed; a tool from outside Link may have keys
+of its own ([`Tool::other`]).
+"""
+additionalProperties = { x-link-any = true, description = "A key of a tool from outside Link, its own to read: Link keeps it and doesn't read it" }
+examples = [{ enabled = false }, { answer = "8 KB", timeout = "30s", keep = "30d", max_age = "1d", tokens = 4000, model = "local/qwen3:8b", notes = "4 KB", per_day = 20, subagents = 2, hops = 3, late = "skip", ask = true, recurring = "ask", zone = "Europe/London", interval = "10m", firing = "1m", enabled = true, driver = "service", fetch = "24 KB", output = "16 KB", background = 2, background_timeout = "1h", background_output = "16 MB", background_keep = "1d", background_per_day = 10, find = true, diffs = true, servers = { rust = { command = ["rust-analyzer"], files = ["rs"], roots = ["Cargo.toml"] } }, strangers = ["web__fetch"] }]
+properties.late = "agent-late"
+properties.driver = "agent-scheduler-driver"
+properties.recurring = "agent-scheduler-recurring"
+
+[agent-tool.properties.answer]
+type = "string"
+description = """
+What's kept of a tool's answer, 1 KB to 16 MB; in `[tool.<name>]`, one
+tool's. Link's specification sets `"32 KB"`.
+"""
+
+[agent-tool.properties.timeout]
+type = "string"
+description = """
+How long a tool's call may take, at least a second; past it the model is
+told it didn't answer. In `[tool.<name>]`, one tool's: the run tool
+stops a command a tenth before it (2 s at least, half at most), with
+all it started, so what it printed comes back. Waiting for you to allow a call isn't counted: a
+tool not Link's own has `[connections] ask_wait` beside it. Link's specification
+sets `"5m"`, and the run tool's `"2m"`.
+"""
+format = "duration"
+examples = ["5m"]
+
+[agent-tool.properties.keep]
+type = "string"
+description = """
+Memory's: how long its session stays once no turn uses it. Link's specification
+sets `"10m"`.
+"""
+format = "duration"
+examples = ["10m"]
+
+[agent-tool.properties.max_age]
+type = "string"
+description = "Memory's: how long its session lives at most. Link's specification sets `\"1h\"`."
+format = "duration"
+examples = ["1h"]
+
+[agent-tool.properties.tokens]
+type = "integer"
+maximum = 4294967295
+description = """
+Memory's: the most tokens a search or a read gives, at least 100 and at
+most 6000, the most one answer holds. Link's specification sets 6000.
+"""
+minimum = 0
+
+[agent-tool.properties.model]
+type = "string"
+description = """
+Memory's: the embedding model it ranks by; `none`, by words only, no
+model started. Link's specification sets `qwen3-embedding`.
+"""
+
+[agent-tool.properties.notes]
+type = "string"
+description = """
+Memory's: how large the agent's notes may grow, 64 B to 64 KB, past
+which `remember` refuses to write. Link's specification sets `"4 KB"`.
+"""
+
+[agent-tool.properties.dimensions]
+type = "integer"
+minimum = 1
+maximum = 65535
+description = """
+Memory's: how many of the embedding model's dimensions are kept: fewer
+cost less memory and disk, more rank a little better. Link's
+specification sets 256.
+"""
+
+[agent-tool.properties.memory]
+type = "string"
+description = """
+Memory's: the most its service holds of its own for this agent's index,
+besides the pages of files it maps. Link's specification sets
+`"512 MB"`.
+"""
+examples = ["512 MB"]
+
+[agent-tool.properties.reserve]
+type = "string"
+description = """
+Memory's: the disk left free; below it indexing pauses, calls go on
+answering, and it resumes once there's room. Link's specification sets
+`"1 GB"`.
+"""
+examples = ["1 GB"]
+
+[agent-tool.properties.file]
+type = "string"
+description = """
+Memory's: the largest file in its folders it indexes; a larger one is
+left out, and a search's reply names it. Link's specification sets
+`"16 MB"`.
+"""
+examples = ["16 MB"]
+
+[agent-tool.properties.threads]
+type = "integer"
+minimum = 1
+maximum = 1024
+description = """
+Memory's: the threads indexing takes, so a laptop isn't
+taken over. Link's specification sets 1.
+"""
+
+[agent-tool.properties.deadline]
+type = "string"
+description = """
+Memory's: how long a search ranks before it answers with what it has.
+Link's specification sets `"300ms"`.
+"""
+format = "duration"
+examples = ["300ms"]
+
+[agent-tool.properties.folders]
+type = "array"
+description = """
+Memory's: the agent's folders it indexes, `memory` (its Home's) and
+`chats` (its conversations). Link's specification sets both.
+"""
+items = { type = "string", enum = ["memory", "chats"] }
+examples = [["memory", "chats"]]
+
+[agent-tool.properties.kept_off]
+type = "string"
+description = """
+Memory's: the largest index kept off the machine, fetched at each wake
+where the machine runs agents only while they answer. Link's
+specification sets `"2 GB"`.
+"""
+examples = ["2 GB"]
+
+[agent-tool.properties.per_day]
+type = "integer"
+maximum = 4294967295
+description = """
+The scheduler's: messages its schedules send the agent a day, the day
+in its `zone`, from 1; subagents' work is outside it. It bounds how many
+messages agents send each other, and caps what the agent takes from each
+teammate a day (UTC). Link's specification sets 100.
+"""
+minimum = 0
+
+[agent-tool.properties.subagents]
+type = "integer"
+maximum = 4294967295
+description = "The scheduler's: subagents at work at once, from 1. Link's specification sets 5."
+minimum = 0
+
+[agent-tool.properties.hops]
+type = "integer"
+maximum = 4294967295
+description = """
+The scheduler's: how deep a chain of messages goes, each sent by an
+agent on its own, from 1: a depth and not a count, as a recurring job's
+firings start again. Link's specification sets 8.
+"""
+minimum = 0
+
+[agent-tool.properties.ask]
+type = "boolean"
+description = """
+The scheduler's: whether every call but those that only read asks you
+first. A recurring schedule asks you either way, unless its call says
+once or `recurring` is `allow`. Link's specification sets false.
+"""
+
+[agent-tool.properties.zone]
+type = "string"
+description = """
+The scheduler's: the time zone its times are in, `local` (this
+machine's) or a zone's name (`Europe/Paris`). Link's specification sets `local`.
+"""
+
+[agent-tool.properties.interval]
+type = "string"
+description = """
+The scheduler's: the shortest a recurring schedule may repeat, 1m to 1d;
+a model's `cron` that fires more often is refused when it's made. Link's
+specification sets `"5m"`.
+"""
+format = "duration"
+examples = ["5m"]
+
+[agent-tool.properties.firing]
+type = "string"
+description = """
+The scheduler's: how long it waits on a firing, a subagent's whole work,
+before it gives up on it, 1s to 1d. Link's specification sets `"30m"`.
+"""
+format = "duration"
+examples = ["30m"]
+
+[agent-tool.properties.enabled]
+type = "boolean"
+description = """
+Whether Link starts the tool for the agent, in `[tool.scheduler]`,
+`[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false
+withholds it. Link's specification starts the file tool enabled, and the
+scheduler, run, code and Link MCP disabled. Without the scheduler, no subagents or
+schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true
+gives the screen at a start where this machine runs it, false takes it
+away, and Link's specification says neither, leaving what `lnk agent tool add`
+gave.
+"""
+
+[agent-tool.properties.fetch]
+type = "string"
+description = """
+Web's: the most of a page one fetch gives, 1 KB to 1 MB; each part says
+where the next starts. Link's specification sets `"24 KB"`.
+"""
+
+[agent-tool.properties.hosts]
+type = "array"
+description = """
+Web's: the only hosts it fetches, as `[internet] hosts` names them: a
+name (`docs.rs`), `*.` and a name for every name under it, or an
+address; each redirect is held to them too. Left out, it fetches any
+public host, as Link's specification leaves it. Link Harness sends it with each
+call.
+"""
+items = { type = "string" }
+examples = [["docs.rs", "*.wikipedia.org"]]
+
+[agent-tool.properties.program]
+type = "string"
+description = """
+The browser's: the Chromium-family program it starts, by its absolute
+path, in place of the one it finds on this machine. It's an executable
+program, never a launcher script (a file starting with `#!`), which
+would run inside the browser's sandbox and be refused the programs it
+calls; each start checks it, and refuses one that isn't. Left out, the
+browser finds one, as Link's specification leaves it.
+"""
+examples = ["/opt/chromium/chrome"]
+
+[agent-tool.properties.output]
+type = "string"
+description = """
+Run's: what's kept of each of a command's output and its errors, its
+start and its end, 1 KB to 16 MB. Link's specification sets `"16 KB"`.
+"""
+
+[agent-tool.properties.background]
+type = "integer"
+maximum = 4294967295
+description = """
+Run's: the most background commands at once, 0 to 64; 0, none. Link's
+specification sets 4.
+"""
+minimum = 0
+
+[agent-tool.properties.background_timeout]
+type = "string"
+description = """
+Run's: the longest a background command runs before it's stopped, 1s to
+7d. Link's specification sets `"1h"`.
+"""
+format = "duration"
+examples = ["1h"]
+
+[agent-tool.properties.background_output]
+type = "string"
+description = """
+Run's: what's kept on disk of a background command's output, its end, 1
+KB to 1 GB. Link's specification sets `"16 MB"`.
+"""
+
+[agent-tool.properties.background_keep]
+type = "string"
+description = """
+Run's: how long a background command's record and output stay once it
+ended and the agent was told, 1m to 365d. Link's specification sets `"1d"`.
+"""
+format = "duration"
+examples = ["1d"]
+
+[agent-tool.properties.background_per_day]
+type = "integer"
+maximum = 4294967295
+description = """
+Run's: the most background commands started in a day, each of whose
+endings starts a turn, 1 to 65535. Link's specification sets 100.
+"""
+minimum = 0
+
+[agent-tool.properties.find]
+type = "boolean"
+description = """
+File's: whether it finds files by name and lines by a pattern (`find`).
+A feature's switch, off when left out.
+"""
+
+[agent-tool.properties.diffs]
+type = "boolean"
+description = """
+File's: whether `write` and `replace` answer with the change as a diff.
+A feature's switch, off when left out.
+"""
+
+[agent-tool.properties.servers]
+type = "object"
+description = """
+Code's: the language servers it may start, by the language each
+serves (`rust`).
+"""
+additionalProperties = "agent-code-server"
+
+[agent-tool.properties.strangers]
+type = "array"
+description = """
+`[tools]` only: the tools a stranger's message may use, by the
+names the harness offers them (`web__fetch`), its conversation
+given these or fewer ([`crate::access::Standing::Stranger`]). Left
+out, none.
+"""
+items = { type = "string" }
+
+[agent-late]
+type = "string"
+description = "What a firing missed while the machine slept does. `run`, it fires once, on waking; `skip`, it doesn't; a recurring one fires at its next time."
+enum = ["run", "skip"]
+
+[agent-scheduler-recurring]
+type = "string"
+description = """
+The scheduler's: whether a recurring schedule the agent makes asks you
+first. `ask`, it waits for you to allow it unless its call says once;
+`allow`, it starts without asking, as a one-off reminder does, though
+`ask = true` still asks first of every call that writes. Link's specification
+sets `ask`.
+"""
+enum = ["ask", "allow"]
+
+[agent-scheduler-driver]
+type = "string"
+description = """
+What wakes the scheduler's runner. `service`, the agent's bridge, a background service, runs it for good; `cron`, the machine's calendar (launchd on a mac, cron elsewhere) starts
+it once a minute; nothing of it runs between; `address`, a machine that runs the agent only while it answers: the
+scheduler tells it, at the address the machine gives, when the
+agent's jobs are next due, and whatever wakes the agent then runs
+it once; nothing of it runs between.
+"""
+enum = ["service", "cron", "address"]
+
+[agent-code-server]
+type = "object"
+description = """
+A language server of code's (`[tool.code.servers.<language>]`). Each
+key is its own in a specification's union, so a specification may change one alone: a
+key left out is the specification before's.
+"""
+additionalProperties = false
+
+[agent-code-server.properties.command]
+type = "array"
+description = """
+The program and its arguments, as `run` would start them; empty,
+no server for the language.
+"""
+items = { type = "string" }
+
+[agent-code-server.properties.files]
+type = "array"
+description = "The files it serves, by their extension (`rs`)."
+items = { type = "string" }
+
+[agent-code-server.properties.roots]
+type = "array"
+description = """
+The files that mark a project's root (`Cargo.toml`): the nearest
+folder above a file that holds one is the root its server is
+started in; none found, the files folder.
+"""
+items = { type = "string" }
+
+[agent-code-server.properties.settings]
+type = "object"
+description = """
+The server's settings, by the section it asks for
+(`rust-analyzer`): given whole when it asks for its configuration,
+and told once it starts. Left out, it has its own defaults.
+"""
+additionalProperties = { x-link-any = true, description = "A section of the server's settings, as the server reads it" }
+
+[agent-run]
+type = "object"
+description = "How an agent runs on its machine (`[run]`)."
+additionalProperties = false
+
+[agent-run.properties.files]
+type = "string"
+description = """
+The agent's workspace folder. A relative path is from the folder the
+start runs in; left out, it keeps the workspace it has. `lnk agent start
+--run.files <dir>` sets it.
+"""
+x-link-path = true
+examples = ["/home/me/work"]
+
+[agent-run.properties.let_sleep]
+type = "boolean"
+description = """
+Whether the machine may sleep while this agent runs: left out or false,
+the agent keeps it awake; true, the machine's own sleep policy applies.
+"""
+
+[agent-run.properties.idle_after]
+type = "string"
+description = """
+How long it goes with no message, no turn and no background command
+before it stops, holding no process, memory or port, started again by
+its next message: at least `"1s"`, or `"never"`, memory kept against a
+start from cold. Link's specification sets `"5m"`.
+
+It holds only where the machine's `shared_bridge` is on
+(`~/.lnk/safe/agents/policy.toml`), since the
+bridge then listens for it, and for an agent whose harness speaks none
+of its connections itself.
+"""
+examples = ["5m"]
+
+[agent-message-access]
+type = "object"
+description = """
+An agent specification's `[access]`: who besides its owner may message it.
+It takes chats alone, so a team's `member` isn't one of its keys.
+"""
+additionalProperties = false
+
+[agent-message-access.properties.message]
+type = "array"
+description = """
+Who may message the agent, besides its owner: chats on its
+connections, whoever is in them, each `chat:<connection>:<chat
+id>` (`chat:slack:C0TEAM`).
+"""
+items = "agent-chat"
+
+[agent-chat]
+type = "string"
+description = """
+A chat on a connection, whoever is in it, `chat:<connection>:<id>`:
+a group the connection keeps, which a specification lets message its agent,
+never a principal. Its id is the connection's own (Slack's `C0TEAM`,
+Telegram's `-1001234`).
+"""
+examples = ["chat:slack:C0TEAM"]
+
+[team]
+type = "object"
+description = """
+A team's file: its head (`[access]` among it), its roster and its
+shared settings, the opinions
+every member shares in `[settings.agent]`.
+"""
+x-link-spec = { kind = "team" }
+x-link-checks = ["team"]
+x-link-resource = { id = "name" }
+required = ["name"]
+additionalProperties = false
+properties.files = "team-files"
+properties.access = "team-access"
+properties.settings = { shape = "team-settings", default = {}, examples = [{ agent = { window = { compact_at = 0.75 } }, memory = { semantic = true, daily_credits = 100, indexer = { kind = "auto" }, payer = { kind = "owner" } } }] }
+
+[team.properties.id]
+type = "string"
+description = """
+The team's permanent ID, which keeps it the same team through
+renames, restarts and moves; left out, the first apply assigns it.
+"""
+examples = ["k3m4n5p6q7r8"]
+
+[team.properties.name]
+type = "string"
+description = "The team's name: lowercase letters, digits and dashes."
+examples = ["research"]
+
+[team.properties.version]
+type = "integer"
+maximum = 4294967295
+description = """
+A whole number of yours, to say which revision of the file this
+is; Link reads nothing from it.
+"""
+minimum = 0
+
+[team.properties.member]
+type = "object"
+description = """
+Its members, by their names in the team: each an existing agent by
+its ID, or an agent definition the team makes and manages.
+"""
+additionalProperties = "team-member"
+examples = [{ scout = { purpose = "Finds sources", agent = { model = { thinking = "medium" } } }, reviewer = { id = "k3m4n5p6q7r8", service = "service:k3m4n5p6q7r8", owner = "a1b2c3d4", purpose = "Reviews drafts", write = ["drafts"], read = ["sources"] } }]
+
+[team.properties.lead]
+type = "string"
+description = """
+The member a message addressed to the team reaches, by its name;
+left out, the team takes none until you name one.
+"""
+examples = ["scout"]
+
+[team-member]
+type = "object"
+description = "A team's member, by its name in the file."
+additionalProperties = false
+properties.id = { description = "The agent's ID.", type = "string", examples = ["a1b2c3d4e5f6"] }
+properties.agent = "agent"
+
+[team-member.properties.service]
+type = "string"
+format = "link-id"
+x-link-kind = "service"
+description = """
+The service the agent acts as, written service:<id>: the role holder
+a teammate's check names. An own agent's is read from its settings
+as the team is loaded; another account's is named in the file.
+"""
+
+[team-member.properties.purpose]
+type = "string"
+description = "What it's for on the team, for people and its teammates."
+
+[team-member.properties.owner]
+type = "string"
+description = """
+Its account, for another account's agent, which the team's
+`[access] member` names: none, the team owner's own.
+"""
+
+[team-member.properties.write]
+type = "array"
+description = """
+For another account's agent, the folders of the team's folder it
+may write, and those it may only read, as `[teams.<team>]`
+names them: the most it reaches, the team owner's to say. An own
+agent's are in its sandbox file.
+"""
+items = { type = "string" }
+
+[team-member.properties.read]
+type = "array"
+description = """
+For another account's agent, the folders of the team's folder it
+may only read.
+"""
+items = { type = "string" }
+
+[team-files]
+type = "object"
+description = "`[files]`: the folder the team's members share."
+required = ["shared"]
+additionalProperties = false
+
+[team-files.properties.shared]
+type = "string"
+description = "The shared folder, from the home folder (`~/Link/Teams/research`)."
+examples = ["~/Link/Teams/research"]
+
+[team-access]
+type = "object"
+description = """
+A team file's `[access]`: which agents of other accounts may be on
+it. It takes members alone, so an agent's `message` isn't one of its
+keys.
+"""
+additionalProperties = false
+
+[team-access.properties.member]
+type = "array"
+description = """
+Which agents of other accounts may be on the team, each the
+service it acts as, `service:<agent id>`: the team owner's yes; the
+agent's owner says the other, by joining.
+"""
+items = { type = "string", examples = ["service:k3m4n5p6q7r8"] }
+
+[team-settings]
+type = "object"
+additionalProperties = false
+properties.agent = { shape = "agent", default = {} }
+properties.memory = { shape = "team-memory", default = {} }
+
+[team-memory]
+type = "object"
+description = "A team's memory: one memory over its shared folder, handed to the members granted all of it"
+additionalProperties = false
+properties.indexer = { shape = "team-indexer", default = { kind = "auto" } }
+properties.payer = { shape = "team-payer", default = { kind = "owner" } }
+
+[team-memory.properties.enabled]
+type = "boolean"
+description = """
+Whether the team has a memory over its shared folder, handed to the
+members granted all of it: off until the owner turns it on (`lnk agent
+team-memory start`).
+"""
+default = false
+
+[team-memory.properties.semantic]
+type = "boolean"
+description = "Non-indexers use words until the owner enables semantic queries."
+default = false
+
+[team-memory.properties.daily_credits]
+type = "integer"
+description = """
+Shared daily memory spending in credits; required when enabling
+semantic search. All callers debit the same team budget.
+"""
+minimum = 0
+
+[team-indexer]
+oneOf = ["team-indexer-auto", "team-indexer-member"]
+examples = [{ kind = "auto" }, { kind = "member", member = "scout" }]
+
+[team-indexer-auto]
+type = "object"
+description = "One eligible whole-folder writer, elected outside the runtime."
+required = ["kind"]
+additionalProperties = false
+
+[team-indexer-auto.properties.kind]
+type = "string"
+description = "Which keeper it is: auto, elected, or a named member."
+const = "auto"
+
+[team-indexer-member]
+type = "object"
+description = "The selected member; names resolve to permanent IDs at delivery."
+required = ["kind", "member"]
+additionalProperties = false
+properties.member = { description = "The member, by its name in the team's file.", type = "string" }
+
+[team-indexer-member.properties.kind]
+type = "string"
+description = "Which keeper it is: auto, elected, or a named member."
+const = "member"
+
+[team-payer]
+oneOf = ["team-payer-owner", "team-payer-member"]
+examples = [{ kind = "owner" }, { kind = "member", member = "scout" }]
+
+[team-payer-owner]
+type = "object"
+description = "The team's owner."
+required = ["kind"]
+additionalProperties = false
+
+[team-payer-owner.properties.kind]
+type = "string"
+description = "Who pays: the team's owner, or a named member."
+const = "owner"
+
+[team-payer-member]
+type = "object"
+description = """
+The account of this accepted member, with its explicit spending
+authority; naming it in a specification alone grants no billing consent.
+"""
+required = ["kind", "member"]
+additionalProperties = false
+properties.member = { description = "The member, by its name in the team's file.", type = "string" }
+
+[team-payer-member.properties.kind]
+type = "string"
+description = "Who pays: the team's owner, or a named member."
+const = "member"
+
+# ---- resources: what the actions are on
+[harness]
+type = "object"
+description = "A harness an agent runs on, by its name"
+x-link-resource = { id = "name" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name" }
+
+[harness-permission]
+type = "object"
+description = "Something a harness asks for that the agent allows: a specification's flags, or a risk of the harness's own"
+x-link-resource = { id = "risk" }
+required = ["risk"]
+additionalProperties = false
+properties.risk = { type = "string", description = "Its risk" }
+
+[permission]
+type = "object"
+description = "What an agent may reach, as its sandbox file says"
+x-link-resource = { id = "name" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name" }
+
+[memory]
+type = "object"
+description = "The agent's memory: its notes and the engine that indexes them"
+x-link-resource = { id = "engine" }
+required = ["engine"]
+additionalProperties = false
+properties.engine = { type = "string", description = "Its engine" }
+
+[skill]
+type = "object"
+description = "A skill the agent has, by its name"
+x-link-resource = { id = "name" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name" }
+
+[task]
+type = "object"
+description = "Work an agent's tools run for it: a command or a subagent"
+x-link-resource = { id = "id" }
+required = ["id"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its id" }
+
+[cron]
+type = "object"
+description = "A schedule of the agent's: a prompt it's sent by a cron, every time it matches or once"
+x-link-resource = { id = "id" }
+required = ["id"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its id" }
+
+[tool]
+type = "object"
+description = "One of Link's tools the agent runs, by its name"
+x-link-resource = { id = "name" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name" }
+
+[browser]
+type = "object"
+description = "The agent's browser, which its browser tool drives"
+x-link-resource = { id = "page" }
+required = ["page"]
+additionalProperties = false
+properties.page = { type = "string", description = "Its page" }
+
+[desktop]
+type = "object"
+description = "The agent's desktop, which its desktop tool drives"
+x-link-resource = { id = "display" }
+required = ["display"]
+additionalProperties = false
+properties.display = { type = "string", description = "Its display" }
+
+[file]
+type = "object"
+description = "A file in the agent's folders, which its file and code tools read and write"
+x-link-resource = { id = "path" }
+required = ["path"]
+additionalProperties = false
+properties.path = { type = "string", description = "Its path" }
+
+[web]
+type = "object"
+description = "The web, as the agent's web tool fetches and searches it"
+x-link-resource = { id = "url" }
+required = ["url"]
+additionalProperties = false
+properties.url = { type = "string", description = "Its url" }
+
+[question]
+type = "object"
+description = "A question the agent asks its owner and waits on"
+x-link-resource = { id = "id" }
+required = ["id"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its id" }
+
+[model]
+type = "object"
+description = "A model the agent runs on, by its route: a provider and its model, or an alias"
+x-link-resource = { id = "route" }
+required = ["route"]
+additionalProperties = false
+properties.route = { type = "string", description = "Its route" }
+
+# ---- life
+[life-agents]
+type = "object"
+description = "Every agent this machine knows: its own, its boxes', and those its cloud accounts host, with what couldn't be asked."
+required = ["agents", "unreached", "answered"]
+additionalProperties = false
+properties.agents = { type = "array", items = "life-agent-entry", description = "Each agent found, here, on a box, on a cloud account, or moved away." }
+properties.unreached = { type = "array", items = "life-agent-unreached", description = "Each box or cloud account that couldn't be asked, and why." }
+properties.answered = { type = "array", items = "life-agent-answered", description = "Each cloud account that runs agents and answered with its agents." }
+properties.in_clouds = { type = "array", items = "life-agent-hosted-here", description = "Each agent this machine moved to a cloud account that runs agents, only with --here." }
+
+[life-agent-entry]
+type = "object"
+description = "One agent as list and show print it: its IDs, its folders' and its Safe's, harness, model, machine, files and grants."
+required = ["name"]
+additionalProperties = false
+properties.workload = { type = "string", format = "link-id", description = "The agent's ID, written agent:<id>; left out when it has none yet." }
+properties.principal = { type = "string", format = "link-id", description = "The service the agent acts as, written service:<id>; left out when it has none." }
+properties.instructions = { type = "string", format = "link-id", x-link-kind = "folder", description = "Its instructions' storage folder, written folder:<id>; left out where it has none yet." }
+properties.skills = { type = "string", format = "link-id", x-link-kind = "folder", description = "Its skills' storage folder, written folder:<id>; left out where it has none yet." }
+properties.home = { type = "string", format = "link-id", x-link-kind = "folder", description = "Its Home's storage folder, written folder:<id>; left out where it has none yet." }
+properties.safe = { type = "string", format = "link-id", x-link-kind = "safe", description = "Its Safe, which holds its settings, written safe:<id>; left out where it has none yet." }
+properties.owner = "life-agent-owner"
+properties.name = { type = "string", description = "The agent's name." }
+properties.harness = { type = "string", description = "The harness the agent runs; left out for an agent moved away or hosted." }
+properties.model = { type = "string", description = "The model the agent answers with, by name or else its provider; left out before its first start." }
+properties.machine = "life-agent-machine"
+properties.running = { type = "boolean", description = "Whether the agent runs now; left out for an agent moved away." }
+properties.state = { type = "string", description = "The hosting cloud's own word for the agent's state, only for an agent a cloud account hosts." }
+properties.folder = { type = "string", x-link-path = true, description = "The agent's own folder, ~/Link/Agents/<name>, only for an agent here." }
+properties.files = { type = "string", x-link-path = true, description = "The agent's files folder; left out when it has none Link accepts or it isn't here." }
+properties.port = { type = "integer", minimum = 0, maximum = 65535, description = "The port its harness listens on; left out when it has none." }
+properties.connections = { type = "array", items = { type = "string", description = "A connection's name." }, description = "The connections the agent is connected to, by name; left out when it isn't here." }
+properties.bots = { type = "object", additionalProperties = "life-agent-bot", description = "Each connection's bot, by the connection's name; left out when the agent isn't here." }
+properties.location = { type = "string", description = "The box or cloud account an agent moved to, by name; left out for an agent that is where it's listed." }
+properties.processes = "life-agent-processes"
+properties.measures = { type = "string", x-link-path = true, description = "Where its harness writes its own measures, for lnk measure; left out when it isn't here." }
+properties.times = { type = "string", x-link-path = true, description = "Where this module times the agent's starts and stops; left out when it isn't here." }
+properties.teams = { type = "array", items = "life-agent-team", description = "The teams whose files list the agent; left out when it isn't here." }
+properties.spec = "life-sandbox-spec"
+properties.beyond_defaults = { type = "array", items = { type = "string", description = "One grant, as lnk agent permission remove names it." }, description = "What the agent may do beyond Link's defaults on its harness; left out when it isn't here." }
+properties.window = { type = "integer", minimum = 0, description = "The most tokens its context window holds, only in show; left out when its specification sets none." }
+properties.answer = { type = "integer", minimum = 0, description = "The most tokens an answer may take, only in show; left out when its specification sets none." }
+properties.wire = { type = "string", description = "Why its sandbox's wire is closed, stopped or paused, only in show and null while it's open." }
+
+[life-agent-owner]
+description = "Whose the agent is, by its kind: an account, or the user running Link on a machine; left out when none is set."
+oneOf = ["life-agent-owner-account", "life-agent-owner-machine-user"]
+examples = [{ kind = "account", id = "github-22600052" }, { kind = "machine-user", user = "dana", machine = "danas-mbp" }]
+
+[life-agent-owner-account]
+type = "object"
+description = "An account, by the ID its account service gives it."
+required = ["kind", "id"]
+additionalProperties = false
+properties.kind = { const = "account" }
+properties.id = { type = "string", description = "The account's ID." }
+
+[life-agent-owner-machine-user]
+type = "object"
+description = "The user running Link on a machine, before an account signs in."
+required = ["kind", "user", "machine"]
+additionalProperties = false
+properties.kind = { const = "machine-user" }
+properties.user = { type = "string", description = "The user's name on that machine." }
+properties.machine = { type = "string", description = "The machine's name." }
+
+[life-agent-machine]
+type = "object"
+description = "A machine or cloud account an agent is on, as list and status name it."
+required = ["name"]
+additionalProperties = false
+properties.resource = { type = "string", format = "link-id", description = "The machine's ID, installation:<id> for this one or box:<id> for a box; left out for a box whose ID isn't known." }
+properties.name = { type = "string", description = "The machine, box or cloud account's name, as you know it." }
+properties.cloud = { type = "boolean", description = "True when it is a cloud account that runs agents, left out otherwise." }
+properties.owner = { type = "string", description = "The account owner a hosting cloud account belongs to, left out when unknown." }
+
+[life-agent-bot]
+type = "object"
+description = "An agent's bot on one connection, by its IDs, never its token."
+required = ["id", "name", "title"]
+additionalProperties = false
+properties.id = { type = "string", description = "The bot's ID on the platform." }
+properties.name = { type = "string", description = "The bot's name on the platform." }
+properties.team = { type = "string", description = "The platform team or workspace the bot is in; left out when it has none." }
+properties.title = { type = "string", description = "The connection's name as people write it, from its module." }
+
+[life-agent-processes]
+type = "object"
+description = "The processes an agent runs as, for lnk measure; left out for an agent not here."
+required = ["pids", "groups"]
+additionalProperties = false
+properties.pids = { type = "array", items = { type = "integer", minimum = 0, description = "A process ID." }, description = "The main processes of its service, its connections' service and its terminal start." }
+properties.group = { type = "string", x-link-path = true, description = "Its service's own control group under /sys/fs/cgroup on Linux; left out when there is none." }
+properties.groups = { type = "array", items = { type = "string", x-link-path = true, description = "A control group's folder." }, description = "The control group of each of its services." }
+
+[life-agent-team]
+type = "object"
+description = "A team an agent is in, by its ID."
+required = ["resource"]
+additionalProperties = false
+properties.resource = { type = "string", format = "link-id", description = "The team's ID, a group's, written group:<id>." }
+
+[life-agent-unreached]
+type = "object"
+description = "A box or cloud account list couldn't ask, and why."
+required = ["name", "error"]
+additionalProperties = false
+properties.resource = { type = "string", format = "link-id", description = "The box's ID, box:<id>; left out for a cloud account or a box whose ID isn't known." }
+properties.name = { type = "string", description = "The box or cloud account's name." }
+properties.cloud = { type = "boolean", description = "True for a cloud account that runs agents, left out for a box." }
+properties.error = { type = "string", description = "Why it couldn't be asked." }
+
+[life-agent-answered]
+type = "object"
+description = "A cloud account that runs agents and answered with its agents."
+required = ["name", "cloud"]
+additionalProperties = false
+properties.name = { type = "string", description = "The cloud account's name." }
+properties.cloud = { const = true, type = "boolean", description = "Always true: the account runs agents." }
+
+[life-agent-hosted-here]
+type = "object"
+description = "An agent this machine moved to a cloud account that hosts agents, by its note here."
+required = ["workload", "name", "account", "home"]
+additionalProperties = false
+properties.workload = { type = "string", format = "link-id", description = "The agent's ID, written agent:<id>." }
+properties.name = { type = "string", description = "The agent's name." }
+properties.account = { type = "string", description = "The cloud account that hosts it." }
+properties.home = { type = "string", x-link-path = true, description = "The folder here its Home is pushed from and pulled to." }
+
+[life-sandbox-spec]
+type = "object"
+description = "What an agent may do here on its harness, its own sandbox file and its harness's grants joined, for this machine's OS."
+additionalProperties = false
+properties.name = { type = "string", description = "The specification's name, to tell specifications apart." }
+properties.version = { type = "integer", minimum = 0, description = "The specification's version, bumped by whoever changes it." }
+properties.files = "life-sandbox-files"
+properties.network = "life-sandbox-network"
+properties.internet = "life-sandbox-internet"
+properties.lan = "life-sandbox-hosts"
+properties.localhost = "life-sandbox-localhost"
+properties.tools = "life-sandbox-tools"
+properties.browser = "life-sandbox-hosts"
+properties.commands = "life-sandbox-commands"
+properties.teams = { type = "object", additionalProperties = "life-sandbox-team-folders", description = "Each team's shared folders it writes and reads, by the team's name." }
+
+[life-sandbox-files]
+type = "object"
+description = "The folders an agent's sandbox reads and writes."
+additionalProperties = false
+properties.write = { type = "array", items = { type = "string", x-link-path = true, description = "A folder." }, description = "Folders it reads and writes." }
+properties.read = { type = "array", items = { type = "string", x-link-path = true, description = "A folder." }, description = "Folders it only reads." }
+properties.write_dot_files = { type = "array", items = { type = "string", x-link-path = true, description = "A folder." }, description = "Folders of write whose dot files that run outside it writes too." }
+properties.hide = { type = "array", items = { type = "string", x-link-path = true, description = "A folder." }, description = "Folders closed whatever else opens them." }
+
+[life-sandbox-network]
+type = "object"
+description = "How an agent's sandbox reaches the network."
+additionalProperties = false
+properties.mode = { type = "string", enum = ["proxy", "host"], description = "Through Link's filtering proxy, or this machine's network as it is." }
+
+[life-sandbox-internet]
+type = "object"
+description = "The public hosts an agent's sandbox reaches through Link's proxy."
+additionalProperties = false
+properties.hosts = { type = "array", items = { type = "string", description = "A hostname." }, description = "Hosts it reaches over HTTPS." }
+properties.tcp = { type = "array", items = { type = "string", description = "A hostname and port." }, description = "Hosts and ports it reaches over plain TCP." }
+properties.per_minute = { type = "integer", minimum = 0, description = "How many requests a minute it may make." }
+
+[life-sandbox-hosts]
+type = "object"
+description = "A list of hosts a sandbox section grants: machines of your network, or pages it may ask you to open."
+additionalProperties = false
+properties.hosts = { type = "array", items = { type = "string", description = "A hostname or network." }, description = "The hosts granted." }
+
+[life-sandbox-localhost]
+type = "object"
+description = "The servers on this machine an agent's sandbox calls."
+additionalProperties = false
+properties.ports = { type = "array", items = { oneOf = [{ type = "integer", minimum = 0, maximum = 65535 }, { const = "*" }], description = "A port, or * for any." }, description = "Ports on this machine it calls." }
+properties.models = { type = "array", items = { type = "integer", minimum = 0, maximum = 65535, description = "A port." }, description = "Ports of model servers on this machine it calls." }
+
+[life-sandbox-tools]
+type = "object"
+description = "Your tools from lnk sandbox tool add that an agent may run outside its sandbox."
+additionalProperties = false
+properties.names = { type = "array", items = { type = "string", description = "A tool's name." }, description = "The tools it may run." }
+
+[life-sandbox-commands]
+type = "object"
+description = "The programs an agent's sandbox may run."
+additionalProperties = false
+properties.allow = { type = "array", items = { type = "string", description = "A program or folder of programs." }, description = "Programs it may run." }
+properties.toolchains = { type = "array", items = { type = "string", description = "A toolchain's name." }, description = "Toolchains it may run, each naming its programs." }
+properties.developer_tools = { type = "boolean", description = "Whether the system's developer tools may run." }
+
+[life-sandbox-team-folders]
+type = "object"
+description = "Of one team's shared folder, what an agent writes and only reads."
+additionalProperties = false
+properties.write = { type = "array", items = { type = "string", description = "A folder in the team's shared folder." }, description = "Folders it writes." }
+properties.read = { type = "array", items = { type = "string", description = "A folder in the team's shared folder." }, description = "Folders it only reads." }
+
+# ---------------------------------------------------------------- logs
+
+[log]
+type = "object"
+description = "An agent's log: the lines Link and its harness write while it runs"
+additionalProperties = false
+properties.lines = { type = "array", items = "life-log-line", description = "Its lines, oldest first" }
+
+[life-log-line]
+type = "object"
+description = "One line of an agent's log: a Link log line, or another program's line as plain text."
+required = ["text"]
+additionalProperties = false
+properties.at = { type = "string", format = "date-time", description = "When the line was written, for a Link log line." }
+properties.level = { type = "string", enum = ["info", "warning", "error"], description = "How serious the line is, for a Link log line." }
+properties.agent = { type = "string", description = "The agent the line is about, when it names one." }
+properties.chat = { type = "string", description = "The chat the line is about, when it names one." }
+properties.turn = { type = "string", description = "The turn the line is about, when it names one." }
+properties.call = { type = "string", description = "The tool call the line is about, when it names one." }
+properties.text = { type = "string", description = "What the line says." }
+
+[life-live-line]
+type = "object"
+description = "One line of lnk agent log show --live: what an agent or one of its chats did, and when."
+required = ["text"]
+additionalProperties = false
+properties.text = { type = "string", description = "The time and what happened." }
+properties.source = { type = "object", additionalProperties = { type = "string", description = "Its name." }, description = "What the line is about, one key, agent or chat, holding its name." }
+
+# ---------------------------------------------------------------- show, send
+
+[life-sent]
+type = "object"
+description = "Where a message lnk agent chat send --to sent went."
+required = ["sent"]
+additionalProperties = false
+properties.sent = { type = "array", items = "life-sent-recipient", description = "Each place the message went." }
+
+[life-sent-recipient]
+type = "object"
+description = "One place a sent message went, and the message's ID there."
+required = ["to", "id"]
+additionalProperties = false
+properties.to = { type = "string", description = "Whom or where the message went." }
+properties.id = { type = "string", description = "The message's ID where it went." }
+properties.delegation = { type = "string", enum = ["held", "needs_revalidation", "ready", "dispatched", "abandoned"], description = "What became of a teammate's message as a delegation of tracked work, left out otherwise." }
+properties.held = { type = "boolean", description = "True when a message to the owner's terminal was kept here for lnk agent chat, left out otherwise." }
+
+# ---------------------------------------------------------------- questions
+
+[life-question-delivery]
+type = "object"
+description = "A question delivered to the owner's terminal: the question, its delivery, and the code to answer it by."
+required = ["question", "delivery", "response_code"]
+additionalProperties = false
+properties.question = "life-question-set"
+properties.delivery = "life-question-delivery-record"
+properties.response_code = { type = "string", description = "The code lnk agent question list <code> answers it by." }
+
+[life-question-form]
+type = "object"
+description = "A question's form after lnk agent question list <code>: the question, its draft answer, its resolution and its effect."
+required = ["envelope", "draft", "effect"]
+additionalProperties = false
+properties.envelope = "life-question-delivery"
+properties.draft = "life-question-draft"
+properties.resolution = "life-question-resolution"
+properties.effect = "life-effect-state"
+
+[life-question-set]
+type = "object"
+description = "A set of questions one requester asks one recipient, with its effect and timeout."
+required = ["version", "id", "revision", "domain", "requester", "recipient", "title", "questions", "effect", "timeout", "created_at", "expires_at"]
+additionalProperties = false
+properties.version = { type = "integer", minimum = 0, description = "The interaction wire version it was written in." }
+properties.id = { type = "string", description = "The question set's ID." }
+properties.revision = { type = "integer", minimum = 0, description = "Its revision, raised each time it changes." }
+properties.domain = { type = "string", description = "The domain it belongs to, which sets its timeouts and fallbacks." }
+properties.requester = "life-question-requester"
+properties.recipient = "life-actor"
+properties.title = { type = "string", description = "The question set's title." }
+properties.questions = { type = "array", items = "life-question-item", description = "Each question in the set." }
+properties.effect = "life-question-effect"
+properties.review = "life-permission-review"
+properties.timeout = "life-question-timeout"
+properties.created_at = { type = "integer", minimum = 0, description = "When it was asked, in seconds since the Unix epoch." }
+properties.expires_at = { type = "integer", minimum = 0, description = "When it expires, in seconds since the Unix epoch." }
+
+[life-actor]
+description = "Who acts on a question or a piece of work, by its kind: the owner, or a principal Link minted."
+oneOf = ["life-actor-owner", "life-actor-principal"]
+examples = [{ kind = "owner" }, { kind = "principal", principal = "service:k3m4n5p6q7r8" }]
+
+[life-actor-owner]
+type = "object"
+description = "The agent's owner, whom its local transports authenticate."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { const = "owner" }
+
+[life-actor-principal]
+type = "object"
+description = "A principal Link minted."
+required = ["kind", "principal"]
+additionalProperties = false
+properties.kind = { const = "principal" }
+properties.principal = { type = "string", format = "link-id", description = "The principal, written <kind>:<id>." }
+
+[life-question-requester]
+type = "object"
+description = "Who asked a question, and from what work."
+required = ["source", "actor", "label"]
+additionalProperties = false
+properties.source = { type = "string", description = "The source that asked it." }
+properties.actor = "life-actor"
+properties.label = { type = "string", description = "The requester's name as the question shows it." }
+properties.routing_agent = { type = "string", description = "The agent whose routes deliver it; left out when none." }
+properties.work = "life-question-work"
+properties.tool_call = { type = "string", description = "The tool call that asked it; left out when none." }
+
+[life-question-work]
+type = "object"
+description = "A piece of an agent's tracked work, by its kind, owner, session and revisions."
+required = ["kind", "owner", "agent", "session", "attempt", "generation", "control_revision"]
+additionalProperties = false
+properties.kind = "life-work-kind"
+properties.owner = "life-actor"
+properties.agent = { type = "string", description = "The agent doing it." }
+properties.session = { type = "string", description = "The session it runs in." }
+properties.task = { type = "string", description = "The task it belongs to; left out when none." }
+properties.attempt = { type = "string", description = "Which attempt at it this is." }
+properties.generation = { type = "integer", minimum = 0, description = "The agent's generation that does it." }
+properties.control_revision = { type = "integer", minimum = 0, description = "The revision of its controls." }
+
+[life-work-kind]
+description = "What kind of work a piece of tracked work is, by its kind tag."
+oneOf = ["life-work-conversation", "life-work-child", "life-work-schedule", "life-work-occurrence", "life-work-process"]
+
+[life-work-conversation]
+type = "object"
+description = "Work that is a conversation."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "conversation", description = "The work's kind." }
+
+[life-work-child]
+type = "object"
+description = "Work that is a child of other work."
+required = ["kind", "id"]
+additionalProperties = false
+properties.kind = { type = "string", const = "child", description = "The work's kind." }
+properties.id = { type = "string", description = "The child's ID." }
+
+[life-work-schedule]
+type = "object"
+description = "Work that is a schedule."
+required = ["kind", "id", "revision"]
+additionalProperties = false
+properties.kind = { type = "string", const = "schedule", description = "The work's kind." }
+properties.id = { type = "string", description = "The schedule's ID." }
+properties.revision = { type = "integer", minimum = 0, description = "The schedule's revision." }
+
+[life-work-occurrence]
+type = "object"
+description = "Work that is one occurrence of a schedule."
+required = ["kind", "occurrence"]
+additionalProperties = false
+properties.kind = { type = "string", const = "occurrence", description = "The work's kind." }
+properties.occurrence = "life-work-scheduled"
+
+[life-work-scheduled]
+type = "object"
+description = "One occurrence of a schedule: which schedule, its revision, and when it was due."
+required = ["schedule", "revision", "scheduled_at"]
+additionalProperties = false
+properties.schedule = { type = "string", description = "The schedule's ID." }
+properties.revision = { type = "integer", minimum = 0, description = "The schedule's revision." }
+properties.scheduled_at = { type = "integer", minimum = 0, description = "When it was due, in seconds since the Unix epoch." }
+
+[life-work-process]
+type = "object"
+description = "Work that is a process."
+required = ["kind", "id"]
+additionalProperties = false
+properties.kind = { type = "string", const = "process", description = "The work's kind." }
+properties.id = { type = "string", description = "The process's ID." }
+
+[life-question-item]
+type = "object"
+description = "One question in a set: its prompt, what answers it, and its default."
+required = ["id", "prompt", "answer_shape"]
+additionalProperties = false
+properties.id = { type = "string", description = "The question's ID in its set." }
+properties.prompt = { type = "string", description = "What the question asks." }
+properties.answer_shape = "life-answer-shape"
+properties.default_answer = "life-item-answer"
+
+[life-answer-shape]
+description = "What kind of answer a question takes, by its kind tag."
+oneOf = ["life-answer-shape-confirmation", "life-answer-shape-text", "life-answer-shape-choice"]
+
+[life-answer-shape-confirmation]
+type = "object"
+description = "A question answered yes or no."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "confirmation", description = "The answer's kind." }
+
+[life-answer-shape-text]
+type = "object"
+description = "A question answered with text."
+required = ["kind", "max_bytes", "allow_empty"]
+additionalProperties = false
+properties.kind = { type = "string", const = "text", description = "The answer's kind." }
+properties.max_bytes = { type = "integer", minimum = 0, description = "The longest answer it takes, in bytes." }
+properties.allow_empty = { type = "boolean", description = "Whether an empty answer is taken." }
+
+[life-answer-shape-choice]
+type = "object"
+description = "A question answered by choosing among options."
+required = ["kind", "options", "min_selected", "max_selected", "allow_other"]
+additionalProperties = false
+properties.kind = { type = "string", const = "choice", description = "The answer's kind." }
+properties.options = { type = "array", items = "life-question-choice", description = "The options to choose from." }
+properties.min_selected = { type = "integer", minimum = 0, description = "The fewest options an answer chooses." }
+properties.max_selected = { type = "integer", minimum = 0, description = "The most options an answer chooses." }
+properties.allow_other = { type = "boolean", description = "Whether an answer may give its own option as text." }
+
+[life-question-choice]
+type = "object"
+description = "One option of a choice question."
+required = ["id", "label", "recommended"]
+additionalProperties = false
+properties.id = { type = "string", description = "The option's ID." }
+properties.label = { type = "string", description = "The option as the question shows it." }
+properties.description = { type = "string", description = "More about the option; left out when none." }
+properties.recommended = { type = "boolean", description = "Whether the asker recommends it." }
+
+[life-item-answer]
+description = "An answer to one question, by its kind tag."
+oneOf = ["life-item-answer-confirmation", "life-item-answer-text", "life-item-answer-choice"]
+
+[life-item-answer-confirmation]
+type = "object"
+description = "A yes or no answer."
+required = ["kind", "yes"]
+additionalProperties = false
+properties.kind = { type = "string", const = "confirmation", description = "The answer's kind." }
+properties.yes = { type = "boolean", description = "Whether the answer is yes." }
+
+[life-item-answer-text]
+type = "object"
+description = "A text answer."
+required = ["kind", "text"]
+additionalProperties = false
+properties.kind = { type = "string", const = "text", description = "The answer's kind." }
+properties.text = { type = "string", description = "The answer's text." }
+
+[life-item-answer-choice]
+type = "object"
+description = "An answer choosing options."
+required = ["kind", "selected"]
+additionalProperties = false
+properties.kind = { type = "string", const = "choice", description = "The answer's kind." }
+properties.selected = { type = "array", items = { type = "string", description = "An option's ID." }, description = "The options chosen." }
+properties.other_text = { type = "string", description = "The answer's own option as text; left out when none." }
+properties.comment = { type = "string", description = "A comment on the answer; left out when none." }
+
+[life-question-effect]
+description = "What answering a question does, by its kind tag."
+oneOf = ["life-effect-reply-only", "life-effect-authorize"]
+
+[life-effect-reply-only]
+type = "object"
+description = "An answer that is only a reply, authorizing nothing."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "reply_only", description = "The effect's kind." }
+
+[life-effect-authorize]
+type = "object"
+description = "An answer that authorizes one bound operation."
+required = ["kind", "source", "schema", "id", "payload_digest", "review_digest", "scope"]
+additionalProperties = false
+properties.kind = { type = "string", const = "authorize", description = "The effect's kind." }
+properties.source = { type = "string", description = "The source whose operation it is." }
+properties.schema = { type = "integer", minimum = 0, description = "The version of the operation's schema." }
+properties.id = { type = "string", description = "The operation's ID." }
+properties.payload_digest = { type = "string", description = "The digest of what the operation does." }
+properties.review_digest = { type = "string", description = "The digest of what the owner was shown." }
+properties.scope = "life-effect-scope"
+properties.work = "life-question-work"
+
+[life-effect-scope]
+description = "How long an authorization lasts, by its kind tag."
+oneOf = ["life-scope-operation-once", "life-scope-run", "life-scope-file"]
+
+[life-scope-operation-once]
+type = "object"
+description = "An authorization for the operation once."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "operation_once", description = "The scope's kind." }
+
+[life-scope-run]
+type = "object"
+description = "An authorization for one run."
+required = ["kind", "id", "generation"]
+additionalProperties = false
+properties.kind = { type = "string", const = "run", description = "The scope's kind." }
+properties.id = { type = "string", description = "The run's ID." }
+properties.generation = { type = "integer", minimum = 0, description = "The run's generation." }
+
+[life-scope-file]
+type = "object"
+description = "An authorization to change a saved file while it stays at one revision."
+required = ["kind", "target", "expected_revision"]
+additionalProperties = false
+properties.kind = { type = "string", const = "file", description = "The scope's kind." }
+properties.target = { type = "string", description = "The file it changes." }
+properties.expected_revision = { type = "string", description = "The file's revision it holds for." }
+
+[life-permission-review]
+type = "object"
+description = "What the owner reviews before granting a permission; left out for a question that grants none."
+required = ["capability", "targets", "lifetime", "consequences", "exact_operation"]
+additionalProperties = false
+properties.capability = { type = "string", description = "The capability asked for." }
+properties.targets = { type = "array", items = { type = "string", description = "A target." }, description = "What it would reach." }
+properties.lifetime = { type = "string", description = "How long it would last." }
+properties.consequences = { type = "array", items = { type = "string", description = "A consequence." }, description = "What granting it leads to." }
+properties.requester_reason = { type = "string", description = "Why the requester asks; left out when it gave no reason." }
+properties.exact_operation = { type = "string", description = "The exact operation it allows." }
+
+[life-question-timeout]
+type = "object"
+description = "When a question times out, and what each item falls back to then."
+required = ["after_secs", "item_fallbacks", "policy_revision"]
+additionalProperties = false
+properties.after_secs = { type = "integer", minimum = 0, description = "How long it waits for an answer, in seconds." }
+properties.item_fallbacks = { type = "object", additionalProperties = { type = "string", enum = ["expire", "use_default", "use_recommended"], description = "What the item falls back to." }, description = "Each item's fallback at the timeout, by the item's ID." }
+properties.policy_revision = { type = "string", description = "The revision of the policy that set it." }
+
+[life-question-delivery-record]
+type = "object"
+description = "One delivery of a question to one route and surface."
+required = ["id", "request", "route", "surface", "delivered"]
+additionalProperties = false
+properties.id = { type = "string", description = "The delivery's ID." }
+properties.request = { type = "string", description = "The question set it delivers." }
+properties.route = { type = "string", description = "The route it went by, cli:<agent> here." }
+properties.surface = { type = "string", description = "The surface it shows on, cli here." }
+properties.message = { type = "string", description = "The message it was posted as; left out when none." }
+properties.anchor = "life-context-anchor"
+properties.delivered = { type = "boolean", description = "Whether it reached its surface." }
+
+[life-context-anchor]
+type = "object"
+description = "Where a delivered question shows in its surface; left out when it isn't anchored."
+required = ["container", "content_revision"]
+additionalProperties = false
+properties.container = { type = "string", description = "The container it shows in." }
+properties.element = { type = "string", description = "The element in the container; left out when none." }
+properties.content_revision = { type = "string", description = "The revision of the content it shows." }
+
+[life-question-draft]
+type = "object"
+description = "The owner's draft answer to a question set, saved before it is submitted."
+required = ["revision", "owner", "value"]
+additionalProperties = false
+properties.revision = { type = "integer", minimum = 0, description = "The draft's revision, which a submit names." }
+properties.owner = "life-actor"
+properties.value = "life-set-submission"
+
+[life-set-submission]
+type = "object"
+description = "Answers to a question set, each by its item's ID, with a comment."
+required = ["answers"]
+additionalProperties = false
+properties.answers = { type = "object", additionalProperties = "life-item-answer", description = "Each answer, by its question's ID." }
+properties.comment = { type = "string", description = "A comment on the whole set; left out when none." }
+
+[life-question-resolution]
+type = "object"
+description = "How a question set was resolved, null while it is open."
+required = ["request", "requester", "domain", "trigger", "items"]
+additionalProperties = false
+properties.request = { type = "string", description = "The question set's ID." }
+properties.requester = "life-question-requester"
+properties.domain = { type = "string", description = "The domain it belongs to." }
+properties.trigger = { type = "string", enum = ["user_submission", "timeout", "closed"], description = "What resolved it." }
+properties.items = { type = "object", additionalProperties = "life-item-result", description = "Each question's result, by its ID." }
+properties.comment = "life-text-evidence"
+properties.closed_reason = { type = "string", description = "Why it was closed, null unless it was." }
+
+[life-item-result]
+description = "What became of one question, by its kind tag."
+oneOf = ["life-item-answered", "life-item-skipped"]
+
+[life-item-answered]
+type = "object"
+description = "A question that was answered, with who answered and how."
+required = ["kind", "answer", "provenance", "selections", "text"]
+additionalProperties = false
+properties.kind = { type = "string", const = "answered", description = "The result's kind." }
+properties.answer = "life-item-answer"
+properties.provenance = "life-provenance"
+properties.selections = { type = "array", items = "life-selection-evidence", description = "Each option chosen, and by whom." }
+properties.text = { type = "array", items = "life-text-evidence", description = "Each text given, and by whom." }
+
+[life-item-skipped]
+type = "object"
+description = "A question that was skipped."
+required = ["kind", "reason"]
+additionalProperties = false
+properties.kind = { type = "string", const = "skipped", description = "The result's kind." }
+properties.reason = { type = "string", description = "Why it was skipped." }
+
+[life-provenance]
+description = "Where an answer came from, by its kind tag."
+oneOf = ["life-provenance-user", "life-timeout-default", "life-timeout-recommended"]
+
+[life-provenance-user]
+type = "object"
+description = "An answer a person gave."
+required = ["kind", "actor", "accepted_at"]
+additionalProperties = false
+properties.kind = { type = "string", const = "user", description = "The provenance's kind." }
+properties.actor = "life-actor"
+properties.accepted_at = { type = "integer", minimum = 0, description = "When it was accepted, in seconds since the Unix epoch." }
+
+[life-timeout-default]
+type = "object"
+description = "An answer taken from the question's default at its timeout."
+required = ["kind", "policy_revision"]
+additionalProperties = false
+properties.kind = { type = "string", const = "timeout_default", description = "The provenance's kind." }
+properties.policy_revision = { type = "string", description = "The revision of the policy that chose it." }
+
+[life-timeout-recommended]
+type = "object"
+description = "An answer taken from the recommended option at the question's timeout."
+required = ["kind", "policy_revision"]
+additionalProperties = false
+properties.kind = { type = "string", const = "timeout_recommended", description = "The provenance's kind." }
+properties.policy_revision = { type = "string", description = "The revision of the policy that chose it." }
+
+[life-selection-evidence]
+type = "object"
+description = "One option chosen, who offered it and who chose it."
+required = ["choice", "supplied_by"]
+additionalProperties = false
+properties.choice = "life-question-choice"
+properties.supplied_by = "life-actor"
+properties.selected_by = { type = "string", description = "Who chose it; left out when not recorded." }
+
+[life-text-evidence]
+type = "object"
+description = "Text given with an answer, who gave it and how it was entered."
+required = ["text", "supplied_by", "input_kind"]
+additionalProperties = false
+properties.text = { type = "string", description = "The text given." }
+properties.supplied_by = "life-actor"
+properties.input_kind = { type = "string", enum = ["typed", "voice_transcription", "control", "unknown"], description = "How it was entered." }
+
+[life-effect-state]
+description = "Where an authorizing answer's effect stands, by its kind tag."
+oneOf = ["life-effect-none", "life-effect-awaiting", "life-effect-denied", "life-effect-authorized", "life-effect-clarify", "life-effect-applying", "life-effect-applied", "life-effect-failed", "life-effect-unknown", "life-effect-revoked"]
+
+[life-effect-none]
+type = "object"
+description = "No effect: the question authorizes nothing."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "none", description = "The state's kind." }
+
+[life-effect-awaiting]
+type = "object"
+description = "An effect waiting for the answer."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "awaiting", description = "The state's kind." }
+
+[life-effect-denied]
+type = "object"
+description = "An effect the answer denied."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "denied", description = "The state's kind." }
+
+[life-effect-authorized]
+type = "object"
+description = "An effect the answer authorized, not yet applied."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "authorized", description = "The state's kind." }
+
+[life-effect-clarify]
+type = "object"
+description = "An effect waiting for a clearer answer."
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "requires_clarification", description = "The state's kind." }
+
+[life-effect-applying]
+type = "object"
+description = "An effect being applied under a claim."
+required = ["kind", "claim"]
+additionalProperties = false
+properties.kind = { type = "string", const = "applying", description = "The state's kind." }
+properties.claim = { type = "string", description = "The claim applying it." }
+
+[life-effect-applied]
+type = "object"
+description = "An effect that was applied."
+required = ["kind", "claim", "detail"]
+additionalProperties = false
+properties.kind = { type = "string", const = "applied", description = "The state's kind." }
+properties.claim = { type = "string", description = "The claim that applied it." }
+properties.detail = { type = "string", description = "What applying it did." }
+
+[life-effect-failed]
+type = "object"
+description = "An effect that failed to apply."
+required = ["kind", "claim", "reason"]
+additionalProperties = false
+properties.kind = { type = "string", const = "failed", description = "The state's kind." }
+properties.claim = { type = "string", description = "The claim that tried to apply it." }
+properties.reason = { type = "string", description = "Why it failed." }
+
+[life-effect-unknown]
+type = "object"
+description = "An effect whose outcome isn't known."
+required = ["kind", "claim", "reason"]
+additionalProperties = false
+properties.kind = { type = "string", const = "unknown", description = "The state's kind." }
+properties.claim = { type = "string", description = "The claim that tried to apply it." }
+properties.reason = { type = "string", description = "Why its outcome isn't known." }
+
+[life-effect-revoked]
+type = "object"
+description = "An effect whose authorization was revoked."
+required = ["kind", "reason"]
+additionalProperties = false
+properties.kind = { type = "string", const = "revoked", description = "The state's kind." }
+properties.reason = { type = "string", description = "Why it was revoked." }
+
+# ---- chat
+[chat-turn]
+type = "object"
+description = "One message sent in a chat and the agent's answer to it"
+required = ["thread", "answer", "held"]
+additionalProperties = false
+properties.thread = { type = "string", description = "The chat the message went to, such as link:main" }
+properties.answer = { type = "string", description = "The agent's answer to the message" }
+properties.held = { type = "array", items = { type = "string", description = "One answer nobody waited for" }, description = "The answers in the chat nobody waited for, handed over before this one, oldest first" }
+
+[chat-text-line]
+type = "object"
+description = "One piece of an answer as it streams, an event of chat send's stream"
+required = ["kind", "text"]
+additionalProperties = false
+properties.kind = { type = "string", const = "text", description = "That this line is a piece of text" }
+properties.text = { type = "string", description = "The piece of the answer" }
+
+[chat-answered]
+type = "object"
+description = "How an answer as it streams ended: the whole answer, the last event of chat send's stream"
+required = ["kind", "thread", "answer", "held"]
+additionalProperties = false
+properties.kind = { type = "string", const = "answered", description = "That this event ends the answer" }
+properties.thread = { type = "string", description = "The chat the message went to, such as link:main" }
+properties.answer = { type = "string", description = "The agent's whole answer to the message" }
+properties.held = { type = "array", items = { type = "string", description = "One answer nobody waited for" }, description = "The answers in the chat nobody waited for, handed over before this one, oldest first" }
+
+[chat-event]
+description = "One event of an answer as it streams: a piece of its text, then how it ended, each told apart by its kind"
+oneOf = ["chat-text-line", "chat-answered"]
+
+[chat-list]
+type = "object"
+description = "The agent's Link chats and whether its harness can fork them"
+required = ["threads", "fork"]
+additionalProperties = false
+properties.threads = { type = "array", items = "chat-thread", description = "Each Link chat the agent has" }
+properties.fork = { type = "boolean", description = "Whether the agent's harness can fork a chat" }
+
+[chat-thread]
+type = "string"
+description = "A Link chat, link: followed by its name"
+pattern = '^link:[A-Za-z0-9][A-Za-z0-9._-]{0,63}(~[A-Za-z0-9][A-Za-z0-9._-]{0,62})?$'
+maxLength = 69
+
+[chat]
+type = "object"
+x-link-resource = { id = "thread" }
+description = "A chat with the agent: its messages as typed history"
+required = ["thread", "messages", "fork"]
+additionalProperties = false
+properties.thread = "chat-thread"
+properties.messages = { type = "array", items = "chat-message", description = "What the owner and the agent said, in order" }
+properties.fork = { type = "boolean", description = "Whether the agent's harness can fork this chat" }
+
+[chat-message]
+type = "object"
+description = "One message of a chat, with its sequence number and time"
+required = ["seq", "role", "text", "at"]
+additionalProperties = false
+properties.seq = { type = "integer", minimum = 1, description = "The message's sequence number in the chat" }
+properties.role = { type = "string", enum = ["user", "assistant"], description = "Who said it: the owner or the agent" }
+properties.text = { type = "string", description = "What was said" }
+properties.at = { type = "string", description = "When it was said" }
+
+[state]
+type = "object"
+description = "An agent's portable state, each kind that was captured; a kind left out was not given"
+additionalProperties = false
+properties.omissions = { type = "array", items = "state-omission", description = "Native state kept in its source but not carried as portable context" }
+properties.schedules = "state-schedules"
+properties.sessions = { type = "array", items = "state-session", description = "The agent's conversations" }
+properties.instructions = { type = "string", description = "The agent's AGENTS.md, whole" }
+properties.skills = { type = "array", items = "state-skill", description = "The agent's skills" }
+properties.tools = { type = "array", items = { x-link-any = true, description = "An ACP MCP server descriptor, as session/new takes it" }, description = "The agent's tools, as ACP MCP server descriptors" }
+properties.memory = { type = "array", items = "state-note", description = "The notes of the agent's memory" }
+properties.settings = { type = "object", additionalProperties = { x-link-any = true, description = "An option's value, any JSON" }, description = "Each session option's value, by the option's ID" }
+
+[state-omission]
+type = "object"
+description = "A kind of state that was not carried, and why"
+required = ["kind", "reason"]
+additionalProperties = false
+properties.kind = { type = "string", enum = ["sessions", "instructions", "skills", "tools", "memory", "settings", "schedules"], description = "The kind of state not carried" }
+properties.reason = { type = "string", description = "Why it was not carried, in words for the owner" }
+
+[state-schedules]
+type = "object"
+description = "The agent's schedules: those carried, and the native jobs that were not"
+required = ["carried", "notCarried"]
+additionalProperties = false
+properties.carried = { type = "array", items = "state-schedule", description = "Each schedule carried in portable form" }
+properties.notCarried = { type = "array", items = "state-not-carried", description = "Each native job that was not carried" }
+properties.sourceRevision = { type = "string", description = "An opaque token of the source's revision, to refuse clearing a source that changed" }
+properties.sourceContext = { type = "string", description = "Inputs the source adapter keeps outside its jobs file, such as its time zone" }
+
+[state-schedule]
+type = "object"
+description = "One schedule: when it fires, what it sends and where"
+required = ["id", "name", "when", "message", "to", "enabled", "revision"]
+additionalProperties = false
+properties.id = { type = "string", description = "The schedule's ID" }
+properties.name = { type = "string", description = "The schedule's name" }
+properties.when = { oneOf = ["state-when-cron", "state-when-every", "state-when-at"], description = "When it fires" }
+properties.message = { type = "string", description = "The message it sends" }
+properties.to = { oneOf = ["state-to-owner", "state-to-thread"], description = "Where the message goes" }
+properties.enabled = { type = "boolean", description = "Whether it fires" }
+properties.revision = { type = "integer", minimum = 1, description = "The schedule's revision, starting at one" }
+properties.origin = "state-schedule-origin"
+
+[state-when-cron]
+type = "object"
+description = "A schedule that fires on a cron line's times, in a time zone"
+required = ["kind", "cron", "zone"]
+additionalProperties = false
+properties.kind = { type = "string", const = "cron", description = "That it fires on a cron line" }
+properties.cron = { type = "string", description = "Five cron fields: minute, hour, day of the month, month and day of the week" }
+properties.zone = { type = "string", description = "The IANA time zone its times are in" }
+
+[state-when-every]
+type = "object"
+description = "A schedule that fires every so many seconds, counted from an anchor"
+required = ["kind", "seconds", "anchor"]
+additionalProperties = false
+properties.kind = { type = "string", const = "every", description = "That it fires at an interval" }
+properties.seconds = { type = "integer", minimum = 1, description = "How many seconds apart it fires" }
+properties.anchor = { type = "integer", minimum = 0, description = "The Unix time, in seconds, its firings are counted from" }
+
+[state-when-at]
+type = "object"
+description = "A schedule that fires once"
+required = ["kind", "at"]
+additionalProperties = false
+properties.kind = { type = "string", const = "at", description = "That it fires once" }
+properties.at = { type = "integer", minimum = 0, description = "The Unix time, in seconds, it fires" }
+
+[state-to-owner]
+type = "object"
+description = "A schedule's message sent as if its owner sent it"
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "owner", description = "That it goes as the owner" }
+properties.connection = { type = "string", description = "The connection of the owner's direct chat it comes from; left out, the CLI inbox" }
+
+[state-to-thread]
+type = "object"
+description = "A schedule's message sent in a chat"
+required = ["kind", "thread"]
+additionalProperties = false
+properties.kind = { type = "string", const = "thread", description = "That it goes to a chat" }
+properties.thread = { type = "string", description = "The chat, by its connection and its ID there, such as slack:C0TEAM" }
+
+[state-schedule-origin]
+type = "object"
+description = "The native job a schedule was carried from"
+required = ["adapter", "job"]
+additionalProperties = false
+properties.adapter = { type = "string", description = "The harness it came from" }
+properties.job = { type = "string", description = "Its ID in that harness's own schedules" }
+
+[state-not-carried]
+type = "object"
+description = "A native job that was not carried, and why"
+required = ["job", "name", "reason"]
+additionalProperties = false
+properties.job = { type = "string", description = "The job's ID in its harness" }
+properties.name = { type = "string", description = "The job's name" }
+properties.reason = { type = "string", description = "Why it was not carried" }
+
+[state-session]
+type = "object"
+description = "One conversation, as the ACP updates session/load would replay"
+required = ["sessionId", "updates"]
+additionalProperties = false
+properties.sessionId = { type = "string", description = "The conversation's ID where it was exported" }
+properties.title = { type = "string", description = "The conversation's title" }
+properties.updates = { type = "array", items = { x-link-any = true, description = "One ACP session update, tagged by its sessionUpdate field" }, description = "The conversation's ACP session updates, in order" }
+properties.evidence = "state-session-evidence"
+properties.harness = { type = "string", description = "The harness that exported it, where it was carried from another" }
+
+[state-session-evidence]
+type = "object"
+description = "What the exporting harness observed of a conversation, beside its updates"
+required = ["version", "conversation", "events", "imported", "read"]
+additionalProperties = false
+properties.version = { type = "integer", const = 1, description = "The evidence record's version" }
+properties.conversation = "state-conversation"
+properties.events = { type = "array", items = "state-native-event", description = "Each native event of the conversation, in sequence order" }
+properties.imported = { type = "array", items = "state-update-range", description = "The ranges of updates that were imported rather than native" }
+properties.read = { oneOf = ["state-read-complete", "state-read-incomplete", "state-read-unknown"], description = "Whether the conversation was read whole" }
+
+[state-conversation]
+type = "object"
+description = "One conversation of one agent"
+required = ["agent", "thread"]
+additionalProperties = false
+properties.agent = "state-agent-key"
+properties.thread = { type = "string", description = "The chat, such as link:main" }
+
+[state-agent-key]
+type = "object"
+description = "An agent, by whose it is and its ID"
+required = ["owner", "id"]
+additionalProperties = false
+properties.owner = { type = "string", description = "Whose agent it is" }
+properties.id = { type = "string", description = "The agent's ID" }
+
+[state-update-range]
+type = "object"
+description = "A run of a conversation's session updates"
+required = ["start", "len"]
+additionalProperties = false
+properties.start = { type = "integer", minimum = 0, description = "The index of its first update" }
+properties.len = { type = "integer", minimum = 0, description = "How many updates it holds" }
+
+[state-native-event]
+type = "object"
+description = "One event of a conversation as its harness kept it"
+required = ["seq", "role", "at", "updates"]
+additionalProperties = false
+properties.seq = { type = "integer", minimum = 1, description = "The event's sequence number" }
+properties.role = { type = "string", description = "Who the event is from" }
+properties.at = { type = "string", description = "When the event happened" }
+properties.updates = "state-update-range"
+properties.request = { type = "integer", minimum = 0, description = "The model request the event belongs to" }
+properties.model = { type = "string", description = "The model that wrote it" }
+properties.provider = { type = "string", description = "The provider that served the model" }
+properties.response_id = { type = "string", description = "The provider's ID of the response" }
+properties.tokens = "state-tokens"
+properties.latency_ms = { type = "integer", minimum = 0, description = "How long the response took, in milliseconds" }
+properties.cost = { type = "number", description = "What the response cost" }
+properties.parts = { type = "array", items = { x-link-any = true, description = "One content part of a model message" }, description = "The event's content parts" }
+properties.omissions = { type = "array", items = "state-omission-internal-media", description = "What the event left out" }
+properties.evidence = { x-link-any = true, description = "The execution evidence record attached to the event" }
+
+[state-tokens]
+type = "object"
+description = "What a response cost in tokens, as the provider counts them"
+required = ["input", "output", "cached"]
+additionalProperties = false
+properties.input = { type = "integer", minimum = 0, description = "The whole prompt's tokens, cached or not" }
+properties.output = { type = "integer", minimum = 0, description = "The answer's tokens" }
+properties.cached = { type = "integer", minimum = 0, description = "Of the prompt's tokens, those read from the provider's cache" }
+
+[state-omission-internal-media]
+type = "object"
+description = "Media internal to the harness, left out of the event"
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "internal-media", description = "That internal media was left out" }
+
+[state-read-complete]
+type = "object"
+description = "A conversation read whole"
+required = ["kind"]
+additionalProperties = false
+properties.kind = { type = "string", const = "complete", description = "That it was read whole" }
+
+[state-read-incomplete]
+type = "object"
+description = "A conversation read with gaps"
+required = ["kind", "gaps"]
+additionalProperties = false
+properties.kind = { type = "string", const = "incomplete", description = "That it was read with gaps" }
+properties.gaps = { type = "array", items = { oneOf = ["state-gap-partial-log-tail", "state-gap-compact-frames", "state-gap-missing-prefix"], description = "One gap" }, description = "Each gap in what was read" }
+
+[state-read-unknown]
+type = "object"
+description = "A conversation whose completeness is not known"
+required = ["kind", "reason"]
+additionalProperties = false
+properties.kind = { type = "string", const = "unknown", description = "That its completeness is not known" }
+properties.reason = { type = "string", description = "Why it is not known" }
+
+[state-gap-partial-log-tail]
+type = "object"
+description = "A partial record at the end of the conversation's log"
+required = ["kind", "bytes"]
+additionalProperties = false
+properties.kind = { type = "string", const = "partial-log-tail", description = "That the log's tail was partial" }
+properties.bytes = { type = "integer", minimum = 0, description = "How many bytes were left unread" }
+
+[state-gap-compact-frames]
+type = "object"
+description = "Partial frames in a conversation kept compact"
+required = ["kind", "bytes"]
+additionalProperties = false
+properties.kind = { type = "string", const = "partial-compact-frames", description = "That compact frames were partial" }
+properties.bytes = { type = "integer", minimum = 0, description = "How many bytes were left unread" }
+
+[state-gap-missing-prefix]
+type = "object"
+description = "The start of the conversation is missing"
+required = ["kind", "first_seq"]
+additionalProperties = false
+properties.kind = { type = "string", const = "missing-prefix", description = "That the conversation's start is missing" }
+properties.first_seq = { type = "integer", minimum = 0, description = "The sequence number of the first event read" }
+
+[state-skill]
+type = "object"
+description = "An Agent Skills folder, its files by their paths in it"
+required = ["name", "files"]
+additionalProperties = false
+properties.name = { type = "string", description = "The skill's name" }
+properties.files = { type = "object", additionalProperties = { type = "string", description = "The file's text" }, description = "Each file of the skill, SKILL.md among them, by its path in the folder" }
+
+[state-note]
+type = "object"
+description = "A Markdown note of the agent's memory"
+required = ["path", "text"]
+additionalProperties = false
+properties.path = { type = "string", x-link-path = true, description = "The note's path in the agent's memory" }
+properties.text = { type = "string", description = "The note's Markdown text" }
+properties.source = { type = "string", description = "Where the note came from" }
+properties.deleted = { type = "boolean", description = "Whether the note was deleted, so an import forgets it too" }
+
+# ---- team
+[teams-listed]
+type = "object"
+description = "A team on this machine as lnk agent team list prints it: its name and ID, its lead, its shared folder, its members, and its memory's tool"
+required = ["name", "resource", "members"]
+additionalProperties = false
+properties.name = { type = "string", description = "The team's name" }
+properties.resource = { type = "string", format = "link-id", x-link-kind = "group", description = "The team, by its ID, a group's" }
+properties.lead = { type = "string", description = "The member a message to the team reaches, when one is chosen" }
+properties.shared = { type = "string", x-link-path = true, description = "The folder its members share, when it has one" }
+properties.members = { type = "array", items = "teams-listed-member", description = "Its members, by their names in it" }
+properties.memory = { type = "string", description = "The tool of the team's memory, when it's defined" }
+
+[teams-listed-member]
+type = "object"
+description = "A member of a team on this machine: its name there, its agent, its purpose, whether it runs, and what it reaches of the shared folder"
+required = ["name", "workload", "running", "write", "read"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name in the team" }
+properties.workload = { type = "string", format = "link-id", x-link-kind = "agent", description = "The member's agent, by its ID" }
+properties.agent = { type = "string", description = "The name of its agent on this machine, when it's here" }
+properties.purpose = { type = "string", description = "What it's for on the team, when it's said" }
+properties.running = { type = "boolean", description = "Whether its agent runs here" }
+properties.write = { type = "array", items = { type = "string" }, description = "The folders of the shared folder it may write" }
+properties.read = { type = "array", items = { type = "string" }, description = "The folders of the shared folder it may only read" }
+
+[teams-hosted-listed]
+type = "object"
+description = "A team a cloud account hosting agents keeps, as lnk agent team list prints it"
+required = ["name", "resource", "account", "members", "shared"]
+additionalProperties = false
+properties.name = { type = "string", description = "The team's name" }
+properties.resource = { type = "string", format = "link-id", x-link-kind = "group", description = "The team, by its ID, a group's" }
+properties.account = { type = "string", description = "The cloud account that keeps it" }
+properties.members = { type = "array", items = { type = "string" }, description = "Its members, as the cloud lists them" }
+properties.shared = { type = "string", x-link-path = true, description = "Where its shared folder is on this machine" }
+
+[teams-hosted-shown]
+type = "object"
+description = "A team a cloud account keeps, as lnk agent team show prints it: its name and ID, its account, its file's version, its members, and its lead"
+required = ["name", "resource", "account", "version", "members"]
+additionalProperties = false
+properties.name = { type = "string", description = "The team's name" }
+properties.resource = { type = "string", format = "link-id", x-link-kind = "group", description = "The team, by its ID, a group's" }
+properties.account = { type = "string", description = "The cloud account that keeps it" }
+properties.version = { type = "integer", minimum = 0, description = "The version of the team's file the cloud keeps" }
+properties.members = { type = "array", items = "teams-hosted-shown-member", description = "Its members, or only the one --member names" }
+properties.lead = { type = "string", description = "The member a message to the team reaches, when one is chosen" }
+
+[teams-hosted-shown-member]
+type = "object"
+description = "A member of a hosted team: its name there, its agent, its account, its purpose, and whether it joined"
+required = ["name", "workload", "joined"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name in the team" }
+properties.workload = { type = "string", format = "link-id", x-link-kind = "agent", description = "The member's agent, by its ID" }
+properties.owner = { type = "string", description = "The account of another account's agent; absent for the team owner's own" }
+properties.purpose = { type = "string", description = "What it's for on the team, when it's said" }
+properties.joined = { type = "boolean", description = "Whether it has joined, rather than only been invited" }
+
+# ---- parts
+[share]
+type = "object"
+x-link-resource = { id = "chat" }
+description = "A chat the agent is shared with, on one connection"
+required = ["connection", "chat"]
+additionalProperties = false
+properties.connection = { type = "string", description = "The connection the chat is on" }
+properties.chat = { type = "string", description = "The chat's ID, as the connection names it" }
+properties.name = { type = "string", description = "The chat's name, where the connection gave one when it was shared" }
+
+[tool-namespaces]
+type = "object"
+description = "The tool namespaces granted to the agent, each with its actions"
+required = ["namespaces"]
+additionalProperties = false
+properties.namespaces = { type = "array", items = "tool-namespace", description = "Each namespace the agent's harness is granted" }
+
+[tool-namespace]
+type = "object"
+description = "One granted tool namespace and the actions it opens"
+required = ["name", "actions"]
+additionalProperties = false
+properties.name = { type = "string", description = "The namespace's name" }
+properties.actions = { type = "array", items = { type = "string", description = "An action's name in the namespace" }, description = "The actions the namespace opens, empty where none are listed" }
+
+[webhook]
+type = "object"
+x-link-resource = { id = "name" }
+description = "One of the agent's webhooks as lnk agent webhook list prints it, never its secret"
+required = ["name", "from", "address"]
+additionalProperties = false
+properties.name = { type = "string", description = "The webhook's name" }
+properties.from = { type = "string", enum = ["link", "github"], description = "Who signs its posts, and so how they are checked" }
+properties.address = { type = "string", format = "uri", description = "The address on this machine its posts are taken at" }
+properties.previous_until = { type = "integer", minimum = 0, description = "Until when its previous secret is still taken while it rolls, in seconds since 1970" }
+
+[webhook-secret]
+type = "object"
+description = "A webhook as lnk agent webhook create or rotate makes it: its address, and its new secret, given this once"
+required = ["name", "address"]
+additionalProperties = false
+properties.name = { type = "string", description = "The webhook's name" }
+properties.address = { type = "string", format = "uri", description = "The address on this machine its posts are taken at" }
+properties.secret = { type = "string", x-link-sensitive = true, description = "Its new secret, which its sender signs posts with; left out when rotate --done makes none" }
+
+# ---- forward
+
+[ready-made]
+type = "object"
+description = "A ready-made agent a new agent may start from, as its archive names it"
+x-link-resource = { id = "name" }
+required = ["name", "title", "summary"]
+additionalProperties = false
+properties.name = { type = "string", pattern = "^[a-z][a-z0-9-]*$", description = "Its name, which agent create's --from takes" }
+properties.title = { type = "string", description = "What it's called, in a few words, from its archive's title" }
+properties.summary = { type = "string", description = "What it does, in one line, from its archive's description" }

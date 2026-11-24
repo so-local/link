@@ -1,0 +1,9 @@
+schema = 1
+kind = "guest service state"
+current = 1
+command = "lnk box create"
+
+[[files]]
+location = "lnk.services"
+path = "*/state.json"
+encoding = "json"

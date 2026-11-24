@@ -1,0 +1,9 @@
+# link-token's limits: what `limits.rs` reads once, each named there.
+
+# A token's life unless its issuer's settings say less, in seconds: five
+# minutes, refreshed by trading again shortly before it ends.
+token_life = 300
+
+# The longest any token may live, in seconds, whatever its issuer says:
+# a checker refuses one that lives longer.
+token_life_max = 3600

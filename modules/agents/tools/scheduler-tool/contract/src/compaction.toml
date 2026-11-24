@@ -1,0 +1,18 @@
+# A conversation's idle compaction, as its scheduler keeps it: what
+# `compaction.rs` reads once, each named there.
+
+# The namespace the harness reaches the scheduler's call in: its
+# server's name among the agent's tools (`$LNK_TOOL_CRON`).
+tool = "cron"
+
+# The scheduler's MCP call that keeps a conversation's compaction job,
+# and the namespace's action for it: made by its harness, never offered
+# to the model (`harness = true` in the harness contract's namespaces).
+call = "compact"
+
+# The call's argument: how long from now, in seconds, the job is due.
+after = "after"
+
+# The job's message, read only in its logs: its harness compacts in
+# place of answering it.
+text = "Compact this conversation: it has been quiet."

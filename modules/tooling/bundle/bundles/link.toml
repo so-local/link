@@ -1,0 +1,14 @@
+# bundle.toml
+# Link's public release: lnk and every module it ships, for every
+# target, a prod build compiled to trust Link's signer alone and sealed
+# by it. Each target is built where it can be and the parts sealed
+# together with --from.
+schema = 1
+target = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "x86_64-unknown-linux-musl",
+    "aarch64-unknown-linux-musl",
+]
+build = "prod"
+signer = "link"

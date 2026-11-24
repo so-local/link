@@ -1,0 +1,9 @@
+# A spec without [commands] runs nothing, the shell the probes use aside.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["*"]
+
+[expect]
+reaches = ["example.com"]
+refused_commands = ["sh", "curl", "env"]

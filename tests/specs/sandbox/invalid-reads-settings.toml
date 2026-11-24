@@ -1,0 +1,8 @@
+# Link's settings are closed to every spec.
+[spec]
+schema = 1
+[spec.files]
+read = ["~/.lnk/safe"]
+
+[expect]
+invalid = "closed to every spec"

@@ -1,0 +1,2 @@
+# The largest native cron source imported or retained by a managed handoff.
+source_max = 16777216

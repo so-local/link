@@ -1,0 +1,8 @@
+# `..` is refused in a spec's path.
+[spec]
+schema = 1
+[spec.files]
+read = ["../x"]
+
+[expect]
+invalid = ".."

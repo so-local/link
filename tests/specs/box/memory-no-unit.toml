@@ -1,0 +1,8 @@
+# A size needs its unit.
+[spec]
+schema = 1
+[spec.machine]
+memory = 8
+
+[expect]
+invalid = "untagged enum SizeRange"

@@ -1,0 +1,26 @@
+# What programmer may do on this machine: write the repository it works in
+# (its files folder, `.`) and its own instructions and skills, reach
+# package registries and its model through the sandbox's proxy, and run
+# its build, test and version-control programs.
+schema = 1
+[files]
+write = [".", "instructions", "skills"]
+# Its repository's .git, so it commits. What's written there (hooks,
+# git's settings) runs as you, outside the sandbox, the next time you run
+# git in the repository: review a change's .git/hooks and .git/config, or
+# take this back with lnk agent permission remove --agent programmer --files.write_dot_files .
+write_dot_files = ["."]
+
+[internet]
+# Any public host: its model, package registries and documentation pages
+# vary by project, so a short list would break builds.
+hosts = ["*"]
+
+[commands]
+# Its toolchains: each names its programs and runs the programs a build
+# makes under the repository (build scripts, tests, a package's
+# commands), so a build or a test run works with no list of its helpers.
+# Its sandbox still writes only the repository and reaches the network
+# only through its proxy. A toolchain in your home folder (rustup, nvm,
+# uv) is found on your PATH from its last lnk agent start.
+toolchains = ["shell", "git", "rust", "node", "python", "go", "jvm", "c"]

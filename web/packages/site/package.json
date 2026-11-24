@@ -1,0 +1,60 @@
+{
+  "name": "@link-web/site",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT OR Apache-2.0",
+  "exports": {
+    "./styles": "./src/globals.css",
+    "./background": "./src/background.tsx",
+    "./brand": "./src/brand.tsx",
+    "./card": "./src/card.ts",
+    "./look": "./src/look.ts",
+    "./config": "./src/config.ts",
+    "./docs": "./src/docs.ts",
+    "./layout": "./src/layout.tsx",
+    "./page": "./src/page.tsx",
+    "./share": "./src/share.tsx",
+    "./bucket": "./src/bucket.ts",
+    "./markdown": "./src/markdown.tsx",
+    "./format": "./src/format.ts",
+    "./content-source": "./src/content-source.ts"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "test": "node --conditions=react-server --import tsx --test src/*.test.mts scripts/*.test.mjs"
+  },
+  "dependencies": {
+    "@link-flowers/browser": "*",
+    "@link-flowers/shared": "*",
+    "@tailwindcss/typography": "^0.5.20",
+    "geist": "1.8.2",
+    "github-slugger": "^2.0.0",
+    "hast-util-to-jsx-runtime": "^2.3.6",
+    "mdast-util-to-string": "^4.0.0",
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "rehype-slug": "^6.0.0",
+    "remark-directive": "^4.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "remark-stringify": "^11.0.0",
+    "server-only": "0.0.1",
+    "unified": "^11.0.5",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/hast": "^3.0.5",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "^4",
+    "tsx": "4.23.15",
+    "typescript": "^5"
+  }
+}

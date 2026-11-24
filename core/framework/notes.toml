@@ -1,0 +1,12 @@
+# What each release changed for the person upgrading to it, newest first,
+# included in the release (`link_core::upgrades::NOTES`). After `lnk
+# upgrade`, the new lnk prints the notes of every release after the one it
+# upgraded from, once, as the notice policy in `upgrades.toml` lets a
+# newer-release notice show. Each release is a `[[release]]` table:
+#
+# [[release]]
+# version = "0.2.0"
+# notes = ["`lnk upgrade --check` says which release is the latest."]
+#
+# Link 0.1 keeps no install made earlier, so the list starts empty.
+release = []

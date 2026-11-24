@@ -1,0 +1,12 @@
+# How Slack takes an answer (`format.rs`).
+
+# What mrkdwn marks code with: inline code between two `code`, and a
+# code block between two `fence`.
+code = "`"
+fence = "```"
+
+# Slack's longest message text, in characters: chat.postMessage's
+# documented 4,000, counted after `&`, `<` and `>` are escaped.
+[channel]
+limit = 4000
+counted = "chars"

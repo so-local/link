@@ -1,0 +1,84 @@
+schema = 1
+
+[verbs]
+serve = { description = "Serve the tool to a harness as an MCP server over stdio, until its input closes", effect = "insert" }
+diagnostics = { description = "Say what's wrong in a file, for a model calling the tool", effect = "find" }
+definition = { description = "Say where a name is defined, for a model calling the tool", effect = "find" }
+references = { description = "Say where a name is used, for a model calling the tool", effect = "find" }
+
+# What the program gives its tool calls at runtime: the languages its
+# servers serve.
+[tools]
+fills = ["languages"]
+
+[actions."code-tool.code-tool.install"]
+description = "Nothing to install: this program is the tool."
+role = "plumbing"
+output = "installed"
+
+[actions."code-tool.code-tool.serve"]
+description = """
+Serve diagnostics, definition and references as an MCP server over stdio
+on the files in --files: each language's server, of those --servers
+names (JSON, as an agent specification's [tool.code.servers]), started the first
+time a file of it is asked about, found on --programs-path, in its project's root,
+under the sandbox after `--` (a program and its flags, to which `--` and
+the server are added). A language --unavailable names (<language>=<why>,
+repeatable) is refused, saying why. A call waits --timeout (a duration)
+on its server at most.
+"""
+role = "plumbing"
+output = "served"
+
+[actions."code-tool.code-tool.serve".args]
+files = { type = "string", x-link-path = true, description = "The agent's files folder", required = true }
+programs-path = { type = "string", description = "The PATH a server's name is found on", required = true }
+sandbox = { type = "array", items = { type = "string" }, description = "The sandbox each runs under: a program and its flags", required = true, x-link-cli = { rest = true, last = true } }
+servers = { type = "string", description = "The language servers it may start, as JSON: an agent specification's [tool.code.servers]", required = true }
+timeout = { type = "string", format = "duration", description = "How long a call waits on its server", required = true }
+var = { type = "array", items = { type = "string", pattern = "^[A-Za-z_][A-Za-z0-9_]*=" }, description = "A variable each language server gets, NAME=VALUE, set inside its sandbox (repeatable)" }
+unavailable = { type = "array", items = { type = "string", pattern = "^[^=]+=" }, description = "A language it may not start, <language>=<why> (repeatable)" }
+
+
+# The calls a model makes, as `serve` offers them (`tools/list`).
+[actions."code-tool.code-tool.diagnostics"]
+description = "What the language server finds wrong in a file: errors and warnings, each with its line. Without a file, every problem the servers started so far report. Serves {languages}."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."code-tool.code-tool.diagnostics".tool]
+name = "diagnostics"
+open-world = false
+
+[actions."code-tool.code-tool.diagnostics".args]
+file-path = { type = "string", description = "A file in your files folder, as a path from it.", x-link-summary = 1 }
+
+[actions."code-tool.code-tool.definition"]
+description = "Where a name is defined: give its file, line and character, or its symbol. Serves {languages}."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."code-tool.code-tool.definition".tool]
+name = "definition"
+open-world = false
+
+[actions."code-tool.code-tool.definition".args]
+file-path = { type = "string", description = "The file the name is in, as a path from your files folder; with a symbol alone, any file of its project.", x-link-summary = 1 }
+line = { type = "integer", minimum = 1, description = "The name's line, from 1.", x-link-summary = 2 }
+character = { type = "integer", minimum = 1, description = "A character of the name on its line, from 1." }
+symbol = { type = "string", description = "Or the name itself, looked up in the project: a function, a type, a constant.", x-link-summary = 3 }
+
+[actions."code-tool.code-tool.references"]
+description = "Every place a name is used, its definition with them: give its file, line and character, or its symbol. Serves {languages}."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."code-tool.code-tool.references".tool]
+name = "references"
+open-world = false
+
+[actions."code-tool.code-tool.references".args]
+file-path = { type = "string", description = "The file the name is in, as a path from your files folder; with a symbol alone, any file of its project.", x-link-summary = 1 }
+line = { type = "integer", minimum = 1, description = "The name's line, from 1.", x-link-summary = 2 }
+character = { type = "integer", minimum = 1, description = "A character of the name on its line, from 1." }
+symbol = { type = "string", description = "Or the name itself, looked up in the project: a function, a type, a constant.", x-link-summary = 3 }

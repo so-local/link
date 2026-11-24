@@ -1,0 +1,31 @@
+[package]
+authors.workspace = true
+name = "link-policy"
+description = "`link-policy` decides who may do what"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+doctest = false
+
+[dependencies]
+schemars.workspace = true
+anyhow.workspace = true
+link-principal.workspace = true
+link-spec.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+link-actions.workspace = true
+link-files.workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+toml.workspace = true
+
+[lints]
+workspace = true

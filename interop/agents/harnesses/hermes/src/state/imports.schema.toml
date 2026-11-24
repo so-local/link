@@ -1,0 +1,16 @@
+schema = 1
+# The sessions Link imported into Hermes, each archived beside Hermes's
+# projection of it so an export gives back what was imported:
+# `.hermes/link-imports.json` in a harness home.
+kind = "hermes imported sessions"
+current = 1
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/hermes/.hermes/link-imports.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.hermes/link-imports.json"
+encoding = "json"

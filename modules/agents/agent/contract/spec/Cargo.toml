@@ -1,0 +1,96 @@
+[package]
+authors.workspace = true
+name = "link-agent-spec"
+description = "`link-agent-spec` defines an agent's specification, the TOML file of what the agent is and its opinions"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/agent"
+
+[dependencies]
+schemars.workspace = true
+link-interactions-contract.workspace = true
+toml_edit = "0.25"
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-agent-team]
+workspace = true
+
+
+[dependencies.link-harness-base]
+workspace = true
+
+[dependencies.link-harness-wire]
+workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+
+[dependencies.link-connection-policy]
+workspace = true
+
+[dependencies.link-model-contract]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.link-agent-state-protocol]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[dependencies.link-actions]
+workspace = true

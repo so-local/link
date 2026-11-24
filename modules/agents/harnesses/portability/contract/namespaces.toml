@@ -1,0 +1,117 @@
+# The namespaces of Link's own tools an agent hands its harness, each at
+# `LNK_TOOL_<NAMESPACE>`: for each action, the providers it reaches.
+#
+# A target's `kind` names a provider: `run` (Link run), `schedule` (Link
+# scheduler), `file` (Link file), `code` (Link code) or `context` (the
+# agent's context service). `native` is the provider's own tool the
+# action calls. Whoever builds a namespace says which provider serves
+# each kind there; a target whose kind has none is left out, and an
+# action with no target left is left out.
+#
+# `targets` are all reached: with two, the call's `kind` picks one, or,
+# with `broadcast`, a call without one reaches both. `select` keeps
+# `kind` even with one. `otherwise` is reached only where none of
+# `targets` is. `harness` marks the harness's own call: never listed to
+# a model, still checked against its provider's schema and approvals.
+
+[task.run]
+targets = [{ kind = "run", native = "command" }]
+
+[task.list]
+select = true
+broadcast = true
+targets = [
+  { kind = "run", native = "list" },
+  { kind = "schedule", native = "list" },
+]
+
+[task.read]
+select = true
+targets = [
+  { kind = "run", native = "read" },
+  { kind = "schedule", native = "read" },
+]
+
+[task.stop]
+select = true
+targets = [
+  { kind = "run", native = "stop" },
+  { kind = "schedule", native = "cancel" },
+]
+
+[task.agent]
+targets = [{ kind = "schedule", native = "task" }]
+
+[task.send]
+targets = [{ kind = "schedule", native = "message" }]
+
+[task.plan]
+targets = [{ kind = "context", native = "task_held" }]
+
+[task.reconcile]
+targets = [{ kind = "context", native = "task_revalidate" }]
+
+# Schedules, as CronCreate, CronDelete and CronList: the scheduler's
+# schedule-only calls, never its whole view of subagents and messages,
+# which `task` keeps.
+[cron.create]
+targets = [{ kind = "schedule", native = "schedule" }]
+
+[cron.delete]
+targets = [{ kind = "schedule", native = "unschedule" }]
+
+[cron.list]
+targets = [{ kind = "schedule", native = "schedules" }]
+
+# A conversation's idle compaction, kept by its harness as each turn
+# ends (`[connections] compact_after`), never by its model.
+[cron.compact]
+harness = true
+targets = [{ kind = "schedule", native = "compact" }]
+
+[tool.list]
+targets = [{ kind = "context", native = "tool_list" }]
+
+# As Claude Code's Read, Write, Edit, Glob and Grep, and the language
+# servers' answers.
+[file.read]
+targets = [{ kind = "file", native = "read" }]
+
+[file.write]
+targets = [{ kind = "file", native = "write" }]
+
+[file.edit]
+targets = [{ kind = "file", native = "edit" }]
+
+[file.glob]
+targets = [{ kind = "file", native = "glob" }]
+
+[file.grep]
+targets = [{ kind = "file", native = "grep" }]
+
+[file.definition]
+targets = [{ kind = "code", native = "definition" }]
+
+[file.references]
+targets = [{ kind = "code", native = "references" }]
+
+[file.diagnostics]
+targets = [{ kind = "code", native = "diagnostics" }]
+
+[agent.show]
+targets = [{ kind = "context", native = "show" }]
+
+# The agent's context service sends for it where it's served, the
+# scheduler behind it; else the scheduler's own send.
+[agent.send]
+targets = [{ kind = "context", native = "send" }]
+otherwise = [{ kind = "schedule", native = "send" }]
+
+[question.create]
+targets = [{ kind = "context", native = "question_create" }]
+
+[question.read]
+targets = [{ kind = "context", native = "question_read" }]
+
+[question.stop]
+targets = [{ kind = "context", native = "question_cancel" }]

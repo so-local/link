@@ -1,0 +1,4 @@
+# How often a long step a harness takes (its install) says it's still
+# going, beside what its installer prints: well inside the five minutes
+# a person, or a runner watching output, waits before calling it stuck.
+every_seconds = 30

@@ -1,0 +1,86 @@
+# Keys by name, as models and xdotool name them, to X keysyms: a name is
+# matched in any case, so `Return`, `return` and `RETURN` are one key.
+# Function keys are counted: `f1` is `function-first`, up to `functions`.
+function-first = 0xffbe
+functions = 24
+
+[names]
+return = 0xff0d
+enter = 0xff0d
+tab = 0xff09
+escape = 0xff1b
+esc = 0xff1b
+backspace = 0xff08
+delete = 0xffff
+del = 0xffff
+insert = 0xff63
+home = 0xff50
+end = 0xff57
+left = 0xff51
+up = 0xff52
+right = 0xff53
+down = 0xff54
+pageup = 0xff55
+page_up = 0xff55
+prior = 0xff55
+pagedown = 0xff56
+page_down = 0xff56
+next = 0xff56
+space = 0x20
+menu = 0xff67
+printscreen = 0xff61
+print = 0xff61
+pause = 0xff13
+caps_lock = 0xffe5
+num_lock = 0xff7f
+scroll_lock = 0xff14
+# Modifiers, either side, and their left and right keys.
+shift = 0xffe1
+shift_l = 0xffe1
+shift_r = 0xffe2
+ctrl = 0xffe3
+control = 0xffe3
+control_l = 0xffe3
+control_r = 0xffe4
+alt = 0xffe9
+option = 0xffe9
+alt_l = 0xffe9
+alt_r = 0xffea
+super = 0xffeb
+meta = 0xffeb
+cmd = 0xffeb
+command = 0xffeb
+win = 0xffeb
+windows = 0xffeb
+super_l = 0xffeb
+super_r = 0xffec
+# Punctuation by its xdotool name.
+minus = 0x2d
+plus = 0x2b
+equal = 0x3d
+period = 0x2e
+comma = 0x2c
+slash = 0x2f
+backslash = 0x5c
+semicolon = 0x3b
+apostrophe = 0x27
+grave = 0x60
+bracketleft = 0x5b
+bracketright = 0x5d
+# The keypad.
+kp_enter = 0xff8d
+kp_add = 0xffab
+kp_subtract = 0xffad
+kp_multiply = 0xffaa
+kp_divide = 0xffaf
+kp_decimal = 0xffae
+kp_0 = 0xffb0
+kp_1 = 0xffb1
+kp_2 = 0xffb2
+kp_3 = 0xffb3
+kp_4 = 0xffb4
+kp_5 = 0xffb5
+kp_6 = 0xffb6
+kp_7 = 0xffb7
+kp_8 = 0xffb8
+kp_9 = 0xffb9

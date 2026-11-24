@@ -1,0 +1,70 @@
+[package]
+authors.workspace = true
+name = "link-memory-tool-contract"
+description = "`link-memory-tool-contract` holds the agreement between the agent module and a memory engine's adapter for `lnk agent memory start <engine>`, and how a bound engine proves itself at an embedding endpoint"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/tools/memory-tool"
+
+[dependencies.link-agent-spec]
+workspace = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+features = ["test-support", "files-client"]
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[dependencies.link-actions]
+workspace = true

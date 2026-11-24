@@ -1,0 +1,9 @@
+# A pinned size of another processor than the box's: refused, rather
+# than given an image it can't boot.
+[spec]
+schema = 1
+[spec.machine.aws]
+size = "t4g.small"
+
+[expect]
+error = "It is an arm64 machine, and the box is x86_64"

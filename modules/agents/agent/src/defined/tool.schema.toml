@@ -1,0 +1,37 @@
+schema = 1
+# What a tool of an agent's served by a program of Link's was last
+# defined from: `~/.lnk/safe/agents/<name>/scheduler.json`, `run.json`,
+# `file.json`, `code.json`, `browser.json` and `desktop.json`.
+kind = "agent tool record"
+current = 1
+command = "lnk agent start"
+
+[[files]]
+location = "lnk.agents"
+path = "*/scheduler.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agents"
+path = "*/run.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agents"
+path = "*/file.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agents"
+path = "*/code.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agents"
+path = "*/browser.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agents"
+path = "*/desktop.json"
+encoding = "json"

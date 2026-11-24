@@ -1,0 +1,27 @@
+schema = 1
+
+[safe]
+type = "object"
+description = "One owner's Safe, which holds the control files that steer it, named by its ID"
+x-link-resource = { id = "id" }
+required = ["id", "files"]
+additionalProperties = false
+properties.id = { type = "string", format = "link-id", x-link-kind = "safe", description = "Its ID, safe:<id>" }
+properties.files = { type = "integer", minimum = 0, description = "How many files it holds" }
+
+[file]
+type = "object"
+description = "One file in a Safe: its path and revision, never its contents"
+required = ["path", "revision"]
+additionalProperties = false
+properties.path = { type = "string", description = "Its path in its Safe, as sandbox.toml" }
+properties.revision = { type = "string", description = "Its revision, which changes whenever it's written: a write naming an older one throws conflict" }
+
+[file-text]
+type = "object"
+description = "One file of a Safe, its text and the revision it was read at"
+required = ["path", "text", "revision"]
+additionalProperties = false
+properties.path = { type = "string", description = "Its path in its Safe" }
+properties.text = { type = "string", description = "Its text" }
+properties.revision = { type = "string", description = "The revision read, for a write to name" }

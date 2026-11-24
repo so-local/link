@@ -1,0 +1,8 @@
+# / holds every folder of sockets.
+[spec]
+schema = 1
+[spec.files]
+read = ["/"]
+
+[expect]
+invalid = "sockets"

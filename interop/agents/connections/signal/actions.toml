@@ -1,0 +1,18 @@
+schema = 1
+
+# The connection protocol's commands this connection answers, declared
+# by its contract (`link-connection-contract`).
+[implements]
+connection = [
+    "connection.connection.connect",
+    "connection.connection.rule",
+    "connection.connection.describe",
+    "connection.connection.bridge",
+    "connection.connection.send",
+    "connection.connection.owner",
+    "connection.connection.link",
+    "connection.connection.state",
+    "connection.cli.install",
+    "connection.cli.link",
+    "connection.cli.state",
+]

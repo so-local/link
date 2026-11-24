@@ -1,0 +1,7 @@
+# A spec saved in the first published format.
+schema = 1
+name = "web"
+
+[machine]
+# Keep this explanation beside the value.
+disk = 20 # capacity

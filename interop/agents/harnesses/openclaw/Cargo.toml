@@ -1,0 +1,101 @@
+[package]
+authors.workspace = true
+name = "link-openclaw"
+description = "The OpenClaw adapter, `lnk-openclaw`, lets Local Link install, sandbox, and run OpenClaw"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-openclaw"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+libc.workspace = true
+serde_json = "1"
+rusqlite = { version = "0.41", features = ["bundled"] }
+zstd.workspace = true
+serde.workspace = true
+toml.workspace = true
+# Between the hub and openclaw acp: its pipes, translated (src/workarounds).
+tokio = { workspace = true, features = ["io-util", "rt"] }
+
+[dependencies.link-sandbox-client]
+workspace = true
+
+[dependencies.link-harness-contract]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.link-harness-hub]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+link-core = { workspace = true}
+# The kit every harness is checked with, from the core.
+link-harness-conformance = { workspace = true }
+
+# No debug info: it was most of `target/` (a full `cargo test` wrote
+# 20 GB with it). A panic still says where it happened; a backtrace names
+# functions only.
+
+[dev-dependencies.link-store-contract]
+workspace = true
+features = []
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+link-component-build.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.jiff]
+workspace = true
+
+[dependencies.link-scheduler-tool-contract]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-core]
+workspace = true

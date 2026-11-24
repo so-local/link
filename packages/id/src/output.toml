@@ -1,0 +1,6 @@
+# link-id's output form: what `output.rs` reads once.
+
+# The fields an ID is written under in every `--json` and log line, each
+# naming its axis: an ID under any other field, or bare, is refused by
+# the testing kit's `ids::assert_named`.
+axes = ["principal", "workload", "execution", "parent", "resource"]

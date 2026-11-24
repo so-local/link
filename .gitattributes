@@ -1,0 +1,2 @@
+# Preserve PDF fixture bytes and keep their fixed-width tables out of text diffs.
+*.pdf binary

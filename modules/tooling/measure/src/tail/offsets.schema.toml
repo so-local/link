@@ -1,0 +1,10 @@
+schema = 1
+# Where the watcher stopped reading each harness's measures, `offsets.json` in the measure store's folder.
+kind = "measure offsets"
+current = 1
+command = "lnk measure"
+
+[[files]]
+location = "lnk.measures"
+path = "offsets.json"
+encoding = "json"

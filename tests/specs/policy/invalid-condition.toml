@@ -1,0 +1,13 @@
+# A grant has no conditions: an end is the principal's, how much its limits.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[[spec.allow]]
+actions = ["cloud.use"]
+on = ["cloud:aws"]
+hours = "9-17"
+
+[expect]
+invalid = "unknown field `hours`"

@@ -1,0 +1,60 @@
+[package]
+authors.workspace = true
+name = "link-connection-policy"
+description = "`link-connection-policy` holds a connection's opinions (its reactions, streaming, pacing, and groups) and the checks of its settings, pacing, and tool headers"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/connections"
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[dependencies.schemars]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true

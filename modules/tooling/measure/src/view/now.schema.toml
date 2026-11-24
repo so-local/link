@@ -1,0 +1,10 @@
+schema = 1
+# The watcher's last look, `now.json` in the measure store's folder, as `lnk measure --json` prints it.
+kind = "measure last look"
+current = 1
+command = "lnk measure"
+
+[[files]]
+location = "lnk.measures"
+path = "now.json"
+encoding = "json"

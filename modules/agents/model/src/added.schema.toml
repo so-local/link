@@ -1,0 +1,8 @@
+schema = 1
+kind = "model runtimes"
+current = 1
+command = "lnk model runtime add"
+
+[[files]]
+location = "link.models"
+encoding = "toml"

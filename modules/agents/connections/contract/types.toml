@@ -1,0 +1,196 @@
+schema = 1
+
+[connected]
+type = "object"
+description = "What connect made: the connection's settings, for another program only since they hold its token, and its bot"
+required = ["settings", "bot"]
+additionalProperties = false
+properties.settings = { x-link-any = true, description = "The connection's section of the harness's settings, its token included: the owner alone allowed" }
+properties.bot = "bot"
+
+[bot]
+type = "object"
+description = "A connection's bot, none of it secret"
+required = ["id", "name"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its ID on the connection, the same whichever token names it, which another agent's connect refuses" }
+properties.name = { type = "string", description = "Its name, as a Telegram bot's username" }
+properties.team = { type = "string", description = "Its workspace, where the connection has them (Slack)" }
+
+[described]
+type = "object"
+description = "What the connection is: what lnk agent keeps, shows and carries of it without knowing it by name"
+required = ["title", "linked", "bridged"]
+additionalProperties = false
+properties.title = { type = "string", description = "Its name as people write it, as Telegram" }
+properties.secret_fields = { type = "array", items = { type = "string" }, description = "The fields of its settings that are secret" }
+properties.linked = { type = "boolean", description = "Whether its account is linked as a device (link and state), not given by a token" }
+properties.bridged = { type = "boolean", description = "Whether it carries messages (bridge) for a harness that speaks none" }
+properties.cli = { type = "boolean", description = "Whether it installs a program in the home of a harness that speaks it (cli install and cli link)" }
+properties.pushed = { type = "boolean", description = "Whether its messages can be pushed over HTTPS (hook, unhook, sift, and receive)" }
+properties.held = { type = "boolean", description = "Whether its messages come only on a connection hold holds" }
+properties.hosts = { type = "array", items = { type = "string" }, description = "The hosts a harness speaking it reaches" }
+properties.disconnect_hint = { type = "string", description = "What stays the user's when the agent is disconnected, and where to remove it" }
+properties.share = { type = "boolean", description = "Whether a chat of it can be shared with the agent (share)" }
+
+[rule]
+type = "object"
+description = "How the proxy adds the connection's secret for a harness that speaks it"
+required = ["field", "root", "host", "paths"]
+additionalProperties = false
+properties.field = { type = "string", description = "The field of the connection's settings holding the secret" }
+properties.root = { type = "string", description = "The field of the connection's settings a harness reads the service's address from" }
+properties.host = { type = "string", description = "The one host the secret goes to, over HTTPS" }
+properties.paths = { type = "array", items = "rule-path", description = "The paths a call may take" }
+properties.header = "rule-header"
+properties.refuse = { type = "array", items = { type = "string" }, description = "Paths refused, compared without case, {secret} where the secret is" }
+properties.methods = { type = "array", items = { type = "string" }, description = "The request methods allowed: GET and POST when none is given" }
+properties.public = { type = "string", description = "The separator ending the part of the secret that isn't secret" }
+
+[rule-path]
+type = "object"
+description = "A path a secret's call may take: its prefix, holding {secret} once unless the secret goes in a header, then what follows"
+required = ["prefix", "rest"]
+additionalProperties = false
+properties.prefix = { type = "string", description = "The path's start" }
+properties.rest = { enum = ["name", "path"], description = "What may follow: one name of letters and digits, or a relative path" }
+
+[rule-header]
+type = "object"
+description = "A header the secret goes in, {secret} in its value"
+required = ["name", "value"]
+additionalProperties = false
+properties.name = { type = "string", description = "The header's name" }
+properties.value = { type = "string", description = "Its value, {secret} in it" }
+properties.basic = { type = "string", description = "A user: {secret} is then HTTP Basic's credentials for it" }
+
+[bridged]
+type = "array"
+description = "No line on standard output: the messages it carries between the connection and the harness, until standard input closes, go to the harness's endpoint and the connection's service, never to standard output"
+maxItems = 0
+items = { x-link-any = true }
+
+[sent]
+type = "object"
+description = "The message sent: the IDs the connection gave what it posted"
+required = ["messages"]
+additionalProperties = false
+properties.messages = { type = "array", items = { type = "string" }, description = "The ID of each message posted" }
+
+[owners]
+type = "array"
+items = { type = "string" }
+description = "The owner's direct chats on the connection, as its threads name them after the connection (42 of telegram:42)"
+
+[shared]
+type = "object"
+description = "The chat a share's code came in: a group the connection keeps, and its name for people"
+required = ["chat"]
+additionalProperties = false
+properties.chat = { type = "string", description = "The chat, chat:<connection>:<chat id>" }
+properties.name = { type = "string", description = "Its name where the connection gives one, as #team" }
+
+[hooked]
+type = "object"
+description = "What hook set: the settings sift is handed, none of them secret, and any steps a person takes before the pushes arrive"
+required = ["settings"]
+additionalProperties = false
+properties.settings = { x-link-any = true, description = "What sift is handed: who may talk to the agent and who the bot is, and no secret" }
+properties.steps = { type = "array", items = { type = "string" }, description = "Steps a person takes on the connection's own pages before the pushes arrive" }
+
+[sifted]
+type = "array"
+description = "A verdict for each push read on standard input, one a line, in order, until standard input closed"
+items = "verdict"
+
+[verdict]
+description = "What sift makes of one push: dropped, answered in the push's response and nothing woken, or taken as a message for the agent, each told apart by the one key it holds"
+oneOf = ["verdict-drop", "verdict-answer", "verdict-take"]
+x-link-markers = ["drop", "answer", "take"]
+
+[verdict-drop]
+type = "object"
+description = "Nothing for the agent: the push is answered its status and nothing more"
+required = ["drop"]
+additionalProperties = false
+properties.drop = "dropped"
+
+[dropped]
+type = "object"
+description = "The status a dropped push is answered: 401 for a wrong secret, 200 for a stranger's message, so the connection doesn't push it again"
+required = ["status"]
+additionalProperties = false
+properties.status = { type = "integer", minimum = 0, maximum = 65535 }
+
+[verdict-answer]
+type = "object"
+description = "The push answered with this response, and nothing woken: the connection's check of the address, or a message to the owner the connection takes in a push's response"
+required = ["answer"]
+additionalProperties = false
+properties.answer = "push-response"
+
+[push-response]
+type = "object"
+description = "A response to a push"
+required = ["status", "content_type", "body"]
+additionalProperties = false
+properties.status = { type = "integer", minimum = 0, maximum = 65535 }
+properties.content_type = { type = "string", description = "Its Content-Type" }
+properties.body = { type = "string" }
+
+[verdict-take]
+type = "object"
+description = "A message for the agent"
+required = ["take"]
+additionalProperties = false
+properties.take = "taken-push"
+
+[taken-push]
+type = "object"
+description = "A push taken for the agent: its thread, its chat, the ID the connection gives the push, the same on every retry of it, and who it's from when it isn't the owner"
+required = ["thread", "chat", "dedupe"]
+additionalProperties = false
+properties.thread = { type = "string", description = "The conversation it's in, as telegram:42" }
+properties.chat = { type = "string", description = "Its chat, as the thread names it after the connection" }
+properties.dedupe = { type = "string", description = "The connection's ID for the push, the same on every retry" }
+properties.from = { type = "string", pattern = "^member:", description = "Who it's from in a chat the agent is shared with, member:<connection>:<user id>; left out for the owner" }
+
+[held]
+type = "array"
+description = "A line for each message a held connection gets and each time one comes up or goes down, until standard input closed"
+items = "held-line"
+
+[held-line]
+type = "object"
+description = "What one held connection got: a message, or its state now"
+required = ["key"]
+additionalProperties = false
+properties.key = { type = "string", description = "The connection, as the line that held it named it" }
+properties.update = { x-link-any = true, description = "A message it got, for sift and then receive" }
+properties.state = "hold-state"
+
+[hold-state]
+description = "A held connection's state: up, down, or down because the connection refused the bot's token, so it won't come up until the token changes"
+enum = ["up", "down", "refused"]
+
+[state]
+type = "object"
+description = "What of the connection's folder moves with the agent, each path relative to that folder"
+required = ["include"]
+additionalProperties = false
+properties.include = { type = "array", items = { type = "string" }, description = "Folders or files that hold the link" }
+properties.exclude = { type = "array", items = { type = "string" }, description = "Paths under those that don't" }
+
+[cli]
+type = "object"
+description = "The program a connection installs in a harness's home, and what of the home is the agent's account"
+required = ["state"]
+additionalProperties = false
+properties.program = { type = "string", description = "The installed program's path, left out when nothing is installed" }
+properties.state = { type = "array", items = { type = "string" }, description = "What of the home is the agent's account, ~/-relative" }
+
+[ruled]
+type = "object"
+description = "The connection's routing rule, left out when the harness holds the secret itself"
+additionalProperties = false
+properties.rule = "rule"

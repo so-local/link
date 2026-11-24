@@ -1,0 +1,8 @@
+# A program in /tmp could be anyone's.
+[spec]
+schema = 1
+[spec.commands]
+allow = ["/tmp/tool"]
+
+[expect]
+invalid = "may write"

@@ -1,0 +1,10 @@
+[spec]
+schema = 1
+name = "app"
+version = 1
+[[spec.stage]]
+name = "deps"
+run = "true"
+parallel = [ { name = "python", run = "true", sandbox = "deps.toml" } ]
+[expect]
+invalid = "unknown field"

@@ -1,0 +1,8 @@
+[spec]
+schema = 1
+[spec.window]
+past_price_jump = true
+
+[expect]
+values = { "window.past_price_jump" = true, "window.compact_at" = 0.75 }
+from = { "window.past_price_jump" = "yours", "window.compact_at" = "link" }

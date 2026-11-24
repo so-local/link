@@ -1,0 +1,24 @@
+# Versions in order, one pair a line: `<a> < <b>` (a is older) or
+# `<a> = <b>`. Read by link-version's tests.
+0.13.0 < 0.14.0
+0.9.0 < 0.10.0
+0.99.0 < 1.0.0
+0.14.0 = 0.14.0
+0.13.9 < 0.14.0-staging.202610131900
+0.14.0-staging.202610131900 < 0.14.0
+0.14.0-staging.202610131900 < 0.14.0-staging.202610140900
+0.14.0-staging.202610131900 = 0.14.0-staging.202610131900
+# A dev build's, as a staging build's: before the release it leads up to.
+0.13.9 < 0.14.0-dev.202610131900
+0.14.0-dev.202610131900 < 0.14.0
+0.14.0-dev.202610131900 < 0.14.0-dev.202610140900
+1.0.0-rc.9 < 1.0.0-rc.10
+1.0.0-10 < 1.0.0-rc
+1.0.0-staging.1 < 1.0.0-staging.1.1
+1.0.0-rc.1 < 1.0.0-rc.1-a
+0.1.0-staging.0 < 0.1.0-staging.0a
+# Words compared as words, never as numbers awk reads in them.
+1.0.0-1e5 < 1.0.0-2e1
+# A number before any word, however the word reads.
+1.0.0-99 < 1.0.0-1e5
+1.0.0-staging.99 < 1.0.0-staging.1e5

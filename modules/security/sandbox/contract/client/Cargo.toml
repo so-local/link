@@ -1,0 +1,75 @@
+[package]
+authors.workspace = true
+name = "link-sandbox-client"
+description = "The package `link-sandbox-client` holds what a module that confines a program, such as `lnk-agent` for every harness, asks of `lnk sandbox`"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/security/sandbox"
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+
+[dependencies.link-sandbox-route]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.link-secret-contract]
+workspace = true
+
+[lib]
+doctest = false
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true

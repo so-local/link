@@ -1,0 +1,5 @@
+schema = 1
+kind = "agent"
+current = 1
+command = "lnk agent spec show"
+about = "An agent specification holds your agent's opinions as a TOML file: its model, its window and turns, its instructions, tools and connections, and who may message it. Link's opinions, your teams' and your own meet as sets, each key from the last that sets it."

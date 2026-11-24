@@ -1,0 +1,51 @@
+# Every key an environment has, as the spec's page shows it.
+[spec]
+schema = 1
+name = "app"
+version = 1
+os = "ubuntu-24.04"
+workdir = "app"
+
+[spec.variables]
+DATABASE_URL = "postgres://localhost:5432/app"
+
+[spec.secrets]
+names = ["NPM_TOKEN"]
+sealed = ["STRIPE_KEY", "GITHUB_TOKEN"]
+
+[[spec.stage]]
+name = "system"
+run = "apt-get install -y python3-pip postgresql"
+user = "root"
+
+[[spec.stage]]
+name = "clone"
+run = "git clone https://github.com/me/app app"
+sandbox = "clone.toml"
+
+[[spec.stage]]
+name = "deps"
+run = "python3 -m pip install --target app/.deps -r app/requirements.txt"
+sandbox = "deps.toml"
+inputs = ["requirements.txt"]
+timeout = "10m"
+
+[[spec.stage]]
+name = "pull"
+run = "git -C app pull --ff-only"
+sandbox = "clone.toml"
+when = "start"
+
+[[spec.service]]
+name = "postgres"
+run = "postgres -D /var/lib/postgresql/data -p 5432"
+sandbox = "postgres.toml"
+ready = { port = 5432 }
+reset = "sh app/scripts/reset-db.sh"
+
+[files]
+"requirements.txt" = "flask\n"
+
+[expect]
+image = ["system", "clone", "deps"]
+start = ["pull"]

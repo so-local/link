@@ -1,0 +1,21 @@
+schema = 1
+kind = "upgrade policy"
+current = 2
+
+[[files]]
+location = "lnk.secret-preferences"
+encoding = "toml"
+
+[[steps]]
+from = 1
+rename = { title = "label" }
+since = "0.2.0"
+until = "0.4.0"
+
+[[transfers]]
+from = "upgrade setting"
+schema = 1
+source = { location = "lnk.settings", encoding = "toml" }
+take = { "secret.keychain" = "keychain" }
+since = "0.2.0"
+until = "0.4.0"

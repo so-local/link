@@ -1,0 +1,6 @@
+schema = 1
+
+[served]
+type = "array"
+description = "What the server answers outside the protocol: with --read-calls, each read-only call's name, for sandbox tool registration"
+items = { type = "string" }

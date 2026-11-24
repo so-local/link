@@ -1,0 +1,8 @@
+[spec]
+schema = 1
+[spec.connections]
+compact_after = "never"
+
+[expect]
+values = { "connections.compact_after" = "never", "connections.cache" = "auto", "window.compact_at" = 0.75 }
+from = { "connections.compact_after" = "yours", "connections.cache" = "link", "window.compact_at" = "link" }

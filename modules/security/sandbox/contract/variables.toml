@@ -1,0 +1,16 @@
+schema = 1
+
+[[uses]]
+name = "LNK_TEST_MACHINE_KIND"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TEST_BOX_ROOT"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TEST_WORKERS_SETTINGS"
+access = ["read"]
+context = "runtime"

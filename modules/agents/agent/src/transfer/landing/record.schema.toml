@@ -1,0 +1,11 @@
+schema = 1
+# What a move's staging folder says of itself,
+# `~/.lnk/safe/agents/transfers/receiving/<id>/move.json`.
+kind = "move staging record"
+current = 1
+command = "lnk agent move"
+
+[[files]]
+location = "lnk.receiving"
+path = "*/move.json"
+encoding = "json"

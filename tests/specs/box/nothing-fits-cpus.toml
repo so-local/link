@@ -1,0 +1,8 @@
+# No size with that many CPUs: the nearest.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 3
+
+[expect]
+error = "none has 3 CPUs: the largest under your min of 3 has 2 CPUs; the smallest over your max of 3 has 4 CPUs"

@@ -1,0 +1,39 @@
+schema = 1
+
+# The harness protocol this adapter answers, declared by its contract
+# (`link-harness-contract`).
+[implements]
+harness-contract = [
+    "harness-contract.harness-contract.contract",
+    "harness-contract.harness-contract.install",
+    "harness-contract.harness-contract.configure",
+    "harness-contract.harness-contract.command",
+    "harness-contract.harness-contract.health",
+    "harness-contract.harness-contract.endpoint",
+    "harness-contract.harness-contract.connections",
+    "harness-contract.harness-contract.written",
+    "harness-contract.harness-contract.traces",
+    "harness-contract.harness-contract.internet-hosts",
+    "harness-contract.harness-contract.needs",
+    "harness-contract.harness-contract.serve",
+    "harness-contract.harness-contract.link",
+    "harness-contract.state.show",
+    "harness-contract.state.export",
+    "harness-contract.state.schedules",
+]
+
+# Its own: the protocol's clear-schedules, with the context its exported
+# schedules name beside their revision.
+[verbs]
+clear-schedules = { description = "Remove only the scheduled jobs of one exported revision", effect = "delete" }
+
+[actions."hermes.state.clear-schedules"]
+description = "Remove only the scheduled jobs in the exported revision"
+role = "plumbing"
+output = "core.report"
+
+[actions."hermes.state.clear-schedules".args]
+revision = { type = "string", description = "The revision exported with the scheduled jobs", required = true, x-link-cli = { position = 1 } }
+root = { type = "string", description = "The native state folder", required = true, x-link-cli = { position = 2 } }
+context = { type = "string", description = "The context of the exported schedule transfer", x-link-cli = { position = 3 } }
+json = { x-link-cli = { shared = "json" } }

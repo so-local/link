@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.window]
+compact_at = 1.0
+
+[expect]
+invalid = "compact_at is a share of the window"

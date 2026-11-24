@@ -1,0 +1,76 @@
+schema = 1
+
+[policy]
+type = "object"
+description = "A Policy Specification: an API key's scopes, a role, an agent's grants, a host's guest's. What isn't granted is refused."
+x-link-spec = { kind = "policy" }
+x-link-checks = ["policy"]
+required = ["name", "version"]
+additionalProperties = false
+properties.name = { type = "string", examples = ["ci"], description = "What it's called." }
+properties.version = { type = "integer", minimum = 0, maximum = 4294967295, examples = [1], description = "A whole number, yours to bump." }
+properties.allow = { type = "array", items = "grant", default = [], description = "What it allows: each grant some actions on some resources." }
+properties.limits = { shape = "limits", description = "How much an allowed principal may have, each limit left out none but the service's own." }
+
+[grant]
+type = "object"
+description = """
+Some actions on some resources: every action named, on every resource
+named. Never a condition (an address, a time): an end is the
+principal's, and how much is the policy's `[action-pattern]
+type = "string"
+examples = ["cloud.read", "cloud.*", "*"]
+description = "Actions a grant allows: `<kind>.<verb>` from Link's one list, `<kind>.*` for every verb of a kind, or `*` for every action"
+x-link-checks = ["action_pattern"]
+
+[resource-pattern]
+type = "string"
+examples = ["cloud:aws", "cloud:ci-*", "*"]
+description = "Resources a grant allows actions on: `[<account>|*/]<kind>:<id>`, its id whole or ending in `*` for every id it begins, or `*` for every resource of the principal's own account"
+x-link-checks = ["resource_pattern"]
+
+[limits]`."""
+required = ["actions", "on"]
+additionalProperties = false
+
+[grant.properties.actions]
+type = "array"
+items = "action-pattern"
+examples = [["cloud.read", "cloud.use"]]
+description = """
+The actions it allows, each `<kind>.<verb>` from Link's one list,
+`<kind>.*` for every verb of a kind, or `*` for every action."""
+
+[grant.properties.on]
+type = "array"
+items = "resource-pattern"
+examples = [["cloud:aws", "cloud:ci-*"]]
+description = """
+The resources it allows them on, each `[<account>|*/]<kind>:<id>`,
+its id whole or ending in `*` for every id it begins, or `*` for
+every resource of the principal's own account."""
+
+[action-pattern]
+type = "string"
+examples = ["cloud.read", "cloud.*", "*"]
+description = "Actions a grant allows: `<kind>.<verb>` from Link's one list, `<kind>.*` for every verb of a kind, or `*` for every action"
+x-link-checks = ["action_pattern"]
+
+[resource-pattern]
+type = "string"
+examples = ["cloud:aws", "cloud:ci-*", "*"]
+description = "Resources a grant allows actions on: `[<account>|*/]<kind>:<id>`, its id whole or ending in `*` for every id it begins, or `*` for every resource of the principal's own account"
+x-link-checks = ["resource_pattern"]
+
+[limits]
+type = "object"
+description = """
+How much an allowed principal may have, kept by the service that
+meters it, never in `allows`'s yes or no. Left out, no limit of that
+kind but the service's own."""
+additionalProperties = false
+properties.boxes = { type = "integer", minimum = 0, maximum = 4294967295, description = "Boxes at once." }
+properties.cpus = { type = "integer", minimum = 0, maximum = 4294967295, description = "CPUs a box." }
+properties.memory_gb = { type = "integer", minimum = 0, maximum = 4294967295, description = "Memory a box, in GB." }
+properties.disk_gb = { type = "integer", minimum = 0, maximum = 4294967295, description = "Disk a box, in GB." }
+properties.hours = { type = "integer", minimum = 0, maximum = 4294967295, description = "How long a box lives, in hours." }

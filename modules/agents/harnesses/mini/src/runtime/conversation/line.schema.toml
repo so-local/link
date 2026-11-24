@@ -1,0 +1,8 @@
+schema = 1
+# A line of a mini harness conversation, `<thread>.jsonl`: one message
+# of the model interface, kept whole.
+kind = "mini conversation line"
+current = 1
+# What happened, never rewritten by an upgrade: each record is read as
+# its schema says.
+holds = "history"

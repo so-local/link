@@ -1,0 +1,7 @@
+# An empty table is refused.
+[spec]
+schema = 1
+[spec.machine.gcp]
+
+[expect]
+invalid = "[machine.gcp] is empty"

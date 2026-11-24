@@ -1,0 +1,12 @@
+# An adapter with `sizes` that fails to list makes spot: it's from after
+# specs, so its box is the spec's.
+[spec]
+schema = 1
+[spec.machine]
+spot = true
+
+[run]
+sizes_error = "lnk-aws sizes: An error occurred (UnauthorizedOperation)"
+
+[expect]
+size = "t3.small"

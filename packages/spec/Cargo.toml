@@ -1,0 +1,44 @@
+[package]
+authors.workspace = true
+name = "link-spec"
+description = "`link-spec` reads specifications strictly, as typed TOML, and writes the paths in them so a specification means the same on any machine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/spec"
+
+[dependencies]
+anyhow.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+toml_edit = "0.25"
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-version]
+workspace = true
+
+[dependencies.clap]
+workspace = true

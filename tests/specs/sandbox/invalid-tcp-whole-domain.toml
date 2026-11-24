@@ -1,0 +1,9 @@
+# A tcp endpoint names its port, and under a domain, not a whole one.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["*"]
+tcp = ["*.com:5432"]
+
+[expect]
+invalid = "isn't an endpoint"

@@ -1,0 +1,7 @@
+# The protocol of the question lnk.token: a token for a service, as this
+# installation signs it, asked of the module that keeps the login. One
+# line from the asker, one back, each stating the version it speaks.
+name = "lnk token answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

@@ -1,0 +1,446 @@
+{
+  "$defs": {
+    "box.count-bounds": {
+      "additionalProperties": false,
+      "description": "How many, from min to max, either left out",
+      "properties": {
+        "max": {
+          "description": "At most this many",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min": {
+          "description": "At least this many",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "box.count-range": {
+      "description": "How many: a count, `4`, or a range, `{ min = 2, max = 8 }`, either end left out",
+      "examples": [
+        4,
+        {
+          "max": 8,
+          "min": 2
+        }
+      ],
+      "oneOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/box.count-bounds",
+          "description": "How many, from min to max, either left out"
+        }
+      ]
+    },
+    "box.disk": {
+      "additionalProperties": false,
+      "description": "`disk`: how big, and how fast, as `{ min = \"40 GB\", type = \"fast\" }`",
+      "properties": {
+        "min": {
+          "description": "Its least size, such as `\"40 GB\"`: what the box gets unless its\nimage needs more, as NVIDIA's images for a box with GPUs do. 20 GB\nby default.",
+          "examples": [
+            "40 GB"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/cloud-contract.disk-type",
+          "description": "How fast: `balanced` (gp3 on AWS, pd-balanced on Google Cloud), the default, or `fast` (io2 at 50 IOPS a GB, or pd-ssd), billed for its speed too."
+        }
+      },
+      "type": "object"
+    },
+    "box.gpu-bounds": {
+      "additionalProperties": false,
+      "description": "How many GPUs, from min to max, and which model",
+      "properties": {
+        "max": {
+          "description": "At most this many",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min": {
+          "description": "At least this many",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "model": {
+          "description": "Which GPU: a model alone means at least one",
+          "enum": [
+            "nvidia-t4",
+            "nvidia-l4",
+            "nvidia-l40s",
+            "nvidia-a10g",
+            "nvidia-a100",
+            "nvidia-h100",
+            "nvidia-h200",
+            "nvidia-b200"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "box.gpus": {
+      "description": "How many GPUs: a count, `1`, or at least min, at most max, of a model, `{ min = 1, max = 2, model = \"nvidia-l4\" }`",
+      "examples": [
+        1,
+        {
+          "max": 2,
+          "min": 1,
+          "model": "nvidia-l4"
+        }
+      ],
+      "oneOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/box.gpu-bounds",
+          "description": "How many GPUs, from min to max, and which model"
+        }
+      ]
+    },
+    "box.isolation": {
+      "additionalProperties": false,
+      "description": "How a box made here is isolated: in its sandbox, the default, or directly. A box in a cloud account is a machine of its own, so it refuses the whole table.",
+      "properties": {
+        "no_sandbox": {
+          "description": "Whether it runs directly, with your own access and no sandbox;\nrefused where this machine's policy says `unsandboxed = false`.",
+          "examples": [
+            false
+          ],
+          "type": "boolean"
+        },
+        "sandbox": {
+          "description": "The sandbox specification it runs in; given with no file, it only runs in\nits sandbox again.",
+          "examples": [
+            "box-sandbox.toml"
+          ],
+          "format": "path",
+          "type": "string",
+          "x-link-path": true
+        },
+        "vm": {
+          "description": "A VM specification, for a workload in a VM, relative to its file. This\nbuild has no VM provider, so a file naming one is refused, never\nrun in a sandbox instead.",
+          "format": "path",
+          "type": "string",
+          "x-link-path": true,
+          "x-link-unavailable": "this build of Link has no VM provider"
+        }
+      },
+      "type": "object"
+    },
+    "box.lnk": {
+      "additionalProperties": false,
+      "description": "`[lnk]`: the `lnk` on the box",
+      "properties": {
+        "login": {
+          "description": "Whether the box's `lnk` signs in to your Link account, which a box\nmade for a service turns off with `false`.",
+          "type": "boolean"
+        },
+        "version": {
+          "description": "The `lnk` release to install with its modules, such as `0.14.0` or\na prerelease, 0.11.0 or later. From a file it can't be behind this\ncomputer's `lnk`, so a specification someone hands you can't install a\nrelease with a known hole; `--lnk.version` given yourself can.\nLeft out, the latest.",
+          "examples": [
+            "1.0.0"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "box.machine": {
+      "additionalProperties": {
+        "$ref": "#/$defs/box.machine",
+        "description": "`[machine]`: its fields, and each cloud's own table, `[machine.<cloud>]`, by the cloud's kind (`aws`, as `lnk cloud list` says): every key of `[machine]`, replacing it on that cloud, and the only place for region and size"
+      },
+      "description": "`[machine]`: its fields, and each cloud's own table, `[machine.<cloud>]`, by the cloud's kind (`aws`, as `lnk cloud list` says): every key of `[machine]`, replacing it on that cloud, and the only place for region and size",
+      "properties": {
+        "arch": {
+          "description": "The processor, `x86_64` by default.",
+          "enum": [
+            "x86_64",
+            "arm64"
+          ],
+          "type": "string"
+        },
+        "cpus": {
+          "$ref": "#/$defs/box.count-range",
+          "description": "How many CPUs: a count, `4`, or a range, `{ min = 2, max = 8 }`. Left out, the default size's."
+        },
+        "disk": {
+          "$ref": "#/$defs/box.disk",
+          "description": "The boot disk: how big, and how fast. Left out, 20 GB, `balanced`."
+        },
+        "gpus": {
+          "$ref": "#/$defs/box.gpus",
+          "description": "How many GPUs, and which model. Left out, none."
+        },
+        "memory": {
+          "$ref": "#/$defs/box.size-range",
+          "description": "How much memory: a size with its unit, `\"8 GB\"`, or a range of them, `{ min = \"4 GB\", max = \"16 GB\" }`. Left out, the default size's."
+        },
+        "os": {
+          "$ref": "#/$defs/core.os",
+          "description": "The system, `ubuntu-24.04` by default."
+        },
+        "region": {
+          "description": "Where the box is made: a cloud's region, or on Google Cloud a zone\nin it, in a cloud's own table only. `--zone` with `--cloud` sets\nthe named cloud's. Left out, the account's.",
+          "examples": [
+            "eu-west-2"
+          ],
+          "type": "string"
+        },
+        "size": {
+          "description": "A machine type, such as `t3.large`, in a cloud's own table only, in\nplace of `cpus`, `memory` and `gpus`, which it has built in. Left\nout, the smallest that fits is picked.",
+          "examples": [
+            "t3.large"
+          ],
+          "type": "string"
+        },
+        "spot": {
+          "description": "Whether it's a spot machine: cheaper, but the cloud may stop it and\nstart it again. `false` by default.",
+          "type": "boolean"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Your tags on the machine and its disk, at most 40, each key\nstarting with a lowercase letter, keys and values lowercase\nletters, digits and dashes. Keys starting `lnk-` or `aws:`, and\n`Name`, are Link's or the cloud's, and refused.",
+          "examples": [
+            {
+              "project": "research"
+            }
+          ],
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "box.size-bounds": {
+      "additionalProperties": false,
+      "description": "How much, from min to max, each a size with its unit, as `4 GB`, either left out",
+      "properties": {
+        "max": {
+          "description": "At most this much",
+          "type": "string"
+        },
+        "min": {
+          "description": "At least this much",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "box.size-range": {
+      "description": "How much: a size with its unit, `\"8 GB\"`, or a range of them, `{ min = \"4 GB\", max = \"16 GB\" }`, either end left out",
+      "examples": [
+        "8 GB",
+        {
+          "max": "16 GB",
+          "min": "4 GB"
+        }
+      ],
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/box.size-bounds",
+          "description": "How much, from min to max, each a size with its unit, as `4 GB`, either left out"
+        }
+      ]
+    },
+    "cloud-contract.attach": {
+      "additionalProperties": false,
+      "description": "Existing resources attached to the machine, which the box uses and never creates or deletes",
+      "properties": {
+        "address": {
+          "description": "A reserved address it takes: the address's name on Google Cloud; on AWS, its allocation ID. Kept when the box is deleted.",
+          "examples": [
+            "fixed"
+          ],
+          "type": "string"
+        },
+        "disks": {
+          "description": "Data disks it attaches, never formats and keeps when it's deleted: persistent disks' names on Google Cloud; on AWS, volumes' IDs, each in its subnet's availability zone.",
+          "examples": [
+            [
+              "data"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "identity": {
+          "description": "Who it acts as in its cloud: a service account's name or email on Google Cloud; on AWS, an instance profile's name.",
+          "examples": [
+            "service"
+          ],
+          "type": "string"
+        },
+        "network": {
+          "description": "The network it joins: a network's name on Google Cloud; on AWS, a subnet's ID whose VPC has an `lnk-box` security group.",
+          "examples": [
+            "control"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "cloud-contract.disk-type": {
+      "description": "How fast a box's disk is: `balanced`, or `fast`",
+      "enum": [
+        "balanced",
+        "fast"
+      ],
+      "type": "string"
+    },
+    "core.duration": {
+      "description": "How long: a whole number and ms, s, m, h or d, as 30s, 10m or 2h",
+      "examples": [
+        "30s",
+        "10m",
+        "2h"
+      ],
+      "format": "duration",
+      "type": "string"
+    },
+    "core.os": {
+      "description": "A machine's OS, which a box and an environment each name",
+      "enum": [
+        "ubuntu-24.04",
+        "ubuntu-22.04",
+        "debian-13",
+        "macos"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A box specification describes a machine in your own cloud as a TOML file: its CPUs, memory, disk, system and region, the `lnk` installed on it, what it attaches, and how a box made here is isolated",
+  "properties": {
+    "attach": {
+      "$ref": "#/$defs/cloud-contract.attach",
+      "description": "Existing resources attached to the machine, which the box uses and never creates or deletes."
+    },
+    "deadline": {
+      "$ref": "#/$defs/core.duration",
+      "description": "How long the box lives, from one second through seven days, such\nas `30m`, `4h` or `7d`. Left out, it lives until it's deleted.",
+      "examples": [
+        "4h"
+      ]
+    },
+    "env": {
+      "description": "The environment file the box is set up from, at every placement,\ncaptured once when the box is made and started again at each `lnk\nbox start`. Left out, the box has no application setup.",
+      "examples": [
+        "env.toml"
+      ],
+      "format": "path",
+      "type": "string",
+      "x-link-path": true
+    },
+    "isolation": {
+      "$ref": "#/$defs/box.isolation",
+      "description": "How a box made here is isolated: in its sandbox, the default, or directly. A box in a cloud account is a machine of its own, so it refuses the whole table."
+    },
+    "link_tags": {
+      "description": "Link's own tags on the machine, beside yours, such as the group a\njob's boxes are in. Link writes these for its own boxes.",
+      "examples": [
+        [
+          "lnk-group=example"
+        ]
+      ],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "lnk": {
+      "$ref": "#/$defs/box.lnk",
+      "description": "The `lnk` installed on the box."
+    },
+    "machine": {
+      "$ref": "#/$defs/box.machine",
+      "description": "The machine, as you'd describe one at a store: every cloud gets the\nsmallest that fits, and a cloud's own table, `[machine.<cloud>]`,\nreplaces any of its keys on that cloud.",
+      "examples": [
+        {
+          "arch": "x86_64",
+          "aws": {
+            "disk": {
+              "min": "80 GB"
+            },
+            "region": "eu-west-2",
+            "size": "g6.xlarge",
+            "spot": false,
+            "tags": {
+              "cost": "ci"
+            }
+          },
+          "cpus": {
+            "max": 4,
+            "min": 2
+          },
+          "disk": {
+            "min": "40 GB",
+            "type": "fast"
+          },
+          "gcp": {
+            "memory": {
+              "max": "32 GB",
+              "min": "8 GB"
+            },
+            "os": "ubuntu-22.04",
+            "region": "europe-west2"
+          },
+          "gpus": {
+            "max": 2,
+            "min": 1,
+            "model": "nvidia-l4"
+          },
+          "memory": {
+            "max": "16 GB",
+            "min": "4 GB"
+          },
+          "os": "ubuntu-24.04",
+          "spot": true,
+          "tags": {
+            "project": "research"
+          }
+        }
+      ]
+    },
+    "name": {
+      "description": "What its boxes are named after: `web` makes `web-1`, `web-2` and so\non. Lowercase letters, digits and dashes, starting with a letter,\nat most 27. Left out, the account's name; `--name` still names one\nbox exactly.",
+      "examples": [
+        "web"
+      ],
+      "type": "string"
+    },
+    "self_remove": {
+      "description": "Whether the machine may remove itself when its work ends, as a box\na job made does.",
+      "type": "boolean"
+    },
+    "version": {
+      "description": "A whole number, yours to bump, which each box remembers it was made\nfrom.",
+      "examples": [
+        3
+      ],
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "type": "object",
+  "x-link-generator": "Generated by link-actions-surfaces from the module declarations: change those and regenerate, never this file."
+}

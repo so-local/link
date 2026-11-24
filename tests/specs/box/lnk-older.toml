@@ -1,0 +1,8 @@
+# An lnk older than this one, from a file: refused.
+[spec]
+schema = 1
+[spec.lnk]
+version = "0.11.0"
+
+[expect]
+invalid = "behind this computer's lnk"

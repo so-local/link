@@ -1,0 +1,10 @@
+# An empty table is refused: give it its key, or leave it out.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[spec.limits]
+
+[expect]
+invalid = "[limits] is empty"

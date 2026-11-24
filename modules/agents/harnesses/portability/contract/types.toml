@@ -1,0 +1,139 @@
+schema = 1
+
+[contract]
+type = "object"
+description = "What a harness program answers about itself: the version of the harness protocol it speaks, and which of its optional parts it answers"
+required = ["version"]
+additionalProperties = false
+properties.version = { type = "integer", minimum = 0, description = "The version of the harness protocol it speaks, 0 for an adapter without contract" }
+properties.proxy = { type = "boolean", description = "Whether its harness reaches a hosted model through Link's proxy, which then holds the model's key" }
+properties.proof = { type = "boolean", description = "Whether its endpoint answers Link's challenge before it's handed the key" }
+properties.agent = { type = "boolean", description = "Whether its endpoint reads which agent a request is for" }
+properties.ports = { type = "integer", minimum = 0, maximum = 65535, description = "How many ports its harness takes at and after its agent's base port" }
+properties.instructions = { type = "boolean", description = "Whether it takes the agent specification's [instructions]" }
+properties.from = { type = "boolean", description = "Whether its endpoint reads who a message is from and passes its hops on" }
+properties.recover = { type = "boolean", description = "Whether its endpoint answers the turns it finished after a crash" }
+properties.tools = { type = "boolean", description = "Whether its endpoint keeps a conversation's tools" }
+properties.parts = { type = "boolean", description = "Whether its endpoint takes a message's images and documents" }
+properties.folders = { type = "boolean", description = "Whether it keeps to the agent's folder's layout" }
+properties.prompt = { type = "boolean", description = "Whether it answers instructions" }
+properties.shared = { type = "boolean", description = "Whether one process of it may serve several agents of one owner" }
+properties.conversations = { type = "boolean", description = "Whether it answers conversation and conversations move" }
+properties.conversation_history = { type = "boolean", description = "Whether conversations list and conversation answer typed threads and messages with --json" }
+properties.conversation_fork = { type = "boolean", description = "Whether it answers conversations fork" }
+properties.blank = { type = "boolean", description = "Whether it can start blank and be bound to one agent later" }
+properties.state = { x-link-any = true, description = "What its endpoint's agent state exports and imports over ASP (the Agent State Protocol)" }
+properties.offline_state = { type = "boolean", description = "Whether state export reads portable state without a running endpoint" }
+properties.session_content = { type = "array", items = { enum = ["tools", "thinking", "images", "audio", "resources", "other"] }, description = "Non-text session content it can use after import" }
+properties.notes = { type = "boolean", description = "Whether it reads the agent's notes at each turn" }
+properties.native_memory = { type = "boolean", description = "Whether it keeps memory files of its own, which no other harness reads" }
+properties.identity = { type = "boolean", description = "Whether it carries who the agent is both ways" }
+properties.forget = { type = "boolean", description = "Whether it takes handed secrets out of a home's own files" }
+properties.features = { x-link-any = true, description = "The features it honors, each how" }
+
+[launch]
+type = "object"
+description = "How to run the harness in the foreground, which the agent module runs in its sandbox as a background service"
+required = ["argv"]
+additionalProperties = false
+properties.argv = { type = "array", items = { type = "string" }, description = "The program and its arguments" }
+properties.env = { type = "object", additionalProperties = { type = "string" }, description = "Added to a clean environment, never secrets" }
+properties.write = { type = "array", items = { type = "string" }, description = "Folders it must write besides its home" }
+properties.read = { type = "array", items = { type = "string" }, description = "Folders outside its home it only reads" }
+properties.ports = { type = "array", items = { type = "integer", minimum = 0, maximum = 65535 }, description = "Its own localhost ports" }
+properties.serve = { type = "array", items = { type = "integer", minimum = 0, maximum = 65535 }, description = "Of its ports, those Link reaches from outside the sandbox" }
+properties.services = { type = "array", items = { type = "string" }, description = "Background services the harness installs for itself, which the agent module stops and removes" }
+properties.wait_secs = { type = "integer", minimum = 0, description = "How long, in seconds, it may take to answer health after it starts" }
+
+[endpoint]
+type = "string"
+description = "The address of its endpoint on this machine, as http://127.0.0.1:<port>/acp"
+
+[connections]
+type = "array"
+items = { type = "string" }
+description = "The connections the harness speaks itself, each by its name"
+
+[trace]
+type = "object"
+description = "A place the harness writes outside Link's sandbox, and what kind of thing is there"
+required = ["kind", "path"]
+additionalProperties = false
+properties.kind = { enum = ["home", "config", "secrets", "login", "service", "program", "package", "cache", "log", "lock", "browser", "agent", "profile"], description = "What kind of thing is there, which says what a migration does with it" }
+properties.path = { type = "string", description = "~/ for the home folder and {uid} for the user's ID, else an absolute path" }
+
+[traces]
+type = "array"
+items = "trace"
+description = "Where the harness writes outside its home"
+
+[hosts]
+type = "array"
+items = { type = "string" }
+description = "The internet hosts its install and configure reach"
+
+[written]
+type = "object"
+description = "The version that wrote an install's state, and why Link can't run that state, when it can't"
+additionalProperties = false
+properties.version = { type = "string", description = "As the harness writes it, none when its state holds none" }
+properties.refused = { type = "string", description = "Why Link can't run it, in words" }
+
+[need]
+type = "object"
+description = "One thing the harness needs, as a sandbox specification's sections, and why"
+required = ["spec", "why"]
+additionalProperties = false
+properties.spec = { x-link-any = true, description = "The sandbox specification's sections it needs" }
+properties.why = { type = "string", description = "Why, in one line" }
+
+[risk]
+type = "object"
+description = "A risk running the harness takes that no specification names, and why"
+required = ["name", "why"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name, lowercase letters, digits and dashes" }
+properties.why = { type = "string", description = "Why it takes it" }
+properties.without = { type = "string", description = "What the harness does without it, for a risk it runs without" }
+
+[needs]
+type = "object"
+description = "What the harness needs beyond Link's defaults"
+additionalProperties = false
+properties.needs = { type = "array", items = "need", description = "What it needs" }
+properties.unsandboxed = { type = "object", required = ["why"], additionalProperties = false, properties.why = { type = "string", description = "Why" }, description = "Only for a harness that can't run in any sandbox: why" }
+properties.risks = { type = "array", items = "risk", description = "What running it risks that no specification names" }
+properties.install_runs_downloads = { type = "boolean", description = "Whether its install runs the programs it downloads into its own folder while it installs, a runtime it unpacks there" }
+
+[state]
+type = "object"
+description = "What in the harness's home is the agent's, which moves with the agent"
+required = ["include"]
+additionalProperties = false
+properties.include = { type = "array", items = { type = "string" }, description = "Folders or files that hold the agent" }
+properties.exclude = { type = "array", items = { type = "string" }, description = "Paths under those that don't" }
+
+[exported]
+x-link-any = true
+description = "The agent's portable state, in ASP's forms: who it is and what it remembers"
+
+[schedules]
+x-link-any = true
+description = "The harness's own scheduled jobs in ASP's form, those carried and those not, and their revision"
+
+[instructions]
+x-link-any = true
+description = "The system prompt the harness sends its model, as text, or with --json its sections"
+
+[history]
+x-link-any = true
+description = "A conversation as a person reads it, or with --json its typed messages"
+
+[conversations]
+x-link-any = true
+description = "The agent's conversations, as the harness lists them"
+
+[served]
+type = "object"
+description = "Requests answered on the harness's port or standard input until it was stopped"
+additionalProperties = false

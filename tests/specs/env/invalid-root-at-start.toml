@@ -1,0 +1,14 @@
+# Root only while an image is built, on a box made for that.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.stage]]
+name = "system"
+run = "apt-get install -y git"
+user = "root"
+when = "start"
+
+[expect]
+invalid = "a root stage runs only while an image is built"

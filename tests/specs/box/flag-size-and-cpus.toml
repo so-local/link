@@ -1,0 +1,6 @@
+# A size and CPUs in one table: one would be ignored.
+[run]
+flags = ["--machine.aws.size", "t3.small", "--machine.aws.cpus", "2"]
+
+[expect]
+invalid = "gives size and cpus"

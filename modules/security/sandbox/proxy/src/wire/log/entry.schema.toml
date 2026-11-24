@@ -1,0 +1,9 @@
+schema = 1
+# A line of `~/.lnk/safe/sandboxes/wire.log`: a call on a sandbox's
+# wire, allowed, refused, failed or ended.
+kind = "wire log entry"
+current = 1
+command = "lnk sandbox log show"
+# What happened, never rewritten by an upgrade: each line is read as its
+# schema says.
+holds = "history"

@@ -1,0 +1,40 @@
+[package]
+authors.workspace = true
+name = "link-env-fixture"
+description = "`link-env-fixture` gives environment and job tests a folder-backed cloud, fake programs and inspectable results"
+
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "tests/fixtures/env"
+
+[lib]
+doctest = false
+test = false
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.link-cloud-contract]
+workspace = true
+
+[dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[lints]
+workspace = true

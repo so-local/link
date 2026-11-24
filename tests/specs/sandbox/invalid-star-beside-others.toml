@@ -1,0 +1,8 @@
+# "*" is everything already.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["*", "a.com"]
+
+[expect]
+invalid = "everything already"

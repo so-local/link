@@ -1,0 +1,371 @@
+schema = 1
+
+[verbs]
+help = { description = "List the model commands available in this chat", effect = "find" }
+bridge = { description = "Answer a sandbox's calls to models on a socket, for a proxy that starts it", effect = "insert" }
+chat = { description = "Ask the model with one typed request, its answer streamed", effect = "insert" }
+context = { description = "Report what the calling agent's context is spent on, part by part", effect = "find" }
+count = { description = "Count text with the model's tokenizer", effect = "find" }
+embed = { description = "Embed texts with the granted model", effect = "insert" }
+serve = { description = "Serve a model's OpenAI-compatible API on a local port until stopped", effect = "insert" }
+transcribe = { description = "Transcribe audio with the granted provider", effect = "insert" }
+usage = { description = "Report the calling agent's measured model usage", effect = "find" }
+
+[actions."model.model.bridge"]
+description = """
+For `lnk sandbox proxy`: answer a sandbox's calls to models, hosted and
+on this machine, on a socket, until none comes for a while (a proxy
+starts it)
+"""
+role = "plumbing"
+surfaces = ["cli"]
+output = "bridged"
+
+[actions."model.model.bridge".args]
+keys = { type = "string", x-link-path = true, description = "The keyring each call is proved against", required = true }
+runtime = { type = "string", x-link-path = true, description = "The runtime folder its sockets are in", required = true }
+settings = { type = "string", x-link-path = true, description = "Link's settings, whose user it serves", required = true }
+socket = { type = "string", x-link-path = true, description = "Its socket, where a proxy calls it", required = true }
+
+[actions."model.model.chat"]
+description = "Ask the model, with one typed request and response stream"
+docs = "/agents/models/more/api#request-inference"
+role = "secondary"
+surfaces = ["cli"]
+output = "stream"
+stream = true
+next = ["model.model.list"]
+fail = ["model.model.list", "agent.model.status"]
+
+[actions."model.model.chat".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."model.model.chat".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 8388608, time_ms = 600000 }
+
+[actions."model.model.context"]
+description = """
+What the calling agent’s context is spent on, part by part
+
+A chat's latest model call, its instructions, each tool and the
+conversation, each part's share of the prompt, and what each cost over
+the chat's kept calls. The latest chat, unless --chat names one.
+"""
+docs = "/agents/models/more/api#inspect-the-grant"
+role = "secondary"
+surfaces = ["cli"]
+output = "context"
+next = ["model.model.list"]
+fail = ["model.model.list", "agent.model.status"]
+
+[actions."model.model.context".args]
+chat = { type = "string", description = "The chat to report, as the list of chats names it (default: the latest)" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."model.model.context".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 4194304, time_ms = 5000 }
+names = ["/context"]
+
+[actions."model.model.count"]
+description = "Count text with the model tokenizer"
+docs = "/agents/models/more/api#request-inference"
+role = "secondary"
+surfaces = ["cli"]
+output = "counted"
+next = ["model.model.list"]
+fail = ["model.model.list", "agent.model.status"]
+
+[actions."model.model.count".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."model.model.count".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 1048576, time_ms = 30000 }
+
+[actions."model.model.embed"]
+description = "Embed texts with the granted model"
+docs = "/agents/models/more/api#request-inference"
+role = "secondary"
+surfaces = ["cli"]
+output = "embedded"
+next = ["model.model.list"]
+fail = ["model.model.list", "agent.model.status"]
+
+[actions."model.model.embed".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."model.model.embed".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 8388608, time_ms = 120000 }
+
+[actions."model.model.install"]
+description = """
+Install a model (and Ollama, if it's missing)
+
+Asks before installing Ollama. Without a model, installs the one `lnk
+model list --fit` picks for this machine.
+"""
+docs = "/agents/models#install"
+role = "primary"
+surfaces = ["cli"]
+output = "core.report"
+next = ["model.model.serve", "model.model.list", "agent.agent.start"]
+fail = ["model.model.list", "model.model.install", "model.runtime.add"]
+
+[actions."model.model.install".args]
+model = { type = "string", description = "A model (`lnk model list`); one not there comes from Ollama's library, e.g. qwen3:8b", x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."model.model.list"]
+description = """
+List plain model names, from the granted provider or this machine
+
+With `--fit`, only the model `lnk model install` picks for this machine,
+and why; none where none suits it.
+"""
+docs = "/agents/models#list"
+role = "primary"
+surfaces = ["cli"]
+output = "names"
+next = ["model.model.serve", "model.model.install", "model.model.delete", "model.runtime.add", "model.model.show"]
+fail = ["model.model.list"]
+
+[actions."model.model.list".args]
+json = { x-link-cli = { shared = "json" } }
+start = { type = "boolean", description = "Start Ollama first if it's installed but not running, so its models are listed too" }
+fit = { type = "boolean", description = "Only the model that suits this machine, the one `lnk model install` picks, and why" }
+
+[actions."model.model.list".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 1048576, time_ms = 2500 }
+names = ["/models"]
+
+[actions."model.runtime.add"]
+description = """
+Add a model runtime at an address of its own
+
+`lnk model list` lists its models beside the ones at the default ports, so an
+agent (`lnk agent start --model.default`) can use its models. It
+needs to answer OpenAI's `/v1/models` and `/v1/chat/completions`.
+"""
+docs = "/agents/models/runtime#use-a-model-at-its-own-address"
+role = "secondary"
+surfaces = ["cli"]
+output = "core.report"
+next = ["model.runtime.list", "model.model.list", "model.model.install", "agent.agent.start"]
+fail = ["model.runtime.list", "model.runtime.add"]
+
+[actions."model.runtime.add".args]
+url = { type = "string", description = "Its address on this machine, e.g. http://localhost:5000", required = true, x-link-cli = { position = 1 } }
+name = { type = "string", description = "What `lnk model runtime list` calls it", default = "Your server" }
+
+[actions."model.runtime.list"]
+description = """
+List the model runtimes on this machine, and the models each runs
+
+Looks for Ollama, LM Studio, llama.cpp, vLLM and Jan at their default
+ports, and at the addresses `lnk model runtime add` remembers. In an agent,
+`/model:list` lists its provider's that its specification allows.
+"""
+docs = "/agents/models/runtime#list-runtime-servers"
+role = "secondary"
+surfaces = ["cli"]
+output = "runtimes"
+next = ["model.runtime.add", "model.runtime.remove", "model.model.list", "model.model.serve", "model.model.install"]
+fail = ["model.model.list"]
+
+[actions."model.runtime.list".args]
+json = { x-link-cli = { shared = "json" } }
+start = { type = "boolean", description = "Start Ollama first if it's installed but not running, so its models are listed too" }
+
+[actions."model.runtime.remove"]
+description = """
+Remove a runtime `lnk model runtime add` added
+
+The server itself keeps running. A model is `lnk model delete`.
+"""
+docs = "/agents/models/runtime#use-a-model-at-its-own-address"
+role = "secondary"
+surfaces = ["cli"]
+output = "core.report"
+next = ["model.runtime.list", "model.runtime.add"]
+fail = ["model.runtime.list", "model.runtime.add", "model.model.list"]
+
+[actions."model.runtime.remove".args]
+name = { type = "string", description = "The name `lnk model runtime add` gave it (`lnk model runtime list`)", required = true, x-link-cli = { position = 1 } }
+
+[actions."model.model.serve"]
+description = """
+Serve a model's OpenAI-compatible API on a local port
+
+Only /v1/ is forwarded; the runtime's management endpoints stay private.
+"""
+docs = "/agents/models/local#serve-one-on-this-machine"
+role = "primary"
+surfaces = ["cli"]
+output = "serving"
+next = ["model.model.list"]
+fail = ["model.model.list", "model.model.install"]
+
+[actions."model.model.serve".args]
+json = { x-link-cli = { shared = "json" } }
+model = { type = "string", description = "A model of `lnk model list`: serve just this one. Requests use it whatever model they ask for, and `/v1/models` lists only it [default: every model of the runtime]" }
+port = { type = "integer", minimum = 0, maximum = 65535, description = "Port on 127.0.0.1 [default: any free one]", default = 0 }
+upstream = { type = "string", description = "Base URL of the model runtime, e.g. http://localhost:9000 [default: the one running on this machine, see `lnk model list`]" }
+
+[actions."model.model.show"]
+diagnoses = "model"
+description = """
+What Link knows of a model: its window, longest answer, how it thinks,
+and its price
+
+In an agent, `/model:show` says its own model's, and whether its model
+endpoint is ready, with the models it has loaded.
+
+Link's figures, refreshed at every release, under yours: a model you
+add, or a figure you correct, in ~/.lnk/safe/models/facts.toml, as
+[model."<name>"] with window, answer, thinking (adaptive, budget, effort
+or no) and price = { input, output, cached } in dollars a million tokens.
+Each harness is handed its agent's model's.
+"""
+docs = "/agents/models/guide#where-things-live"
+role = "secondary"
+surfaces = ["cli"]
+output = "shown"
+next = ["model.model.list", "model.model.usage", "model.model.context", "model.model.chat", "model.model.count", "model.model.embed", "model.model.transcribe"]
+fail = ["model.model.list"]
+
+[actions."model.model.show".args]
+model = { type = "string", description = "Model name required for owner inspection; omitted in an agent namespace to inspect its selected model.", x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."model.model.show".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 1048576, time_ms = 2500 }
+
+[actions."model.model.transcribe"]
+description = "Transcribe audio with the granted provider"
+docs = "/agents/models/more/api#request-inference"
+role = "secondary"
+surfaces = ["cli"]
+output = "heard"
+next = ["model.model.list"]
+fail = ["model.model.list", "agent.model.status"]
+
+[actions."model.model.transcribe".args]
+json = { x-link-cli = { shared = "json" } }
+request = { x-link-cli = { shared = "request" } }
+
+[actions."model.model.transcribe".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 1048576, time_ms = 120000 }
+
+[actions."model.model.delete"]
+description = """
+Delete a model from Ollama
+
+Frees its disk space. `lnk model install` installs one.
+"""
+docs = "/agents/models/local#uninstall-a-model"
+role = "secondary"
+surfaces = ["cli"]
+output = "core.report"
+next = ["model.model.list"]
+fail = ["model.model.list", "model.model.delete"]
+
+[actions."model.model.delete".args]
+model = { type = "string", description = "The model, as `lnk model list` names it (qwen3 finds qwen3:8b)", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."model.model.usage"]
+description = "The calling agent’s measured model usage"
+docs = "/agents/models/more/api#inspect-the-grant"
+role = "secondary"
+surfaces = ["cli"]
+output = "usage"
+next = ["model.model.list"]
+fail = ["model.model.list", "agent.model.status"]
+
+[actions."model.model.usage".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."model.model.usage".route]
+bridge = "model"
+command = true
+callers = ["owner", "agent", "program"]
+limits = { bytes = 1048576, time_ms = 2500 }
+names = ["/usage", "/cost"]
+
+[actions."model.model.get"]
+description = "Show this conversation's model and effort without changing them"
+docs = "/agents/link/commands#model-commands"
+role = "secondary"
+output = "core.report"
+surfaces = []
+
+[actions."model.model.get".route]
+bridge = "harness"
+callers = ["agent"]
+command = true
+
+[actions."model.model.help"]
+description = "List the model commands available in this chat"
+docs = "/agents/link/commands#model-commands"
+role = "secondary"
+output = "core.report"
+surfaces = []
+
+[actions."model.model.help".route]
+bridge = "harness"
+callers = ["agent"]
+command = true
+
+[actions."model.model.set"]
+description = """
+Switch this conversation to another of its provider's models
+
+Its specification's allow list holds, and an alias of `[model.aliases]` names the
+model it stands for. With `--every-chat`, every chat of the agent switches
+too, until it starts again with its own. `--fast` asks the provider's
+faster service, where it offers one, and `--no-fast` stops. `--effort`
+sets how hard the model thinks: `off`, `low`, `medium` or `high`, as the
+specification's `[model] thinking` takes, asked where the model can. Given no
+model, it names the conversation's and the others, and its effort. On the CLI, an
+agent's model is its specification's: `lnk agent model set <model>`.
+"""
+docs = "/agents/link/commands/models#switch-this-conversation"
+role = "secondary"
+output = "core.report"
+surfaces = []
+
+[actions."model.model.set".args]
+model = { type = "string", description = "The model, as its provider names it, or an alias", x-link-cli = { position = 1 } }
+effort = { type = "string", description = "How hard the model thinks: off, low, medium or high" }
+every-chat = { type = "boolean", description = "Every chat of the agent, not this conversation alone" }
+fast = { type = "boolean", description = "Ask the provider's faster service" }
+no-fast = { type = "boolean", description = "Stop asking the provider's faster service" }
+
+[actions."model.model.set".route]
+bridge = "harness"
+callers = ["agent"]
+command = true
+names = ["/model"]

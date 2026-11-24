@@ -1,0 +1,46 @@
+schema = 1
+# Which of a harness's sessions is each of Link's threads, so a thread
+# goes on where it was after a restart, kept by the harness hub in its
+# harness's home.
+kind = "harness hub sessions"
+current = 1
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/mini/sessions.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/deepseek/.deepseek/threads.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/hermes/.hermes/link-threads.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/openclaw/.openclaw/link-threads.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/sessions.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.deepseek/threads.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.hermes/link-threads.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.openclaw/link-threads.json"
+encoding = "json"

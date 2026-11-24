@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.tool.web]
+enabled = false
+
+[expect]
+invalid = "enabled: only [tool.<name>] of scheduler, run, file, code, mcp, browser, desktop takes it"

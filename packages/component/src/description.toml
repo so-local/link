@@ -1,0 +1,8 @@
+# The description protocol: what a program answers `--link-describe` with,
+# and each entry of the registry `lnk --link-registry` prints. The asker
+# states `current` in LNK_DESCRIPTION_PROTOCOL, the description states it
+# in `protocol`, and each refuses one older than `oldest`.
+name = "description"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

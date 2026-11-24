@@ -1,0 +1,52 @@
+[package]
+authors.workspace = true
+name = "link-agent-state-protocol"
+description = "`link-agent-state-protocol` implements the Agent State Protocol (ASP)"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/harnesses/portability/agent-state-protocol"
+
+[dependencies.agent-client-protocol]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-interactions-contract]
+workspace = true
+
+[dependencies.link-harness-wire]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true

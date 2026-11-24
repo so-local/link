@@ -1,0 +1,55 @@
+schema = 1
+
+[duration]
+type = "string"
+format = "duration"
+description = "How long: a whole number and ms, s, m, h or d, as 30s, 10m or 2h"
+examples = ["30s", "10m", "2h"]
+
+[os]
+description = "A machine's OS, which a box and an environment each name"
+enum = ["ubuntu-24.04", "ubuntu-22.04", "debian-13", "macos"]
+
+[arch]
+description = "A machine's processor: `x86_64` or `arm64`"
+enum = ["x86_64", "arm64"]
+
+[user]
+type = "string"
+pattern = "^(root|[a-z_][a-z0-9_-]{0,31})$"
+description = "Who a run runs as on a box: root, outside any sandbox, or a user of the box by name, lowercase letters, digits, _ and -, at most 32"
+examples = ["root", "builder"]
+
+[report]
+type = "object"
+description = "What a command said, as link-format's blocks: the answer of an action whose --json is its report, not a typed reply"
+required = ["blocks", "exit"]
+additionalProperties = false
+properties.blocks = { type = "array", items = { x-link-any = true, description = "One block, as link-format writes it" }, description = "The blocks it printed, in order" }
+properties.exit = { type = "integer", description = "Its exit code: 0 when it succeeded" }
+
+[mcp]
+type = "object"
+description = "An MCP tools/call result, relayed as its tool gave it: the answer of an action that relays one"
+required = ["content"]
+additionalProperties = false
+properties.content = { type = "array", items = { x-link-any = true, description = "One content block, text, an image, audio or a resource, as MCP writes it" }, description = "What the tool answered, block by block" }
+properties.structuredContent = { x-link-any = true, description = "The tool's answer as one JSON value, where it gives one" }
+properties.isError = { type = "boolean", description = "Whether the tool says its call failed" }
+
+[error]
+type = "object"
+description = "An error's public part: what the caller may see, sent across the wire and shown to a person"
+required = ["name", "message"]
+additionalProperties = false
+properties.name = { description = "What went wrong, by its name, which gives its status on every transport", enum = ["bad-request", "unauthorized", "payment-required", "forbidden", "not-found", "conflict", "too-large", "too-many-requests", "internal", "unavailable"], x-link-values = { bad-request = "The request isn't one the action takes: an argument it doesn't accept, a value out of bounds, or a format not offered", unauthorized = "No token came with the request, or the token is expired or not Link's", payment-required = "The caller's plan doesn't cover it", forbidden = "The caller's token doesn't cover the action", not-found = "No such thing is the caller's, or no action has that path", conflict = "What it acts on has changed since it was read, or one of that name exists", too-large = "The request or what it names is past its limit", too-many-requests = "The caller has sent too many requests, for now", internal = "Something went wrong that isn't the caller's to fix", unavailable = "It can't be answered now, and can be tried again after a while" } }
+properties.message = { type = "string", description = "What went wrong, written for a person" }
+properties.reason = { type = "string", pattern = "^[a-z][a-z0-9-]*$", description = "Why, as a word the action's caller can act on, where the action names one, as level-above-none" }
+properties.retry-after = { type = "string", format = "duration", description = "When to try again: only an unavailable error's, as when no slot is free" }
+
+[error-private]
+type = "object"
+description = "An error's private part: what only the server keeps, written to its logs and never sent"
+additionalProperties = false
+properties.cause = { type = "string", description = "What caused it, as the code that found it says" }
+properties.values = { type = "object", additionalProperties = { type = "string" }, description = "The values involved, by name" }

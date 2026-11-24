@@ -1,0 +1,12 @@
+# An action not on the list is refused, naming the kind's verbs.
+[spec]
+schema = 1
+name = "p"
+version = 1
+
+[[spec.allow]]
+actions = ["cloud.ssh"]
+on = ["cloud:aws"]
+
+[expect]
+invalid = "a cloud's verbs are read, use, admin"

@@ -1,0 +1,9 @@
+# write_dot_files names only folders it writes.
+[spec]
+schema = 1
+[spec.files]
+write = ["app"]
+write_dot_files = ["docs"]
+
+[expect]
+invalid = "not a folder of its write"

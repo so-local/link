@@ -1,0 +1,44 @@
+# The desktop's size, in pixels: Xvfb's screen, and the bounds of every
+# [x, y] a call takes (actions.toml's per-axis most is the larger, less
+# one; a test checks).
+width = 1280
+height = 800
+# The folders Xvfb is looked for in when no program is named: the
+# system's own, never the PATH, which may hold a folder the agent writes.
+# A program found is used only when it and its folder are root's and no
+# one else writes them.
+xvfb-folders = ["/usr/bin", "/usr/local/bin", "/bin"]
+# The folders of the system's programs, which every sandbox reads already.
+system-folders = ["/usr", "/bin", "/sbin", "/lib", "/lib64"]
+# How long one reply from the X server may take, in milliseconds, before
+# the server is taken as hung and the call fails.
+reply-ms = 10000
+# How much of what Xvfb writes on its errors is kept, in bytes, to say
+# why it ended.
+errors-kept = 4096
+# How long the display may take to start, in milliseconds, and how
+# often a starting server is asked whether it serves.
+start-ms = 10000
+start-poll-ms = 50
+# How long a stopping server may take before it's killed, and how often
+# it's asked whether it ended, in milliseconds.
+stop-ms = 3000
+stop-poll-ms = 20
+# The folder every X server's socket is in, which X clients look in.
+sockets = "/tmp/.X11-unix"
+# The display's lock, as X servers name theirs; `{display}` is its
+# number.
+lock = "/tmp/.X{display}-lock"
+# A drag moves in this many steps, this many milliseconds apart, as a
+# hand moves, so a program following it sees it go.
+drag-steps = 10
+drag-step-ms = 10
+# How long programs on the display are given to read a changed key
+# mapping, in milliseconds, before a key borrowed for a character is
+# pressed and before it's given back.
+key-mapping-ms = 20
+# The wheel's clicks a scroll turns when it names none.
+scroll-clicks = 3
+# How many parents are followed from the process serving the display to
+# the one this tool started: a sandbox's chain is a few.
+parents-max = 32

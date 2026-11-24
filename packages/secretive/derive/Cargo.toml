@@ -1,0 +1,27 @@
+[package]
+authors.workspace = true
+name = "link-secretive-derive"
+description = "`link-secretive-derive` provides `#[derive(Duplicate)]` for a type that holds a secret"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/secretive/derive"
+
+[lib]
+doctest = false
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+syn = { version = "3", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

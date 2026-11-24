@@ -1,0 +1,13 @@
+# researcher: searches the web, reads what it finds and writes a cited
+# report into its Home's reports folder. Its sandbox file grants Link
+# Web, which fetches pages, and searches where Web has a search key.
+schema = 1
+harness = "link"
+sandbox = true
+awake = true
+
+[behavior.instructions]
+repository = "none"
+
+[behavior.tool.file]
+enabled = true

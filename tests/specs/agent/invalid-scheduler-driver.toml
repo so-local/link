@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.tool.scheduler]
+driver = "launchd"
+
+[expect]
+invalid = "unknown variant"

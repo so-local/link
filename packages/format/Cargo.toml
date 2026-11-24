@@ -1,0 +1,35 @@
+[package]
+authors.workspace = true
+name = "link-format"
+description = "`link-format` renders everything `lnk` prints, as typed blocks that one formatter draws to a terminal, to a pipe, and as JSON"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/format"
+
+[dependencies]
+anstream.workspace = true
+anstyle.workspace = true
+anyhow.workspace = true
+libc.workspace = true
+link-files.workspace = true
+link-secretive.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+# What the scrubber takes for a secret, read from `src/scrub.toml`.
+toml.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

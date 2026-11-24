@@ -1,0 +1,5 @@
+schema = 1
+# One MCP namespace's definition, the file `lnk-sandbox mcp-namespace`
+# serves.
+kind = "namespace definition"
+current = 1

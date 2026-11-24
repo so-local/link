@@ -1,0 +1,5 @@
+schema = 1
+kind = "team"
+current = 1
+command = "lnk agent team spec show"
+about = "A team specification is a team's one canonical document: its members, each an existing agent or an agent definition, its lead and shared folder, the agents of other accounts it takes, and the settings its members share."

@@ -1,0 +1,8 @@
+# The history protocol: what `lnk --link-history` answers the core
+# upgrading to it with ([`Wire`]). The asker states `current` in
+# LNK_HISTORY_PROTOCOL, the answer states it in `protocol`, and each
+# refuses one older than `oldest`.
+name = "history"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

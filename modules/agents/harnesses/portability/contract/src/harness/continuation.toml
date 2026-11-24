@@ -1,0 +1,4 @@
+max_bytes = 32768
+unknown_window = 8192
+window_fraction = 4
+record_overhead = 128

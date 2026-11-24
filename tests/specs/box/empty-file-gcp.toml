@@ -1,0 +1,6 @@
+# An empty file on Google Cloud: its default.
+[run]
+kind = "gcp"
+
+[expect]
+size = "e2-small"

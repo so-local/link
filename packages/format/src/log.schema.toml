@@ -1,0 +1,7 @@
+schema = 1
+kind = "agent log line"
+current = 1
+command = "lnk agent log show"
+# What happened, never rewritten by an upgrade: each record is read as
+# its schema says.
+holds = "history"

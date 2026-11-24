@@ -1,0 +1,9 @@
+schema = 1
+title = "Programmer"
+description = "A coding agent for Rust, Python, TypeScript, Go, Java, Kotlin and C or C++ that explores, plans, tests, reviews and commits its own changes in one repository"
+
+[map]
+"link.agents" = "Agents"
+"link.agent-settings" = "Safe/Agents"
+
+["agent.programmer"]

@@ -1,0 +1,153 @@
+[package]
+authors.workspace = true
+name = "link-connection-contract"
+description = "`link-connection-contract` is the shared agreement between the agent module and each connection module"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/connections"
+
+[features]
+# A harness's ACP, faked (`acp::fake`), for a bridge's tests.
+test-support = []
+
+[dependencies.link-core]
+workspace = true
+
+# Questions for the owner, answered by a reply's code.
+[dependencies.link-interactions]
+workspace = true
+
+[dependencies.link-harness-base]
+workspace = true
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-agent-team]
+workspace = true
+
+# Who may message this agent, checked by `allows`.
+[dependencies.link-policy]
+workspace = true
+
+[dependencies.link-sandbox-bridge]
+workspace = true
+
+[dependencies.link-connection-policy]
+workspace = true
+
+[dependencies.link-secret-contract]
+workspace = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.qrcode]
+workspace = true
+
+# The agent's Markdown, parsed once into a `rich::Document`.
+[dependencies.pulldown-cmark]
+workspace = true
+
+[dependencies.http-body-util]
+workspace = true
+
+[dependencies.hyper]
+workspace = true
+
+[dependencies.hyper-util]
+workspace = true
+
+[dependencies.agent-client-protocol]
+workspace = true
+
+[dependencies.link-agent-state-protocol]
+workspace = true
+
+[dependencies.tokio-tungstenite]
+workspace = true
+
+[dependencies.tokio]
+workspace = true
+
+[dependencies.futures-util]
+workspace = true
+
+[dependencies.link-harness-wire]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+[dev-dependencies.link-agent-spec]
+workspace = true
+
+[dev-dependencies.link-sandbox-bridge]
+workspace = true
+features = ["conformance"]
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies.link-model-contract]
+workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-runtime]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-interactions-contract]
+workspace = true
+
+[dependencies]
+link-actions.workspace = true
+link-id.workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[dependencies.clap]
+workspace = true

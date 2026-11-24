@@ -1,0 +1,64 @@
+schema = 1
+
+# What `lnk sandbox run --with-fd <N>` reads as JSON on descriptor N, an
+# hidden argument's payload: one Link program hands it another, never
+# a person. `link_sandbox_client`'s `RunWith` is generated from it. The
+# route, the caller's binding and the sealed secret are types the format
+# can't say yet, each named by its Rust type (`x-link-rust`).
+
+[run-with]
+type = "object"
+description = "What a confined program gets beside its specification: its variables, the routes and secrets its proxy adds, the ports it serves and the folders it writes"
+additionalProperties = false
+properties.named = { shape = "run-routes", description = "Routes a trusted launcher names, with the identity their bridges check; the caller is held outside the program and travels only on the handoff pipe" }
+
+[run-with.properties.env]
+type = "object"
+description = "The variables the program gets, by name."
+additionalProperties = { type = "string" }
+
+[run-with.properties.secrets]
+type = "array"
+description = "The secrets the program's proxy adds, each with the variables saying where it is."
+items = "run-secret"
+default = []
+
+[run-with.properties.serve]
+type = "array"
+description = "The ports it serves, on this machine's loopback too."
+items = { type = "integer", minimum = 0, maximum = 65535 }
+default = []
+
+[run-with.properties.write]
+type = "array"
+description = "The folders it writes beside its specification's: absolute, and there."
+items = { type = "string", x-link-path = true }
+default = []
+
+[run-routes]
+type = "object"
+description = "Routes named by a trusted launcher, with the identity their bridges check"
+required = ["routes", "caller"]
+additionalProperties = false
+properties.routes = { type = "array", items = { x-link-rust = "::link_sandbox_route::Route" }, description = "The routes, each a bridge the program reaches through its proxy." }
+properties.caller = { x-link-rust = "::link_sandbox_binding::Binding", description = "Who calls through them, and the key their bridges check." }
+
+[run-secret]
+type = "object"
+description = "A secret the program's proxy adds, and the variables saying where it is"
+required = ["secret", "url", "placeholder"]
+additionalProperties = false
+properties.secret = { x-link-rust = "::link_secret_contract::route::Sealed", description = "The secret, sealed, with the rule saying where it may go." }
+properties.url = { type = "string", description = "The variable holding the service's root on the proxy." }
+properties.placeholder = { type = "string", description = "The variable holding the placeholder." }
+
+[run-secret.properties.git]
+type = "boolean"
+default = false
+description = """
+Git's own configuration in the run's variables too, so git sends what
+it asks of `https://<host>/` to the proxy, the placeholder in its
+header: a clone or push with the secret, which is never in
+`.git/config`, on the disk or in what runs. For a secret that goes in a
+header.
+"""

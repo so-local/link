@@ -1,0 +1,41 @@
+schema = 1
+
+[record]
+type = "object"
+description = "One stored record"
+x-link-resource = { id = "key" }
+required = ["key", "value"]
+additionalProperties = false
+properties.key = { type = "string" }
+properties.value = { type = "string" }
+
+[served]
+type = "object"
+description = "How many requests it answered"
+required = ["answered"]
+additionalProperties = false
+properties.answered = { type = "integer", minimum = 0 }
+
+[store]
+type = "object"
+description = "Where a store keeps what it's given"
+x-link-spec = { kind = "store" }
+required = ["path"]
+additionalProperties = false
+properties.path = { type = "string", x-link-path = true }
+
+# A secret's value crossing to a store: zeroized, never printed.
+[request]
+type = "object"
+description = "What a store is asked, its credential among it"
+required = ["key", "credential"]
+additionalProperties = false
+properties.key = { type = "string" }
+properties.credential = { type = "string", minLength = 8, x-link-sensitive = true, description = "The store's credential" }
+properties.spare = { type = "array", items = { type = "string", x-link-sensitive = true }, description = "Credentials it may fall back on" }
+properties.nested = "token"
+
+[token]
+type = "string"
+description = "A token, held as a secret"
+x-link-sensitive = true

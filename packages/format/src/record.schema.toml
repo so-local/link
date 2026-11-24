@@ -1,0 +1,8 @@
+schema = 1
+# A failure's record, kept on this machine for the person and for `lnk
+# issue create`: `~/Link/Logs/<time>.json`.
+kind = "failure record"
+current = 1
+# What happened, never rewritten by an upgrade: each record is read as
+# its schema says.
+holds = "history"

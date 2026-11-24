@@ -1,0 +1,80 @@
+schema = 1
+
+[principal-text]
+type = "string"
+description = "A principal, `user:` or `service:` and an ID Link minted."
+pattern = "^(user|service):[a-z0-9]{12}$"
+
+[audience]
+type = "string"
+description = "The one module a token is for: a lowercase name, from a letter."
+pattern = "^[a-z][a-z0-9-]{0,29}$"
+
+[place]
+type = "string"
+description = "A kind of client an assignment may be used from, as its `via` names it: the app, or an installation's command line."
+enum = ["app", "cli"]
+x-link-values = { app = "The app: a browser or a phone", cli = "An installation's command line" }
+
+[client]
+type = "string"
+description = "The kind of client an access token's principal logged in from, a tag never inferred: the app, an installation's command line, a service, a box, or a wake."
+enum = ["app", "cli", "service", "box", "wake"]
+x-link-values = { app = "The app, a browser or a phone, for a user", cli = "An installation's command line, for a user", service = "A service, logged in as itself", box = "A box, logged in as its own service principal", wake = "A wake, acting as its workload's service principal" }
+
+[claims]
+type = "object"
+description = "What an access token says, whoever holds it: its issuer, its principal, its kind of client, its audience, the wake it acts in if one, and when it was made and ends. It lists no actions, no resources, no project, and no owner: the resource server decides from its assignments."
+required = ["iss", "sub", "client", "aud", "iat", "exp"]
+additionalProperties = false
+properties.iss = { shape = "principal-text", description = "Its issuer, which signed it." }
+properties.sub = { shape = "principal-text", description = "Its principal, who acts: a principal acts as itself, so it names no one else." }
+properties.client = { shape = "client", description = "Its kind of client." }
+properties.aud = { shape = "audience", description = "The one service it's for, or one name a group of resource servers all accept." }
+
+[claims.properties.wkl]
+type = "string"
+description = "The wake it acts in, `<kind>:<id>@<run>`, its workload and run: only a wake's, never granting anything, so a resource server refuses a wake that has ended."
+minLength = 1
+maxLength = 128
+
+[claims.properties.iat]
+type = "integer"
+description = "When it was made, in Unix seconds."
+minimum = 0
+
+[claims.properties.exp]
+type = "integer"
+description = "When it ends, in Unix seconds."
+minimum = 0
+
+[jti]
+type = "string"
+description = "A refresh token's own ID, 128 random bits as 32 lowercase hex digits, by which its issuer records and ends it."
+pattern = "^[0-9a-f]{32}$"
+
+[refresh-claims]
+type = "object"
+description = "What a refresh token says: its issuer, the only one that trades it, its principal, the kind of client that logged in, its own ID, the wake it ends with if one, and when it was made and ends. It carries no actions: the resource server reads its principal's assignments."
+required = ["iss", "sub", "client", "jti", "iat", "exp"]
+additionalProperties = false
+properties.iss = { shape = "principal-text", description = "Its issuer, the only one that trades it." }
+properties.sub = { shape = "principal-text", description = "Its principal." }
+properties.client = { shape = "client", description = "The kind of client it was issued to." }
+properties.jti = { shape = "jti" }
+
+[refresh-claims.properties.wkl]
+type = "string"
+description = "The wake it ends with, `<kind>:<id>@<run>`, its workload and run: a wake's alone."
+minLength = 1
+maxLength = 128
+
+[refresh-claims.properties.iat]
+type = "integer"
+description = "When it was issued, in Unix seconds: a wake's issuer tells each of its refresh tokens from the one before by it."
+minimum = 0
+
+[refresh-claims.properties.exp]
+type = "integer"
+description = "When it ends, in Unix seconds."
+minimum = 0

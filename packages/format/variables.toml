@@ -1,0 +1,55 @@
+schema = 1
+
+[defines.LNK_INNER]
+type = "string"
+description = "Set for a nested Link command: leave next steps and the report footer to the outer command. An absolute folder is where it leaves its trace if it fails, for the outer report."
+
+[defines.LNK_OUTPUT_COLOR]
+type = "string"
+description = "Output color setting: always, never or auto; aliases on/off and boolean spellings are accepted."
+
+[defines.LNK_OUTPUT_EMPHASIS]
+type = "string"
+description = "Output emphasis setting: always, never or auto; aliases on/off and boolean spellings are accepted."
+
+[defines.LNK_OUTPUT_LINKS]
+type = "string"
+description = "Output link setting: always, never or auto; aliases on/off and boolean spellings are accepted."
+
+[defines.LNK_OUTPUT_SYMBOLS]
+type = "string"
+description = "Output symbols: emoji, plain or none; defaults to emoji."
+
+[defines.RUST_LOG]
+type = "string"
+description = "What a service Link runs logs, as a Rust tracing filter such as `debug` [default: info]. The HTTP crates it calls through stay at warnings, as they log credentials below that."
+
+[[uses]]
+name = "COLUMNS"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HOSTNAME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LOGNAME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "USER"
+access = ["read"]
+context = "runtime"
+
+[readers]
+"ask::ask" = "A typed Question may name an environment variable whose value supplies the answer before prompting."
+"ask::given" = "A Question's named variable, read as its answer: a hidden answer's through Secret::from_env, any other as it is."
+"look::under_env" = "Each [output] setting's variable, named from its table and key: LNK_OUTPUT_COLOR, LNK_OUTPUT_EMPHASIS, LNK_OUTPUT_SYMBOLS and LNK_OUTPUT_LINKS, then NO_COLOR and CLICOLOR_FORCE."

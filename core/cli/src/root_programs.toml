@@ -1,0 +1,13 @@
+# Programs a module copies into root's exec folder (`/usr/local/lib/lnk`),
+# where root's services run them, each with the command that copies it
+# again. `lnk upgrade` brings each copy it finds to the new build.
+
+# The keeper of each user's secrets, which systemd runs as `lnk-secrets`.
+[[program]]
+location = "secret-program"
+command = ["secret", "keeper", "create"]
+
+# The worker launcher, which runs a box's sandboxes as their own users.
+[[program]]
+location = "sandbox-program"
+command = ["sandbox", "workers", "--install"]

@@ -1,0 +1,187 @@
+schema = 1
+
+[verbs]
+command = { description = "Run a program in a sandbox of its own, for a model calling the tool", effect = "insert" }
+gate = { description = "Run a background command once its supervisor names its process group", effect = "insert" }
+serve = { description = "Serve the tool to a harness as an MCP server over stdio, until its input closes", effect = "insert" }
+supervise = { description = "Run a background command to its end and tell the agent how it ended", effect = "insert" }
+sweep = { description = "Look over every background command, telling and removing what has ended", effect = "delete" }
+
+
+# What the program gives its tool calls at runtime: the programs a
+# command may start (or any), how long one runs, and, with background
+# commands, how long and how many of them, where their output goes and how
+# much a read gives. A command is offered only where the shell is among
+# its programs (`shell`); the background calls only beside it, with
+# background commands (`background`).
+[tools]
+fills = ["which", "timeout", "longest", "folder", "most", "output"]
+conditions = ["shell", "background"]
+
+[actions."run-tool.run-tool.gate"]
+description = """
+Run <command> once its supervisor says its record names this process's
+group, as the same process; nothing if the supervisor ends first.
+Started by supervise; not for running by hand.
+"""
+role = "plumbing"
+output = "gated"
+
+[actions."run-tool.run-tool.gate".args]
+command = { type = "array", items = { type = "string" }, description = "The command it runs once its supervisor names its group", required = true, x-link-cli = { rest = true, last = true } }
+
+[actions."run-tool.run-tool.install"]
+description = "Nothing to install: this program is the tool."
+role = "plumbing"
+output = "installed"
+
+[actions."run-tool.run-tool.delete"]
+description = """
+Stop every background command in --state and remove them, their output
+with them: for an agent deleted or moving away. Prints each that ran or
+wasn't told yet.
+"""
+role = "plumbing"
+output = "told"
+
+[actions."run-tool.run-tool.delete".args]
+state = { type = "string", x-link-path = true, description = "The folder background commands' records are kept in", required = true }
+
+[actions."run-tool.run-tool.serve"]
+description = """
+Serve `command` as an MCP server over stdio: it runs a shell command
+with the shell, offered only when --program (repeatable, the programs
+a command may start) names it, found on --programs-path, in --files,
+under the sandbox after `--` (a program and its flags, to which `--`,
+the shell, `-c` and the command are added), a new one each call. With
+--conversations, a call's sandbox also reads its own conversation's
+folder there, a stranger's call none. A command is stopped with
+its process group (on Linux, everything it started) after --timeout (a duration, 108s; a call may ask less), and
+--output-bytes bytes are kept of each of its output and its errors, their start and their end. Each --var NAME=VALUE (repeatable)
+is a variable each command gets, handed to the sandbox on a descriptor,
+which refuses those it refuses a caller. --output-bytes is at most what
+keeps an answer under the tools bridge's message cap.
+
+With --state (where background commands' records are kept), a command
+may run in the background (run-in-background), and it also offers list,
+read and stop: a command run in the background under the same sandbox, at most --background at once, each stopped
+after --background-timeout, its output kept to --background-output
+bytes in background/ of --files, kept --background-keep once it ended
+and the agent was told, through its bridge's way in (--way-in), proved
+as agent --as with its key from the machine's keyring (--keyring, else
+Link's). A background command --hops messages down a chain is refused.
+"""
+role = "plumbing"
+output = "served"
+checks = ["background"]
+
+[actions."run-tool.run-tool.serve".args]
+as = { type = "string", description = "The agent a background command's end is told as, by its ID" }
+background = { type = "integer", minimum = 0, maximum = 4294967295, description = "The most background commands at once" }
+background-keep = { type = "string", format = "duration", description = "How long an ended background command is kept once told" }
+background-output = { type = "integer", minimum = 2, description = "The bytes kept of a background command's output" }
+background-per-day = { type = "integer", minimum = 0, maximum = 4294967295, description = "The most background commands started a day" }
+background-timeout = { type = "string", format = "duration", description = "How long a background command runs before it's stopped" }
+conversations = { type = "string", x-link-path = true, description = "The agent's conversations folder, which the sandbox hides: each call reads only its own conversation's folder in it, a stranger's call none" }
+files = { type = "string", x-link-path = true, description = "The agent's files folder: each command starts in it", required = true }
+hops = { type = "integer", minimum = 0, maximum = 4294967295, description = "The most messages down a chain a background command may start at" }
+keyring = { type = "string", x-link-path = true, description = "The keyring the agent's key is in [default: Link's]" }
+output-bytes = { type = "integer", minimum = 2, description = "The bytes kept of each of a command's output and errors", required = true }
+program = { type = "array", items = { type = "string" }, description = "A program a command may start, a name or a path (repeatable): a command is offered only when the shell is one", required = true }
+programs-path = { type = "string", description = "The PATH a program's name is found on", required = true }
+sandbox = { type = "array", items = { type = "string" }, description = "The sandbox each command runs under: a program and its flags", required = true, x-link-cli = { rest = true, last = true } }
+state = { type = "string", x-link-path = true, description = "The folder background commands' records are kept in" }
+timeout = { type = "string", format = "duration", description = "How long a command runs before it's stopped", required = true }
+var = { type = "array", items = { type = "string", pattern = "^[^=]+=" }, description = "A variable each command gets, NAME=VALUE (repeatable)" }
+way-in = { type = "string", x-link-path = true, description = "The agent's bridge's way in, telling it how a background command ended" }
+with-env = { type = "boolean", description = "Read the run server's typed context from LNK_RUN_CONTEXT, a protected variable" }
+
+[actions."run-tool.run-tool.stop"]
+description = """
+Stop every background command in --state still running, each recorded
+lost because the agent stopped, and told when it's back. Prints each
+that ran or wasn't told yet.
+"""
+role = "plumbing"
+output = "told"
+
+[actions."run-tool.run-tool.stop".args]
+state = { type = "string", x-link-path = true, description = "The folder background commands' records are kept in", required = true }
+
+[actions."run-tool.run-tool.supervise"]
+description = """
+Run background command <id> of --state to its end, as its record says,
+then tell the agent how it ended. Started by serve, its lock on its
+input; not for running by hand.
+"""
+role = "plumbing"
+output = "supervised"
+
+[actions."run-tool.run-tool.supervise".args]
+id = { type = "string", description = "The background command's ID", required = true, x-link-cli = { position = 1 } }
+state = { type = "string", x-link-path = true, description = "The folder background commands' records are kept in", required = true }
+with-fd = { type = "integer", minimum = 0, maximum = 2147483647, description = "The descriptor its typed run context is read from", x-link-cli = { hidden = true } }
+
+[actions."run-tool.run-tool.sweep"]
+description = """
+Look at every background command in --state: one whose supervisor is
+gone is marked lost and what's left of it stopped, each ended is told to
+the agent (tried again for ten minutes while its bridge can't be
+reached), and each told past its keep is removed with its output.
+"""
+role = "plumbing"
+output = "swept"
+
+[actions."run-tool.run-tool.sweep".args]
+state = { type = "string", x-link-path = true, description = "The folder background commands' records are kept in", required = true }
+
+
+# The calls a model makes, as `serve` offers them (`tools/list`).
+[actions."run-tool.run-tool.command"]
+description = "Runs a shell command (sh -c) in your files folder, in a sandbox of its own, and gives what it printed and its exit status. Each call starts afresh in your files folder: cd within the command to work elsewhere. The programs it may start, the shell among them: {which}. It reads your files folder and writes only the folders you may write; what else it reaches is your sandbox file's. A command running past its timeout ({timeout}s unless 'timeout' says less) is stopped with SIGKILL, with what it started that stayed in its process group. Of each of its output and its errors, at most {output} bytes are kept, their start and their end."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."run-tool.run-tool.command".tool]
+name = "command"
+when = "shell"
+
+[actions."run-tool.run-tool.command".args]
+command = { type = "string", description = "The command, as the shell reads it: pipes, redirections, && and quoting work.", required = true, x-link-summary = 1 }
+timeout = { type = "integer", minimum = 1, description = "How long it may run before it's stopped, in milliseconds; left out, or past the most, the most ({timeout}s, or in the background as run_in_background says)." }
+run-in-background = { type = "boolean", description = "Run it in the background: it answers at once with its id, for a build, a test suite, a server and its tests, a download. It runs on after your turn, at most {longest}, and when it ends you're told, in this conversation, how it ended and its output's end. Its output is '{folder}/<id>.out' in your files folder: read it with task__read, stop it with task__stop. At most {most} run at once." }
+description = { type = "string", description = "What it does, in a few words ('Lists the work folder').", x-link-summary = 2 }
+
+[actions."run-tool.background.list"]
+description = "Lists your background commands, running or ended: each one's id, command, state, how long it ran and its output's size."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."run-tool.background.list".tool]
+name = "list"
+when = "background"
+
+[actions."run-tool.background.show"]
+description = "Reads a background command's output, at most {output} bytes, from byte 'from'; left out, its end. Says the next byte to read from."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."run-tool.background.show".tool]
+name = "read"
+when = "background"
+
+[actions."run-tool.background.show".args]
+id = { type = "string", description = "Its id.", required = true, x-link-summary = 1 }
+from = { type = "integer", minimum = 0, description = "The byte of its output to read from." }
+
+[actions."run-tool.background.stop"]
+description = "Stops a background command, and its process group: on Linux, everything it started."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."run-tool.background.stop".tool]
+name = "stop"
+when = "background"
+
+[actions."run-tool.background.stop".args]
+id = { type = "string", description = "Its id.", required = true, x-link-summary = 1 }

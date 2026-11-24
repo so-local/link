@@ -1,0 +1,15 @@
+schema = 1
+
+[defines.LNK_FALLBACK_MODEL_URL]
+type = "string"
+description = "The fallback model's namespace, handed to a sandbox whose grant has one, beside `LNK_MODEL_URL`"
+
+[[uses]]
+name = "LNK_MODEL_URL"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_FALLBACK_MODEL_URL"
+access = ["forward"]
+context = "runtime"

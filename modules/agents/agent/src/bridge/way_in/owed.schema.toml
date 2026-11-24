@@ -1,0 +1,10 @@
+schema = 1
+# Where an answer nobody waits for goes:
+# `~/.lnk/safe/agents/<agent>/owed/<thread in hex>.json`.
+kind = "owed answer's way"
+current = 1
+
+[[files]]
+location = "lnk.agents"
+path = "*/owed/*.json"
+encoding = "json"

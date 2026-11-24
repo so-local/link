@@ -1,0 +1,153 @@
+# Builds a bundle with lnk bundle, from the branch it's started on: any
+# branch, a person picking it in "Run workflow", or another workflow
+# calling it, as release.yml does for Link's release. Each target is built
+# unsigned on its own runner, at the version its commit gives it, then
+# one job seals the parts. That job alone holds the signer's secret, from
+# the `bundle-<signer>` GitHub environment, whose required reviewer
+# approves the run before it starts, and leaves the sealed bundle as the
+# run's artifact `bundle`. What's signed is built from the checkout
+# alone: no cache, so a poisoned one can't alter it.
+#
+#   bundle    a built-in bundle (devbox, link, prodbox, staging) or a spec's path from the repository root
+#   signer    link or staging, the environment's secret named SIGNING_SECRET
+#   targets   the targets to build, space-separated
+#   file      a file to seal with the bundle, by its path from the repository root
+name: bundle
+
+on:
+  workflow_dispatch:
+    inputs:
+      bundle:
+        description: "A built-in bundle (devbox, link, prodbox, staging) or a spec's path"
+        required: true
+        default: link
+      signer:
+        description: "link or staging"
+        required: true
+        default: link
+      targets:
+        description: "Targets, space-separated"
+        required: true
+        default: "aarch64-apple-darwin x86_64-apple-darwin x86_64-unknown-linux-musl aarch64-unknown-linux-musl"
+      file:
+        description: "A file to seal with it, by its path from the repository root"
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      bundle:
+        type: string
+        required: true
+      signer:
+        type: string
+        required: true
+      targets:
+        type: string
+        required: true
+      file:
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  # As checks.yml's: a bundle is built by the compiler that was tested.
+  RUST_TOOLCHAIN: "1.99.0"
+
+jobs:
+  # Each target's runner.
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        env:
+          TARGETS: ${{ inputs.targets }}
+        run: |
+          matrix=$(for target in $TARGETS; do
+            case $target in
+              *-apple-darwin) os=macos-14 ;;
+              aarch64-unknown-linux-musl) os=ubuntu-24.04-arm ;;
+              x86_64-unknown-linux-musl) os=ubuntu-24.04 ;;
+              *) echo "no runner builds $target" >&2; exit 1 ;;
+            esac
+            printf '{"target":"%s","os":"%s"}\n' "$target" "$os"
+          done | jq -sc '{include: .}')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  part:
+    needs: plan
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN" && rustup target add ${{ matrix.target }}
+      - if: contains(matrix.target, 'linux-musl')
+        run: sudo apt-get update -q && sudo apt-get install -y -q musl-tools zstd
+      - name: Build lnk bundle
+        run: cargo build --locked -p link-bundle
+      - name: Build the part, unsigned
+        env:
+          BUNDLE: ${{ inputs.bundle }}
+          SIGNER: ${{ inputs.signer }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          case $BUNDLE in */*) given=(--spec "$GITHUB_WORKSPACE/$BUNDLE") ;; *) given=("$BUNDLE") ;; esac
+          # A prod build's lnk is compiled to trust Link's signer, whose
+          # public line is committed; with no secret here the part is
+          # unsigned. Any other build's part names no signer.
+          case $SIGNER in link) signer=link ;; *) signer=none ;; esac
+          ./target/debug/lnk-bundle create "${given[@]}" --target "$TARGET" --signer "$signer" \
+            --out "$RUNNER_TEMP/part"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: part-${{ matrix.target }}
+          path: ${{ runner.temp }}/part/download/
+
+  # Seals and signs. The secret is the environment's, which a person
+  # approves this run to read, and reaches only this job's last steps.
+  seal:
+    needs: part
+    environment: bundle-${{ inputs.signer }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
+      - name: Build lnk bundle
+        run: cargo build --locked -p link-bundle
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: part-*
+          path: ${{ runner.temp }}/parts
+      - name: Seal and sign
+        env:
+          SIGNER: ${{ inputs.signer }}
+          SIGNING_SECRET: ${{ secrets.SIGNING_SECRET }}
+          FILE: ${{ inputs.file }}
+        run: |
+          secret="$RUNNER_TEMP/signing-secret"
+          (umask 077 && printf '%s\n' "$SIGNING_SECRET" > "$secret")
+          unset SIGNING_SECRET
+          from=()
+          for part in "$RUNNER_TEMP"/parts/part-*; do from+=(--from "$part"); done
+          files=()
+          if [ -n "$FILE" ]; then files+=(--file "$GITHUB_WORKSPACE/$FILE"); fi
+          ./target/debug/lnk-bundle create "${from[@]}" "${files[@]}" \
+            --signer "$SIGNER" --signing-secret "$secret" --out "$RUNNER_TEMP/bundle"
+          rm -f "$secret"
+          ./target/debug/lnk-bundle show "$RUNNER_TEMP/bundle" --signer "$SIGNER"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bundle
+          path: ${{ runner.temp }}/bundle/

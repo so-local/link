@@ -1,0 +1,8 @@
+# How Signal takes an answer (`format.rs`).
+
+# The longest message Signal shows whole, in characters: a longer one
+# arrives as a file. Its styles are sent beside the text, so they don't
+# count.
+[channel]
+limit = 2000
+counted = "chars"

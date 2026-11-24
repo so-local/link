@@ -1,0 +1,120 @@
+"bin" = [{ "name" = "lnk-mini-harness", "path" = "src/main.rs", "test" = false }]
+
+["package"]
+authors.workspace = true
+"name" = "link-mini-harness"
+"description" = "Mini Harness is a small persistent, tool-using agent built on Local Link's model and tool interfaces"
+"publish" = false
+
+["package"."version"]
+"workspace" = true
+
+["package"."edition"]
+"workspace" = true
+
+["package"."license"]
+"workspace" = true
+
+["package"."metadata"."link"]
+"schema" = 1
+owner = "modules/agents/harnesses/mini"
+
+["dependencies"."anyhow"]
+"workspace" = true
+
+["dependencies"."agent-client-protocol"]
+"workspace" = true
+
+["dependencies"."futures-util"]
+"workspace" = true
+
+["dependencies"."reqwest"]
+"workspace" = true
+"features" = ["rustls-no-provider"]
+
+["dependencies"."serde_json"]
+"workspace" = true
+
+["dependencies"."tokio"]
+"workspace" = true
+
+["dependencies".link-connection-contract]
+workspace = true
+
+["dependencies".link-harness-contract]
+workspace = true
+
+["dependencies".link-harness-hub]
+workspace = true
+
+[lints]
+workspace = true
+
+["dependencies".link-fetch]
+workspace = true
+
+["dependencies".link-files]
+workspace = true
+
+["dependencies".link-format]
+workspace = true
+
+["dependencies".link-settings]
+workspace = true
+
+["dependencies".link-secretive]
+workspace = true
+
+# The conformance kit every harness passes, for tests/link/conformance.rs.
+[dev-dependencies.link-harness-conformance]
+workspace = true
+
+[lib]
+doctest = false
+
+[[test]]
+name = "conformance"
+path = "tests/link/conformance.rs"
+
+[features]
+fixture = []
+
+[dependencies.link-core]
+workspace = true
+
+[build-dependencies.link-component-build]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dev-dependencies.axum]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.link-model-contract]
+workspace = true
+features = ["client"]
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[build-dependencies.anyhow]
+workspace = true
+
+[build-dependencies.link-actions-build]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true

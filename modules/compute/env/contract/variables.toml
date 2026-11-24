@@ -1,0 +1,6 @@
+schema = 1
+
+[[uses]]
+name = "LNK_SUDO"
+access = ["read"]
+context = "runtime"

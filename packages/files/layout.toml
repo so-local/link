@@ -1,0 +1,214 @@
+# Every fixed Link-owned location and its trust boundary. Callers use typed IDs.
+[roots]
+home = "Link"
+hidden = ".lnk"
+
+[boundaries]
+hidden-safe = "safe"
+home-safe = "Safe"
+exec = "exec"
+data = "data"
+core = "link"
+
+[temporary]
+prefix = "lnk-tmp-"
+max-age-seconds = 604800
+sweep-period-seconds = 86400
+
+# The folders of each of this owner's things, in `~/.lnk/data/<owner>/<name>/`:
+# what it keeps while it runs that isn't its state, so never under `~/Link`.
+[agents]
+harness-homes = "harnesses"
+browser = "browser"
+desktop = "desktop"
+background = "run"
+caches = "caches"
+
+[memory-service]
+working = "run"
+input-prefix = "agents-"
+input-suffix = ".json"
+
+# Where an owner's memory service reaches each of its storage bridges:
+# `<memory-sockets>/<owner's digest>/<bridge's key>/<socket>`, in the
+# runtime folder. The owner is named by the first `owner-digest` hex
+# characters of its SHA-256, never in full: an owner's name may be 64
+# bytes, and the whole path must fit a socket's 103 (macOS) or 107 (Linux).
+[memory-bridges]
+owner-digest = 16
+socket = "storage.sock"
+
+# Sockets live here, so its path stays short: macOS's `sun_path` holds 104
+# bytes, and a Mac's `$TMPDIR` alone is about 50. Without a system runtime
+# folder it is `<fallback>/<fallback-prefix><uid>`, never under `$TMPDIR`.
+[runtime-root]
+folder = "lnk"
+linux = "/run/user"
+fallback = "/tmp"
+fallback-prefix = "lnk-run-"
+
+[installation]
+exec-variable = "LNK_EXEC_DIR"
+
+[owner-files]
+seen-specs = "seen.toml"
+
+[trusted-read]
+system-links = ["/etc", "/tmp", "/var", "/var/run"]
+
+# Each owner's one folder in every part, named by its plural word: Title
+# Case directly in ~/Link and in its mirror ~/Link/Safe (~/Link/Boxes,
+# ~/Link/Safe/Models), lowercase in ~/.lnk and in every folder below those
+# (~/Link/Safe/Sandboxes/presets). `parts` lists
+# where it has a folder; one missing from a part is declared one-sided
+# there. `link` is Link's own, whose files sit at each part's root. An owner
+# outside this catalogue declares its own folders in its own
+# `locations.toml` (`HiddenPlace`).
+# `kind` is the word for one of its things, as an archive selects it
+# (`box.dev`), and `state` the parts whose folder of a thing is its
+# state: only parts under ~/Link, where nothing but state is kept.
+[owners]
+agents = { module = "agent", kind = "agent", parts = ["link", "link-safe", "safe", "data", "exec"], state = ["link", "link-safe"] }
+teams = { module = "agent", kind = "team", parts = ["link", "link-safe", "safe", "data"], state = ["link"] }
+boxes = { module = "box", kind = "box", parts = ["link", "safe"], state = ["link"] }
+models = { module = "model", parts = ["link-safe", "safe", "data"], state = ["link-safe"] }
+sandboxes = { module = "sandbox", parts = ["link-safe", "safe"], state = ["link-safe"] }
+secrets = { module = "secret", parts = ["safe"] }
+harnesses = { module = "agent", parts = ["data", "exec"] }
+measures = { module = "measure", parts = ["safe", "data"] }
+envs = { module = "env", parts = ["safe"] }
+clouds = { module = "cloud", parts = ["safe"] }
+storage = { module = "storage", parts = ["safe"] }
+aws = { module = "aws", parts = ["safe"] }
+gcp = { module = "gcp", parts = ["safe"] }
+bundles = { module = "bundle", parts = ["safe", "data"] }
+
+[home]
+agents = { path = "Agents", kind = "data", owner = "agents" }
+teams = { path = "Teams", kind = "data", owner = "teams" }
+boxes = { path = "Boxes", kind = "data", owner = "boxes" }
+files = { path = "Files", kind = "data", owner = "link" }
+archive = { path = "Archive", kind = "data", owner = "link" }
+logs = { path = "Logs", kind = "data", owner = "link" }
+safe = { path = "Safe", kind = "control", owner = "link" }
+marker = { path = "Safe/folder.toml", kind = "control", owner = "link" }
+settings = { path = "Safe/settings.toml", kind = "control", owner = "link" }
+agent-settings = { path = "Safe/Agents", kind = "control", owner = "agents" }
+agent-defaults = { path = "Safe/Agents/defaults.toml", kind = "control", owner = "agents" }
+team-specs = { path = "Safe/Teams", kind = "control", owner = "teams" }
+models = { path = "Safe/Models/models.toml", kind = "control", owner = "models" }
+sandbox-presets = { path = "Safe/Sandboxes/presets", kind = "control", owner = "sandboxes" }
+
+[hidden]
+bin = { path = "exec/bin", kind = "exec", owner = "link" }
+settings = { path = "safe/settings.toml", kind = "control", owner = "link" }
+map = { path = "safe/map.toml", kind = "control", owner = "link" }
+installation = { path = "safe/installation.toml", kind = "control", owner = "link" }
+maintenance = { path = "safe/maintenance.toml", kind = "control", owner = "link" }
+agent-policy = { path = "safe/agents/policy.toml", kind = "control", owner = "agents" }
+secret-preferences = { path = "safe/secrets/preferences.toml", kind = "control", owner = "secrets" }
+migration-journal = { path = "safe/agents/journal", kind = "control", owner = "agents" }
+stopped-services = { path = "safe/agents/stopped-services", kind = "control", owner = "agents" }
+agent-places = { path = "safe/agents/places", kind = "control", owner = "agents" }
+agents = { path = "safe/agents", kind = "control", owner = "agents" }
+agent-machines = { path = "safe/agents/machines", kind = "control", owner = "agents" }
+agent-environments = { path = "safe/agents/environments", kind = "control", owner = "agents" }
+agent-ids = { path = "safe/agents/ids.toml", kind = "control", owner = "agents" }
+agent-services = { path = "safe/agents/services.toml", kind = "control", owner = "agents" }
+agent-data = { path = "data/agents", kind = "data", owner = "agents" }
+context = { path = "data/agents/context", kind = "data", owner = "agents" }
+model-context = { path = "data/models/context", kind = "data", owner = "models" }
+shims = { path = "exec/agents/shims", kind = "exec", owner = "agents" }
+mktemp = { path = "exec/agents/shims/mktemp", kind = "exec", owner = "agents" }
+configured = { path = "data/harnesses/configured", kind = "data", owner = "harnesses" }
+shared-memory = { path = "data/agents/memory", kind = "data", owner = "agents" }
+shared-harnesses = { path = "data/agents/shared-harnesses", kind = "data", owner = "agents" }
+team-memory = { path = "data/teams", kind = "data", owner = "teams" }
+sending = { path = "safe/agents/transfers/sending", kind = "control", owner = "agents" }
+receiving = { path = "safe/agents/transfers/receiving", kind = "control", owner = "agents" }
+restoring = { path = "safe/agents/transfers/restore", kind = "control", owner = "agents" }
+team-moving = { path = "safe/agents/transfers/teams", kind = "control", owner = "agents" }
+moved = { path = "safe/agents/transfers/moved", kind = "control", owner = "agents" }
+moving = { path = "safe/agents/transfers/moving", kind = "control", owner = "agents" }
+held = { path = "safe/agents/transfers/held", kind = "control", owner = "agents" }
+transfer-scratch = { path = "safe/agents/transfers/scratch", kind = "control", owner = "agents" }
+harness-history = { path = "data/agents/harness-history", kind = "data", owner = "agents" }
+agent-move = { path = "data/agents/move", kind = "data", owner = "agents" }
+harness-grants = { path = "safe/agents/harness-grants", kind = "control", owner = "agents" }
+teams = { path = "safe/teams", kind = "control", owner = "teams" }
+claude = { path = "data/harnesses/claude", kind = "data", owner = "harnesses" }
+codex = { path = "data/harnesses/codex", kind = "data", owner = "harnesses" }
+openclaw-doctor-release = { path = "data/harnesses/openclaw/doctor-release", kind = "data", owner = "harnesses" }
+claude-programs = { path = "exec/harnesses/claude", kind = "exec", owner = "harnesses" }
+codex-programs = { path = "exec/harnesses/codex", kind = "exec", owner = "harnesses" }
+deepseek-programs = { path = "exec/harnesses/deepseek", kind = "exec", owner = "harnesses" }
+openclaw-programs = { path = "exec/harnesses/openclaw", kind = "exec", owner = "harnesses" }
+hermes-programs = { path = "exec/harnesses/hermes", kind = "exec", owner = "harnesses" }
+installations = { path = "safe/agents/installations", kind = "control", owner = "agents" }
+shared-bridges = { path = "safe/agents/bridges", kind = "control", owner = "agents" }
+jobs = { path = "safe/envs/jobs", kind = "control", owner = "envs" }
+measure-log = { path = "safe/measures/measures.jsonl", kind = "control", owner = "measures" }
+boxes = { path = "safe/boxes", kind = "control", owner = "boxes" }
+box-machines = { path = "safe/boxes/machines", kind = "control", owner = "boxes" }
+storage = { path = "safe/storage", kind = "control", owner = "storage" }
+clouds = { path = "safe/clouds", kind = "control", owner = "clouds" }
+envs = { path = "safe/envs", kind = "control", owner = "envs" }
+gcp = { path = "safe/gcp", kind = "control", owner = "gcp" }
+bundle-signers = { path = "safe/bundles/signers", kind = "control", owner = "bundles" }
+bundles = { path = "data/bundles", kind = "data", owner = "bundles" }
+measures = { path = "safe/measures", kind = "control", owner = "measures" }
+model-facts = { path = "safe/models/facts.toml", kind = "control", owner = "models" }
+module-offers = { path = "safe/modules/offers.toml", kind = "control", owner = "link" }
+approvals = { path = "safe/approvals", kind = "control", owner = "link" }
+sandboxes = { path = "safe/sandboxes", kind = "control", owner = "sandboxes" }
+sandbox-grants = { path = "safe/sandboxes/grants", kind = "control", owner = "sandboxes" }
+secrets = { path = "safe/secrets/secrets.toml", kind = "control", owner = "secrets" }
+update = { path = "safe/releases/update.json", kind = "control", owner = "link" }
+store-scratch = { path = "safe/agents/store-scratch", kind = "control", owner = "agents" }
+prices = { path = "safe/clouds/prices", kind = "control", owner = "clouds" }
+aws = { path = "safe/aws", kind = "control", owner = "aws" }
+agent-credentials = { path = "safe/agents/credentials", kind = "control", owner = "agents" }
+measure-credentials = { path = "safe/measures/credentials", kind = "control", owner = "measures" }
+releases = { path = "safe/releases", kind = "control", owner = "link" }
+artifacts = { path = "safe/artifacts", kind = "control", owner = "link" }
+harness-measure-log = { path = "data/measures/measures.jsonl", kind = "data", owner = "measures" }
+core-program = { path = "exec/bin/lnk", kind = "exec", owner = "link" }
+modules = { path = "safe/modules", kind = "control", owner = "link" }
+services = { path = "safe/services", kind = "control", owner = "link" }
+archive-staging = { path = "data/archives", kind = "data", owner = "link" }
+upgrades = { path = "safe/upgrades", kind = "control", owner = "link" }
+
+[runtime]
+program-staging = { path = "agent/install", kind = "data", owner = "agents" }
+agent-network = { path = "agent/network", kind = "data", owner = "agents" }
+shared-tools = { path = "sandbox/tools", kind = "data", owner = "sandboxes" }
+bridges = { path = "sandbox/bridges", kind = "data", owner = "sandboxes" }
+checks = { path = "sandbox/checks", kind = "data", owner = "sandboxes" }
+sandbox = { path = "sandbox/runs", kind = "data", owner = "sandboxes" }
+memory-sockets = { path = "agent/memory", kind = "data", owner = "agents" }
+displays = { path = "agent/displays", kind = "data", owner = "agents" }
+
+[system]
+settings = "/etc/lnk"
+exec = "/usr/local/lib/lnk"
+shared-mode = 0o755
+
+[system.state]
+linux = "/var/lib/lnk"
+linux-private = "/var/lib/private/lnk"
+macos = "/var/db/lnk"
+
+[system.locations]
+machine-kind = { root = "settings", path = "kind.toml", kind = "control" }
+worker-settings = { root = "settings", path = "workers.json", kind = "control" }
+worker-journal = { root = "state", path = "sandbox/workers", kind = "control" }
+guest-service = { root = "settings", path = "service.toml", kind = "control" }
+box-end = { root = "settings", path = "end.json", kind = "control" }
+box-users = { root = "settings", path = "users", kind = "control" }
+core-program = { root = "exec", path = "lnk", kind = "exec" }
+secret-program = { root = "exec", path = "lnk-secret", kind = "exec" }
+sandbox-program = { root = "exec", path = "lnk-sandbox", kind = "exec" }
+secret-store = { root = "state", path = "secret", kind = "control" }
+# The state root's data part: what a run may be granted, an owner's in its
+# own folder, by its plural word, as in ~/.lnk/data.
+data = { root = "state", path = "data", kind = "data" }

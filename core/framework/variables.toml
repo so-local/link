@@ -1,0 +1,59 @@
+schema = 1
+
+[defines.LNK_ASKER_BUILT_FROM]
+type = "string"
+description = "The commit the program asking a question was built from, handed to the module answering it, which refuses the question when it was built from another."
+
+[defines.LNK_BUILD]
+type = "string"
+description = "The build a program is compiled as: `dev`, `staging` or `prod`, set by `lnk bundle create` as it compiles a bundle's programs and read as each is compiled. Left out, a build from source."
+
+[defines.LNK_COMPONENTS]
+type = "string"
+description = "Component folders outside `lnk`'s own workspace, joined as `PATH` is, whose modules a build of `lnk` lists, read as it's compiled. `lnk bundle create` sets it from the bundle's `components` and clears any other, so a bundle's `lnk` never depends on the shell or folder it was built from."
+
+[defines.LNK_DEV_SIGNER]
+type = "string"
+description = "The allowed-signers line of the key a dev build is signed with, which `lnk bundle create --build dev` derives from your signer and a dev build reads as it's compiled, refusing to compile without it."
+
+[defines.LNK_PROD_SIGNER]
+type = "string"
+description = "The allowed-signers line of the signer a prod build is signed with, which `lnk bundle` derives from the bundle's signer and a prod build reads as it's compiled, trusting it alone."
+
+[[uses]]
+name = "LNK_EXE"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_MODULES"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_RELEASES_URL"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TEST_RELEASE_SIGNERS"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_UPDATE_NOTICE"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_INNER"
+access = ["set"]
+context = "runtime"
+
+[readers]
+"release::source::cloud_command" = "Forward only the cloud CLI login variables enumerated by Cloud::cli when reading an authenticated release bucket."

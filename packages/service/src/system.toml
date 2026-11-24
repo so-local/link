@@ -1,0 +1,5 @@
+systemd_directory = "/etc/systemd/system"
+launchd_directory = "/Library/LaunchDaemons"
+systemctl = "systemctl"
+launchctl = "/bin/launchctl"
+restart_seconds = 5

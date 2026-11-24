@@ -1,0 +1,44 @@
+schema = 1
+
+# The harness protocol Link Harness answers, declared by its contract
+# (`link-harness-contract`).
+[implements]
+harness-contract = [
+    "harness-contract.harness-contract.install",
+    "harness-contract.harness-contract.configure",
+    "harness-contract.harness-contract.contract",
+    "harness-contract.harness-contract.command",
+    "harness-contract.harness-contract.ask",
+    "harness-contract.harness-contract.health",
+    "harness-contract.harness-contract.endpoint",
+    "harness-contract.harness-contract.needs",
+    "harness-contract.harness-contract.connections",
+    "harness-contract.harness-contract.traces",
+    "harness-contract.harness-contract.instructions",
+    "harness-contract.harness-contract.conversation",
+    "harness-contract.state.show",
+    "harness-contract.state.export",
+    "harness-contract.conversations.list",
+    "harness-contract.conversations.fork",
+    "harness-contract.conversations.move",
+]
+
+# Its own: the protocol's serve, which may serve several agents of one
+# owner from one process, or start blank.
+[verbs]
+serve = { description = "Run the harness's endpoint until it's stopped", effect = "insert" }
+
+[actions."harness.harness.serve"]
+description = """
+Run Link Harness: its ACP, for the agent `LNK_AGENT`
+
+With `--agents <file>`, for each agent the file names; with `--control
+<control>`, for none, until one is bound on the Unix socket <control>.
+"""
+role = "plumbing"
+output = "harness-contract.served"
+
+[actions."harness.harness.serve".args]
+agents = { type = "string", description = "The file naming the agents this process serves", x-link-cli = { conflicts = ["control"] } }
+control = { type = "string", description = "The control socket for a process started without an agent" }
+json = { x-link-cli = { shared = "json" } }

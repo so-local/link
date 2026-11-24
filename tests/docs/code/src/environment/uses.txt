@@ -1,0 +1,15 @@
+// Source the variables audit reads in its tests: each kind of use it
+// tells apart, by its access and the time it happens.
+        const BUILT: Option<&str> = option_env!("LNK_BUILT");
+        fn run(command: &mut std::process::Command) {
+            std::env::set_var("LNK_SET", "1");
+            std::env::remove_var("LNK_UNSET");
+            command
+                .env("LNK_CHILD", "1")
+                .env_remove("LNK_GONE")
+                .envs([("LNK_PAIR", "1")])
+                .env_clear();
+            let _ = env!("CARGO_PKG_VERSION");
+            for (key, _) in std::env::vars_os() {}
+        }
+    

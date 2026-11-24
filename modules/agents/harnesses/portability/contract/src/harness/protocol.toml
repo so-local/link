@@ -1,0 +1,8 @@
+# The harness protocol: what `lnk-agent` asks a harness program,
+# `lnk-<name> contract` and the commands and answers it names, whose
+# `version` says the version it speaks. An agent starts a harness whose
+# adapter speaks from `oldest` to `current`.
+name = "harness"
+current = 3
+oldest = 1
+upgrade = "lnk upgrade"

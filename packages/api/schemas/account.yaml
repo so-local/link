@@ -1,0 +1,1472 @@
+# Local Link's account service API: what `lnk` calls at the account service.
+#
+# The one source of truth for this API. The client's types and the
+# service's schemas are made from this file, and the pages beside it
+# (README.md, authentication.md, routes/) are written from it. A change
+# to the API is a change to this file first.
+#
+# Every object is closed (`additionalProperties: false`): a field that
+# isn't named here is refused, in a request and in an answer alike.
+#
+# A credential is marked `x-secret: true`: Link's client holds it as a
+# secret, never printed and zeroed when dropped.
+openapi: 3.1.0
+info:
+  title: Local Link account service
+  version: "1"
+  summary: Sign-in, installations, access tokens and agents' reports, for lnk.
+  description: >-
+    JSON over HTTPS. Every route is under `/api/v1`; a change that would
+    break a caller comes as `/api/v2`, beside it. Every answer is sent with
+    `Cache-Control: no-store`. A refusal is an `Error`, its `error` one of
+    OAuth's words.
+  license:
+    name: MIT OR Apache-2.0
+    identifier: MIT OR Apache-2.0
+servers:
+  - url: https://accounts.example.com/api/v1
+    description: Local Link's account service. A relay names its own (`GET /_link/accounts`).
+tags:
+  - name: sign-in
+    description: >-
+      An installation signed in with the browser, OAuth's device flow (RFC 8628),
+      with a key pair of its own: the service keeps only the public half.
+  - name: installations
+    description: The account's installations, listed, signed in by another, and signed out.
+  - name: tokens
+    description: >-
+      Access tokens: short JWTs an installation gets by signing for them with its
+      key, which their audience checks itself with the service's public keys.
+  - name: iam
+    description: >-
+      Who may do what in the account: its audit log, the stop that ends
+      every token at once, and the list of stopped accounts.
+  - name: agents
+    description: An installation's agents reported, and what was asked of them in the browser.
+  - name: visitors
+    description: >-
+      People let in to a tunnel by their account: a username
+      looked up once, to the account's id, and a visitor signed in
+      to a relay with an access token of scope `visit`.
+paths:
+  /relay:
+    get:
+      operationId: relayAccounts
+      summary: Find a registered relay's account service independently of its box
+      security: []
+      parameters:
+        - name: audience
+          in: query
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 253 }
+          description: The exact registered relay authority, without a URL scheme.
+      responses:
+        "200":
+          description: Public discovery only; no credential is needed or returned.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RelayAccounts" }
+        "400": { description: Invalid or repeated query parameters. }
+        "404": { description: The authority is not a registered relay. }
+        "503": { description: Discovery is not configured. }
+  /device:
+    post:
+      tags: [sign-in]
+      operationId: startDevice
+      summary: Start a device login
+      description: >-
+        A device login's first step, with the public half of the key pair the
+        installation made: approved, it's the installation's. Anyone may ask: each
+        address may start 10 in ten minutes and its /24 (IPv6 /64) 30, each
+        address keeps 3 waiting at most, and 500 wait in all.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StartDevice" }
+      responses:
+        "200":
+          description: The login started, for a person to approve in the browser.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DeviceLogin" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /device/token:
+    post:
+      tags: [sign-in]
+      operationId: pollDevice
+      summary: Poll a device login
+      description: >-
+        Asked every `interval` seconds until the person answers. Until then
+        a 400: `authorization_pending`, `slow_down` (poll 5 seconds less
+        often), `access_denied` or `expired_token`. Once approved, the
+        installation signed in with the key it started with, and who its account
+        is. An address polls 120 times a minute at most, and one login once a
+        second.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PollDevice" }
+      responses:
+        "200":
+          description: Approved. The installation, and its account.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+        "400":
+          description: >-
+            Not yet (`authorization_pending`, `slow_down`), never
+            (`access_denied`, `expired_token`), or not a poll
+            (`invalid_request`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /account:
+    get:
+      tags: [sign-in]
+      operationId: account
+      security:
+        - accessToken: [installation.read]
+      summary: Who an access token is
+      description: "A device login checking the key another installation added for it before keeping it."
+      responses:
+        "200":
+          description: The token's account and installation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+    delete:
+      tags: [sign-in]
+      operationId: deleteAccount
+      security:
+        - accessToken: [installation.admin]
+      summary: Delete the account
+      description: >-
+        The account page's deletion. The token's account is deleted for good: its
+        plan ends at once, with nothing refunded, what the services the
+        account service acts for hold of it is erased, then its sign-in and
+        every installation of it. Asked again after a failure, it goes on from
+        where it stopped; once it's deleted, the token is no one's.
+      responses:
+        "204": { $ref: "#/components/responses/Done" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /logout:
+    post:
+      tags: [sign-in]
+      operationId: logout
+      security:
+        - accessToken: [installation.admin]
+      summary: Sign this installation out
+      description: >-
+        Sign-out. The token's installation is signed out for good: its
+        public key is deleted, so it gets no access token again, and its last
+        report is deleted; live control can no longer renew its access token.
+      responses:
+        "204": { $ref: "#/components/responses/Done" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+
+  /installations:
+    get:
+      tags: [installations]
+      operationId: listInstallations
+      security:
+        - accessToken: [installation.read]
+      summary: List the account's installations
+      description: "Every installation signed in to the token's account, oldest first."
+      responses:
+        "200":
+          description: The account's installations.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Installations" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+    post:
+      tags: [installations]
+      operationId: grantInstallation
+      security:
+        - accessToken: [installation.admin]
+      summary: Sign in another installation
+      description: >-
+        What `lnk box create` uses for the box it made: a
+        new installation of the token's account, with the public half of the key
+        pair the box made, signed in by this one with no browser. An installation
+        signs in 20 an hour at most.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GrantInstallation" }
+      responses:
+        "200":
+          description: The new installation, and its account.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+
+  /installations/{id}:
+    delete:
+      tags: [installations]
+      operationId: signOutInstallation
+      security:
+        - accessToken: [installation.admin]
+      summary: Sign out another installation
+      description: "One of the account's installations signed out from another."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The installation's id, as `GET /installations` lists it.
+          schema: { $ref: "#/components/schemas/InstallationId" }
+      responses:
+        "204": { $ref: "#/components/responses/Done" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "404":
+          description: No installation of the account by that id is signed in (`not_found`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+
+  /iam/log:
+    get:
+      tags: [iam]
+      operationId: iamLog
+      security:
+        - accessToken: [iam.read]
+      summary: The account's audit log
+      description: >-
+        Each change to who may do what in the token's account
+        (an installation signed in, signed out, the account stopped), newest
+        first, at most 500, kept a year. Never a secret.
+      responses:
+        "200":
+          description: The log.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditLog" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+
+  /iam/stop:
+    post:
+      tags: [iam]
+      operationId: stop
+      security:
+        - accessToken: [iam.admin]
+      summary: Stop everything at once
+      description: >-
+        For a leak: every installation of the token's account but
+        the token's own is signed out, and the account is put on the list of
+        stopped accounts (`GET /stopped`) from now, so Link's relays and
+        services refuse every token of its made before now within 30
+        seconds, not their 5 minutes. Kept in the audit log.
+      responses:
+        "200":
+          description: When it stopped, and how many installations it signed out.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Stopped" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+
+  /stopped:
+    get:
+      tags: [iam]
+      operationId: stoppedAccounts
+      security: []
+      summary: The accounts stopped, and when
+      description: >-
+        Every stopped account, each with when it stopped: a checker refuses
+        an account's token made before then (its `iat`). Link's relays and
+        services fetch it every 30 seconds, keeping the last one when it
+        can't be reached, so this service is never in a request's path.
+        Anyone may ask: it holds account ids and times alone.
+      responses:
+        "200":
+          description: The stopped accounts.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StoppedAccounts" }
+
+  /token:
+    post:
+      tags: [tokens]
+      operationId: token
+      summary: An access token, for an assertion the installation signed
+      description: >-
+        Every call of the API: the
+        installation signs a `InstallationAssertion` with its key, good for one request
+        of at most 60 seconds, naming the audience and the scope it wants,
+        and gets an access token signed with the service's Ed25519 key for 5
+        minutes. An assertion is taken once: the same `jti` again is refused.
+        A clock up to 2 minutes off is allowed. The scopes an installation asks for
+        (`Scope`, whose `x-grants` says the grants its token is given for
+        each): `api` for this service's own origin; `tunnel` and `share` for a
+        relay this service signs for (all, when it names none); `identify`
+        for any other service; and `agent` for an agent of the installation, as
+        itself, at any service but this one and a relay, its assertion naming
+        the agent, registered to its account and in the installation's current report, and its grants,
+        none of another account's. Each installation asks 120 times a minute at
+        most, and each address 600.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TokenRequest" }
+      responses:
+        "200":
+          description: The access token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccessToken" }
+        "400":
+          description: >-
+            The assertion isn't one this service takes (`invalid_grant`: its
+            audience or its time, checked before its installation is looked up, or
+            its `jti` seen), or asks for a scope this installation doesn't get
+            there (`invalid_scope`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: >-
+            The installation it names isn't signed in to that account (signed out,
+            or never), or didn't sign it (`invalid_token`): one answer, so
+            none says which installations there are.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /keys:
+    get:
+      tags: [tokens]
+      operationId: keys
+      summary: The public keys access tokens are checked with
+      description: >-
+        Each by the id a token's `kid` names: more than one while the service
+        changes keys. A relay's operator gives them to the relay; a
+        service checking `identify` tokens holds them too. Anyone may ask.
+      security: []
+      responses:
+        "200":
+          description: The public keys.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SigningKeys" }
+        "404":
+          description: This service makes no access tokens (`not_found`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /users/{username}:
+    get:
+      tags: [visitors]
+      operationId: user
+      security:
+        - accessToken: [installation.read]
+      summary: The account a username is now
+      description: >-
+        A tunnel letting in `alice`: the account the username names now,
+        kept by its id, since a username can change. Usernames are public, as
+        the tunnels' addresses are; an email is never looked up.
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema: { $ref: "#/components/schemas/Username" }
+      responses:
+        "200":
+          description: The account.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "404":
+          description: No account has that username (`not_found`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+
+  /visit:
+    get:
+      tags: [visitors]
+      operationId: visit
+      summary: Sign a visitor in to a relay's tunnels
+      description: >-
+        A browser, sent by a relay to sign in to a tunnel that lets in only
+        some accounts. Signed in here, it gets an access token of scope
+        `visit` for that relay, a minute long, naming its account, its
+        verified email if it has one, and the relay's `state` as `nonce`; the
+        page posts it to `return` (a `VisitForm`), so the token is in no URL.
+        Not signed in, the browser signs in first and comes back. Only for a
+        relay this service signs for, and only to `/_link/signin/callback` on
+        that relay's own host, over HTTPS (HTTP for one on this machine).
+        Answers are pages for a person, not JSON.
+      security:
+        - browserSession: []
+      parameters:
+        - name: relay
+          in: query
+          required: true
+          description: The relay, by the audience it names itself.
+          schema: { $ref: "#/components/schemas/Audience" }
+        - name: state
+          in: query
+          required: true
+          description: The relay's sign-in this answers, sent back as it is and as the token's `nonce`.
+          schema: { $ref: "#/components/schemas/VisitState" }
+        - name: return
+          in: query
+          required: true
+          description: Where the page posts the token, `<the relay's origin>/_link/signin/callback`.
+          schema:
+            type: string
+            maxLength: 300
+      responses:
+        "200":
+          description: A page that posts a `VisitForm` to `return`, itself, at once.
+          content:
+            text/html:
+              schema: { type: string }
+        "303":
+          description: Not signed in here, so off to sign in, then back.
+        "400":
+          description: A relay this service doesn't sign for, or a `return` not on that relay's callback.
+          content:
+            text/plain:
+              schema: { type: string }
+        "429":
+          description: This account signed in to relays 60 times in ten minutes; wait.
+          content:
+            text/plain:
+              schema: { type: string }
+        "503":
+          description: This service makes no access tokens now.
+          content:
+            text/plain:
+              schema: { type: string }
+
+  /agents:
+    post:
+      tags: [agents]
+      operationId: reportAgents
+      security:
+        - accessToken: [agent.admin]
+      summary: Report this installation's agents
+      description: >-
+        The installation's agents, kept in place of its last report.
+        With `actions: true`, the answer is `{"actions": []}` for older
+        clients. Live browser requests use the remote relay and return
+        their own outcomes. A body is 256 KiB at most,
+        read no further, with or without a `Content-Length`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Report" }
+      responses:
+        "200":
+          description: Kept; the actions waiting for this installation (`actions` was `true`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Actions" }
+        "204":
+          description: Kept (`actions` was left out or `false`).
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/InvalidToken" }
+        "413":
+          description: The body is over 256 KiB (`invalid_request`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429": { $ref: "#/components/responses/SlowDown" }
+
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        An access token whose audience is this service's origin
+        (`AccessTokenClaims`), from `POST /token`, while its installation is
+        signed in, its `scope` granting the action each route names here
+        (`installation.read`, `installation.admin`, `agent.admin`). An address that sent 60 tokens no
+        installation has in ten minutes has every token refused, 429, until the
+        ten minutes pass.
+    browserSession:
+      type: apiKey
+      in: cookie
+      name: sb-session
+      description: >-
+        A person's session in this browser, made by signing in to the app
+        (the app's own cookies). Only `/visit` takes one; no route that takes an access token does.
+
+  responses:
+    Done:
+      description: Done; no body.
+    InvalidRequest:
+      description: The body, or the path, isn't one this route takes (`invalid_request`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    InvalidToken:
+      description: No access token, or one this service doesn't take (`invalid_token`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    SlowDown:
+      description: Too many requests from this address or this installation (`slow_down`). Wait, then ask again.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unavailable:
+      description: The service can't do this now, or makes no access tokens (`temporarily_unavailable`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ServerError:
+      description: The service failed (`server_error`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    RelayAccounts:
+      type: object
+      additionalProperties: false
+      required: [url, audience]
+      properties:
+        url: { type: string, format: uri }
+        audience: { type: string }
+    Error:
+      description: Every refusal. `error` is the code a program reads; `error_description` is for a person.
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error: { $ref: "#/components/schemas/ErrorCode" }
+        error_description:
+          type: string
+          maxLength: 500
+    ErrorCode:
+      description: What a refusal is, in OAuth's words.
+      type: string
+      enum:
+        - invalid_request
+        - invalid_token
+        - invalid_grant
+        - invalid_scope
+        - authorization_pending
+        - slow_down
+        - access_denied
+        - expired_token
+        - not_found
+        - temporarily_unavailable
+        - server_error
+
+    # Names and ids.
+    InstallationName:
+      description: An installation's name, as a person gave it.
+      type: string
+      pattern: "^[\\p{L}\\p{N} ._'’()-]{1,64}$"
+    InstallationId:
+      description: An installation's id.
+      type: string
+      format: uuid
+      pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    AccountId:
+      description: An account's id. It never changes.
+      type: string
+      format: uuid
+      pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    Owner:
+      description: The account as Link's services know it, `acct-` and its id's 32 hex digits.
+      type: string
+      pattern: "^acct-[0-9a-f]{32}$"
+    Username:
+      description: The account's username, which tunnels go by. It can change.
+      type: string
+      pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+      maxLength: 39
+    ReservedUsername:
+      description: >-
+        Names no account is given or may take as its username: a user's
+        host, `<username>.<domain>`, at one of them would read as Link's own
+        or a well-known service's. Only a new name is checked: an account
+        already holding a name reserved later keeps it until it's renamed
+        by hand.
+      type: string
+      enum: [
+        abuse, account, accounts, admin, administrator, api, app, apple,
+        auth, bank, billing, blog, boxes, buckets, cdn, cloud, console,
+        dashboard, dispatch, docs, download, downloads, github, google, help,
+        hooks, hostmaster, info, internal, jobs, link, lnk, local, localhost,
+        login, mail, microsoft, models, move, moves, noc, oauth, official,
+        pay, payment, payments, paypal, postmaster, relay, root, secrets,
+        secure, security, signin, signup, staff, static, status, store,
+        support, system, team, trace, update, verify, wallet, webmaster, www
+      ]
+    Email:
+      description: An email, lowercase, as a tunnel lets a visitor in by it.
+      type: string
+      maxLength: 254
+      pattern: "^[^\\sA-Z@]{1,64}@[^\\sA-Z@]{1,189}$"
+    User:
+      description: An account, by its username now.
+      type: object
+      additionalProperties: false
+      required: [owner, username]
+      properties:
+        owner: { $ref: "#/components/schemas/Owner" }
+        username: { $ref: "#/components/schemas/Username" }
+    VisitState:
+      description: A relay's visitor sign-in, 48 lowercase hex digits it made.
+      type: string
+      pattern: "^[0-9a-f]{48}$"
+    VisitForm:
+      description: >-
+        What `/visit`'s page posts to the relay's `/_link/signin/callback`, as
+        a form: the relay's `state`, and the visitor's access token of scope
+        `visit` for it.
+      type: object
+      additionalProperties: false
+      required: [state, token]
+      properties:
+        state: { $ref: "#/components/schemas/VisitState" }
+        token:
+          $ref: "#/components/schemas/Jwt"
+          x-secret: true
+    InstallationPublicKey:
+      description: The public half of an installation's Ed25519 key pair, its raw 32 bytes as base64url.
+      type: string
+      pattern: "^[A-Za-z0-9_-]{43}$"
+    Jwt:
+      description: A compact JWS, header, claims and signature, each base64url.
+      type: string
+      maxLength: 4096
+      pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+    Audience:
+      description: >-
+        Whom an access token is for: a relay's domain or a service's host, as
+        it names itself (`relay.example.com`, `localhost:7080`), or this service's
+        origin (`https://accounts.example.com`) for its own API.
+      type: string
+      pattern: "^(https?://)?[a-z0-9.:-]{1,253}$"
+    Scope:
+      description: >-
+        What an installation asks an access token for, in its assertion. The
+        account service writes the token's grants (`Grants`) for it as
+        `x-grants` says, the one place they're written: link-api and the app
+        generate theirs from it.
+      type: string
+      enum: [tunnel, share, visit, api, identify, agent]
+      x-grants:
+        tunnel: "tunnel.open@tunnel:*"
+        share: "share.make@share:*"
+        visit: "tunnel.visit"
+        api: "installation.read installation.admin agent.admin iam.read iam.admin"
+        identify: ""
+        # An agent's are its own, as its assertion names them (`grants`).
+        agent: ""
+    Principal:
+      description: >-
+        Who's acting, or who may: a user (`user:<id>`, the ID Link
+        minted for their account) or a service, a program acting on its
+        own (`service:<id>`, a service's or an agent's). A
+        installation is never one: its signer signs for its user. `<kind>:<id>`:
+        the kind, then an ID Link minted, 12 lowercase letters and digits.
+      type: string
+      maxLength: 20
+      pattern: "^(user|service):[a-z0-9]{12}$"
+    PrincipalKind:
+      description: >-
+        The kind of a `Principal`, before its `:`; the kinds its pattern
+        names, one for one.
+      type: string
+      enum: [user, service]
+    Grants:
+      description: >-
+        What an access token lets its holder do at its audience: grants,
+        separated by single spaces, none for a token that only says who it
+        is. Each is `<action>` or `<action>@<resource>`. An action is
+        `<kind>.<verb>` (`tunnel.open`), `<kind>.*` for every verb of a kind,
+        or `*` for every action; a resource is `<kind>:<id>`, or `*`, or a
+        name ending in `*` for every resource it begins (`tunnel:*`), and a
+        grant without one reaches every resource of the account. A checker
+        looks for a grant of the action it serves and skips every other, an
+        action it doesn't know among them, so actions are added without a
+        checker that's older refusing a token.
+      x-allows:
+        # Cases `allows(action, resource)` answers for a token's grants,
+        # which link-api's and the app's checkers both run. What's asked is
+        # a `GrantAction`; what's granted may be any action.
+        - { scope: "tunnel.open@tunnel:*", action: tunnel.open, resource: "tunnel:web", allowed: true }
+        - { scope: "tunnel.open@tunnel:*", action: tunnel.open, resource: "tunnel:*", allowed: true }
+        - { scope: "tunnel.open@tunnel:*", action: share.make, resource: "share:*", allowed: false }
+        - { scope: "future.thing@thing:x tunnel.open@tunnel:*", action: tunnel.open, resource: "tunnel:web", allowed: true }
+        - { scope: "future.thing", action: tunnel.open, resource: "tunnel:*", allowed: false }
+        - { scope: "", action: tunnel.open, resource: "tunnel:*", allowed: false }
+        - { scope: "tunnel.visit", action: tunnel.visit, resource: "tunnel:web", allowed: true }
+        - { scope: "tunnel.visit", action: tunnel.open, resource: "tunnel:web", allowed: false }
+        - { scope: "tunnel.*", action: tunnel.open, resource: "tunnel:web", allowed: true }
+        - { scope: "tunnels.*", action: tunnel.open, resource: "tunnel:web", allowed: false }
+        - { scope: "*", action: share.make, resource: "share:x", allowed: true }
+        - { scope: "*@share:*", action: tunnel.open, resource: "tunnel:web", allowed: false }
+        - { scope: "tunnel.ope", action: tunnel.open, resource: "tunnel:web", allowed: false }
+        - { scope: "tunnel.open@tunnel:ci-*", action: tunnel.open, resource: "tunnel:ci-web", allowed: true }
+        - { scope: "tunnel.open@tunnel:ci-*", action: tunnel.open, resource: "tunnel:web", allowed: false }
+        - { scope: "tunnel.open@tunnel:ci-*", action: tunnel.open, resource: "tunnel:*", allowed: false }
+        - { scope: "tunnel.open@tunnel:web", action: tunnel.open, resource: "tunnel:web", allowed: true }
+        - { scope: "tunnel.open@tunnel:web", action: tunnel.open, resource: "tunnel:webs", allowed: false }
+        - { scope: "tunnel.open@*", action: tunnel.open, resource: "tunnel:web", allowed: true }
+        - { scope: "installation.read installation.admin agent.admin", action: agent.admin, resource: "agent:*", allowed: true }
+        - { scope: "installation.read installation.admin agent.admin", action: installation.admin, resource: "installation:0aa1b2c3-0000-4000-8000-000000000001", allowed: true }
+        - { scope: "installation.read", action: installation.admin, resource: "installation:*", allowed: false }
+        - { scope: "installation.remote@installation:0aa1b2c3-0000-4000-8000-000000000001", action: installation.remote, resource: "installation:0aa1b2c3-0000-4000-8000-000000000001", allowed: true }
+        - { scope: "installation.remote@installation:0aa1b2c3-0000-4000-8000-000000000001", action: installation.remote, resource: "installation:0aa1b2c3-0000-4000-8000-000000000002", allowed: false }
+        - { scope: "installation.admin@installation:*", action: installation.remote, resource: "installation:0aa1b2c3-0000-4000-8000-000000000001", allowed: false }
+      type: string
+      maxLength: 2048
+      pattern: "^((\\*|[a-z][a-z0-9-]{0,31}\\.(\\*|[a-z][a-z0-9-]{0,31}))(@[A-Za-z0-9._:/*-]{1,256})?( (\\*|[a-z][a-z0-9-]{0,31}\\.(\\*|[a-z][a-z0-9-]{0,31}))(@[A-Za-z0-9._:/*-]{1,256})?)*)?$"
+    GrantAction:
+      description: >-
+        An action a checker asks a token's grants for, `<kind>.<verb>`. A
+        grant names any action its pattern allows (`Grants`), these and ones
+        added later, and a checker skips one it doesn't know; what a checker
+        asks is one of these, and each route's `security` here names one.
+      type: string
+      enum: [tunnel.open, tunnel.visit, share.make, installation.read, installation.admin, agent.admin, installation.remote, iam.read, iam.admin, team.member]
+    Actor:
+      description: >-
+        The service acting for a token's principal (RFC 8693's `act`): it
+        holds the token, and does what its grants say for `sub`.
+      type: object
+      additionalProperties: false
+      required: [sub]
+      properties:
+        sub:
+          description: The acting service, `service:<its id>`.
+          $ref: "#/components/schemas/Principal"
+    AgentId:
+      description: An agent's id, which never changes, as `lnk agent show --json` says it.
+      type: string
+      pattern: "^[a-z0-9]{12}$"
+    AgentName:
+      description: An agent's name as `lnk` takes one, never read as a flag.
+      type: string
+      pattern: "^[A-Za-z0-9._@][A-Za-z0-9._@-]{0,63}$"
+    MoveTarget:
+      description: Where a move goes, as `lnk agent move` takes one, never read as a flag; `cloud:` names a cloud account, `here` this installation.
+      type: string
+      pattern: "^(cloud:)?[A-Za-z0-9._@][A-Za-z0-9._@-]{0,63}$"
+    Connection:
+      description: A connection's name, as `lnk agent show --json` says it.
+      type: string
+      pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+
+    # Sign-in.
+    StartDevice:
+      type: object
+      additionalProperties: false
+      required: [device, public_key]
+      properties:
+        device: { $ref: "#/components/schemas/InstallationName" }
+        public_key: { $ref: "#/components/schemas/InstallationPublicKey" }
+    DeviceLogin:
+      type: object
+      additionalProperties: false
+      required: [device_code, user_code, verification_uri, verification_uri_complete, expires_in, interval]
+      properties:
+        device_code:
+          description: The secret the installation polls with. A credential, never shown to a person.
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          x-secret: true
+        user_code:
+          description: What the person checks in the browser, 8 letters with no vowels.
+          type: string
+          pattern: "^[BCDFGHJKLMNPQRSTVWXZ]{4}-[BCDFGHJKLMNPQRSTVWXZ]{4}$"
+        verification_uri:
+          description: The page that approves a login.
+          type: string
+          format: uri
+        verification_uri_complete:
+          description: That page with the code filled in, which `lnk` opens.
+          type: string
+          format: uri
+        expires_in:
+          description: Seconds the login waits for its answer, 600 today.
+          type: integer
+          minimum: 60
+          maximum: 3600
+        interval:
+          description: Seconds between polls, 2 today.
+          type: integer
+          minimum: 1
+          maximum: 60
+    PollDevice:
+      type: object
+      additionalProperties: false
+      required: [device_code]
+      properties:
+        device_code:
+          description: The device code the login started with.
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          x-secret: true
+    Installation:
+      description: An installation, by its id and name.
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id: { $ref: "#/components/schemas/InstallationId" }
+        name: { $ref: "#/components/schemas/InstallationName" }
+    Account:
+      description: An installation signed in, and its account.
+      type: object
+      additionalProperties: false
+      required: [owner, username, account_id, installation]
+      properties:
+        owner: { $ref: "#/components/schemas/Owner" }
+        username: { $ref: "#/components/schemas/Username" }
+        account_id: { $ref: "#/components/schemas/AccountId" }
+        installation: { $ref: "#/components/schemas/Installation" }
+    # Installations.
+    AuditLog:
+      type: object
+      additionalProperties: false
+      required: [entries]
+      properties:
+        entries:
+          type: array
+          maxItems: 500
+          items: { $ref: "#/components/schemas/AuditEntry" }
+    AuditEntry:
+      description: >-
+        One change to who may do what: the principal that made it, the
+        action, the resource it was on, and when; never a secret.
+      type: object
+      additionalProperties: false
+      required: [at, principal, action, resource]
+      properties:
+        at:
+          description: When.
+          type: string
+          format: date-time
+        principal:
+          description: Who made it, as a token's `sub` names one (`user:<id>`).
+          $ref: "#/components/schemas/Principal"
+        action:
+          description: What it did, `<kind>.<verb>`.
+          type: string
+          enum: [installation.signin, installation.signout, account.stop]
+        resource:
+          description: What it was on (`installation:<its id>`, `account`).
+          type: string
+          pattern: "^[A-Za-z0-9._:/-]{1,140}$"
+    Stopped:
+      type: object
+      additionalProperties: false
+      required: [at, signed_out]
+      properties:
+        at:
+          description: When the account stopped, in Unix seconds.
+          type: integer
+          minimum: 0
+        signed_out:
+          description: How many installations it signed out.
+          type: integer
+          minimum: 0
+    StoppedAccounts:
+      type: object
+      additionalProperties: false
+      required: [accounts]
+      properties:
+        accounts:
+          type: array
+          items: { $ref: "#/components/schemas/StoppedAccount" }
+    StoppedAccount:
+      type: object
+      additionalProperties: false
+      required: [account, at]
+      properties:
+        account: { $ref: "#/components/schemas/Owner" }
+        at:
+          description: When it stopped, in Unix seconds; its tokens made before then are refused.
+          type: integer
+          minimum: 0
+    Installations:
+      type: object
+      additionalProperties: false
+      required: [installations]
+      properties:
+        installations:
+          type: array
+          items: { $ref: "#/components/schemas/SignedIn" }
+    SignedIn:
+      description: One installation signed in to the account.
+      type: object
+      additionalProperties: false
+      required: [id, name, created_at, last_seen_at, this]
+      properties:
+        id: { $ref: "#/components/schemas/InstallationId" }
+        name: { $ref: "#/components/schemas/InstallationName" }
+        created_at:
+          description: When it signed in.
+          type: string
+          format: date-time
+        last_seen_at:
+          description: When it last called this service, to within five minutes.
+          type: string
+          format: date-time
+        this:
+          description: Whether it's the installation asking.
+          type: boolean
+        granted_by:
+          description: The name of the installation that signed it in; left out for one approved in the browser.
+          $ref: "#/components/schemas/InstallationName"
+    GrantInstallation:
+      type: object
+      additionalProperties: false
+      required: [name, public_key]
+      properties:
+        name: { $ref: "#/components/schemas/InstallationName" }
+        public_key:
+          description: The public half of the key pair the new installation made.
+          $ref: "#/components/schemas/InstallationPublicKey"
+    # Tokens.
+    AgentTokenRequest:
+      description: >-
+        A trusted proxy exchanges an agent-specific assertion, carried as
+        the request's bearer, for an access token. The issuer checks the
+        assertion's current authority and narrows it to these requested
+        grants and service audience. The runtime holds neither credential.
+      type: object
+      additionalProperties: false
+      required: [resource, grants]
+      properties:
+        resource:
+          type: string
+          pattern: "^[A-Za-z0-9.-]+(:[0-9]{1,5})?$"
+          maxLength: 253
+        grants: { $ref: "#/components/schemas/Grants" }
+    TokenRequest:
+      type: object
+      additionalProperties: false
+      required: [assertion]
+      properties:
+        assertion:
+          description: >-
+            An assertion accepted by its issuer. The installation token
+            exchange takes `InstallationAssertionHeader` and
+            `InstallationAssertionClaims`, signed with the installation's key,
+            for one request. A credential.
+          $ref: "#/components/schemas/Jwt"
+          x-secret: true
+    AccessToken:
+      type: object
+      additionalProperties: false
+      required: [access_token, expires_at]
+      properties:
+        access_token:
+          description: An access token (`AccessTokenHeader`, `AccessTokenClaims`). A credential.
+          type: string
+          maxLength: 4096
+          pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+          x-secret: true
+        expires_at:
+          description: When it expires, in Unix seconds, 5 minutes on.
+          type: integer
+          minimum: 0
+    SigningKeys:
+      type: object
+      additionalProperties: false
+      required: [keys]
+      properties:
+        keys:
+          type: array
+          minItems: 1
+          maxItems: 8
+          items: { $ref: "#/components/schemas/SigningKey" }
+    SigningKey:
+      description: One of the service's public keys, Ed25519.
+      type: object
+      additionalProperties: false
+      required: [kid, x]
+      properties:
+        kid:
+          description: Its id, as a token's header names it.
+          type: string
+          pattern: "^[A-Za-z0-9_-]{1,64}$"
+        x:
+          description: Its raw 32 bytes, base64url.
+          type: string
+          pattern: "^[A-Za-z0-9_-]{43}$"
+    InstallationAssertionHeader:
+      description: An installation assertion's header, and nothing else.
+      type: object
+      additionalProperties: false
+      required: [alg, typ]
+      properties:
+        alg: { type: string, const: EdDSA }
+        typ: { type: string, const: installation+jwt }
+    InstallationAssertionClaims:
+      description: What an installation signs with its key for one access token.
+      type: object
+      additionalProperties: false
+      required: [iss, sub, aud, resource, scope, iat, exp, jti]
+      properties:
+        iss:
+          description: The installation's id.
+          $ref: "#/components/schemas/InstallationId"
+        agent:
+          description: >-
+            With the scope `agent` alone, and needed with it: the agent of
+            this installation the token is for, by its id, the token's `sub`
+            `service:<its id>`.
+          $ref: "#/components/schemas/AgentId"
+        grants:
+          description: >-
+            With the scope `agent` alone: the agent's grants at the
+            audience, its token's `scope`, as the installation holds them (its
+            teams' and its roles'), at most 32; none for a token that only
+            says who it is.
+          $ref: "#/components/schemas/Grants"
+        sub:
+          description: The account's id.
+          $ref: "#/components/schemas/Owner"
+        aud:
+          description: The account service's origin.
+          type: string
+          pattern: "^https?://[a-z0-9.:-]{1,253}$"
+        resource:
+          description: The audience of the access token asked for.
+          $ref: "#/components/schemas/Audience"
+        scope: { $ref: "#/components/schemas/Scope" }
+        iat:
+          description: When it was made, in Unix seconds.
+          type: integer
+          minimum: 0
+        exp:
+          description: When it ends, in Unix seconds, at most 60 after `iat`.
+          type: integer
+          minimum: 0
+        jti:
+          description: 16 random bytes, base64url, never sent twice.
+          type: string
+          pattern: "^[A-Za-z0-9_-]{22}$"
+    AccessTokenHeader:
+      description: An access token's header, and nothing else.
+      type: object
+      additionalProperties: false
+      required: [alg, typ, kid]
+      properties:
+        alg: { type: string, const: EdDSA }
+        typ: { type: string, const: at+jwt }
+        kid:
+          description: The id of the service's key that signed it (`SigningKey`).
+          type: string
+          pattern: "^[A-Za-z0-9_-]{1,64}$"
+    AccessTokenClaims:
+      description: >-
+        What an access token says, signed. Its audience reads it with the
+        service's public keys alone, and refuses one whose claims aren't
+        these.
+      type: object
+      additionalProperties: false
+      required: [iss, sub, acc, aud, scope, usr, iat, exp]
+      properties:
+        iss:
+          description: The account service's origin.
+          type: string
+          pattern: "^https?://[a-z0-9.:-]{1,253}$"
+        sub:
+          description: >-
+            Who's acting, as RFC 7519 means it: the user an installation's signer
+            signs for (`user:<id>`), the service of an agent of an installation
+            it was made for (`service:<its agent's id>`), or the person a
+            visitor's is (`user:<id>`).
+          $ref: "#/components/schemas/Principal"
+        installation:
+          description: >-
+            The installation whose signer asked for it, in an installation's token
+            alone, its `sub` the user it signs for; never in a visitor's or
+            a service's.
+          $ref: "#/components/schemas/InstallationId"
+        acc:
+          description: The account it acts in, whose resources the grants reach.
+          $ref: "#/components/schemas/Owner"
+        act:
+          description: The service acting for `sub`, when one is; no token has one yet.
+          $ref: "#/components/schemas/Actor"
+        aud: { $ref: "#/components/schemas/Audience" }
+        scope: { $ref: "#/components/schemas/Grants" }
+        usr:
+          description: The account's username when it was made, for a relay's addresses alone.
+          $ref: "#/components/schemas/Username"
+        email:
+          description: The account's email, in a visitor's token alone, and only verified.
+          $ref: "#/components/schemas/Email"
+        nonce:
+          description: In a visitor's token alone, the relay's sign-in it answers (`VisitState`), which the relay checks is its own.
+          $ref: "#/components/schemas/VisitState"
+        auth_time:
+          description: Original verified authorization in Unix seconds when refreshed authority predates this token; never later than iat. Account-stop checks use this time, or iat when absent.
+          type: integer
+          minimum: 0
+        iat:
+          description: When it was made, in Unix seconds.
+          type: integer
+          minimum: 0
+        exp:
+          description: When it ends, in Unix seconds.
+          type: integer
+          minimum: 0
+    # Agents.
+    Report:
+      description: What an installation posts of `lnk agent list --json`.
+      type: object
+      additionalProperties: false
+      required: [agents]
+      properties:
+        agents:
+          type: array
+          maxItems: 500
+          items: { $ref: "#/components/schemas/ReportedAgent" }
+        unreached:
+          description: The boxes `lnk agent list` couldn't ask.
+          type: array
+          maxItems: 500
+          items: { $ref: "#/components/schemas/Unreached" }
+        actions:
+          description: Whether this installation takes live actions; the report answer carries no queued actions.
+          type: boolean
+          default: false
+        seal_to:
+          description: >-
+            What a connect's secrets are sealed to for this installation (`Sealed`):
+            the public half of its remote module's sealing key, X25519,
+            base64. Sent with `actions: true`, and kept with the installation;
+            until a report has said one, no connect is asked of it.
+          $ref: "#/components/schemas/SealTo"
+    ReportedAgent:
+      description: >-
+        One agent, as `lnk agent show --json` says it. A field it can't say
+        is `null`; an agent without a `name` isn't kept.
+      type: object
+      additionalProperties: false
+      properties:
+        workload:
+          description: The agent's ID, `agent:<id>`; `null` before it has one.
+          type: [string, "null"]
+        name: { type: [string, "null"] }
+        harness: { type: [string, "null"] }
+        model:
+          description: The model it answers with, by name.
+          type: [string, "null"]
+        machine:
+          description: The machine or cloud account it's on.
+          oneOf:
+            - $ref: "#/components/schemas/ReportedMachine"
+            - type: "null"
+        running: { type: [boolean, "null"] }
+        location:
+          description: Where it runs when not on its machine, a box it moved to.
+          type: [string, "null"]
+        connections:
+          description: The connections it's connected to; `null` from an `lnk` that doesn't say.
+          type: [array, "null"]
+          maxItems: 32
+          items: { $ref: "#/components/schemas/Connection" }
+    ReportedMachine:
+      type: object
+      additionalProperties: false
+      properties:
+        resource:
+          description: The installation's ID, `installation:<id>`; `null` for a cloud account, or an installation that didn't say.
+          type: [string, "null"]
+        name: { type: [string, "null"] }
+        cloud:
+          description: A cloud account that runs agents, not a machine (`name` is the account's). Left out for a machine.
+          type: boolean
+    Unreached:
+      type: object
+      additionalProperties: false
+      properties:
+        resource:
+          description: The box's ID, `box:<installation ID>`; `null` for a cloud account, or a box whose ID isn't known.
+          type: [string, "null"]
+        name: { type: [string, "null"] }
+    Done:
+      description: How one action went.
+      type: object
+      additionalProperties: false
+      required: [id, ok, message]
+      properties:
+        id:
+          description: The action's id, as it was handed over.
+          type: string
+          format: uuid
+        ok:
+          description: Whether its command exited 0.
+          type: boolean
+        message:
+          description: The last line `lnk` printed.
+          type: string
+          maxLength: 500
+
+    SealTo:
+      description: An X25519 public key, 32 bytes, base64.
+      type: string
+      pattern: "^[A-Za-z0-9+/]{43}=$"
+    Sealed:
+      description: >-
+        Secrets sealed to one installation's `seal_to`, as link-secretive seals them
+        (`Sealed::seal_json`): a JSON object of them, sealed with HPKE (RFC
+        9180) in its base mode, X25519-HKDF-SHA256, HKDF-SHA256 and
+        ChaCha20-Poly1305, its info `link-secretive sealed`, its additional
+        data `about` and the kind `bytes`. It opens only with that
+        installation's sealing key, and only as what `about` says. Only it
+        crosses; the service keeps nothing else of a connect's secrets.
+      type: object
+      additionalProperties: false
+      required: [about, enc, data]
+      properties:
+        about:
+          description: What it is, sealed with it.
+          type: object
+          additionalProperties: false
+          required: [owner, kind, version]
+          properties:
+            owner:
+              description: >-
+                Whose it is: the receiver's agent it's for, `<receiver>/<agent>`
+                (an installation's: `<installation id>/<agent name>`), so a copy of one
+                receiver's settings elsewhere opens none sealed for another.
+              type: string
+              maxLength: 160
+            kind: { $ref: "#/components/schemas/ConnectKind" }
+            version:
+              description: The version of what's sealed, 1.
+              type: integer
+              minimum: 0
+              maximum: 4294967295
+        enc:
+          description: The sender's encapsulated key, 32 bytes, base64.
+          type: string
+          pattern: "^[A-Za-z0-9+/]{43}=$"
+        data:
+          description: The ciphertext and its tag, base64.
+          type: string
+          maxLength: 8192
+          pattern: "^[A-Za-z0-9+/]+={0,2}$"
+
+    ConnectKind:
+      description: >-
+        A connect action's kind, which its secrets are sealed for
+        (`Sealed`'s `about.kind`): the one list every sealer and opener
+        names, and each connect action's `kind`.
+      type: string
+      enum: [connect-telegram, connect-slack, connect-discord]
+
+    # Actions: what's asked of an installation in the browser, each kind one `lnk agent` command.
+    Actions:
+      type: object
+      additionalProperties: false
+      required: [actions]
+      properties:
+        actions:
+          type: array
+          maxItems: 10
+          items: { $ref: "#/components/schemas/Action" }
+    Action:
+      oneOf:
+        - $ref: "#/components/schemas/ActionStart"
+        - $ref: "#/components/schemas/ActionStop"
+        - $ref: "#/components/schemas/ActionBackup"
+        - $ref: "#/components/schemas/ActionRestore"
+        - $ref: "#/components/schemas/ActionDelete"
+        - $ref: "#/components/schemas/ActionConnectTelegram"
+        - $ref: "#/components/schemas/ActionConnectSlack"
+        - $ref: "#/components/schemas/ActionConnectDiscord"
+        - $ref: "#/components/schemas/ActionDisconnect"
+        - $ref: "#/components/schemas/ActionModel"
+        - $ref: "#/components/schemas/ActionMove"
+        - $ref: "#/components/schemas/ActionSwitch"
+      discriminator:
+        propertyName: kind
+        mapping:
+          start: "#/components/schemas/ActionStart"
+          stop: "#/components/schemas/ActionStop"
+          backup: "#/components/schemas/ActionBackup"
+          restore: "#/components/schemas/ActionRestore"
+          delete: "#/components/schemas/ActionDelete"
+          connect-telegram: "#/components/schemas/ActionConnectTelegram"
+          connect-slack: "#/components/schemas/ActionConnectSlack"
+          connect-discord: "#/components/schemas/ActionConnectDiscord"
+          disconnect: "#/components/schemas/ActionDisconnect"
+          model: "#/components/schemas/ActionModel"
+          move: "#/components/schemas/ActionMove"
+          harness-set: "#/components/schemas/ActionSwitch"
+    ActionId:
+      description: The action's id, which `done` names.
+      type: string
+      format: uuid
+    ActionStart:
+      description: "`lnk agent start --agent <agent>`: starts it, or restarts it when it runs."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: start }
+        agent: { $ref: "#/components/schemas/AgentName" }
+    ActionStop:
+      description: "`lnk agent stop --agent <agent>`."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: stop }
+        agent: { $ref: "#/components/schemas/AgentName" }
+    ActionBackup:
+      description: "`lnk agent backup --agent <agent>`."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: backup }
+        agent: { $ref: "#/components/schemas/AgentName" }
+    ActionRestore:
+      description: "`lnk agent restore <agent> --yes`, confirmed in the browser."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: restore }
+        agent: { $ref: "#/components/schemas/AgentName" }
+    ActionDelete:
+      description: "`lnk agent delete <agent> --yes`, its files kept, confirmed in the browser."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: delete }
+        agent: { $ref: "#/components/schemas/AgentName" }
+    ActionConnectTelegram:
+      description: >-
+        `lnk agent connect telegram --agent <agent>`, `sealed` holding
+        `{"token"}`, the bot's token as BotFather gives it, opened into
+        `LNK_TELEGRAM_TOKEN`.
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent, sealed]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: connect-telegram }
+        agent: { $ref: "#/components/schemas/AgentName" }
+        sealed: { $ref: "#/components/schemas/Sealed" }
+    ActionConnectSlack:
+      description: >-
+        `lnk agent connect slack --agent <agent>`, `sealed` holding
+        `{"bot_token", "app_token"}`, the app's bot and app-level tokens,
+        opened into `LNK_SLACK_BOT_TOKEN` and `LNK_SLACK_APP_TOKEN`.
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent, sealed]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: connect-slack }
+        agent: { $ref: "#/components/schemas/AgentName" }
+        sealed: { $ref: "#/components/schemas/Sealed" }
+    ActionConnectDiscord:
+      description: >-
+        `lnk agent connect discord --agent <agent>`, `sealed` holding
+        `{"token"}`, the bot's token, opened into `LNK_DISCORD_TOKEN`.
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent, sealed]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: connect-discord }
+        agent: { $ref: "#/components/schemas/AgentName" }
+        sealed: { $ref: "#/components/schemas/Sealed" }
+    ActionDisconnect:
+      description: "`lnk agent disconnect <connection> --agent <agent>`."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent, connection]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: disconnect }
+        agent: { $ref: "#/components/schemas/AgentName" }
+        connection:
+          type: string
+          enum: [telegram, slack, discord, signal]
+    ActionModel:
+      description: "`lnk agent start --model.default <model> --agent <agent>`."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent, model]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: model }
+        agent: { $ref: "#/components/schemas/AgentName" }
+        model:
+          description: A model as `lnk agent start --model` names one, never read as a flag.
+          type: string
+          pattern: "^[A-Za-z0-9._:/@][A-Za-z0-9._:/@-]{0,127}$"
+    ActionMove:
+      description: "`lnk agent move <to> --agent <agent>`."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent, to]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: move }
+        agent: { $ref: "#/components/schemas/AgentName" }
+        to:
+          description: An installation, `cloud:<account>`, or `here`.
+          $ref: "#/components/schemas/MoveTarget"
+    ActionSwitch:
+      description: "`lnk agent harness set <name> --agent <agent>`, never `--yes`."
+      type: object
+      additionalProperties: false
+      required: [id, kind, agent, harness]
+      properties:
+        id: { $ref: "#/components/schemas/ActionId" }
+        kind: { type: string, const: harness-set }
+        agent: { $ref: "#/components/schemas/AgentName" }
+        harness:
+          description: "By name: `link`, `openclaw`, `hermes` or `deepseek`."
+          $ref: "#/components/schemas/AgentName"

@@ -1,0 +1,10 @@
+schema = 1
+# What the memory service of an agent's owner serves it with:
+# `~/.lnk/data/agents/memory/<owner>/agents/<agent key>.json`.
+kind = "memory service record"
+current = 1
+
+[[files]]
+location = "lnk.shared-memory"
+path = "*/agents/*.json"
+encoding = "json"

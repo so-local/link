@@ -1,0 +1,44 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+"recommends" = [{ "dependency" = "agent" }, { "dependency" = "sandbox" }]
+
+["module"]
+id = "deepseek"
+"kind" = "harness"
+owner = "interop/agents/harnesses/deepseek"
+
+["dependencies"."agent"]
+"kind" = "module"
+"id" = "agent"
+
+["dependencies"."sandbox"]
+kind = "module"
+id = "sandbox"
+
+["dependencies".engine]
+kind = "external"
+id = "deepseek"
+
+["documentation"]
+"topic" = "agents/harnesses/deepseek"
+"root" = "docs"
+
+[pins.node]
+file = "externals.json"
+pointer = "/node"
+
+[pins.deepseek]
+file = "externals.json"
+pointer = "/deepseek"
+
+["removal"]
+"parts" = ["agents"]
+
+["dependencies".harness-contract]
+kind = "package"
+id = "harness-contract"

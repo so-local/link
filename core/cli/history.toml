@@ -1,0 +1,5 @@
+# Names retired after the first public release are recorded here: commands,
+# flags and variables in `gone`, and modules in `renamed` and `removed`.
+gone = []
+renamed = []
+removed = []

@@ -1,0 +1,19 @@
+schema = 1
+
+# The harness protocol Mini answers, declared by its contract
+# (`link-harness-contract`).
+[implements]
+harness-contract = [
+    "harness-contract.harness-contract.contract",
+    "harness-contract.harness-contract.install",
+    "harness-contract.harness-contract.configure",
+    "harness-contract.harness-contract.command",
+    "harness-contract.harness-contract.health",
+    "harness-contract.harness-contract.endpoint",
+    "harness-contract.harness-contract.needs",
+    "harness-contract.harness-contract.connections",
+    "harness-contract.harness-contract.traces",
+    "harness-contract.harness-contract.serve",
+    "harness-contract.harness-contract.acp",
+    "harness-contract.state.show",
+]

@@ -1,0 +1,12 @@
+cargo = "cargo"
+binary = "lnk"
+fixtures = "tests"
+bin_directory = "bin"
+target_tag = "CACHEDIR.TAG"
+install_record = ".crates.toml"
+debug_directory = "debug"
+debug_profile = "dev"
+install_profile = "release"
+# The file beside a module's Cargo.toml that declares it, and the modules it
+# needs, which --module installs with it.
+declaration = "module.toml"

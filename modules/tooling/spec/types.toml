@@ -1,0 +1,15 @@
+schema = 1
+
+[spec]
+type = "object"
+description = "A specification kind an installed module exports: its name, its module and its current schema"
+x-link-resource = { id = "kind" }
+required = ["kind", "module", "schema"]
+additionalProperties = false
+properties.kind = { type = "string", description = "The kind's name, such as agent" }
+properties.module = { type = "string", description = "The module that exports it" }
+properties.schema = { type = "integer", minimum = 1, description = "Its current schema version" }
+
+[shown]
+description = "A specification kind's JSON Schema, the shape its files and field flags are read against"
+x-link-any = true

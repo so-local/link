@@ -1,0 +1,45 @@
+schema = 1
+
+[verbs]
+serve = { description = "Answer box requests on a socket, for Link to run", effect = "insert" }
+watch = { description = "Follow a box as it changes", effect = "find" }
+
+[actions."box.box.create"]
+description = "Make a box"
+spec = "machine"
+role = "primary"
+
+[actions."box.box.create".args]
+cloud = { type = "string", description = "The cloud account to make it on", required = true, x-link-cli = { short = "c", env = "LNK_BOX_CLOUD" } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.box.list"]
+description = "List the boxes"
+keeps = { for = "1m" }
+
+[actions."box.box.list".args]
+order = "order"
+json = { x-link-cli = { shared = "json" } }
+
+[actions."box.box.delete"]
+description = "Delete a box and its disks"
+surfaces = ["cli", "rest"]
+
+[actions."box.box.delete".args]
+id = { type = "string", format = "link-id", x-link-kind = "box", description = "The box", required = true, x-link-cli = { position = 1 } }
+on = { type = "string", description = "Not taken", x-link-cli = { hidden = true } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."box.box.watch"]
+description = "Follow a box as it changes, each change as it happens"
+output = "change"
+stream = true
+surfaces = ["cli", "rest"]
+
+[actions."box.box.watch".args]
+id = { type = "string", format = "link-id", x-link-kind = "box", description = "The box", required = true, x-link-cli = { position = 1 } }
+
+[actions."box.box.serve"]
+description = "Answer box requests on a socket"
+role = "plumbing"
+output = "box"

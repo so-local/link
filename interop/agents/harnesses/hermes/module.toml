@@ -1,0 +1,51 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+"recommends" = [{ "dependency" = "agent" }, { "dependency" = "sandbox" }, {dependency = "discord"}, {dependency = "model"}, {dependency = "signal"}]
+
+["module"]
+id = "hermes"
+"kind" = "harness"
+owner = "interop/agents/harnesses/hermes"
+
+["dependencies"."agent"]
+"kind" = "module"
+"id" = "agent"
+
+["dependencies"."sandbox"]
+kind = "module"
+id = "sandbox"
+
+["dependencies"."engine"]
+"kind" = "external"
+"id" = "hermes"
+
+["dependencies".discord]
+kind = "module"
+id = "discord"
+
+["dependencies".model]
+kind = "module"
+id = "model"
+
+["dependencies".signal]
+kind = "module"
+id = "signal"
+["documentation"]
+"topic" = "agents/harnesses/hermes"
+"root" = "docs"
+
+["pins"."hermes"]
+"file" = "externals.json"
+"pointer" = "/hermes"
+
+["removal"]
+"parts" = ["agents"]
+
+[dependencies.harness-contract]
+kind = "package"
+id = "harness-contract"

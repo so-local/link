@@ -1,0 +1,17 @@
+# Link's own settings for the measure module: what it does where yours
+# (~/.lnk/safe/measures/settings.toml, `lnk measure get`) say
+# nothing. Each is a trade, not a fact: more history costs more disk.
+
+# How often the watcher samples each agent and this machine.
+every = "10s"
+# How long every sample is kept.
+keep_fine = "1d"
+# How long a summary of each minute is kept, after the samples are gone.
+keep_minutes = "30d"
+# Whether each agent's processes are kept too, not only shown and sent:
+# about seven times the disk.
+processes = false
+# How often each agent's folders are walked for their size, and the
+# most entries one walk counts: a large files folder takes a while.
+folders_every = "10m"
+folders_max = 1000000

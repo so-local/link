@@ -1,0 +1,51 @@
+schema = 1
+
+[installed]
+type = "object"
+description = "The engine installed, or left as it was"
+additionalProperties = false
+
+[served]
+type = "object"
+description = "MCP served, until its caller closed its input or its last session ended"
+additionalProperties = false
+
+[launch]
+type = "object"
+description = "How the memory engine serves a folder, as Link's memory contract has it"
+required = ["argv"]
+additionalProperties = false
+properties.argv = { type = "array", items = { type = "string" }, description = "The command serving MCP over stdio, its program first" }
+properties.allow = { type = "array", items = { type = "string" }, default = [], description = "The engine's calls that don't ask first: those that only read (search, read, list, links), and remember, which writes only the notes; every other call asks" }
+properties.models = { type = "boolean", description = "Whether it reaches the model runtimes on this machine (an embedding model, at LNK_MEMORY_MODEL): with model, that model's port alone; with none, the machine's whole network, which a cloud's machine refuses" }
+properties.model = { type = "string", description = "A model served for it outside its sandbox while it runs (lnk model serve), at LNK_MEMORY_MODEL, since its sandbox can't start one: implies models" }
+properties.shared = { type = "boolean", description = "Whether one process serves every agent of an owner on the machine (serve-many), started at a session's first need and ending after its last, argv what it serves each with; left out, it runs once a session, as argv" }
+properties.programs = { type = "array", items = { type = "string" }, default = [], description = "The Link modules whose programs it runs, by name (document-converter): its sandbox reads each one installed, found beside its own program" }
+
+[agents]
+type = "object"
+description = "The agents serve-many serves, by each one's ID"
+additionalProperties = "agent"
+
+[agent]
+type = "object"
+description = "An agent serve-many serves: the command line command printed for it, and the variables it would have run with"
+required = ["argv"]
+additionalProperties = false
+properties.argv = { type = "array", items = { type = "string" }, description = "The command command printed, its program first" }
+properties.env = { type = "object", additionalProperties = { type = "string" }, description = "The variables it would have run with, by name" }
+
+[note]
+type = "object"
+description = "One note the agent wrote itself"
+required = ["source", "text"]
+additionalProperties = false
+properties.source = { type = "string", description = "Where it came from: the file it's kept in" }
+properties.text = { type = "string", description = "Its words" }
+
+[remembered]
+type = "object"
+description = "The notes an agent's memory holds"
+required = ["notes"]
+additionalProperties = false
+properties.notes = { type = "array", items = "note", description = "Each note, as it was written" }

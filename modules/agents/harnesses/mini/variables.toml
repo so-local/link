@@ -1,0 +1,9 @@
+schema = 1
+
+[[uses]]
+name = "LNK_AGENT"
+access = ["read"]
+context = "runtime"
+
+[readers]
+"link::tools::from_env" = "Discover the LNK_TOOL_ namespace provided by the sandbox for MCP tools."

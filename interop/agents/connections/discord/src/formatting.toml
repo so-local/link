@@ -1,0 +1,17 @@
+# How Discord takes an answer (`format.rs`).
+
+# The characters Discord reads as markup anywhere in a line, escaped with
+# a `\` in the agent's text: `[` opens a link, so `]` needs none.
+escaped = "\\*_~`|[<"
+# The characters Discord reads as markup at a line's start: a heading, a
+# list or a quote.
+line_start = "#->+"
+# What Discord marks code with: inline code between two `code`, and a
+# code block between two `fence`.
+code = "`"
+fence = "```"
+
+# Discord's longest message content, in characters.
+[channel]
+limit = 2000
+counted = "chars"

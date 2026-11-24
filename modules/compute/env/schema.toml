@@ -1,0 +1,5 @@
+schema = 1
+kind = "env"
+current = 1
+command = "lnk env spec show"
+about = "An environment specification says what a machine has before work starts: its OS, where work starts, the values every run is given, the stages that set it up and the image they make, and the services it runs. Agents, jobs and boxes run on machines made from one."

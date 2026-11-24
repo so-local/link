@@ -1,0 +1,4005 @@
+# Who publishes each package of the lock files, and the advisories against
+# them, as crates.io, npm's registry and OSV said on `checked`. Written by
+# its package's refresh test, `cargo test -- --ignored refresh`; read by
+# every test run.
+checked = "2026-11-23"
+
+[crates.adler2]
+owners = ["oyvindln"]
+downloads = 709963285
+
+[crates.aead]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 296647048
+
+[crates.aes]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 431240094
+
+[crates.agent-client-protocol]
+owners = ["benbrandt", "agu-z", "agentclientprotocol"]
+downloads = 6631991
+
+[crates.agent-client-protocol-derive]
+owners = ["benbrandt", "agentclientprotocol"]
+downloads = 2665474
+
+[crates.agent-client-protocol-schema]
+owners = ["benbrandt", "agentclientprotocol"]
+downloads = 7330461
+
+[crates.aho-corasick]
+owners = ["BurntSushi"]
+downloads = 1434721985
+
+[crates.alloc-no-stdlib]
+owners = ["danielrh"]
+downloads = 308235308
+
+[crates.alloc-stdlib]
+owners = ["danielrh"]
+downloads = 310047617
+
+[crates.android_system_properties]
+owners = ["nical"]
+downloads = 387879774
+
+[crates.anstream]
+owners = ["epage", "rust-cli"]
+downloads = 871841175
+
+[crates.anstyle]
+owners = ["epage", "rust-cli"]
+downloads = 947056670
+
+[crates.anstyle-parse]
+owners = ["epage", "rust-cli"]
+downloads = 856591522
+
+[crates.anstyle-query]
+owners = ["epage", "rust-cli"]
+downloads = 833678276
+
+[crates.anstyle-wincon]
+owners = ["epage", "rust-cli"]
+downloads = 418142104
+
+[crates.anyhow]
+owners = ["dtolnay"]
+downloads = 1211074073
+
+[crates.arc-swap]
+owners = ["vorner", "rust-bus"]
+downloads = 427307664
+
+[crates.async-trait]
+owners = ["dtolnay"]
+downloads = 844680093
+
+[crates.atomic-waker]
+owners = ["taiki-e", "smol-rs"]
+downloads = 662002389
+
+[crates.autocfg]
+owners = ["cuviper", "matklad"]
+downloads = 1613108650
+
+[crates.axum]
+owners = ["carllerche", "davidpdrsn", "tokio-rs", "tokio-rs"]
+downloads = 616034773
+
+[crates.axum-core]
+owners = ["carllerche", "davidpdrsn", "tokio-rs", "tokio-rs"]
+downloads = 610306988
+
+[crates.base64]
+owners = ["alicemaz", "marshallpierce"]
+downloads = 2049110513
+
+[crates.bitflags]
+owners = ["KodrAus"]
+downloads = 2352120426
+
+[crates.bitpacking]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 31051214
+
+[crates.block-buffer]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 1412622057
+
+[crates.block-padding]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 258747197
+
+[crates.bon]
+owners = ["Veetaha", "anelson"]
+downloads = 82088987
+
+[crates.bon-macros]
+owners = ["Veetaha", "anelson"]
+downloads = 82084243
+
+[crates.brotli-decompressor]
+owners = ["danielrh"]
+downloads = 351383721
+
+[crates.bs58]
+owners = ["Nemo157"]
+downloads = 204082854
+
+[crates.bumpalo]
+owners = ["alexcrichton", "fitzgen"]
+downloads = 757609230
+
+[crates.byteorder]
+owners = ["BurntSushi"]
+downloads = 984111323
+
+[crates.bytes]
+owners = ["carllerche", "Darksonn", "tokio-rs"]
+downloads = 1324426359
+
+[crates.cbc]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 153400342
+
+[crates.cc]
+owners = ["rust-lang-owner"]
+downloads = 1573256845
+
+[crates.census]
+owners = ["fulmicoton"]
+downloads = 25917136
+
+[crates.cfg-if]
+owners = ["rust-lang-owner"]
+downloads = 1828740426
+
+[crates.cfg_aliases]
+owners = ["zicklag", "katharostech"]
+downloads = 713202833
+
+[crates.chacha20]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 410551874
+
+[crates.chacha20poly1305]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 122290550
+
+[crates.chrono]
+owners = ["lifthrasiir", "chronotope"]
+downloads = 1014152534
+
+[crates.cipher]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 492973336
+
+[crates.clap]
+owners = ["kbknapp", "rust-cli", "clap-rs"]
+downloads = 1376258972
+
+[crates.clap_builder]
+owners = ["epage", "rust-cli", "clap-rs"]
+downloads = 965060488
+
+[crates.clap_derive]
+owners = ["kbknapp", "clap-rs"]
+downloads = 952105420
+
+[crates.clap_lex]
+owners = ["epage", "rust-cli", "clap-rs"]
+downloads = 1091261728
+
+[crates.cmov]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 165566734
+
+[crates.colorchoice]
+owners = ["epage", "rust-cli"]
+downloads = 835828764
+
+[crates.combine]
+owners = ["Marwes"]
+downloads = 348933535
+
+[crates.const-oid]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 678113113
+
+[crates.convert_case]
+owners = ["rutrum"]
+downloads = 672269497
+
+[crates.core-foundation]
+owners = ["larsbergstrom", "metajack", "mbrubeck", "pcwalton", "servo"]
+downloads = 578967921
+
+[crates.core-foundation-sys]
+owners = ["larsbergstrom", "servo"]
+downloads = 524777832
+
+[crates.core_detect]
+owners = ["thomcc"]
+downloads = 53643062
+
+[crates.cpubits]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 58400881
+
+[crates.cpufeatures]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 1358247243
+
+[crates.crc32fast]
+owners = ["srijs"]
+downloads = 906130862
+
+[crates.crossbeam-channel]
+owners = ["jeehoonkang", "Amanieu", "taiki-e", "crossbeam-rs"]
+downloads = 729443825
+
+[crates.crossbeam-deque]
+owners = ["jeehoonkang", "Amanieu", "taiki-e", "crossbeam-rs"]
+downloads = 797977450
+
+[crates.crossbeam-epoch]
+owners = ["jeehoonkang", "Amanieu", "taiki-e", "crossbeam-rs"]
+downloads = 845846063
+
+[crates.crossbeam-utils]
+owners = ["jeehoonkang", "Amanieu", "taiki-e", "crossbeam-rs"]
+downloads = 1153613284
+
+[crates.crunchy]
+owners = ["eira-fransham"]
+downloads = 472430898
+
+[crates.crypto-common]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 1233163620
+
+[crates.ctutils]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 164125492
+
+[crates.curve25519-dalek]
+owners = ["isislovecruft", "dalek-cryptography"]
+downloads = 348235486
+
+[crates.curve25519-dalek-derive]
+owners = ["rozbb"]
+downloads = 253044714
+
+[crates.darling]
+owners = ["TedDriggs"]
+downloads = 956019742
+
+[crates.darling_core]
+owners = ["TedDriggs"]
+downloads = 956239218
+
+[crates.darling_macro]
+owners = ["TedDriggs"]
+downloads = 956011713
+
+[crates.data-encoding]
+owners = ["ia0"]
+downloads = 551399424
+
+[crates.datasketches]
+owners = ["tisonkun", "notfilippo"]
+downloads = 7813802
+
+[crates.defmt]
+owners = ["japaric", "jonathanpallant", "knurling-infra", "knurling-rs"]
+downloads = 125751333
+
+[crates.defmt-macros]
+owners = ["japaric", "jonathanpallant", "knurling-infra", "knurling-rs"]
+downloads = 113062023
+
+[crates.defmt-parser]
+owners = ["japaric", "jonathanpallant", "knurling-infra", "knurling-rs"]
+downloads = 111841986
+
+[crates.deranged]
+owners = ["jhpratt"]
+downloads = 791720844
+
+[crates.derive_more]
+owners = ["JelteF"]
+downloads = 617263282
+
+[crates.derive_more-impl]
+owners = ["JelteF"]
+downloads = 375803839
+
+[crates.digest]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 1442721776
+
+[crates.displaydoc]
+owners = ["Manishearth", "yaahc"]
+downloads = 822197899
+
+[crates.downcast-rs]
+owners = ["marcianx"]
+downloads = 220162973
+
+[crates.dyn-clone]
+owners = ["dtolnay"]
+downloads = 465496775
+
+[crates.ecb]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 26104152
+
+[crates.either]
+owners = ["bluss", "cuviper", "jswrenn"]
+downloads = 1273581979
+
+[crates.encoding_rs]
+owners = ["hsivonen"]
+downloads = 664392128
+
+[crates.equivalent]
+owners = ["cuviper"]
+downloads = 1109257246
+
+[crates.erased-serde]
+owners = ["dtolnay"]
+downloads = 293200672
+
+[crates.errno]
+owners = ["lambda-fairy", "sunfishcode"]
+downloads = 1098567227
+
+[crates.fallible-iterator]
+owners = ["sfackler", "dpc"]
+downloads = 363272475
+
+[crates.fallible-streaming-iterator]
+owners = ["sfackler"]
+downloads = 181426160
+
+[crates.fastdivide]
+owners = ["fulmicoton"]
+downloads = 25852350
+
+[crates.fastrand]
+owners = ["taiki-e", "smol-rs"]
+downloads = 1165941746
+
+[crates.fiat-crypto]
+owners = ["JasonGross"]
+downloads = 182612626
+
+[crates.filetime]
+owners = ["alexcrichton"]
+downloads = 477869075
+
+[crates.find-msvc-tools]
+owners = ["rust-lang-owner"]
+downloads = 739724723
+
+[crates.fixedbitset]
+owners = ["bluss", "jrraymond", "james7132", "petgraph"]
+downloads = 627147128
+
+[crates.flate2]
+owners = ["rust-lang-owner"]
+downloads = 886569147
+
+[crates.fnv]
+owners = ["SimonSapin", "servo"]
+downloads = 997284307
+
+[crates.foldhash]
+owners = ["orlp"]
+downloads = 879473686
+
+[crates.form_urlencoded]
+owners = ["SimonSapin", "servo", "servo"]
+downloads = 1023882335
+
+[crates.frostem]
+owners = ["Xuanwo"]
+downloads = 1263781
+
+[crates.fs4]
+owners = ["al8n"]
+downloads = 84214185
+
+[crates.futures]
+owners = ["rust-lang-owner"]
+downloads = 968529305
+
+[crates.futures-channel]
+owners = ["rust-lang-owner"]
+downloads = 1115369612
+
+[crates.futures-concurrency]
+owners = ["eholk", "yoshuawuyts", "matheus-consoli"]
+downloads = 17506450
+
+[crates.futures-core]
+owners = ["rust-lang-owner"]
+downloads = 1194103854
+
+[crates.futures-io]
+owners = ["rust-lang-owner"]
+downloads = 1059689375
+
+[crates.futures-lite]
+owners = ["taiki-e", "smol-rs"]
+downloads = 373042124
+
+[crates.futures-macro]
+owners = ["rust-lang-owner"]
+downloads = 997261805
+
+[crates.futures-sink]
+owners = ["rust-lang-owner"]
+downloads = 1115334235
+
+[crates.futures-task]
+owners = ["rust-lang-owner"]
+downloads = 1176396342
+
+[crates.futures-util]
+owners = ["rust-lang-owner"]
+downloads = 1179220318
+
+[crates.generic-array]
+owners = ["fizyk20", "novacrazy"]
+downloads = 1140098271
+
+[crates.gethostname]
+owners = ["swsnr"]
+downloads = 162860032
+
+[crates.getrandom]
+owners = ["dhardy", "rust-random"]
+downloads = 2723942377
+
+[crates.hashbrown]
+owners = ["rust-lang-owner"]
+downloads = 3221143911
+
+[crates.hashlink]
+owners = ["djc", "kyren"]
+downloads = 463798320
+
+[crates.heck]
+owners = ["withoutboats", "jplatte"]
+downloads = 1615042849
+
+[crates.hex]
+owners = ["KokaKiwi"]
+downloads = 833937340
+
+[crates.hkdf]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 368374484
+
+[crates.hmac]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 790471312
+
+[crates.hpke]
+owners = ["rozbb"]
+downloads = 20377619
+
+[crates.html5ever]
+owners = ["SimonSapin", "larsbergstrom", "Manishearth", "metajack", "jdm", "servo"]
+downloads = 160289690
+
+[crates.htmlescape]
+owners = ["veddan"]
+downloads = 31306472
+
+[crates.http]
+owners = ["carllerche", "seanmonstar"]
+downloads = 1301776655
+
+[crates.http-body]
+owners = ["carllerche", "seanmonstar", "hyperium"]
+downloads = 1121593672
+
+[crates.http-body-util]
+owners = ["seanmonstar"]
+downloads = 651571503
+
+[crates.httparse]
+owners = ["seanmonstar"]
+downloads = 929677710
+
+[crates.httpdate]
+owners = ["pyfisch"]
+downloads = 757001908
+
+[crates.hybrid-array]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 254975555
+
+[crates.hyper]
+owners = ["seanmonstar", "hyperium"]
+downloads = 1168156497
+
+[crates.hyper-rustls]
+owners = ["ctz", "djc", "rustls"]
+downloads = 836863038
+
+[crates.hyper-util]
+owners = ["seanmonstar"]
+downloads = 667889650
+
+[crates.iana-time-zone]
+owners = ["astraw", "Kijewski"]
+downloads = 849706557
+
+[crates.iana-time-zone-haiku]
+owners = ["astraw", "Kijewski"]
+downloads = 369516121
+
+[crates.icu_collections]
+owners = ["Manishearth", "sffc", "unicode-org"]
+downloads = 803401330
+
+[crates.icu_locale_core]
+owners = ["sffc", "unicode-org"]
+downloads = 615147479
+
+[crates.icu_normalizer]
+owners = ["Manishearth", "unicode-org"]
+downloads = 791979308
+
+[crates.icu_normalizer_data]
+owners = ["sffc", "unicode-org"]
+downloads = 795542398
+
+[crates.icu_properties]
+owners = ["Manishearth", "sffc", "unicode-org"]
+downloads = 804479774
+
+[crates.icu_properties_data]
+owners = ["sffc", "unicode-org"]
+downloads = 808124473
+
+[crates.icu_provider]
+owners = ["zbraniecki", "unicode-org"]
+downloads = 806975830
+
+[crates.ident_case]
+owners = ["TedDriggs"]
+downloads = 602815402
+
+[crates.idna]
+owners = ["SimonSapin", "servo", "servo"]
+downloads = 1192705678
+
+[crates.idna_adapter]
+owners = ["Manishearth", "hsivonen", "valenting"]
+downloads = 758626227
+
+[crates.indexmap]
+owners = ["bluss", "cuviper"]
+downloads = 1955144155
+
+[crates.inout]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 413458979
+
+[crates.inventory]
+owners = ["dtolnay"]
+downloads = 167646602
+
+[crates.ipnet]
+owners = ["krisprice"]
+downloads = 766230088
+
+[crates.is_terminal_polyfill]
+owners = ["epage"]
+downloads = 702254436
+
+[crates.itertools]
+owners = ["bluss", "jswrenn", "phimuemue"]
+downloads = 1905973593
+
+[crates.itoa]
+owners = ["dtolnay"]
+downloads = 1708739781
+
+[crates.jiff]
+owners = ["BurntSushi"]
+downloads = 301107972
+
+[crates.jiff-core]
+owners = ["BurntSushi"]
+downloads = 93905158
+
+[crates.jiff-static]
+owners = ["BurntSushi"]
+downloads = 187756447
+
+[crates.jiff-tzdb]
+owners = ["BurntSushi"]
+downloads = 82863854
+
+[crates.jiff-tzdb-platform]
+owners = ["BurntSushi"]
+downloads = 75611536
+
+[crates.jni]
+owners = ["jrobsonchase", "stanislav-tkach", "dmitry-timofeev", "rib"]
+downloads = 259819062
+
+[crates.jni-macros]
+owners = ["rib"]
+downloads = 81772674
+
+[crates.jni-sys]
+owners = ["sfackler", "rib"]
+downloads = 269616272
+
+[crates.jni-sys-macros]
+owners = ["rib"]
+downloads = 105924552
+
+[crates.jobserver]
+owners = ["rust-lang-owner"]
+downloads = 720399096
+
+[crates.js-sys]
+owners = ["RReverser", "daxpedda", "guybedford", "wasm-bindgen"]
+downloads = 637444976
+
+[crates.lazy_static]
+owners = ["rust-lang-owner"]
+downloads = 1212337421
+
+[crates.levenshtein_automata]
+owners = ["fulmicoton"]
+downloads = 27255819
+
+[crates.libc]
+owners = ["rust-lang-owner"]
+downloads = 2046333427
+
+[crates.libsqlite3-sys]
+owners = ["thomcc", "gwenn"]
+downloads = 334428844
+
+[crates.linux-raw-sys]
+owners = ["sunfishcode"]
+downloads = 1373507572
+
+[crates.litemap]
+owners = ["Manishearth", "unicode-org"]
+downloads = 811710221
+
+[crates.lock_api]
+owners = ["faern", "Amanieu"]
+downloads = 1228551293
+
+[crates.log]
+owners = ["rust-lang-owner"]
+downloads = 1588915404
+
+[crates.lopdf]
+owners = ["J-F-Liu"]
+downloads = 32338263
+
+[crates.lru]
+owners = ["jeromefroe"]
+downloads = 461681702
+
+[crates.markup5ever]
+owners = ["SimonSapin", "servo"]
+downloads = 161682581
+
+[crates.matchers]
+owners = ["hawkw"]
+downloads = 623934415
+
+[crates.matchit]
+owners = ["ibraheemdev"]
+downloads = 587640260
+
+[crates.md-5]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 486588923
+
+[crates.measure_time]
+owners = ["PSeitz"]
+downloads = 26524963
+
+[crates.memchr]
+owners = ["BurntSushi"]
+downloads = 1806777661
+
+[crates.memmap2]
+owners = ["tbu-", "RazrFalcon", "de-vri-es", "allan2"]
+downloads = 445497729
+
+[crates.mime]
+owners = ["seanmonstar"]
+downloads = 787905552
+
+[crates.minimal-lexical]
+owners = ["Alexhuszagh"]
+downloads = 661595222
+
+[crates.miniz_oxide]
+owners = ["oyvindln", "Frommi"]
+downloads = 1162045571
+
+[crates.mio]
+owners = ["carllerche", "tokio-rs"]
+downloads = 1309212416
+
+[crates.multiversion_no_op]
+owners = ["hsivonen"]
+downloads = 46807633
+
+[crates.murmurhash32]
+owners = ["fulmicoton"]
+downloads = 25971143
+
+[crates.new_debug_unreachable]
+owners = ["mbrubeck", "servo"]
+downloads = 260088607
+
+[crates.nix]
+owners = ["carllerche", "nix-rust"]
+downloads = 1014790022
+
+[crates.nom]
+owners = ["Geal"]
+downloads = 927878419
+
+[crates.nu-ansi-term]
+owners = ["sophiajt", "sholderbach", "nushell"]
+downloads = 678022147
+
+[crates.num-conv]
+owners = ["jhpratt"]
+downloads = 743640152
+
+[crates.num-traits]
+owners = ["cuviper"]
+downloads = 1283110852
+
+[crates.once_cell]
+owners = ["matklad", "vorner"]
+downloads = 1586219546
+
+[crates.once_cell_polyfill]
+owners = ["epage"]
+downloads = 274928670
+
+[crates.oneshot]
+owners = ["faern"]
+downloads = 38776036
+
+[crates.openssl-probe]
+owners = ["alexcrichton", "djc", "rustls"]
+downloads = 774749184
+
+[crates.ordered-float]
+owners = ["reem", "mbrubeck", "servo"]
+downloads = 565027415
+
+[crates.ownedbytes]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 22451422
+
+[crates.parking]
+owners = ["taiki-e", "smol-rs"]
+downloads = 450032963
+
+[crates.parking_lot]
+owners = ["faern", "Amanieu"]
+downloads = 1317700355
+
+[crates.parking_lot_core]
+owners = ["faern", "Amanieu"]
+downloads = 1350117411
+
+[crates.pbkdf2]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 305792517
+
+[crates.percent-encoding]
+owners = ["SimonSapin", "servo", "servo"]
+downloads = 1145286787
+
+[crates.phf]
+owners = ["sfackler", "abonander", "JohnTitor"]
+downloads = 752460767
+
+[crates.phf_codegen]
+owners = ["sfackler", "abonander", "JohnTitor"]
+downloads = 401206284
+
+[crates.phf_generator]
+owners = ["sfackler", "abonander", "JohnTitor"]
+downloads = 592883598
+
+[crates.phf_shared]
+owners = ["sfackler", "abonander", "JohnTitor"]
+downloads = 805384144
+
+[crates.pin-project]
+owners = ["taiki-e"]
+downloads = 705947584
+
+[crates.pin-project-internal]
+owners = ["taiki-e"]
+downloads = 706173553
+
+[crates.pin-project-lite]
+owners = ["taiki-e"]
+downloads = 1304628174
+
+[crates.pkg-config]
+owners = ["rust-lang-owner"]
+downloads = 981845759
+
+[crates.poly1305]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 141670779
+
+[crates.portable-atomic]
+owners = ["taiki-e"]
+downloads = 617398968
+
+[crates.portable-atomic-util]
+owners = ["taiki-e"]
+downloads = 168997983
+
+[crates.potential_utf]
+owners = ["Manishearth", "sffc", "unicode-org"]
+downloads = 613763512
+
+[crates.powerfmt]
+owners = ["jhpratt"]
+downloads = 726522013
+
+[crates.ppv-lite86]
+owners = ["kazcw"]
+downloads = 1107172487
+
+[crates.precomputed-hash]
+owners = ["emilio"]
+downloads = 215008622
+
+[crates.prettyplease]
+owners = ["dtolnay"]
+downloads = 630838352
+
+[crates.proc-macro2]
+owners = ["dtolnay"]
+downloads = 2021396329
+
+[crates.proptest]
+owners = ["Centril", "AltSysrq", "proptest-rs"]
+downloads = 258070120
+
+[crates.pulldown-cmark]
+owners = ["marcusklaas", "raphlinus", "Martin1887"]
+downloads = 218179703
+
+[crates.qrcode]
+owners = ["kennytm"]
+downloads = 27527641
+
+[crates.quote]
+owners = ["dtolnay"]
+downloads = 2031672978
+
+[crates.r-efi]
+owners = ["dvdhrm"]
+downloads = 542688407
+
+[crates.rand]
+owners = ["dhardy", "rust-random"]
+downloads = 2268854423
+
+[crates.rand_chacha]
+owners = ["dhardy", "rust-random"]
+downloads = 1727726689
+
+[crates.rand_core]
+owners = ["dhardy", "rust-random"]
+downloads = 2289792131
+
+[crates.rand_xorshift]
+owners = ["dhardy", "rust-random"]
+downloads = 349667496
+
+[crates.rangemap]
+owners = ["jeffparsons"]
+downloads = 53784050
+
+[crates.rayon]
+owners = ["cuviper", "nikomatsakis"]
+downloads = 691185728
+
+[crates.rayon-core]
+owners = ["cuviper", "nikomatsakis"]
+downloads = 678318191
+
+[crates.redox_syscall]
+owners = ["jackpot51", "4lDO2"]
+downloads = 890248646
+
+[crates.ref-cast]
+owners = ["dtolnay"]
+downloads = 374944191
+
+[crates.ref-cast-impl]
+owners = ["dtolnay"]
+downloads = 374927750
+
+[crates.regex]
+owners = ["rust-lang-owner"]
+downloads = 1438345549
+
+[crates.regex-automata]
+owners = ["rust-lang-owner"]
+downloads = 1557423349
+
+[crates.regex-syntax]
+owners = ["rust-lang-owner"]
+downloads = 1758654152
+
+[crates.regress]
+owners = ["ridiculousfish", "raskad"]
+downloads = 55111908
+
+[crates.reqwest]
+owners = ["seanmonstar"]
+downloads = 948825740
+
+[crates.ring]
+owners = ["briansmith"]
+downloads = 938403896
+
+[crates.rsqlite-vfs]
+owners = ["Spxg"]
+downloads = 18718357
+
+[crates.rusqlite]
+owners = ["thomcc", "gwenn"]
+downloads = 164595587
+
+[crates.rustc-hash]
+owners = ["rust-lang-owner"]
+downloads = 1064054145
+
+[crates.rustc_version]
+owners = ["Kimundi", "djc"]
+downloads = 941547987
+
+[crates.rustix]
+owners = ["sunfishcode"]
+downloads = 1457243562
+
+[crates.rustls]
+owners = ["ctz", "djc", "rustls"]
+downloads = 1161403548
+
+[crates.rustls-native-certs]
+owners = ["ctz", "djc", "rustls"]
+downloads = 713358682
+
+[crates.rustls-pki-types]
+owners = ["djc", "rustls"]
+downloads = 716503112
+
+[crates.rustls-platform-verifier]
+owners = ["djc", "complexspaces", "rustls"]
+downloads = 243808611
+
+[crates.rustls-platform-verifier-android]
+owners = ["djc", "complexspaces", "rustls"]
+downloads = 113383352
+
+[crates.rustls-webpki]
+owners = ["ctz", "djc", "rustls"]
+downloads = 1017842986
+
+[crates.rustversion]
+owners = ["dtolnay"]
+downloads = 1006041535
+
+[crates.ryu]
+owners = ["dtolnay"]
+downloads = 1379988829
+
+[crates.salsa20]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 111957838
+
+[crates.same-file]
+owners = ["BurntSushi"]
+downloads = 781574535
+
+[crates.schannel]
+owners = ["sfackler", "steffengy"]
+downloads = 381241682
+
+[crates.schemars]
+owners = ["GREsau"]
+downloads = 685395161
+
+[crates.schemars_derive]
+owners = ["GREsau"]
+downloads = 313575323
+
+[crates.scopeguard]
+owners = ["bluss", "Amanieu"]
+downloads = 1180968129
+
+[crates.scrypt]
+owners = ["newpavlov", "rustcrypto"]
+downloads = 92804427
+
+[crates.security-framework]
+owners = ["kornelski", "djc"]
+downloads = 466617271
+
+[crates.security-framework-sys]
+owners = ["kornelski", "djc"]
+downloads = 387974458
+
+[crates.semver]
+owners = ["dtolnay"]
+downloads = 1243653600
+
+[crates.serde]
+owners = ["dtolnay", "serde-rs"]
+downloads = 1768183396
+
+[crates.serde-tuple-vec-map]
+owners = ["daboross"]
+downloads = 2901252
+
+[crates.serde_core]
+owners = ["dtolnay", "serde-rs"]
+downloads = 915153315
+
+[crates.serde_derive]
+owners = ["dtolnay", "serde-rs"]
+downloads = 1681625923
+
+[crates.serde_derive_internals]
+owners = ["dtolnay"]
+downloads = 315133865
+
+[crates.serde_ignored]
+owners = ["dtolnay"]
+downloads = 71550081
+
+[crates.serde_json]
+owners = ["dtolnay", "serde-rs"]
+downloads = 1675538246
+
+[crates.serde_norway]
+owners = ["cafkafk"]
+downloads = 23274195
+
+[crates.serde_path_to_error]
+owners = ["dtolnay"]
+downloads = 391919921
+
+[crates.serde_spanned]
+owners = ["epage", "toml-rs"]
+downloads = 791370365
+
+[crates.serde_tokenstream]
+owners = ["ahl"]
+downloads = 44074345
+
+[crates.serde_urlencoded]
+owners = ["nox"]
+downloads = 724626690
+
+[crates.serde_with]
+owners = ["jonasbb"]
+downloads = 459535186
+
+[crates.serde_with_macros]
+owners = ["jonasbb"]
+downloads = 451491332
+
+[crates.sha1]
+owners = ["tarcieri", "newpavlov", "rustcrypto"]
+downloads = 716672130
+
+[crates.sha2]
+owners = ["tarcieri", "newpavlov", "rustcrypto"]
+downloads = 1286713427
+
+[crates.sharded-slab]
+owners = ["hawkw"]
+downloads = 699888165
+
+[crates.shlex]
+owners = ["comex", "fenhl"]
+downloads = 1146748100
+
+[crates.signal-hook-registry]
+owners = ["vorner", "rust-bus"]
+downloads = 936016305
+
+[crates.simd-adler32]
+owners = ["mcountryman"]
+downloads = 569748134
+
+[crates.simd_cesu8]
+owners = ["seancroach"]
+downloads = 83158588
+
+[crates.simdutf8]
+owners = ["hkratz"]
+downloads = 323622360
+
+[crates.siphasher]
+owners = ["jedisct1"]
+downloads = 726576434
+
+[crates.sketches-ddsketch]
+owners = ["mheffner"]
+downloads = 112160986
+
+[crates.slab]
+owners = ["carllerche", "tokio-rs"]
+downloads = 1179419044
+
+[crates.smallvec]
+owners = ["SimonSapin", "Ms2ger", "alejandro-vaz", "servo"]
+downloads = 1516179942
+
+[crates.socket2]
+owners = ["sfackler", "Thomasdezeeuw", "rust-lang-owner", "tokio-rs"]
+downloads = 1541787212
+
+[crates.sqlite-wasm-rs]
+owners = ["Spxg"]
+downloads = 19453959
+
+[crates.stable_deref_trait]
+owners = ["Kimundi", "jpernst", "Storyyeller"]
+downloads = 885158767
+
+[crates.static_assertions]
+owners = ["nvzqz"]
+downloads = 628924172
+
+[crates.string_cache]
+owners = ["SimonSapin", "larsbergstrom", "Manishearth", "metajack", "pcwalton", "jdm", "asajeffrey", "bholley", "servo"]
+downloads = 226576275
+
+[crates.string_cache_codegen]
+owners = ["SimonSapin", "servo"]
+downloads = 154989552
+
+[crates.stringprep]
+owners = ["sfackler"]
+downloads = 283181290
+
+[crates.strsim]
+owners = ["dguo", "maxbachmann"]
+downloads = 1313679701
+
+[crates.strum]
+owners = ["Peternator7"]
+downloads = 799414330
+
+[crates.strum_macros]
+owners = ["Peternator7"]
+downloads = 808403176
+
+[crates.subtle]
+owners = ["isislovecruft", "dalek-cryptography"]
+downloads = 909719920
+
+[crates.syn]
+owners = ["dtolnay"]
+downloads = 3173078037
+
+[crates.sync_wrapper]
+owners = ["rkuhn", "actyx"]
+downloads = 836845702
+
+[crates.synstructure]
+owners = ["mystor"]
+downloads = 955449219
+
+[crates.tantivy]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 22934457
+
+[crates.tantivy-bitpacker]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 22574022
+
+[crates.tantivy-columnar]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 21114160
+
+[crates.tantivy-common]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 22637326
+
+[crates.tantivy-fst]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 25738659
+
+[crates.tantivy-query-grammar]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 22813534
+
+[crates.tantivy-sstable]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 21104945
+
+[crates.tantivy-stacker]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 21118318
+
+[crates.tantivy-tokenizer-api]
+owners = ["fulmicoton", "PSeitz"]
+downloads = 21227850
+
+[crates.tar]
+owners = ["cgwalters"]
+downloads = 300938365
+
+[crates.tempfile]
+owners = ["Stebalien"]
+downloads = 1032210515
+
+[crates.tendril]
+owners = ["SimonSapin", "servo"]
+downloads = 142538224
+
+[crates.thiserror]
+owners = ["dtolnay"]
+downloads = 1927912312
+
+[crates.thiserror-impl]
+owners = ["dtolnay"]
+downloads = 1928066026
+
+[crates.thread_local]
+owners = ["Amanieu"]
+downloads = 868403526
+
+[crates.time]
+owners = ["jhpratt"]
+downloads = 1112005355
+
+[crates.time-core]
+owners = ["jhpratt"]
+downloads = 844746820
+
+[crates.time-macros]
+owners = ["jhpratt"]
+downloads = 876735106
+
+[crates.tinystr]
+owners = ["Manishearth", "raphlinus", "zbraniecki", "unicode-org"]
+downloads = 822409619
+
+[crates.tinyvec]
+owners = ["Lokathor", "rust-bus"]
+downloads = 937931158
+
+[crates.tokio]
+owners = ["carllerche", "Darksonn", "tokio-rs"]
+downloads = 1235005841
+
+[crates.tokio-macros]
+owners = ["carllerche", "tokio-rs"]
+downloads = 1014522138
+
+[crates.tokio-rustls]
+owners = ["quininer", "djc", "rustls"]
+downloads = 977872457
+
+[crates.tokio-tungstenite]
+owners = ["agalakhov", "daniel-abramov"]
+downloads = 377104950
+
+[crates.tokio-util]
+owners = ["carllerche", "Darksonn", "tokio-rs"]
+downloads = 988021141
+
+[crates.toml]
+owners = ["epage", "toml-rs"]
+downloads = 1183967503
+
+[crates.toml_datetime]
+owners = ["epage", "toml-rs"]
+downloads = 1089464156
+
+[crates.toml_edit]
+owners = ["epage", "ordian", "toml-rs"]
+downloads = 1066842984
+
+[crates.toml_parser]
+owners = ["epage", "toml-rs"]
+downloads = 461418415
+
+[crates.toml_writer]
+owners = ["epage", "toml-rs"]
+downloads = 314333668
+
+[crates.tower]
+owners = ["carllerche", "seanmonstar", "tower-rs"]
+downloads = 874596389
+
+[crates.tower-http]
+owners = ["carllerche", "tower-rs"]
+downloads = 651936731
+
+[crates.tower-layer]
+owners = ["carllerche", "tower-rs"]
+downloads = 693065817
+
+[crates.tower-service]
+owners = ["carllerche", "seanmonstar", "tower-rs"]
+downloads = 825657028
+
+[crates.tracing]
+owners = ["carllerche", "hawkw", "tokio-rs"]
+downloads = 1088425860
+
+[crates.tracing-attributes]
+owners = ["hawkw", "tokio-rs"]
+downloads = 952684706
+
+[crates.tracing-core]
+owners = ["hawkw", "tokio-rs"]
+downloads = 1098663125
+
+[crates.tracing-log]
+owners = ["hawkw", "tokio-rs"]
+downloads = 692946669
+
+[crates.tracing-subscriber]
+owners = ["hawkw", "davidbarsky", "tokio-rs"]
+downloads = 774903251
+
+[crates.try-lock]
+owners = ["seanmonstar"]
+downloads = 809957475
+
+[crates.tungstenite]
+owners = ["agalakhov", "daniel-abramov"]
+downloads = 420050311
+
+[crates.typed-path]
+owners = ["chipsenkbeil"]
+downloads = 83608096
+
+[crates.typeid]
+owners = ["dtolnay"]
+downloads = 199216060
+
+[crates.typenum]
+owners = ["paholg"]
+downloads = 1165805174
+
+[crates.typetag]
+owners = ["dtolnay"]
+downloads = 61555146
+
+[crates.typetag-impl]
+owners = ["dtolnay"]
+downloads = 61558628
+
+[crates.typify]
+owners = ["ahl"]
+downloads = 35863110
+
+[crates.typify-impl]
+owners = ["ahl"]
+downloads = 35886851
+
+[crates.typify-macro]
+owners = ["ahl"]
+downloads = 34730654
+
+[crates.unarray]
+owners = ["cameron1024"]
+downloads = 236241803
+
+[crates.unicase]
+owners = ["seanmonstar"]
+downloads = 509971998
+
+[crates.unicode-bidi]
+owners = ["SimonSapin", "larsbergstrom", "metajack", "mbrubeck", "behnam", "servo"]
+downloads = 599361957
+
+[crates.unicode-ident]
+owners = ["dtolnay"]
+downloads = 1774288589
+
+[crates.unicode-normalization]
+owners = ["huonw", "SimonSapin", "Manishearth", "kwantam", "sujayakar"]
+downloads = 703948946
+
+[crates.unicode-properties]
+owners = ["Manishearth"]
+downloads = 265467562
+
+[crates.unicode-segmentation]
+owners = ["huonw", "SimonSapin", "Manishearth", "kwantam", "sujayakar"]
+downloads = 709748413
+
+[crates.unicode-xid]
+owners = ["alexcrichton", "huonw", "SimonSapin", "Manishearth", "kwantam", "sujayakar"]
+downloads = 725261582
+
+[crates.universal-hash]
+owners = ["tarcieri", "newpavlov", "rustcrypto"]
+downloads = 286516471
+
+[crates.unsafe-libyaml-norway]
+owners = ["cafkafk"]
+downloads = 23724431
+
+[crates.untrusted]
+owners = ["briansmith"]
+downloads = 1005490271
+
+[crates.unwrap-infallible]
+owners = ["mzabaluev"]
+downloads = 3690988
+
+[crates.url]
+owners = ["SimonSapin", "Hoverbear", "seanmonstar", "servo", "servo"]
+downloads = 1104745772
+
+[crates.utf8-ranges]
+owners = ["BurntSushi"]
+downloads = 62407490
+
+[crates.utf8_iter]
+owners = ["hsivonen"]
+downloads = 718374636
+
+[crates.utf8parse]
+owners = ["jwilm", "chrisduerr", "alacritty"]
+downloads = 795653588
+
+[crates.uuid]
+owners = ["KodrAus"]
+downloads = 1027929675
+
+[crates.valuable]
+owners = ["carllerche", "hawkw", "tokio-rs"]
+downloads = 358982819
+
+[crates.vcpkg]
+owners = ["kornelski", "pkgw", "mcgoo", "waych", "rust-bus"]
+downloads = 614864082
+
+[crates.version_check]
+owners = ["SergioBenitez"]
+downloads = 1282648270
+
+[crates.walkdir]
+owners = ["BurntSushi"]
+downloads = 803178584
+
+[crates.want]
+owners = ["seanmonstar"]
+downloads = 815718470
+
+[crates.wasi]
+owners = ["alexcrichton", "sunfishcode"]
+downloads = 922094412
+
+[crates.wasip2]
+owners = ["alexcrichton", "wasmtime-publish"]
+downloads = 288550833
+
+[crates.wasm-bindgen]
+owners = ["RReverser", "daxpedda", "guybedford", "wasm-bindgen"]
+downloads = 684762487
+
+[crates.wasm-bindgen-futures]
+owners = ["daxpedda", "guybedford", "wasm-bindgen"]
+downloads = 426022889
+
+[crates.wasm-bindgen-macro]
+owners = ["RReverser", "daxpedda", "guybedford", "wasm-bindgen"]
+downloads = 683861064
+
+[crates.wasm-bindgen-macro-support]
+owners = ["RReverser", "daxpedda", "guybedford", "wasm-bindgen"]
+downloads = 683966887
+
+[crates.wasm-bindgen-shared]
+owners = ["RReverser", "daxpedda", "guybedford", "wasm-bindgen"]
+downloads = 683349961
+
+[crates.wasm-streams]
+owners = ["MattiasBuelens"]
+downloads = 221318005
+
+[crates.web-sys]
+owners = ["RReverser", "daxpedda", "guybedford", "wasm-bindgen"]
+downloads = 490710092
+
+[crates.web_atoms]
+owners = ["jdm", "servo"]
+downloads = 76404415
+
+[crates.webpki-root-certs]
+owners = ["ctz", "djc", "cpu", "rustls"]
+downloads = 154719962
+
+[crates.webpki-roots]
+owners = ["ctz", "djc", "rustls"]
+downloads = 963755504
+
+[crates.weezl]
+owners = ["197g", "image-rs"]
+downloads = 199803437
+
+[crates.winapi]
+owners = ["retep998"]
+downloads = 596056859
+
+[crates.winapi-i686-pc-windows-gnu]
+owners = ["retep998"]
+downloads = 493127648
+
+[crates.winapi-util]
+owners = ["BurntSushi"]
+downloads = 510563999
+
+[crates.winapi-x86_64-pc-windows-gnu]
+owners = ["retep998"]
+downloads = 495837326
+
+[crates.windows-core]
+owners = ["kennykerr"]
+downloads = 568210411
+
+[crates.windows-implement]
+owners = ["kennykerr"]
+downloads = 406550325
+
+[crates.windows-interface]
+owners = ["kennykerr"]
+downloads = 398971834
+
+[crates.windows-link]
+owners = ["kennykerr"]
+downloads = 594739166
+
+[crates.windows-result]
+owners = ["kennykerr"]
+downloads = 495461634
+
+[crates.windows-strings]
+owners = ["kennykerr"]
+downloads = 450256156
+
+[crates.windows-sys]
+owners = ["kennykerr"]
+downloads = 1995764056
+
+[crates.windows-targets]
+owners = ["kennykerr"]
+downloads = 1280443932
+
+[crates.windows_aarch64_gnullvm]
+owners = ["kennykerr"]
+downloads = 1224077114
+
+[crates.windows_aarch64_msvc]
+owners = ["kennykerr"]
+downloads = 1279959990
+
+[crates.windows_i686_gnu]
+owners = ["kennykerr"]
+downloads = 1275194417
+
+[crates.windows_i686_gnullvm]
+owners = ["kennykerr"]
+downloads = 721269518
+
+[crates.windows_i686_msvc]
+owners = ["kennykerr"]
+downloads = 1277306895
+
+[crates.windows_x86_64_gnu]
+owners = ["kennykerr"]
+downloads = 1288398708
+
+[crates.windows_x86_64_gnullvm]
+owners = ["kennykerr"]
+downloads = 1223949891
+
+[crates.windows_x86_64_msvc]
+owners = ["kennykerr"]
+downloads = 1337138631
+
+[crates.winnow]
+owners = ["epage"]
+downloads = 1227813825
+
+[crates.wit-bindgen]
+owners = ["wasmtime-publish"]
+downloads = 369118434
+
+[crates.writeable]
+owners = ["zbraniecki", "unicode-org"]
+downloads = 801537864
+
+[crates.x11rb]
+owners = ["psychon"]
+downloads = 95057218
+
+[crates.x11rb-protocol]
+owners = ["psychon"]
+downloads = 92925012
+
+[crates.x25519-dalek]
+owners = ["isislovecruft", "dalek-cryptography"]
+downloads = 105400845
+
+[crates.yoke]
+owners = ["Manishearth", "unicode-org"]
+downloads = 822080730
+
+[crates.yoke-derive]
+owners = ["Manishearth", "unicode-org"]
+downloads = 812054216
+
+[crates.zerocopy]
+owners = ["jswrenn", "joshlf"]
+downloads = 1193309732
+
+[crates.zerocopy-derive]
+owners = ["joshlf"]
+downloads = 800837860
+
+[crates.zerofrom]
+owners = ["Manishearth", "unicode-org"]
+downloads = 788204795
+
+[crates.zerofrom-derive]
+owners = ["Manishearth", "unicode-org"]
+downloads = 782618572
+
+[crates.zeroize]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 922622562
+
+[crates.zeroize_derive]
+owners = ["tarcieri", "rustcrypto"]
+downloads = 357104073
+
+[crates.zerotrie]
+owners = ["sffc", "unicode-org"]
+downloads = 617697609
+
+[crates.zerovec]
+owners = ["Manishearth", "unicode-org"]
+downloads = 810276022
+
+[crates.zerovec-derive]
+owners = ["Manishearth", "unicode-org"]
+downloads = 803758785
+
+[crates.zip]
+owners = ["Plecra", "Pr0methean"]
+downloads = 359656960
+
+[crates.zlib-rs]
+owners = ["rnijveld", "folkertdev"]
+downloads = 270065101
+
+[crates.zmij]
+owners = ["dtolnay"]
+downloads = 740102970
+
+[crates.zopfli]
+owners = ["carols10cents", "kornelski", "dfrankland", "AlexTMjugador"]
+downloads = 173314035
+
+[crates.zstd]
+owners = ["gyscos"]
+downloads = 498975742
+
+[crates.zstd-safe]
+owners = ["gyscos"]
+downloads = 510094437
+
+[crates.zstd-sys]
+owners = ["gyscos"]
+downloads = 457255612
+
+[npm."@alloc/quick-lru"]
+owners = ["@alloc", "aleclarson"]
+downloads = 102293712
+
+[npm."@babel/code-frame"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 354703867
+
+[npm."@babel/compat-data"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 255463421
+
+[npm."@babel/core"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 270859571
+
+[npm."@babel/generator"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 320841795
+
+[npm."@babel/helper-compilation-targets"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 259757888
+
+[npm."@babel/helper-globals"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 251420964
+
+[npm."@babel/helper-module-imports"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 256088029
+
+[npm."@babel/helper-module-transforms"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 254124306
+
+[npm."@babel/helper-string-parser"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 339333832
+
+[npm."@babel/helper-validator-identifier"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 367360312
+
+[npm."@babel/helper-validator-option"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 252858863
+
+[npm."@babel/helpers"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 261401682
+
+[npm."@babel/parser"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 393738243
+
+[npm."@babel/template"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 284520399
+
+[npm."@babel/traverse"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 315721163
+
+[npm."@babel/types"]
+owners = ["@babel", "hzoo", "existentialism", "nicolo-ribaudo", "jlhwung"]
+downloads = 398705465
+
+[npm."@emnapi/core"]
+owners = ["@emnapi", "toyobayashi"]
+downloads = 104189668
+
+[npm."@emnapi/runtime"]
+owners = ["@emnapi", "toyobayashi"]
+downloads = 146969574
+
+[npm."@emnapi/wasi-threads"]
+owners = ["@emnapi", "toyobayashi"]
+downloads = 99152085
+
+[npm."@esbuild/aix-ppc64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 10724788
+
+[npm."@esbuild/android-arm"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11996035
+
+[npm."@esbuild/android-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11957556
+
+[npm."@esbuild/android-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11909152
+
+[npm."@esbuild/darwin-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 20457066
+
+[npm."@esbuild/darwin-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 15095028
+
+[npm."@esbuild/freebsd-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11938866
+
+[npm."@esbuild/freebsd-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11945375
+
+[npm."@esbuild/linux-arm"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11978512
+
+[npm."@esbuild/linux-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 45183327
+
+[npm."@esbuild/linux-ia32"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11984625
+
+[npm."@esbuild/linux-loong64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 12285288
+
+[npm."@esbuild/linux-mips64el"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11878402
+
+[npm."@esbuild/linux-ppc64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11948627
+
+[npm."@esbuild/linux-riscv64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11876728
+
+[npm."@esbuild/linux-s390x"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11947612
+
+[npm."@esbuild/linux-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 394524445
+
+[npm."@esbuild/netbsd-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 8865934
+
+[npm."@esbuild/netbsd-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11877799
+
+[npm."@esbuild/openbsd-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 9188960
+
+[npm."@esbuild/openbsd-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11938403
+
+[npm."@esbuild/openharmony-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 8016820
+
+[npm."@esbuild/sunos-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11849263
+
+[npm."@esbuild/win32-arm64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 12918661
+
+[npm."@esbuild/win32-ia32"]
+owners = ["@esbuild", "esbuild"]
+downloads = 11972045
+
+[npm."@esbuild/win32-x64"]
+owners = ["@esbuild", "esbuild"]
+downloads = 18913902
+
+[npm."@eslint-community/eslint-utils"]
+owners = ["@eslint-community", "eslint-community-bot", "michaeldeboey"]
+downloads = 216254544
+
+[npm."@eslint-community/regexpp"]
+owners = ["@eslint-community", "eslint-community-bot", "michaeldeboey"]
+downloads = 194456437
+
+[npm."@eslint/config-array"]
+owners = ["@eslint", "openjsfoundation", "eslintbot"]
+downloads = 164656387
+
+[npm."@eslint/config-helpers"]
+owners = ["@eslint", "openjsfoundation", "eslintbot"]
+downloads = 163059597
+
+[npm."@eslint/core"]
+owners = ["@eslint", "openjsfoundation", "eslintbot"]
+downloads = 178846310
+
+[npm."@eslint/eslintrc"]
+owners = ["@eslint", "openjsfoundation", "eslintbot"]
+downloads = 158166398
+
+[npm."@eslint/js"]
+owners = ["@eslint", "openjsfoundation", "eslintbot"]
+downloads = 186398195
+
+[npm."@eslint/object-schema"]
+owners = ["@eslint", "openjsfoundation", "eslintbot"]
+downloads = 161919630
+
+[npm."@eslint/plugin-kit"]
+owners = ["@eslint", "openjsfoundation", "eslintbot"]
+downloads = 166942611
+
+[npm."@humanfs/core"]
+owners = ["@humanfs", "nzakas"]
+downloads = 160859989
+
+[npm."@humanfs/node"]
+owners = ["@humanfs", "nzakas"]
+downloads = 161042225
+
+[npm."@humanfs/types"]
+owners = ["@humanfs", "nzakas"]
+downloads = 126031688
+
+[npm."@humanwhocodes/module-importer"]
+owners = ["@humanwhocodes", "nzakas"]
+downloads = 183109678
+
+[npm."@humanwhocodes/retry"]
+owners = ["@humanwhocodes", "nzakas"]
+downloads = 166168456
+
+[npm."@img/colour"]
+owners = ["@img", "lovell"]
+downloads = 144946539
+
+[npm."@img/sharp-darwin-arm64"]
+owners = ["@img", "lovell"]
+downloads = 7291318
+
+[npm."@img/sharp-darwin-x64"]
+owners = ["@img", "lovell"]
+downloads = 4932919
+
+[npm."@img/sharp-freebsd-wasm32"]
+owners = ["@img", "lovell"]
+downloads = 2112582
+
+[npm."@img/sharp-libvips-darwin-arm64"]
+owners = ["@img", "lovell"]
+downloads = 7357593
+
+[npm."@img/sharp-libvips-darwin-x64"]
+owners = ["@img", "lovell"]
+downloads = 4981438
+
+[npm."@img/sharp-libvips-linux-arm"]
+owners = ["@img", "lovell"]
+downloads = 3704228
+
+[npm."@img/sharp-libvips-linux-arm64"]
+owners = ["@img", "lovell"]
+downloads = 14811066
+
+[npm."@img/sharp-libvips-linux-ppc64"]
+owners = ["@img", "lovell"]
+downloads = 3291097
+
+[npm."@img/sharp-libvips-linux-riscv64"]
+owners = ["@img", "lovell"]
+downloads = 3115734
+
+[npm."@img/sharp-libvips-linux-s390x"]
+owners = ["@img", "lovell"]
+downloads = 3674536
+
+[npm."@img/sharp-libvips-linux-x64"]
+owners = ["@img", "lovell"]
+downloads = 149898532
+
+[npm."@img/sharp-libvips-linuxmusl-arm64"]
+owners = ["@img", "lovell"]
+downloads = 8675998
+
+[npm."@img/sharp-libvips-linuxmusl-x64"]
+owners = ["@img", "lovell"]
+downloads = 81659920
+
+[npm."@img/sharp-linux-arm"]
+owners = ["@img", "lovell"]
+downloads = 3666450
+
+[npm."@img/sharp-linux-arm64"]
+owners = ["@img", "lovell"]
+downloads = 14762776
+
+[npm."@img/sharp-linux-ppc64"]
+owners = ["@img", "lovell"]
+downloads = 3204940
+
+[npm."@img/sharp-linux-riscv64"]
+owners = ["@img", "lovell"]
+downloads = 3085502
+
+[npm."@img/sharp-linux-s390x"]
+owners = ["@img", "lovell"]
+downloads = 3637522
+
+[npm."@img/sharp-linux-x64"]
+owners = ["@img", "lovell"]
+downloads = 149649607
+
+[npm."@img/sharp-linuxmusl-arm64"]
+owners = ["@img", "lovell"]
+downloads = 8619184
+
+[npm."@img/sharp-linuxmusl-x64"]
+owners = ["@img", "lovell"]
+downloads = 81500471
+
+[npm."@img/sharp-wasm32"]
+owners = ["@img", "lovell"]
+downloads = 42489022
+
+[npm."@img/sharp-webcontainers-wasm32"]
+owners = ["@img", "lovell"]
+downloads = 2124377
+
+[npm."@img/sharp-win32-arm64"]
+owners = ["@img", "lovell"]
+downloads = 3728788
+
+[npm."@img/sharp-win32-ia32"]
+owners = ["@img", "lovell"]
+downloads = 3656434
+
+[npm."@img/sharp-win32-x64"]
+owners = ["@img", "lovell"]
+downloads = 6511831
+
+[npm."@jridgewell/gen-mapping"]
+owners = ["@jridgewell", "jridgewell"]
+downloads = 297587043
+
+[npm."@jridgewell/remapping"]
+owners = ["@jridgewell", "jridgewell"]
+downloads = 226047030
+
+[npm."@jridgewell/resolve-uri"]
+owners = ["@jridgewell", "jridgewell"]
+downloads = 312992544
+
+[npm."@jridgewell/sourcemap-codec"]
+owners = ["@jridgewell", "jridgewell"]
+downloads = 358810258
+
+[npm."@jridgewell/trace-mapping"]
+owners = ["@jridgewell", "jridgewell"]
+downloads = 388559429
+
+[npm."@napi-rs/wasm-runtime"]
+owners = ["@napi-rs", "broooooklyn", "forehalo"]
+downloads = 91647222
+
+[npm."@next/env"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 105511261
+
+[npm."@next/eslint-plugin-next"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 56073026
+
+[npm."@next/swc-darwin-arm64"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 5028307
+
+[npm."@next/swc-darwin-x64"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 3639247
+
+[npm."@next/swc-linux-arm64-gnu"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 8520540
+
+[npm."@next/swc-linux-arm64-musl"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 5426065
+
+[npm."@next/swc-linux-x64-gnu"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 85038444
+
+[npm."@next/swc-linux-x64-musl"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 44365541
+
+[npm."@next/swc-win32-arm64-msvc"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 3168983
+
+[npm."@next/swc-win32-x64-msvc"]
+owners = ["@next", "vercel-release-bot", "matt.straka"]
+downloads = 4340720
+
+[npm."@nodelib/fs.scandir"]
+owners = ["@nodelib", "mrmlnc"]
+downloads = 176747049
+
+[npm."@nodelib/fs.stat"]
+owners = ["@nodelib", "mrmlnc"]
+downloads = 179585040
+
+[npm."@nodelib/fs.walk"]
+owners = ["@nodelib", "mrmlnc"]
+downloads = 176810528
+
+[npm."@nolyfill/is-core-module"]
+owners = ["@nolyfill", "sukkaw"]
+downloads = 51961897
+
+[npm."@rtsao/scc"]
+owners = ["@rtsao", "rtsao"]
+downloads = 73229582
+
+[npm."@swc/helpers"]
+owners = ["@swc", "kdy1"]
+downloads = 153225865
+
+[npm."@tailwindcss/node"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 130131550
+
+[npm."@tailwindcss/oxide"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 130013653
+
+[npm."@tailwindcss/oxide-android-arm64"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 2445646
+
+[npm."@tailwindcss/oxide-darwin-arm64"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 4995097
+
+[npm."@tailwindcss/oxide-darwin-x64"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 3350363
+
+[npm."@tailwindcss/oxide-freebsd-x64"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 2440372
+
+[npm."@tailwindcss/oxide-linux-arm-gnueabihf"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 2446365
+
+[npm."@tailwindcss/oxide-linux-arm64-gnu"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 11067557
+
+[npm."@tailwindcss/oxide-linux-arm64-musl"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 6927694
+
+[npm."@tailwindcss/oxide-linux-x64-gnu"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 115189618
+
+[npm."@tailwindcss/oxide-linux-x64-musl"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 72558503
+
+[npm."@tailwindcss/oxide-wasm32-wasi"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 33428109
+
+[npm."@tailwindcss/oxide-win32-arm64-msvc"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 2707764
+
+[npm."@tailwindcss/oxide-win32-x64-msvc"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 4429265
+
+[npm."@tailwindcss/postcss"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 61799895
+
+[npm."@tailwindcss/typography"]
+owners = ["@tailwindcss", "reinink", "adamwathan", "malfaitrobin"]
+downloads = 26612562
+
+[npm."@turbo/darwin-64"]
+owners = ["@turbo"]
+downloads = 1223288
+
+[npm."@turbo/darwin-arm64"]
+owners = ["@turbo"]
+downloads = 1617941
+
+[npm."@turbo/linux-64"]
+owners = ["@turbo"]
+downloads = 38905159
+
+[npm."@turbo/linux-arm64"]
+owners = ["@turbo"]
+downloads = 5642492
+
+[npm."@turbo/windows-64"]
+owners = ["@turbo"]
+downloads = 1187723
+
+[npm."@turbo/windows-arm64"]
+owners = ["@turbo"]
+downloads = 920476
+
+[npm."@tybys/wasm-util"]
+owners = ["@tybys", "toyobayashi"]
+downloads = 82153459
+
+[npm."@types/debug"]
+owners = ["@types", "types"]
+downloads = 113962815
+
+[npm."@types/estree"]
+owners = ["@types", "types"]
+downloads = 341571466
+
+[npm."@types/estree-jsx"]
+owners = ["@types", "types"]
+downloads = 74864480
+
+[npm."@types/hast"]
+owners = ["@types", "types"]
+downloads = 115656313
+
+[npm."@types/json-schema"]
+owners = ["@types", "types"]
+downloads = 214019567
+
+[npm."@types/json5"]
+owners = ["@types", "types"]
+downloads = 81169644
+
+[npm."@types/mdast"]
+owners = ["@types", "types"]
+downloads = 108170450
+
+[npm."@types/ms"]
+owners = ["@types", "types"]
+downloads = 130530059
+
+[npm."@types/node"]
+owners = ["@types", "types"]
+downloads = 671474376
+
+[npm."@types/react"]
+owners = ["@types", "types"]
+downloads = 248449831
+
+[npm."@types/react-dom"]
+owners = ["@types", "types"]
+downloads = 210841611
+
+[npm."@types/unist"]
+owners = ["@types", "types"]
+downloads = 199461261
+
+[npm."@typescript-eslint/eslint-plugin"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 182968210
+
+[npm."@typescript-eslint/parser"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 191242436
+
+[npm."@typescript-eslint/project-service"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 184229093
+
+[npm."@typescript-eslint/scope-manager"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 226738879
+
+[npm."@typescript-eslint/tsconfig-utils"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 185771124
+
+[npm."@typescript-eslint/type-utils"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 183465010
+
+[npm."@typescript-eslint/types"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 248482689
+
+[npm."@typescript-eslint/typescript-estree"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 235720556
+
+[npm."@typescript-eslint/utils"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 213946895
+
+[npm."@typescript-eslint/visitor-keys"]
+owners = ["@typescript-eslint", "jameshenry", "bradzacher"]
+downloads = 234629671
+
+[npm."@ungap/structured-clone"]
+owners = ["@ungap", "webreflection"]
+downloads = 136526963
+
+[npm."@unrs/resolver-binding-android-arm-eabi"]
+owners = ["@unrs", "jounqin"]
+downloads = 3822006
+
+[npm."@unrs/resolver-binding-android-arm64"]
+owners = ["@unrs", "jounqin"]
+downloads = 3823718
+
+[npm."@unrs/resolver-binding-darwin-arm64"]
+owners = ["@unrs", "jounqin"]
+downloads = 5785635
+
+[npm."@unrs/resolver-binding-darwin-x64"]
+owners = ["@unrs", "jounqin"]
+downloads = 4546813
+
+[npm."@unrs/resolver-binding-freebsd-x64"]
+owners = ["@unrs", "jounqin"]
+downloads = 3968458
+
+[npm."@unrs/resolver-binding-linux-arm-gnueabihf"]
+owners = ["@unrs", "jounqin"]
+downloads = 3974985
+
+[npm."@unrs/resolver-binding-linux-arm-musleabihf"]
+owners = ["@unrs", "jounqin"]
+downloads = 3974906
+
+[npm."@unrs/resolver-binding-linux-arm64-gnu"]
+owners = ["@unrs", "jounqin"]
+downloads = 9480406
+
+[npm."@unrs/resolver-binding-linux-arm64-musl"]
+owners = ["@unrs", "jounqin"]
+downloads = 6468134
+
+[npm."@unrs/resolver-binding-linux-loong64-gnu"]
+owners = ["@unrs", "jounqin"]
+downloads = 2063913
+
+[npm."@unrs/resolver-binding-linux-loong64-musl"]
+owners = ["@unrs", "jounqin"]
+downloads = 2063896
+
+[npm."@unrs/resolver-binding-linux-ppc64-gnu"]
+owners = ["@unrs", "jounqin"]
+downloads = 3969227
+
+[npm."@unrs/resolver-binding-linux-riscv64-gnu"]
+owners = ["@unrs", "jounqin"]
+downloads = 3905214
+
+[npm."@unrs/resolver-binding-linux-riscv64-musl"]
+owners = ["@unrs", "jounqin"]
+downloads = 3890761
+
+[npm."@unrs/resolver-binding-linux-s390x-gnu"]
+owners = ["@unrs", "jounqin"]
+downloads = 3971180
+
+[npm."@unrs/resolver-binding-linux-x64-gnu"]
+owners = ["@unrs", "jounqin"]
+downloads = 76298484
+
+[npm."@unrs/resolver-binding-linux-x64-musl"]
+owners = ["@unrs", "jounqin"]
+downloads = 44728576
+
+[npm."@unrs/resolver-binding-openharmony-arm64"]
+owners = ["@unrs", "jounqin"]
+downloads = 2067332
+
+[npm."@unrs/resolver-binding-wasm32-wasi"]
+owners = ["@unrs", "jounqin"]
+downloads = 3469947
+
+[npm."@unrs/resolver-binding-win32-arm64-msvc"]
+owners = ["@unrs", "jounqin"]
+downloads = 4126371
+
+[npm."@unrs/resolver-binding-win32-ia32-msvc"]
+owners = ["@unrs", "jounqin"]
+downloads = 3977488
+
+[npm."@unrs/resolver-binding-win32-x64-msvc"]
+owners = ["@unrs", "jounqin"]
+downloads = 4970409
+
+[npm.acorn]
+owners = ["marijn", "adrianheine", "rreverser"]
+downloads = 354598598
+
+[npm.acorn-jsx]
+owners = ["marijn", "adrianheine", "rreverser"]
+downloads = 200081077
+
+[npm.ajv]
+owners = ["blakeembrey", "esp"]
+downloads = 546687013
+
+[npm.ansi-styles]
+owners = ["sindresorhus", "qix"]
+downloads = 949038713
+
+[npm.argparse]
+owners = ["vitaly"]
+downloads = 384858248
+
+[npm.aria-query]
+owners = ["ljharb", "jessebeach", "sundress", "evcohen", "marcysutton"]
+downloads = 244911056
+
+[npm.array-buffer-byte-length]
+owners = ["ljharb"]
+downloads = 129455238
+
+[npm.array-includes]
+owners = ["ljharb"]
+downloads = 102439594
+
+[npm."array.prototype.findlast"]
+owners = ["ljharb"]
+downloads = 77153383
+
+[npm."array.prototype.findlastindex"]
+owners = ["ljharb"]
+downloads = 77105588
+
+[npm."array.prototype.flat"]
+owners = ["ljharb"]
+downloads = 100108035
+
+[npm."array.prototype.flatmap"]
+owners = ["ljharb"]
+downloads = 99268765
+
+[npm."array.prototype.tosorted"]
+owners = ["ljharb"]
+downloads = 79290513
+
+[npm."arraybuffer.prototype.slice"]
+owners = ["ljharb"]
+downloads = 124156699
+
+[npm.ast-types-flow]
+owners = ["kyldvs"]
+downloads = 68396092
+
+[npm.async-function]
+owners = ["ljharb", "eduardorfs"]
+downloads = 114033868
+
+[npm.available-typed-arrays]
+owners = ["ljharb"]
+downloads = 150080795
+
+[npm.axe-core]
+owners = ["dylanb", "wilcofiers", "dqlabs", "npmdeque"]
+downloads = 121989024
+
+[npm.axobject-query]
+owners = ["ljharb", "jessebeach"]
+downloads = 91348265
+
+[npm.bail]
+owners = ["wooorm"]
+downloads = 90568164
+
+[npm.balanced-match]
+owners = ["juliangruber"]
+downloads = 594856396
+
+[npm.baseline-browser-mapping]
+owners = ["tonypconway"]
+downloads = 266182184
+
+[npm.brace-expansion]
+owners = ["juliangruber", "isaacs"]
+downloads = 871870287
+
+[npm.braces]
+owners = ["es128", "paulmillr", "jonschlinkert", "doowb"]
+downloads = 228702137
+
+[npm.browserslist]
+owners = ["ai"]
+downloads = 282034371
+
+[npm.call-bind]
+owners = ["ljharb"]
+downloads = 172712590
+
+[npm.call-bind-apply-helpers]
+owners = ["ljharb"]
+downloads = 283458204
+
+[npm.call-bound]
+owners = ["ljharb"]
+downloads = 245306103
+
+[npm.callsites]
+owners = ["sindresorhus"]
+downloads = 202610751
+
+[npm.caniuse-lite]
+owners = ["ai"]
+downloads = 301654449
+
+[npm.ccount]
+owners = ["wooorm"]
+downloads = 94634831
+
+[npm.chalk]
+owners = ["sindresorhus", "qix"]
+downloads = 660454594
+
+[npm.character-entities]
+owners = ["wooorm"]
+downloads = 101160183
+
+[npm.character-entities-html4]
+owners = ["wooorm"]
+downloads = 84788806
+
+[npm.character-entities-legacy]
+owners = ["wooorm"]
+downloads = 98697925
+
+[npm.character-reference-invalid]
+owners = ["wooorm"]
+downloads = 85457189
+
+[npm.client-only]
+owners = ["sebmarkbage"]
+downloads = 98333631
+
+[npm.color-convert]
+owners = ["qix"]
+downloads = 459624001
+
+[npm.color-name]
+owners = ["dfcreative"]
+downloads = 473200493
+
+[npm.comma-separated-tokens]
+owners = ["wooorm"]
+downloads = 91314653
+
+[npm.concat-map]
+owners = ["substack"]
+downloads = 202614180
+
+[npm.convert-source-map]
+owners = ["phated", "thlorenz"]
+downloads = 315695849
+
+[npm.cross-spawn]
+owners = ["satazor"]
+downloads = 361845549
+
+[npm.cssesc]
+owners = ["mathias"]
+downloads = 107956620
+
+[npm.csstype]
+owners = ["anders.ekdahl", "faddee"]
+downloads = 258527764
+
+[npm.damerau-levenshtein]
+owners = ["lazurski"]
+downloads = 68303209
+
+[npm.data-view-buffer]
+owners = ["ljharb"]
+downloads = 120995916
+
+[npm.data-view-byte-length]
+owners = ["ljharb"]
+downloads = 120996814
+
+[npm.data-view-byte-offset]
+owners = ["ljharb"]
+downloads = 120992295
+
+[npm.debug]
+owners = ["qix", "tootallnate"]
+downloads = 977218258
+
+[npm.decode-named-character-reference]
+owners = ["wooorm"]
+downloads = 92321690
+
+[npm.deep-is]
+owners = ["thlorenz"]
+downloads = 194593629
+
+[npm.define-data-property]
+owners = ["ljharb"]
+downloads = 166906616
+
+[npm.define-properties]
+owners = ["ljharb"]
+downloads = 153952203
+
+[npm.dequal]
+owners = ["lukeed"]
+downloads = 170531311
+
+[npm.detect-libc]
+owners = ["lovell"]
+downloads = 337802860
+
+[npm.devlop]
+owners = ["wooorm"]
+downloads = 96337232
+
+[npm.doctrine]
+owners = ["ivolodin", "eslint", "nzakas", "constellation"]
+downloads = 171446304
+
+[npm.dunder-proto]
+owners = ["ljharb"]
+downloads = 281624240
+
+[npm.electron-to-chromium]
+owners = ["kilianvalkhof"]
+downloads = 281933818
+
+[npm.emoji-regex]
+owners = ["mathias", "google-wombot"]
+downloads = 612019069
+
+[npm.enhanced-resolve]
+owners = ["15000621931", "ev1stensberg", "__hai", "sokra", "avivkeller", "evilebottnawi", "jhnns", "thelarkinn"]
+downloads = 206991753
+
+[npm.es-abstract]
+owners = ["ljharb"]
+downloads = 140527292
+
+[npm.es-abstract-get]
+owners = ["ljharb"]
+downloads = 64184265
+
+[npm.es-define-property]
+owners = ["ljharb"]
+downloads = 289146123
+
+[npm.es-errors]
+owners = ["ljharb"]
+downloads = 302944731
+
+[npm.es-iterator-helpers]
+owners = ["ljharb"]
+downloads = 80729734
+
+[npm.es-object-atoms]
+owners = ["ljharb"]
+downloads = 302415498
+
+[npm.es-set-tostringtag]
+owners = ["ljharb"]
+downloads = 221522854
+
+[npm.es-shim-unscopables]
+owners = ["ljharb"]
+downloads = 102169173
+
+[npm.es-to-primitive]
+owners = ["ljharb"]
+downloads = 132173794
+
+[npm.esbuild]
+owners = ["esbuild"]
+downloads = 443230940
+
+[npm.escalade]
+owners = ["lukeed"]
+downloads = 292268165
+
+[npm.escape-string-regexp]
+owners = ["sindresorhus"]
+downloads = 516514721
+
+[npm.eslint]
+owners = ["openjsfoundation", "eslintbot"]
+downloads = 216187244
+
+[npm.eslint-config-next]
+owners = ["timneutkens", "timer", "vercel-release-bot"]
+downloads = 49702132
+
+[npm.eslint-import-resolver-node]
+owners = ["jfmengels", "ljharb", "benmosher"]
+downloads = 86166956
+
+[npm.eslint-import-resolver-typescript]
+owners = ["jounqin", "alexgorbatchev", "bradzacher"]
+downloads = 67867883
+
+[npm.eslint-module-utils]
+owners = ["benmosher", "ljharb", "jfmengels"]
+downloads = 86111002
+
+[npm.eslint-plugin-import]
+owners = ["benmosher", "ljharb", "jfmengels"]
+downloads = 83932513
+
+[npm.eslint-plugin-jsx-a11y]
+owners = ["ljharb", "lencioni", "jessebeach", "evcohen"]
+downloads = 68282706
+
+[npm.eslint-plugin-react]
+owners = ["ljharb", "yannickcr"]
+downloads = 84545324
+
+[npm.eslint-plugin-react-hooks]
+owners = ["react-bot"]
+downloads = 123734780
+
+[npm.eslint-scope]
+owners = ["openjsfoundation", "eslintbot", "nzakas", "ivolodin"]
+downloads = 278091078
+
+[npm.eslint-visitor-keys]
+owners = ["openjsfoundation", "eslintbot"]
+downloads = 542137765
+
+[npm.espree]
+owners = ["openjsfoundation", "eslintbot"]
+downloads = 231599466
+
+[npm.esquery]
+owners = ["jrfeenst", "michaelficarra"]
+downloads = 199300505
+
+[npm.esrecurse]
+owners = ["constellation", "michaelficarra", "nzakas"]
+downloads = 200070927
+
+[npm.estraverse]
+owners = ["nzakas", "michaelficarra", "constellation"]
+downloads = 300477518
+
+[npm.estree-util-is-identifier-name]
+owners = ["wooorm", "kmck"]
+downloads = 70988425
+
+[npm.esutils]
+owners = ["constellation", "michaelficarra"]
+downloads = 220783561
+
+[npm.extend]
+owners = ["justmoon", "ljharb"]
+downloads = 157578645
+
+[npm.fast-deep-equal]
+owners = ["esp"]
+downloads = 315681584
+
+[npm.fast-glob]
+owners = ["mrmlnc"]
+downloads = 215281895
+
+[npm.fast-json-stable-stringify]
+owners = ["esp"]
+downloads = 219792735
+
+[npm.fast-levenshtein]
+owners = ["hiddentao"]
+downloads = 198917215
+
+[npm.fastq]
+owners = ["matteo.collina"]
+downloads = 198243452
+
+[npm.fault]
+owners = ["wooorm"]
+downloads = 22185043
+
+[npm.fdir]
+owners = ["thecodrr"]
+downloads = 307013788
+
+[npm.file-entry-cache]
+owners = ["jaredwray"]
+downloads = 211501956
+
+[npm.fill-range]
+owners = ["es128", "paulmillr", "jonschlinkert", "doowb"]
+downloads = 228165318
+
+[npm.find-up]
+owners = ["sindresorhus"]
+downloads = 441796738
+
+[npm.flat-cache]
+owners = ["jaredwray"]
+downloads = 214590314
+
+[npm.flatted]
+owners = ["webreflection"]
+downloads = 216449744
+
+[npm.for-each]
+owners = ["raynos", "ljharb"]
+downloads = 152631378
+
+[npm.format]
+owners = ["sjs"]
+downloads = 20267859
+
+[npm.fsevents]
+owners = ["pipobscure", "paulmillr"]
+downloads = 38944928
+
+[npm.function-bind]
+owners = ["raynos", "ljharb"]
+downloads = 317281748
+
+[npm."function.prototype.name"]
+owners = ["ljharb"]
+downloads = 129643745
+
+[npm.functions-have-names]
+owners = ["ljharb"]
+downloads = 130062873
+
+[npm.geist]
+owners = ["vercel-release-bot", "zeit-bot"]
+downloads = 4405980
+
+[npm.generator-function]
+owners = ["timothygu", "ljharb"]
+downloads = 115827623
+
+[npm.gensync]
+owners = ["loganfsmyth"]
+downloads = 215543186
+
+[npm.get-intrinsic]
+owners = ["ljharb"]
+downloads = 304150330
+
+[npm.get-proto]
+owners = ["ljharb"]
+downloads = 280637941
+
+[npm.get-symbol-description]
+owners = ["ljharb"]
+downloads = 127865200
+
+[npm.get-tsconfig]
+owners = ["hirokiosame"]
+downloads = 172515491
+
+[npm.github-slugger]
+owners = ["wooorm", "chrisdickinson", "ag_dubs", "flet", "revin"]
+downloads = 29173406
+
+[npm.glob-parent]
+owners = ["phated", "contra", "es128", "jonschlinkert", "doowb"]
+downloads = 443225648
+
+[npm.globals]
+owners = ["byk", "nzakas", "lo1tuma", "sindresorhus"]
+downloads = 332495733
+
+[npm.globalthis]
+owners = ["ljharb"]
+downloads = 136441436
+
+[npm.gopd]
+owners = ["ljharb"]
+downloads = 292907355
+
+[npm.graceful-fs]
+owners = ["isaacs"]
+downloads = 313642927
+
+[npm.has-bigints]
+owners = ["ljharb"]
+downloads = 131221410
+
+[npm.has-flag]
+owners = ["sindresorhus"]
+downloads = 418199976
+
+[npm.has-property-descriptors]
+owners = ["ljharb"]
+downloads = 169709054
+
+[npm.has-proto]
+owners = ["ljharb"]
+downloads = 129117943
+
+[npm.has-symbols]
+owners = ["ljharb"]
+downloads = 297373649
+
+[npm.has-tostringtag]
+owners = ["ljharb"]
+downloads = 235649165
+
+[npm.hasown]
+owners = ["ljharb", "radubrehar"]
+downloads = 344810360
+
+[npm.hast-util-heading-rank]
+owners = ["wooorm", "kmck"]
+downloads = 6411408
+
+[npm.hast-util-to-jsx-runtime]
+owners = ["wooorm", "kmck"]
+downloads = 66760710
+
+[npm.hast-util-to-string]
+owners = ["remcohaszing", "wooorm", "kmck"]
+downloads = 12025982
+
+[npm.hast-util-whitespace]
+owners = ["wooorm", "kmck"]
+downloads = 85661580
+
+[npm.hermes-estree]
+owners = ["hermes-team"]
+downloads = 122511003
+
+[npm.hermes-parser]
+owners = ["fb", "flowtype", "hermes-team"]
+downloads = 122665435
+
+[npm.ignore]
+owners = ["kael"]
+downloads = 456945018
+
+[npm.import-fresh]
+owners = ["sindresorhus"]
+downloads = 195993967
+
+[npm.imurmurhash]
+owners = ["jensyt"]
+downloads = 215401379
+
+[npm.inline-style-parser]
+owners = ["remarkablemark"]
+downloads = 80984587
+
+[npm.internal-slot]
+owners = ["ljharb"]
+downloads = 133268012
+
+[npm.is-alphabetical]
+owners = ["wooorm"]
+downloads = 93650977
+
+[npm.is-alphanumerical]
+owners = ["wooorm"]
+downloads = 93668231
+
+[npm.is-array-buffer]
+owners = ["ljharb", "chenfengyuan"]
+downloads = 130082816
+
+[npm.is-async-function]
+owners = ["ljharb", "tunnckocore"]
+downloads = 119128956
+
+[npm.is-bigint]
+owners = ["ljharb"]
+downloads = 132332140
+
+[npm.is-boolean-object]
+owners = ["ljharb"]
+downloads = 132867768
+
+[npm.is-bun-module]
+owners = ["sunset_techuila"]
+downloads = 62075047
+
+[npm.is-callable]
+owners = ["ljharb"]
+downloads = 152638731
+
+[npm.is-core-module]
+owners = ["ljharb"]
+downloads = 229844047
+
+[npm.is-data-view]
+owners = ["ljharb"]
+downloads = 120896233
+
+[npm.is-date-object]
+owners = ["ljharb"]
+downloads = 136246619
+
+[npm.is-decimal]
+owners = ["wooorm"]
+downloads = 93658298
+
+[npm."is-document.all"]
+owners = ["ljharb"]
+downloads = 64057662
+
+[npm.is-extglob]
+owners = ["jonschlinkert"]
+downloads = 255733332
+
+[npm.is-finalizationregistry]
+owners = ["ljharb"]
+downloads = 119165292
+
+[npm.is-generator-function]
+owners = ["ljharb"]
+downloads = 139160798
+
+[npm.is-glob]
+owners = ["phated", "jonschlinkert", "doowb"]
+downloads = 265319879
+
+[npm.is-hexadecimal]
+owners = ["wooorm"]
+downloads = 85465455
+
+[npm.is-map]
+owners = ["ljharb"]
+downloads = 125093469
+
+[npm.is-negative-zero]
+owners = ["ljharb"]
+downloads = 124435101
+
+[npm.is-number]
+owners = ["doowb", "jonschlinkert", "realityking"]
+downloads = 236132321
+
+[npm.is-number-object]
+owners = ["ljharb"]
+downloads = 132669992
+
+[npm.is-plain-obj]
+owners = ["sindresorhus"]
+downloads = 193276684
+
+[npm.is-regex]
+owners = ["ljharb"]
+downloads = 153986416
+
+[npm.is-set]
+owners = ["ljharb"]
+downloads = 124773670
+
+[npm.is-shared-array-buffer]
+owners = ["ljharb"]
+downloads = 132400447
+
+[npm.is-string]
+owners = ["ljharb"]
+downloads = 133239021
+
+[npm.is-symbol]
+owners = ["ljharb"]
+downloads = 134977302
+
+[npm.is-typed-array]
+owners = ["ljharb", "alexandergugel"]
+downloads = 149788546
+
+[npm.is-weakmap]
+owners = ["ljharb"]
+downloads = 124698779
+
+[npm.is-weakref]
+owners = ["ljharb"]
+downloads = 127851677
+
+[npm.is-weakset]
+owners = ["ljharb"]
+downloads = 125031328
+
+[npm.isarray]
+owners = ["juliangruber"]
+downloads = 372550350
+
+[npm.isexe]
+owners = ["isaacs"]
+downloads = 436987501
+
+[npm."iterator.prototype"]
+owners = ["ljharb"]
+downloads = 78644448
+
+[npm.jiti]
+owners = ["pi0"]
+downloads = 268628511
+
+[npm.js-tokens]
+owners = ["lydell"]
+downloads = 390130418
+
+[npm.js-yaml]
+owners = ["vitaly"]
+downloads = 409452192
+
+[npm.jsesc]
+owners = ["mathias"]
+downloads = 256380356
+
+[npm.json-buffer]
+owners = ["dominictarr"]
+downloads = 166251314
+
+[npm.json-schema-traverse]
+owners = ["esp"]
+downloads = 487527071
+
+[npm.json-stable-stringify-without-jsonify]
+owners = ["samn"]
+downloads = 188846877
+
+[npm.json5]
+owners = ["jordanbtucker", "aseemk"]
+downloads = 333867148
+
+[npm.jsx-ast-utils]
+owners = ["jessebeach", "ljharb", "evcohen"]
+downloads = 86812837
+
+[npm.keyv]
+owners = ["jaredwray", "lukechilds"]
+downloads = 234600951
+
+[npm.language-subtag-registry]
+owners = ["mcg"]
+downloads = 68098520
+
+[npm.language-tags]
+owners = ["mcg"]
+downloads = 68215992
+
+[npm.levn]
+owners = ["gkz"]
+downloads = 200510611
+
+[npm.lightningcss]
+owners = ["devongovett"]
+downloads = 260847791
+
+[npm.lightningcss-android-arm64]
+owners = ["devongovett"]
+downloads = 4998116
+
+[npm.lightningcss-darwin-arm64]
+owners = ["devongovett"]
+downloads = 11385800
+
+[npm.lightningcss-darwin-x64]
+owners = ["devongovett"]
+downloads = 7581946
+
+[npm.lightningcss-freebsd-x64]
+owners = ["devongovett"]
+downloads = 5608044
+
+[npm.lightningcss-linux-arm-gnueabihf]
+owners = ["devongovett"]
+downloads = 5665753
+
+[npm.lightningcss-linux-arm64-gnu]
+owners = ["devongovett"]
+downloads = 24348663
+
+[npm.lightningcss-linux-arm64-musl]
+owners = ["devongovett"]
+downloads = 15161899
+
+[npm.lightningcss-linux-x64-gnu]
+owners = ["devongovett"]
+downloads = 227157449
+
+[npm.lightningcss-linux-x64-musl]
+owners = ["devongovett"]
+downloads = 133079805
+
+[npm.lightningcss-win32-arm64-msvc]
+owners = ["devongovett"]
+downloads = 6195306
+
+[npm.lightningcss-win32-x64-msvc]
+owners = ["devongovett"]
+downloads = 9853101
+
+[npm.locate-path]
+owners = ["sindresorhus"]
+downloads = 434334121
+
+[npm."lodash.merge"]
+owners = ["jdalton", "mathias"]
+downloads = 158470012
+
+[npm.longest-streak]
+owners = ["wooorm"]
+downloads = 87933127
+
+[npm.loose-envify]
+owners = ["zertosh"]
+downloads = 167124587
+
+[npm.lru-cache]
+owners = ["isaacs", "othiym23"]
+downloads = 830690728
+
+[npm.magic-string]
+owners = ["mourner", "rich_harris", "alangpierce", "antfu"]
+downloads = 396470525
+
+[npm.markdown-table]
+owners = ["wooorm"]
+downloads = 83088689
+
+[npm.math-intrinsics]
+owners = ["ljharb"]
+downloads = 280824094
+
+[npm.mdast-util-directive]
+owners = ["wooorm", "kmck"]
+downloads = 9350623
+
+[npm.mdast-util-find-and-replace]
+owners = ["wooorm", "kmck"]
+downloads = 80293803
+
+[npm.mdast-util-from-markdown]
+owners = ["wooorm", "kmck"]
+downloads = 101246786
+
+[npm.mdast-util-frontmatter]
+owners = ["wooorm", "kmck"]
+downloads = 12409391
+
+[npm.mdast-util-gfm]
+owners = ["wooorm", "kmck"]
+downloads = 79087228
+
+[npm.mdast-util-gfm-autolink-literal]
+owners = ["wooorm", "kmck"]
+downloads = 79340131
+
+[npm.mdast-util-gfm-footnote]
+owners = ["wooorm", "kmck"]
+downloads = 76203907
+
+[npm.mdast-util-gfm-strikethrough]
+owners = ["wooorm", "kmck"]
+downloads = 80313672
+
+[npm.mdast-util-gfm-table]
+owners = ["wooorm", "kmck"]
+downloads = 80378107
+
+[npm.mdast-util-gfm-task-list-item]
+owners = ["wooorm", "kmck"]
+downloads = 79934043
+
+[npm.mdast-util-mdx-expression]
+owners = ["wooorm", "kmck"]
+downloads = 69115079
+
+[npm.mdast-util-mdx-jsx]
+owners = ["wooorm", "kmck"]
+downloads = 71616197
+
+[npm.mdast-util-mdxjs-esm]
+owners = ["wooorm", "kmck"]
+downloads = 68910014
+
+[npm.mdast-util-phrasing]
+owners = ["wooorm", "kmck"]
+downloads = 86252261
+
+[npm.mdast-util-to-hast]
+owners = ["wooorm", "kmck"]
+downloads = 89039765
+
+[npm.mdast-util-to-markdown]
+owners = ["wooorm", "kmck"]
+downloads = 93031636
+
+[npm.mdast-util-to-string]
+owners = ["wooorm", "kmck"]
+downloads = 98265978
+
+[npm.merge2]
+owners = ["zensh"]
+downloads = 171954727
+
+[npm.micromark]
+owners = ["wooorm"]
+downloads = 101615970
+
+[npm.micromark-core-commonmark]
+owners = ["wooorm"]
+downloads = 96533188
+
+[npm.micromark-extension-directive]
+owners = ["wooorm"]
+downloads = 13082113
+
+[npm.micromark-extension-frontmatter]
+owners = ["wooorm"]
+downloads = 12487721
+
+[npm.micromark-extension-gfm]
+owners = ["wooorm"]
+downloads = 78599036
+
+[npm.micromark-extension-gfm-autolink-literal]
+owners = ["wooorm"]
+downloads = 81911115
+
+[npm.micromark-extension-gfm-footnote]
+owners = ["wooorm"]
+downloads = 79379719
+
+[npm.micromark-extension-gfm-strikethrough]
+owners = ["wooorm"]
+downloads = 79512865
+
+[npm.micromark-extension-gfm-table]
+owners = ["wooorm"]
+downloads = 84477828
+
+[npm.micromark-extension-gfm-tagfilter]
+owners = ["wooorm"]
+downloads = 78541902
+
+[npm.micromark-extension-gfm-task-list-item]
+owners = ["wooorm"]
+downloads = 79427199
+
+[npm.micromark-factory-destination]
+owners = ["wooorm"]
+downloads = 94805758
+
+[npm.micromark-factory-label]
+owners = ["wooorm"]
+downloads = 94807347
+
+[npm.micromark-factory-space]
+owners = ["wooorm"]
+downloads = 102766031
+
+[npm.micromark-factory-title]
+owners = ["wooorm"]
+downloads = 94804493
+
+[npm.micromark-factory-whitespace]
+owners = ["wooorm"]
+downloads = 94851449
+
+[npm.micromark-util-character]
+owners = ["wooorm"]
+downloads = 114885769
+
+[npm.micromark-util-chunked]
+owners = ["wooorm"]
+downloads = 95276179
+
+[npm.micromark-util-classify-character]
+owners = ["wooorm"]
+downloads = 95361560
+
+[npm.micromark-util-combine-extensions]
+owners = ["wooorm"]
+downloads = 94814467
+
+[npm.micromark-util-decode-numeric-character-reference]
+owners = ["wooorm"]
+downloads = 95146308
+
+[npm.micromark-util-decode-string]
+owners = ["wooorm"]
+downloads = 91546948
+
+[npm.micromark-util-encode]
+owners = ["wooorm"]
+downloads = 103218329
+
+[npm.micromark-util-html-tag-name]
+owners = ["wooorm"]
+downloads = 94942709
+
+[npm.micromark-util-normalize-identifier]
+owners = ["wooorm"]
+downloads = 94885331
+
+[npm.micromark-util-resolve-all]
+owners = ["wooorm"]
+downloads = 95037991
+
+[npm.micromark-util-sanitize-uri]
+owners = ["wooorm"]
+downloads = 103256527
+
+[npm.micromark-util-subtokenize]
+owners = ["wooorm"]
+downloads = 94883492
+
+[npm.micromark-util-symbol]
+owners = ["wooorm"]
+downloads = 118222810
+
+[npm.micromark-util-types]
+owners = ["wooorm"]
+downloads = 110625383
+
+[npm.micromatch]
+owners = ["es128", "paulmillr", "jonschlinkert", "doowb", "danez"]
+downloads = 221691259
+
+[npm.minimatch]
+owners = ["isaacs"]
+downloads = 1018012295
+
+[npm.minimist]
+owners = ["shadowspawn", "ljharb", "emilbayes"]
+downloads = 241680962
+
+[npm.ms]
+owners = ["elsigh", "leerobinson", "hankvercel", "okbel", "samsisle", "cleishm", "nazarenooviedo", "chibicode", "gielcobben", "jaredpalmer", "jkrems", "prateekbh", "kikobeats", "gmonaco", "housseindjirdeh", "developit", "spanicker", "keanulee", "atcastle", "janicklas-ralph", "skllcrn", "paco", "guybedford", "ragojose", "williamli", "msweeneydev", "coetry", "rabaut", "lfades", "mfix22", "ijjk", "arzafran", "umegaya", "timer", "anatrajkovska", "paulogdm", "andybitz", "mglagola", "lucleray", "zeit-bot", "styfle", "juancampa", "dav-is", "quietshu", "joecohens", "codetheory", "matheuss", "igorklopov", "leo", "nkzawa", "tootallnate", "rauchg", "timneutkens", "javivelasco", "iamevilrabbit"]
+downloads = 769174631
+
+[npm.nanoid]
+owners = ["ai"]
+downloads = 398883652
+
+[npm.napi-postinstall]
+owners = ["jounqin"]
+downloads = 85274597
+
+[npm.natural-compare]
+owners = ["megawac"]
+downloads = 198760019
+
+[npm.next]
+owners = ["vercel-release-bot", "matt.straka", "matheuss", "zeit-bot"]
+downloads = 98003359
+
+[npm.node-exports-info]
+owners = ["ljharb"]
+downloads = 66596380
+
+[npm.node-releases]
+owners = ["chicoxyzzy"]
+downloads = 277210865
+
+[npm.object-assign]
+owners = ["gaearon", "sindresorhus", "spicyj"]
+downloads = 244124654
+
+[npm.object-inspect]
+owners = ["ljharb", "emilbayes"]
+downloads = 262360395
+
+[npm.object-keys]
+owners = ["ljharb"]
+downloads = 157625509
+
+[npm."object.assign"]
+owners = ["ljharb"]
+downloads = 142882010
+
+[npm."object.entries"]
+owners = ["ljharb"]
+downloads = 93058662
+
+[npm."object.fromentries"]
+owners = ["ljharb"]
+downloads = 96814730
+
+[npm."object.groupby"]
+owners = ["ljharb"]
+downloads = 76607609
+
+[npm."object.values"]
+owners = ["ljharb"]
+downloads = 101004826
+
+[npm.optionator]
+owners = ["gkz"]
+downloads = 201661215
+
+[npm.own-keys]
+owners = ["ljharb"]
+downloads = 118027350
+
+[npm.p-limit]
+owners = ["sindresorhus"]
+downloads = 469021115
+
+[npm.p-locate]
+owners = ["sindresorhus"]
+downloads = 432391358
+
+[npm.parent-module]
+owners = ["sindresorhus"]
+downloads = 185480098
+
+[npm.parse-entities]
+owners = ["wooorm"]
+downloads = 86070173
+
+[npm.path-exists]
+owners = ["sindresorhus"]
+downloads = 317639837
+
+[npm.path-key]
+owners = ["sindresorhus"]
+downloads = 432139579
+
+[npm.path-parse]
+owners = ["jbgutierrez"]
+downloads = 201126391
+
+[npm.picocolors]
+owners = ["alexeyraspopov"]
+downloads = 358023407
+
+[npm.picomatch]
+owners = ["mrmlnc", "jonschlinkert", "doowb", "danez"]
+downloads = 743236414
+
+[npm.possible-typed-array-names]
+owners = ["ljharb"]
+downloads = 145444818
+
+[npm.postcss]
+owners = ["ai"]
+downloads = 443127553
+
+[npm.postcss-selector-parser]
+owners = ["moox", "ai", "chriseppstein", "jonathantneal", "evilebottnawi"]
+downloads = 190191080
+
+[npm.prelude-ls]
+owners = ["gkz"]
+downloads = 200533821
+
+[npm.prop-types]
+owners = ["gaearon", "acdlite", "brianvaughn", "ljharb", "fb", "sophiebits"]
+downloads = 138430333
+
+[npm.property-information]
+owners = ["wooorm"]
+downloads = 103257332
+
+[npm.punycode]
+owners = ["mathias", "google-wombot"]
+downloads = 307228493
+
+[npm.queue-microtask]
+owners = ["feross"]
+downloads = 175840885
+
+[npm.react]
+owners = ["fb", "react-bot"]
+downloads = 275732766
+
+[npm.react-dom]
+owners = ["fb", "react-bot"]
+downloads = 260151728
+
+[npm.react-is]
+owners = ["acdlite", "brianvaughn", "fb", "gaearon", "lunaruan", "sebmarkbage", "sophiebits", "threepointone", "trueadm"]
+downloads = 500373276
+
+[npm."reflect.getprototypeof"]
+owners = ["ljharb"]
+downloads = 119368001
+
+[npm."regexp.prototype.flags"]
+owners = ["ljharb"]
+downloads = 135629241
+
+[npm.rehype-slug]
+owners = ["wooorm", "kmck"]
+downloads = 5967438
+
+[npm.remark-directive]
+owners = ["johno", "wooorm", "remcohaszing"]
+downloads = 7087223
+
+[npm.remark-frontmatter]
+owners = ["johno", "wooorm"]
+downloads = 9318402
+
+[npm.remark-gfm]
+owners = ["johno", "wooorm", "remcohaszing"]
+downloads = 76938145
+
+[npm.remark-parse]
+owners = ["johno", "wooorm"]
+downloads = 88116030
+
+[npm.remark-rehype]
+owners = ["johno", "wooorm", "remcohaszing"]
+downloads = 75353124
+
+[npm.remark-stringify]
+owners = ["johno", "wooorm"]
+downloads = 75641697
+
+[npm.resolve]
+owners = ["ljharb"]
+downloads = 324501090
+
+[npm.resolve-from]
+owners = ["sindresorhus"]
+downloads = 325296564
+
+[npm.resolve-pkg-maps]
+owners = ["hirokiosame"]
+downloads = 146005471
+
+[npm.reusify]
+owners = ["matteo.collina"]
+downloads = 191182261
+
+[npm.run-parallel]
+owners = ["feross"]
+downloads = 176474892
+
+[npm.safe-array-concat]
+owners = ["ljharb"]
+downloads = 126490081
+
+[npm.safe-push-apply]
+owners = ["ljharb"]
+downloads = 115932030
+
+[npm.safe-regex-test]
+owners = ["ljharb"]
+downloads = 145291304
+
+[npm.scheduler]
+owners = ["fb", "react-bot"]
+downloads = 286810890
+
+[npm.semver]
+owners = ["saquibkhan", "npm-cli-ops", "reggi", "owlstronaut"]
+downloads = 1231205652
+
+[npm.server-only]
+owners = ["sebmarkbage"]
+downloads = 36183134
+
+[npm.set-function-length]
+owners = ["ljharb"]
+downloads = 155981929
+
+[npm.set-function-name]
+owners = ["jfsiii", "ljharb"]
+downloads = 127901430
+
+[npm.set-proto]
+owners = ["ljharb"]
+downloads = 115867531
+
+[npm.sharp]
+owners = ["lovell"]
+downloads = 171932863
+
+[npm.shebang-command]
+owners = ["kevva"]
+downloads = 349115549
+
+[npm.shebang-regex]
+owners = ["sindresorhus"]
+downloads = 348658403
+
+[npm.side-channel]
+owners = ["ljharb"]
+downloads = 266708812
+
+[npm.side-channel-list]
+owners = ["ljharb"]
+downloads = 249177599
+
+[npm.side-channel-map]
+owners = ["ljharb"]
+downloads = 235520347
+
+[npm.side-channel-weakmap]
+owners = ["ljharb"]
+downloads = 235515144
+
+[npm.source-map-js]
+owners = ["7rulnik"]
+downloads = 318081785
+
+[npm.space-separated-tokens]
+owners = ["wooorm"]
+downloads = 91838927
+
+[npm.stable-hash]
+owners = ["quietshu"]
+downloads = 52201716
+
+[npm.stop-iteration-iterator]
+owners = ["ljharb"]
+downloads = 120731054
+
+[npm."string.prototype.includes"]
+owners = ["mathias", "nicolo-ribaudo"]
+downloads = 63519953
+
+[npm."string.prototype.matchall"]
+owners = ["ljharb"]
+downloads = 90171626
+
+[npm."string.prototype.repeat"]
+owners = ["mathias", "nicolo-ribaudo"]
+downloads = 76794483
+
+[npm."string.prototype.trim"]
+owners = ["ljharb"]
+downloads = 127945313
+
+[npm."string.prototype.trimend"]
+owners = ["khaledelansari", "ljharb"]
+downloads = 132128015
+
+[npm."string.prototype.trimstart"]
+owners = ["khaledelansari", "ljharb"]
+downloads = 128857316
+
+[npm.stringify-entities]
+owners = ["wooorm"]
+downloads = 85134272
+
+[npm.strip-bom]
+owners = ["sindresorhus"]
+downloads = 221993591
+
+[npm.strip-json-comments]
+owners = ["sindresorhus"]
+downloads = 292392164
+
+[npm.style-to-js]
+owners = ["remarkablemark"]
+downloads = 62916609
+
+[npm.style-to-object]
+owners = ["remarkablemark"]
+downloads = 81742305
+
+[npm.styled-jsx]
+owners = ["rauchg", "timneutkens", "vercel-release-bot"]
+downloads = 88904216
+
+[npm.supports-color]
+owners = ["qix", "sindresorhus"]
+downloads = 684940987
+
+[npm.supports-preserve-symlinks-flag]
+owners = ["ljharb"]
+downloads = 197964126
+
+[npm.tailwindcss]
+owners = ["malfaitrobin", "adamwathan", "reinink"]
+downloads = 190135318
+
+[npm.tapable]
+owners = ["15000621931", "ev1stensberg", "__hai", "sokra", "avivkeller", "evilebottnawi"]
+downloads = 199606187
+
+[npm.tinyglobby]
+owners = ["superchupu"]
+downloads = 317170004
+
+[npm.to-regex-range]
+owners = ["doowb", "jonschlinkert"]
+downloads = 222114589
+
+[npm.trim-lines]
+owners = ["wooorm"]
+downloads = 82306652
+
+[npm.trough]
+owners = ["wooorm"]
+downloads = 90605733
+
+[npm.ts-api-utils]
+owners = ["joshuakgoldberg"]
+downloads = 179024603
+
+[npm.tsconfig-paths]
+owners = ["zlafil", "johkah", "dividstefansvensson", "erieng", "johankristiansson", "adam.luotonen", "jonaskello", "jontem", "bjolind", "geon", "marsve", "henbr", "josef.dagson", "oskdah", "cspotcode"]
+downloads = 164542739
+
+[npm.tslib]
+owners = ["typescript-bot", "weswigham", "sanders_n", "andrewbranch", "minestarks", "rbuckton", "sheetalkamat", "typescript-deploys"]
+downloads = 682964001
+
+[npm.tsx]
+owners = ["hirokiosame"]
+downloads = 146175969
+
+[npm.turbo]
+owners = ["vercel-release-bot", "turbobot"]
+downloads = 48341240
+
+[npm.type-check]
+owners = ["gkz"]
+downloads = 200495528
+
+[npm.typed-array-buffer]
+owners = ["ljharb"]
+downloads = 134869039
+
+[npm.typed-array-byte-length]
+owners = ["ljharb"]
+downloads = 124131163
+
+[npm.typed-array-byte-offset]
+owners = ["ljharb"]
+downloads = 126858383
+
+[npm.typed-array-length]
+owners = ["ljharb"]
+downloads = 127667472
+
+[npm.typescript]
+owners = ["typescript-bot", "weswigham", "sanders_n", "andrewbranch", "sheetalkamat", "typescript-deploys", "jakebailey"]
+downloads = 450984480
+
+[npm.typescript-eslint]
+owners = ["jameshenry", "bradzacher"]
+downloads = 122761203
+
+[npm.unbox-primitive]
+owners = ["ljharb"]
+downloads = 127964963
+
+[npm.undici-types]
+owners = ["matteo.collina", "ethan_arrowood"]
+downloads = 526097755
+
+[npm.unified]
+owners = ["remcohaszing", "wooorm"]
+downloads = 96596617
+
+[npm.unist-util-is]
+owners = ["wooorm", "kmck"]
+downloads = 111063767
+
+[npm.unist-util-position]
+owners = ["wooorm", "kmck"]
+downloads = 88227799
+
+[npm.unist-util-stringify-position]
+owners = ["wooorm", "kmck"]
+downloads = 109966328
+
+[npm.unist-util-visit]
+owners = ["wooorm", "kmck"]
+downloads = 113171337
+
+[npm.unist-util-visit-parents]
+owners = ["wooorm", "kmck"]
+downloads = 113080796
+
+[npm.unrs-resolver]
+owners = ["jounqin"]
+downloads = 86980282
+
+[npm.update-browserslist-db]
+owners = ["ai"]
+downloads = 267708920
+
+[npm.uri-js]
+owners = ["garycourt"]
+downloads = 212608136
+
+[npm.util-deprecate]
+owners = ["tootallnate"]
+downloads = 225277306
+
+[npm.vfile]
+owners = ["wooorm"]
+downloads = 103143817
+
+[npm.vfile-message]
+owners = ["wooorm"]
+downloads = 104869679
+
+[npm.which]
+owners = ["isaacs"]
+downloads = 501924638
+
+[npm.which-boxed-primitive]
+owners = ["ljharb"]
+downloads = 132350788
+
+[npm.which-builtin-type]
+owners = ["ljharb"]
+downloads = 119252439
+
+[npm.which-collection]
+owners = ["ljharb"]
+downloads = 124689006
+
+[npm.which-typed-array]
+owners = ["ljharb"]
+downloads = 161302992
+
+[npm.word-wrap]
+owners = ["jonschlinkert", "doowb"]
+downloads = 187274665
+
+[npm.yallist]
+owners = ["isaacs"]
+downloads = 444918323
+
+[npm.yaml]
+owners = ["eemeli"]
+downloads = 330301968
+
+[npm.yocto-queue]
+owners = ["sindresorhus"]
+downloads = 279716274
+
+[npm.zod]
+owners = ["colinhacks"]
+downloads = 470598451
+
+[npm.zod-validation-error]
+owners = ["jmike", "dnlytras", "nikoskalogridis", "thanoskrg"]
+downloads = 81901789
+
+[npm.zwitch]
+owners = ["wooorm"]
+downloads = 96379648
+
+[advisories.GHSA-g3hv-75wg-m249]
+summary = "minimatch has potential denial of service via globparts amplification"
+affects = ["npm minimatch 10.2.6"]
+
+[advisories.RUSTSEC-2026-0543]
+summary = "chrono is unmaintained"
+affects = ["crates.io chrono 0.4.45"]

@@ -1,0 +1,28 @@
+# Folders in the home folder that hold other programs' sockets, covered
+# where a sandbox reads them, since a read-only mount doesn't stop a
+# connection: Read once by `home_sockets.rs`. Paths are the home folder's.
+
+# Folders that hold a daemon's sockets and what it runs on, nothing a
+# program in a sandbox reads: each is an empty folder inside, so a socket
+# made there later is covered too. Docker Desktop's, Colima's, Lima's,
+# OrbStack's, Rancher Desktop's and 1Password's.
+runtime = [
+    ".docker/run",
+    ".docker/desktop",
+    ".colima",
+    ".lima",
+    ".orbstack/run",
+    ".rd",
+    ".1password",
+]
+
+# Folders whose files a program reads (SSH's keys and settings, GnuPG's
+# keyrings) beside sockets: each socket found there as the sandbox starts
+# is covered by an empty file, an SSH connection's shared one
+# (`ControlPath`) and a key holder's among them.
+mixed = [".ssh", ".gnupg"]
+
+# How deep a mixed folder is searched for sockets, and how many entries
+# it reads at most, so a start never walks a large folder.
+depth = 2
+entries = 1024

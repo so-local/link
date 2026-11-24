@@ -1,0 +1,153 @@
+schema = 1
+
+[storage]
+type = "object"
+description = "A cloud your files are backed up to, and each bucket it has"
+x-link-resource = { id = "name" }
+required = ["name", "kind", "buckets"]
+additionalProperties = false
+properties.name = { type = "string", description = "The cloud's name, its rclone remote's" }
+properties.kind = { enum = ["aws", "gcp", "s3", "drive", "rclone"], description = "What kind of storage it is" }
+properties.backend = { type = "string", description = "An rclone cloud's storage type" }
+properties.region = { type = "string", description = "Where its buckets are" }
+properties.buckets = { type = "array", items = "bucket", description = "Its buckets, your files' first" }
+
+[bucket]
+type = "object"
+description = "A bucket of a cloud, and what it holds"
+required = ["resource", "bucket", "encrypted", "remote", "files", "bytes"]
+additionalProperties = false
+properties.resource = { type = "string", format = "link-id", x-link-kind = "bucket", description = "The bucket's ID" }
+properties.bucket = { type = "string", description = "Its name in its cloud" }
+properties.encrypted = { type = "boolean", description = "Whether files are encrypted before they leave this machine" }
+properties.remote = { type = "string", description = "The rclone remote it is reached by" }
+properties.files = { type = "integer", minimum = 0, description = "How many files it holds" }
+properties.bytes = { type = "integer", minimum = 0, description = "How many bytes they are" }
+properties.owner = "folder-owner"
+
+[folder-owner]
+type = "object"
+description = "Whose folder a bucket backs up: a workload's or a group's, by its ID, and its name"
+required = ["name"]
+additionalProperties = false
+properties.workload = { type = "string", description = "The workload's ID, <kind>:<id>" }
+properties.group = { type = "string", description = "The group's ID, <kind>:<id>" }
+properties.name = { type = "string", description = "Its name" }
+
+[ran]
+type = "object"
+description = "How rclone exited"
+required = ["exit"]
+additionalProperties = false
+properties.exit = { type = "integer", description = "rclone's exit code" }
+
+[tree]
+type = "object"
+description = "Every file of each folder, by the folder's ID: here, offloaded, and in which clouds"
+additionalProperties = { type = "array", items = "tree-file" }
+
+[tree-file]
+type = "object"
+description = "A file, where it is and its copy in each cloud"
+required = ["path", "size", "here", "clouds"]
+additionalProperties = false
+properties.path = { type = "string", description = "Its path in its folder" }
+properties.size = { type = "integer", minimum = 0, description = "Its size in bytes" }
+properties.here = { enum = ["here", "changed", "new", "offloaded"], description = "Whether it's here, changed since it was pushed, never pushed, or only in the clouds" }
+properties.clouds = { type = "array", items = { type = "array", items = { type = "string" } }, description = "Each cloud's copy, in the order they were connected: its name and its mark, checked, archived, unchecked, differs or missing" }
+
+[exported]
+type = "object"
+description = "An owner's buckets here and its password, obscured, for where its folder moves"
+required = ["buckets"]
+additionalProperties = false
+properties.password = { type = "string", x-link-sensitive = true, description = "Its encryption password, obscured" }
+properties.buckets = { type = "object", additionalProperties = "exported-bucket", description = "Each bucket, by its cloud" }
+
+[adopting]
+type = "object"
+description = "What adopt reads on stdin: an owner's password and buckets, as export gives them, and credentials reaching them"
+additionalProperties = false
+properties.password = { type = "string", x-link-sensitive = true, description = "Its encryption password, obscured, as export gives it" }
+properties.plain = { type = "string", x-link-sensitive = true, description = "Its encryption password as you saved it" }
+properties.buckets = { type = "object", additionalProperties = "exported-bucket", description = "Each bucket, by its cloud" }
+properties.credentials = { type = "object", additionalProperties = "bucket-credential", description = "A credential reaching only each bucket, by its cloud: on a box, the only way in" }
+
+[exported-bucket]
+type = "object"
+description = "A bucket an owner's folder takes with it"
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name in its cloud" }
+properties.resource = { type = "string", format = "link-id", x-link-kind = "bucket", description = "The bucket's ID, kept where it arrives" }
+
+[found]
+type = "array"
+description = "Owners' buckets in your cloud accounts, found by label"
+items = "found-bucket"
+
+[found-bucket]
+type = "object"
+description = "An owner's bucket found by its label"
+required = ["cloud", "bucket", "place", "owner", "name"]
+additionalProperties = false
+properties.cloud = { type = "string", description = "The cloud account it's in" }
+properties.bucket = { type = "string", description = "Its name in its cloud" }
+properties.place = { type = "string", description = "Where it is in that cloud" }
+properties.owner = { type = "string", description = "Its owner's ID, <kind>:<id>" }
+properties.name = { type = "string", description = "Its owner's name" }
+
+[keyed]
+type = "object"
+description = "A credential reaching only each bucket of an owner, by cloud"
+additionalProperties = "bucket-credential"
+
+[bucket-credential]
+type = "object"
+description = "A bucket, and a credential reaching it alone"
+required = ["bucket", "credential"]
+additionalProperties = false
+properties.bucket = { type = "string", description = "Its name in its cloud" }
+properties.credential = { type = "object", additionalProperties = { type = "string", x-link-sensitive = true }, description = "rclone's settings for the credential reaching only it, its type among them" }
+
+[labelled]
+type = "object"
+description = "Each bucket labelled, by its cloud"
+additionalProperties = { type = "string" }
+
+[restored]
+type = "object"
+description = "An owner's buckets put in place here and its files pulled back"
+required = ["owner", "buckets", "labels"]
+additionalProperties = false
+properties.owner = { type = "string", description = "The owner's ID, <kind>:<id>" }
+properties.buckets = { type = "object", additionalProperties = { type = "string" }, description = "Each bucket's name, by its cloud" }
+properties.labels = { type = "object", additionalProperties = { type = "string" }, description = "The labels it was found by" }
+
+[folder]
+type = "object"
+description = "A folder of files a cloud keeps, such as one of a workload's, named by its ID"
+x-link-resource = { id = "id" }
+required = ["id", "files", "size"]
+additionalProperties = false
+properties.id = { type = "string", format = "link-id", x-link-kind = "folder", description = "Its ID, folder:<id>" }
+properties.files = { type = "integer", minimum = 0, description = "How many files it holds" }
+properties.size = { type = "integer", minimum = 0, description = "Their size together, in bytes" }
+
+[file]
+type = "object"
+description = "One file in a folder: its path, size and revision, never its contents"
+required = ["path", "size", "revision"]
+additionalProperties = false
+properties.path = { type = "string", description = "Its path in its folder" }
+properties.size = { type = "integer", minimum = 0, description = "Its size in bytes" }
+properties.revision = { type = "string", description = "Its revision, which changes whenever it's written: a write naming an older one throws conflict" }
+
+[file-text]
+type = "object"
+description = "One text file's contents, and the revision they were read at"
+required = ["path", "text", "revision"]
+additionalProperties = false
+properties.path = { type = "string", description = "Its path in its folder" }
+properties.text = { type = "string", description = "Its text" }
+properties.revision = { type = "string", description = "The revision read, for a write to name" }

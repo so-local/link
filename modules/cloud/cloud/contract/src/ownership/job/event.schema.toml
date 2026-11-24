@@ -1,0 +1,8 @@
+schema = 1
+# A line of a launch's `job.jsonl`: a job identity's intent, or what the
+# cloud was seen to make for it, each line naming its schema.
+kind = "job identity event"
+current = 1
+# What happened, never rewritten by an upgrade: each record is read as
+# its schema says.
+holds = "history"

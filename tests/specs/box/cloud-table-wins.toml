@@ -1,0 +1,11 @@
+# A cloud's table wins over [machine].
+[spec]
+schema = 1
+[spec.machine]
+cpus = 2
+
+[spec.machine.aws]
+cpus = 4
+
+[expect]
+size = "c7a.xlarge"

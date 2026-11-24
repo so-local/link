@@ -1,0 +1,152 @@
+schema = 1
+
+[connection]
+type = "object"
+description = """
+A connection's opinions (`[connections]` for every connection, `[connection.<name>]`
+for one).
+"""
+additionalProperties = false
+properties.groups = "groups"
+properties.activity = "activity"
+
+[connection.properties.working]
+type = "string"
+description = """
+A reaction on your message while it answers, by its name (`"eyes"`),
+where the connection has them; empty (`""`) or left out, none. Of
+Link's connections Slack and Discord mark a message, so it's refused
+for Telegram and Signal; Discord knows the names its
+`reactions.toml` lists. Link's `[connection.slack]` and
+`[connection.discord]` set `"eyes"`.
+"""
+examples = ["eyes"]
+
+[connection.properties.stream]
+type = "boolean"
+description = """
+The answer shown as it's written; false, once it's done. Link's specification
+sets true.
+"""
+
+[connection.properties.activity_mark]
+type = "string"
+description = """
+What leads each tool call's line (`"›"`): empty (`""`), nothing.
+Link's specification sets `"›"`.
+"""
+maxLength = 8
+examples = ["›"]
+
+[connection.properties.activity_separator]
+type = "string"
+description = """
+What stands between a tool call and what it works on (`": "`), as
+`› run command: git commit`; a call with nothing to show it works
+on shows none (`› web search`). Link's specification sets `": "`.
+"""
+maxLength = 8
+examples = [": "]
+
+[connection.properties.pace]
+type = "string"
+description = """
+How often an answer being written is shown again, over 0; never more
+often than the platform documents a bot may write: Telegram once a
+second in a chat and every 3 seconds in a group, Slack every 1.2
+seconds, and Discord its global 50 requests a second and the limits it
+answers with. Told by the platform to wait, Telegram and Slack show
+nothing more until then, and only the finished answer waits and tries
+again. Link's specification sets `"1s"`.
+"""
+format = "duration"
+examples = ["1s"]
+
+[connection.properties.steered]
+type = "string"
+description = """
+A reaction on a message that joined a running turn ([`Busy::Steer`]),
+where the connection has them; empty (`""`) or left out, none.
+"""
+examples = ["wave"]
+
+[connection.properties.images]
+type = "boolean"
+description = """
+Whether a message's images reach the agent; false or left out,
+each is left out and the agent told so.
+"""
+
+[connection.properties.documents]
+type = "boolean"
+description = """
+Whether a message's documents (PDF or text) reach the agent; false
+or left out, each is left out and the agent told so.
+"""
+
+[connection.properties.voice]
+type = "boolean"
+description = """
+Whether a message's voice notes reach the agent, heard as their
+words by its provider (`[model] transcribe`); false or left out,
+each is left out and the agent told so.
+"""
+
+[connection.properties.ask_wait]
+type = "string"
+description = """
+How long a question for you waits for your answer, a call of a tool that
+asks first or a page to open, a second to a day: no answer in time is
+no, and a tool's call has its own `timeout` beside it. `[connections]`'s
+alone, since a question waits as long on every connection. Link's specification
+sets `"10m"`.
+"""
+format = "duration"
+examples = ["10m"]
+
+[connection.properties.cache]
+type = "string"
+description = """
+How long its provider's cache is asked to keep a conversation's
+prompt: `"auto"`, the lifetime expected to cost least, or one the
+provider offers (`"1h"`). Link's specification sets `"auto"`.
+"""
+examples = ["auto"]
+
+[connection.properties.compact_after]
+type = "string"
+description = """
+When a quiet conversation on it is compacted by time: `"auto"`, just
+before its cache ends when that costs less than reading it again; a
+time of quiet, at least `"1m"`; or `"never"`. It needs the `scheduler`
+tool. Link's specification sets `"auto"`, and `"never"` for `link`.
+"""
+examples = ["auto"]
+
+[connection.properties.pauses]
+type = "array"
+items = { type = "string", format = "duration" }
+description = """
+What `"auto"` assumes of a new conversation's pauses, each counted as
+one it saw. Link's specification sets a chat's to `["1m", "1m", "20m", "8h"]`.
+"""
+examples = [["1m", "20m", "8h"]]
+
+[groups]
+type = "string"
+description = "Which of the owner's messages in a group an agent answers. `mention`, those that mention it, or answer one of its messages; `never`, none: it talks in direct messages only."
+enum = ["mention", "never"]
+
+[activity]
+type = "string"
+description = """
+How each tool it calls shows, a line each with what it works on
+(`› file read: notes/plan.md`, `› run command: cargo test`), where its
+harness tells its calls (ACP's `tool_call`), as Link Harness does:
+`replace`, above the answer being written, the latest eight, the
+finished answer then shown alone; `keep`, the same, every line staying
+above the finished answer as a log; or `off`, none. Link's specification sets
+`replace`; `/chat:verbose` turns it off and on for one conversation.
+"""
+examples = ["replace"]
+enum = ["replace", "keep", "off"]

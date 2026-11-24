@@ -1,0 +1,6 @@
+schema = 1
+# A host's session authority ledger, `session-authority.json`, in the
+# protected folder it chooses outside every runtime mount.
+kind = "session authority"
+current = 1
+command = "lnk agent start"

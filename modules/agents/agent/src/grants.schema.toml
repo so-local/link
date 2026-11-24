@@ -1,0 +1,9 @@
+schema = 1
+kind = "harness grants"
+current = 1
+command = "lnk agent harness-permission list"
+
+[[files]]
+location = "lnk.harness-grants"
+path = "*.toml"
+encoding = "toml"

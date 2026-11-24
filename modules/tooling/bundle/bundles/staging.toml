@@ -1,0 +1,8 @@
+# bundle.toml
+# Link's staging build: lnk and every module, for Linux on x86_64 and
+# arm64, where boxes run it, trusting Link's signer and the staging signer,
+# and signed by the staging signer.
+schema = 1
+target = ["x86_64-unknown-linux-musl", "aarch64-unknown-linux-musl"]
+build = "staging"
+signer = "staging"

@@ -1,0 +1,9 @@
+[spec]
+schema = 1
+extends = "none"
+
+[spec.turns]
+rounds = 3
+
+[expect]
+invalid = "no spec sets"

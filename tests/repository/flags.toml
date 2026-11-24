@@ -1,0 +1,17 @@
+# One meaning per flag (`link_repository_check::flags`), read against
+# every module's `actions.toml`, hidden commands included.
+#
+# The reason: a flag a person learns in one module means the same in
+# every other, so `--cloud aws` names the same thing to `lnk box`,
+# `lnk agent` and `lnk storage`. Every long flag has one type, and
+# a flag with a fixed set of values has the same set everywhere it's
+# declared. The counted shared flags of `link-component`'s `shared.toml`
+# also have one meaning, which each declaration's help says in the words
+# of their `says`, unless it begins "Not taken", a composed flag the
+# command refuses. This file keeps only the flags still held, and goes
+# when its list is empty.
+
+# Flags whose name still means two things, each with who owns the
+# rename. A flag here may leave, never join. The private workspace holds
+# its own beside its repository check.
+[held]

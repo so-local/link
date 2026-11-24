@@ -1,0 +1,9 @@
+# bundle.toml
+# A production box of your own: lnk and every module Link's release ships,
+# for this computer and Linux boxes, built from this checkout and signed
+# by your own prod signer, made on first use. Its lnk trusts that signer
+# alone, so the box installs only what you signed.
+schema = 1
+target = ["host", "x86_64-unknown-linux-musl", "aarch64-unknown-linux-musl"]
+build = "prod"
+signer = "prod"

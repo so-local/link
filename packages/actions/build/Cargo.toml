@@ -1,0 +1,28 @@
+[package]
+authors.workspace = true
+name = "link-actions-build"
+description = "`link-actions-build` writes a module's Rust from the catalog at build time"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/actions"
+
+[dependencies]
+anyhow.workspace = true
+link-actions.workspace = true
+link-actions-surfaces.workspace = true
+link-format.workspace = true
+serde_json.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

@@ -1,0 +1,7 @@
+# The protocol of the question measure.inventory: the agents running
+# here and where their traffic is published. One line from the asker,
+# one back, each stating the version it speaks.
+name = "measure inventory answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

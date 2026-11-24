@@ -1,0 +1,24 @@
+# A command's arguments and a spec's shape, and its JSON Schema, are
+# declared in TOML and generated into Rust (`link_repository_check::shapes`). These may still
+# write a shape in Rust: the generator's own shared shapes, which every
+# generated parser takes, and the files held until their module is
+# declared, a list that only shrinks.
+
+[allowed]
+"packages/spec" = "link-spec's machinery: the shared runtime arguments, spec show, the entry and the typed checks the held future-public and private modules still use"
+"core/framework/src/uninstall.rs" = "Flags, the uninstall every generated parser gives a module"
+"packages/service/src/cli.rs" = "GuestEntry, the guest-service entry every generated parser gives a module that runs one"
+"packages/files/src/schema.rs" = "Specification's own home, the trait a generated spec implements"
+"packages/actions/build/src/specs.rs" = "the generator, which writes each spec's Specification impl"
+"packages/test-kit/src/libtest.rs" = "libtest's own selection flags, a third party's format, which a test program with its own main takes as cargo test gives them"
+
+[held]
+"packages/digest/src/content.rs" = "ContentId's JSON Schema, which the VM contract's shapes still derive theirs from, until the VM module is declared"
+"packages/version/src/lib.rs" = "Version's JSON Schema, which the VM contract's shapes still derive theirs from, until the VM module is declared"
+"packages/interactions/contract/src/lib.rs" = "the owner-question tool's input schema, until its call is declared as an action with a tool"
+"packages/interactions/contract/src/identity.rs" = "the owner-question tool's input schema, until its call is declared as an action with a tool"
+"packages/interactions/contract/src/question.rs" = "the owner-question tool's input schema, until its call is declared as an action with a tool"
+"modules/compute/box/contract/src/common.rs" = "the lease, guest target and SSH key's JSON Schema, which the VM contract's shapes still derive theirs from, until the VM module is declared"
+
+[rust]
+"modules/security/sandbox/contract/client/types.toml" = "--with-fd's payload names the route, the caller's binding and the sealed secret, whose flattened rule the format can't say"

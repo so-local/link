@@ -1,0 +1,9 @@
+# A key no policy has is refused by its name.
+[spec]
+schema = 1
+name = "p"
+version = 1
+deny = true
+
+[expect]
+invalid = "unknown field `deny`"

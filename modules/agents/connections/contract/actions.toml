@@ -1,0 +1,162 @@
+schema = 1
+
+# The protocol every connection answers, declared once: lnk agent runs a
+# connection's program with one of these, what each reads on standard
+# input. Each connection lists the ones it answers under [implements].
+[verbs]
+describe = { description = "Print what the connection is, as JSON", effect = "find" }
+rule = { description = "Print how the proxy adds the connection's secret for a harness that speaks it, as JSON", effect = "find" }
+bridge = { description = "Carry messages between the connection and a harness until standard input closes", effect = "insert" }
+send = { description = "Send one message nobody asked for, read from standard input", effect = "insert" }
+owner = { description = "Print the owner's own chats on the connection, as JSON", effect = "find" }
+share = { description = "Wait for a share's code in a chat, and print the chat it came in", effect = "find" }
+hook = { description = "Point the connection's pushes at an address read from standard input", effect = "update" }
+unhook = { description = "Turn the connection's pushes off", effect = "delete" }
+sift = { description = "Check pushes read on standard input, one a line, and print a verdict for each", effect = "find" }
+receive = { description = "Answer one pushed message read from standard input", effect = "insert" }
+hold = { description = "Hold the connections of the bots read on standard input, printing what each gets", effect = "insert" }
+link = { description = "Link the connection's account as a device, from a QR code on the terminal", effect = "insert" }
+state = { description = "Print what of a folder moves with the agent, as JSON", effect = "find" }
+
+[actions."connection.connection.connect"]
+description = "Connect and verify an account"
+role = "plumbing"
+output = "connected"
+
+[actions."connection.connection.connect".args]
+agent = { type = "string", minLength = 1, description = "The agent to connect", required = true }
+taken = { type = "string", default = "[]", description = "Bots already connected to other agents, as a JSON list" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.describe"]
+description = "Print what the connection is, as JSON"
+role = "plumbing"
+output = "described"
+
+[actions."connection.connection.describe".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.rule"]
+description = "Print the native routing rule, as JSON"
+role = "plumbing"
+output = "ruled"
+
+[actions."connection.connection.rule".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.bridge"]
+description = "Carry messages through the connection"
+role = "plumbing"
+output = "bridged"
+
+[actions."connection.connection.bridge".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.send"]
+description = "Send one message"
+role = "plumbing"
+output = "sent"
+
+[actions."connection.connection.send".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.owner"]
+description = "Print the owner's conversation on this connection"
+role = "plumbing"
+output = "owners"
+
+[actions."connection.connection.owner".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.share"]
+description = "Pair a chat shared with the agent"
+role = "plumbing"
+output = "shared"
+
+[actions."connection.connection.share".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.hook"]
+description = "Register the connection's signed push delivery"
+role = "plumbing"
+output = "hooked"
+
+[actions."connection.connection.hook".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.unhook"]
+description = "Remove the connection's push registration"
+role = "plumbing"
+output = "core.report"
+
+[actions."connection.connection.unhook".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.sift"]
+description = "Check incoming posts and identify their allowed senders"
+role = "plumbing"
+output = "sifted"
+
+[actions."connection.connection.sift".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.receive"]
+description = "Answer one accepted message"
+role = "plumbing"
+output = "core.report"
+
+[actions."connection.connection.receive".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.hold"]
+description = "Hold incoming connections for the registered bots"
+role = "plumbing"
+output = "held"
+
+[actions."connection.connection.hold".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.link"]
+description = "Link the connection's account to this machine, from a QR code on this terminal"
+role = "plumbing"
+output = "core.report"
+
+[actions."connection.connection.link".args]
+again = { type = "boolean", description = "Link the account again even when it is already linked" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.connection.state"]
+description = "Print what moves with the agent, as JSON"
+role = "plumbing"
+output = "state"
+
+[actions."connection.connection.state".args]
+json = { x-link-cli = { shared = "json" } }
+
+# The program a connection installs in the home of a harness that
+# speaks it, as lnk-signal installs signal-cli.
+[actions."connection.cli.install"]
+description = "Install the connection's program in the harness's home, from its settings on stdin"
+role = "plumbing"
+
+[actions."connection.cli.install".args]
+home = { type = "string", x-link-path = true, pattern = "^/", description = "The harness's absolute home folder", required = true }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.cli.link"]
+description = "Link the installed account on this terminal"
+role = "plumbing"
+output = "core.report"
+
+[actions."connection.cli.link".args]
+again = { type = "boolean", description = "Link the account again even when it is already linked" }
+home = { type = "string", x-link-path = true, pattern = "^/", description = "The harness's absolute home folder", required = true }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."connection.cli.state"]
+description = "Print the account files that move with the harness"
+role = "plumbing"
+output = "cli"
+
+[actions."connection.cli.state".args]
+json = { x-link-cli = { shared = "json" } }

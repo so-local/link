@@ -1,0 +1,8 @@
+[spec]
+schema = 1
+[spec.window]
+compact_at = "never"
+
+[expect]
+values = { "window.compact_at" = "never", "window.save_notes" = true, "window.margin" = 0.125 }
+from = { "window.compact_at" = "yours", "window.save_notes" = "link" }

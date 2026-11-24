@@ -1,0 +1,11 @@
+schema = 1
+# A harness's state as a switch away from it left it, in ASP's portable
+# forms, so a switch back loses nothing: `agent/harnesses/<harness>.json`
+# in an agent's folder.
+kind = "agent carried harness state"
+current = 1
+
+[[files]]
+location = "link.agents"
+path = "*/agent/harnesses/*.json"
+encoding = "json"

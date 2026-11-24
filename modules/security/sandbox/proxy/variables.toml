@@ -1,0 +1,19 @@
+schema = 1
+
+[[uses]]
+name = "HTTPS_PROXY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_PROXY_LISTENER_FD"
+access = ["read", "unset"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TEST_ON_CLOUD"
+access = ["read"]
+context = "runtime"
+
+[readers]
+"run::run_at" = "The variables the proxy's program is given, from its wrap."

@@ -1,0 +1,10 @@
+# What an archive's reader admits, as untrusted data: an archive larger,
+# with more entries, or with a longer path or a larger archive.toml than
+# these is refused, naming the limit.
+max-bytes = 4294967296
+max-entries = 200000
+max-path-bytes = 1024
+max-manifest-bytes = 65536
+# What an archive may hold beside its things' folders, at its root.
+root-files = ["archive.toml", "README.md"]
+manifest = "archive.toml"

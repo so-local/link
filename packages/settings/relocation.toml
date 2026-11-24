@@ -1,0 +1,5 @@
+# Limits and native database signatures for bounded path rewriting.
+max-text-bytes = 16777216
+database-header = "SQLite format 3\u0000"
+wal-prefixes = [[55, 127, 6, 130], [55, 127, 6, 131]]
+companions = ["-wal", "-shm", "-journal"]

@@ -1,0 +1,4 @@
+# An empty file is today's box: the adapter's default size.
+
+[expect]
+size = "t3.small"

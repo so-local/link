@@ -1,0 +1,121 @@
+components:
+  schemas:
+    RemoteRelay:
+      type: object
+      additionalProperties: false
+      required: [relay]
+      properties:
+        relay: { type: string, minLength: 1, maxLength: 256 }
+    RemoteConnectionRequest:
+      type: object
+      additionalProperties: false
+      required: [installation]
+      properties:
+        installation: { type: string, format: uuid }
+    RemoteConnection:
+      type: object
+      additionalProperties: false
+      required: [relay, installation, token, expires_at]
+      properties:
+        relay: { type: string, minLength: 1, maxLength: 256 }
+        installation: { type: string, format: uuid }
+        token: { type: string, x-secret: true }
+        expires_at: { type: integer, minimum: 1 }
+    RemoteAgentId:
+      type: string
+      minLength: 1
+      maxLength: 128
+      pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*$'
+    RemoteThread:
+      type: string
+      pattern: '^link:[A-Za-z0-9][A-Za-z0-9._-]{0,63}(~[A-Za-z0-9][A-Za-z0-9._-]{0,62})?$'
+      maxLength: 69
+    RemoteAgentRequest:
+      type: object
+      additionalProperties: false
+      required: [agent]
+      properties:
+        agent: { $ref: "#/components/schemas/RemoteAgentId" }
+    RemoteHistoryRequest:
+      type: object
+      additionalProperties: false
+      required: [agent, thread]
+      properties:
+        agent: { $ref: "#/components/schemas/RemoteAgentId" }
+        thread: { $ref: "#/components/schemas/RemoteThread" }
+    RemoteChatRequest:
+      type: object
+      additionalProperties: false
+      required: [agent, thread, message]
+      properties:
+        agent: { $ref: "#/components/schemas/RemoteAgentId" }
+        thread: { $ref: "#/components/schemas/RemoteThread" }
+        message: { type: string, minLength: 1, maxLength: 65536 }
+    RemoteForkRequest:
+      type: object
+      additionalProperties: false
+      required: [agent, thread, before]
+      properties:
+        agent: { $ref: "#/components/schemas/RemoteAgentId" }
+        thread: { $ref: "#/components/schemas/RemoteThread" }
+        before: { type: integer, minimum: 1 }
+    RemoteMessage:
+      type: object
+      additionalProperties: false
+      required: [seq, role, text, at]
+      properties:
+        seq: { type: integer, minimum: 1 }
+        role: { type: string, enum: [user, assistant] }
+        text: { type: string }
+        at: { type: string }
+    RemoteConversation:
+      type: object
+      additionalProperties: false
+      required: [thread, messages, fork]
+      properties:
+        thread: { $ref: "#/components/schemas/RemoteThread" }
+        messages:
+          type: array
+          items: { $ref: "#/components/schemas/RemoteMessage" }
+        fork: { type: boolean }
+    RemoteConversations:
+      type: object
+      additionalProperties: false
+      required: [threads, fork]
+      properties:
+        threads:
+          type: array
+          items: { $ref: "#/components/schemas/RemoteThread" }
+        fork: { type: boolean }
+    RemoteEvent:
+      oneOf:
+        - { $ref: "#/components/schemas/RemoteText" }
+        - { $ref: "#/components/schemas/RemoteDone" }
+        - { $ref: "#/components/schemas/RemoteError" }
+    RemoteText:
+      type: object
+      additionalProperties: false
+      required: [kind, text]
+      properties:
+        kind: { type: string, const: text }
+        text: { type: string }
+    RemoteDone:
+      type: object
+      additionalProperties: false
+      required: [kind]
+      properties:
+        kind: { type: string, const: done }
+    RemoteError:
+      type: object
+      additionalProperties: false
+      required: [kind, message]
+      properties:
+        kind: { type: string, const: error }
+        message: { type: string, maxLength: 500 }
+    RemoteActionRequest:
+      type: object
+      additionalProperties: false
+      required: [agent, action]
+      properties:
+        agent: { $ref: "#/components/schemas/RemoteAgentId" }
+        action: { $ref: "account.yaml#/components/schemas/Action" }

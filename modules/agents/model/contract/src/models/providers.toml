@@ -1,0 +1,10 @@
+# The providers an installed module adds, each at an address it declares
+# and speaking another provider's API there, answering the question
+# `model.providers`. A model of one is named `<provider>/<id>` like any
+# other, and its key is that provider's: never told by its prefix, and
+# never sent anywhere but the address its module declares.
+#
+#   provided  the names only a module provides: a model named by one goes
+#             to the provider its module declares, and is refused when no
+#             installed module declares it, never sent to OpenRouter
+provided = ["link"]

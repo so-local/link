@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.connections]
+pace = "0s"
+
+[expect]
+invalid = "pace is more than nothing"

@@ -1,0 +1,45 @@
+# The most programs each command may start in a fresh home, itself and the
+# module it becomes included: what `spawns.rs` holds every one to. Lower a
+# budget when a change starts fewer; raise one only for a program the
+# command needs, said in the change.
+# Reference: ../../../docs/more/developing/guide.md#count-the-programs-a-command-starts
+
+[[command]]
+args = ["module", "list", "--json"]
+most = 1
+
+[[command]]
+args = ["agent", "list"]
+most = 9
+
+[[command]]
+args = ["box", "list"]
+most = 6
+
+[[command]]
+args = ["cloud", "list"]
+most = 3
+
+[[command]]
+args = ["storage", "list"]
+most = 3
+
+[[command]]
+args = ["storage", "list", "--tree"]
+most = 7
+
+[[command]]
+args = ["secret", "list"]
+most = 23
+
+[[command]]
+args = ["measure"]
+most = 4
+
+[[command]]
+args = ["model", "list"]
+most = 3
+
+[[command]]
+args = ["--help"]
+most = 1

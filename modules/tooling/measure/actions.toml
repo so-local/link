@@ -1,0 +1,147 @@
+schema = 1
+
+[verbs]
+watch = { description = "Watch in this terminal until stopped, for the watcher's service", effect = "insert" }
+
+[actions."measure.measure.list"]
+description = """
+What your agents and this machine use: memory, CPU, disk, network, tokens, spend
+
+A unit is the machine, an agent, or one of an agent's processes. Each is
+measured from outside it, its tokens from its model's answers as they
+pass its proxy; what Link Harness counts itself (time to the model,
+spend) comes from it. Numbers only: never a message, prompt, file, tool
+argument or answer.
+"""
+role = "secondary"
+docs = "/tooling/measure#measure"
+default = true
+output = "measured"
+checks = ["list_flags"]
+next = ["measure.measure.list", "measure.measure.show", "measure.measure.start", "measure.measure.get"]
+fail = ["measure.measure.start"]
+
+[actions."measure.measure.list".args]
+agent = { type = "string", description = """
+One agent, now and over the last day, an hour at a time, by its name
+(`lnk agent list`) [default: this machine, as a tree]
+""", x-link-cli = { conflicts = ["job"] } }
+job = { type = "string", description = "A retained job profile and its child stages, by job ID" }
+pid = { type = "integer", minimum = 0, maximum = 4294967295, description = "One process of that agent, by its ID" }
+last = { type = "boolean", description = """
+With --json: only the watcher's last look, however old, never one taken
+now; null with no watcher running
+""", x-link-cli = { hidden = true, conflicts = ["agent", "job"] } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."measure.measure.show"]
+output = "capacity"
+description = "Show this execution's CPU, memory and filesystem capacity, including usable container limits. Missing observations stay unknown."
+role = "primary"
+docs = "/tooling/measure/guide#inspect-machine-capacity"
+next = ["measure.measure.list"]
+fail = ["measure.measure.list"]
+
+[actions."measure.measure.show".args]
+path = { type = "string", x-link-path = true, description = "Observe filesystem capacity for this directory (default: the current directory), as well as temporary storage" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."measure.measure.start"]
+output = "core.report"
+description = """
+Keep watching in the background: a look every so often (`lnk measure
+set`), kept on this machine
+
+`lnk agent start` starts it too. It sends each look to your OTLP endpoint
+as well, if you named one (`lnk measure export set`).
+"""
+role = "primary"
+docs = "/tooling/measure/guide#keep-watching"
+next = ["measure.measure.list", "measure.measure.get", "measure.measure.stop"]
+fail = ["measure.measure.watch", "measure.measure.get", "core.core.upgrade"]
+
+[actions."measure.measure.start".args]
+quiet = { x-link-cli = { shared = "quiet" } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."measure.measure.stop"]
+output = "core.report"
+description = "Stop watching in the background; what it kept stays"
+role = "secondary"
+docs = "/tooling/measure/guide#keep-watching"
+next = ["measure.measure.start"]
+fail = ["measure.measure.list"]
+
+[actions."measure.measure.stop".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."measure.export.set"]
+description = """
+Send every look to an OTLP endpoint too (an OpenTelemetry collector,
+Grafana, Honeycomb), or stop: one of --url, --off, or --job
+
+`lnk measure get` says where they go now.
+"""
+role = "primary"
+docs = "/tooling/measure/export#set-where-looks-go"
+output = "core.report"
+checks = ["export_flags"]
+next = ["measure.export.set", "measure.measure.get", "measure.measure.set"]
+fail = ["measure.export.set", "measure.measure.get"]
+
+[actions."measure.export.set".args]
+job = { type = "string", description = "Send one retained job profile to the configured endpoint and wait for its acknowledgement", x-link-cli = { conflicts = ["url", "off", "header-file"] } }
+url = { type = "string", description = """
+Its OTLP/HTTP address (`http://localhost:4318`; looks go to
+`<url>/v1/metrics`, as JSON)
+""", x-link-cli = { conflicts = ["off"] } }
+off = { type = "boolean", description = "Stop sending looks" }
+header-file = { type = "string", x-link-path = true, description = """
+A file of headers sent with each look, `name: value` a line (an API
+key), or `-` for standard input; kept only for you to read
+""" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."measure.measure.set"]
+description = """
+Set how often the watcher looks, and how long it keeps what it saw, then
+show them all: yours, and Link's where you set none
+"""
+role = "primary"
+docs = "/tooling/measure/guide#change-its-settings"
+output = "core.report"
+checks = ["set_flags"]
+next = ["measure.measure.get", "measure.export.set"]
+fail = ["measure.measure.get"]
+
+[actions."measure.measure.set".args]
+every = { type = "string", description = "How often it looks (`10s`, `1m`)" }
+keep-fine = { type = "string", description = "How long every look is kept (`12h`, `1d`)" }
+keep-minutes = { type = "string", description = "How long each minute's summary is kept, after (`30d`)" }
+processes = { type = "boolean", description = "Keep each agent's processes too: about seven times the disk", x-link-cli = { conflicts = ["no-processes"] } }
+no-processes = { type = "boolean", description = "Keep each agent's processes no more" }
+folders-every = { type = "string", description = "How often each agent's folders are walked for their size (`10m`)" }
+folders-max = { type = "integer", minimum = 0, description = "The most entries a walk of an agent's folders counts" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."measure.measure.get"]
+description = """
+Show how often the watcher looks, how long it keeps what it saw, and
+where else it sends it: yours, and Link's where you set none
+"""
+role = "primary"
+docs = "/tooling/measure/guide#show-its-settings"
+output = "core.report"
+next = ["measure.measure.set", "measure.export.set"]
+fail = ["measure.measure.set"]
+
+[actions."measure.measure.get".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."measure.measure.watch"]
+description = "For the watcher's service: watch in this terminal until stopped"
+role = "plumbing"
+output = "core.report"
+
+[actions."measure.measure.watch".args]
+json = { x-link-cli = { shared = "json" } }

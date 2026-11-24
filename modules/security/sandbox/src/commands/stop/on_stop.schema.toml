@@ -1,0 +1,10 @@
+schema = 1
+# What runs on `lnk sandbox stop` for one name, `lnk <args>`:
+# `~/.lnk/safe/sandboxes/on-stop/<name>.json`.
+kind = "sandbox on stop"
+current = 1
+
+[[files]]
+location = "lnk.sandboxes"
+path = "on-stop/*.json"
+encoding = "json"

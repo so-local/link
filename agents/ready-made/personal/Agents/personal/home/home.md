@@ -1,0 +1,8 @@
+# Home
+
+## Household
+
+## Practicalities
+
+## Maintenance
+

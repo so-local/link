@@ -1,0 +1,8 @@
+# A typo is an error naming the key, never a different box.
+[spec]
+schema = 1
+[spec.machine]
+cpu = 4
+
+[expect]
+invalid = "[machine] cpu isn't one of its fields"

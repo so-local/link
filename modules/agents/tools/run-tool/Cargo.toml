@@ -1,0 +1,84 @@
+[package]
+authors.workspace = true
+name = "link-run-tool"
+description = "Link Run (`lnk-run-tool`) lets an agent run programs in its files folder, each call in a sandbox of its own, and keeps background commands running past the turn"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-run-tool"
+path = "src/main.rs"
+
+[dependencies]
+link-untrusted.workspace = true
+link-actions.workspace = true
+link-spec.workspace = true
+clap.workspace = true
+link-id.workspace = true
+toml.workspace = true
+link-sandbox-binding.workspace = true
+libc.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[dependencies.link-run-tool-contract]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.link-harness-contract]
+workspace = true
+
+[dependencies.link-agent-spec]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies.link-store-contract]
+workspace = true
+features = ["test-support"]
+
+[dev-dependencies.link-agent-contract]
+workspace = true
+features = ["test-support"]
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-sandbox-client]
+workspace = true
+
+[dev-dependencies.link-sandbox-route]
+workspace = true
+
+[dependencies.link-types]
+workspace = true

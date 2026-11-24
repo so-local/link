@@ -1,0 +1,18 @@
+# The emoji Discord shows for each reaction's name, the name an agent's
+# spec writes (`[connection.discord] working`), as Slack's are named.
+eyes = "👀"
+hourglass = "⌛"
+hourglass_flowing_sand = "⏳"
+thinking_face = "🤔"
+gear = "⚙️"
+hammer_and_wrench = "🛠️"
+memo = "📝"
+mag = "🔍"
+wave = "👋"
+white_check_mark = "✅"
+heavy_check_mark = "✔️"
+thumbsup = "👍"
+speech_balloon = "💬"
+inbox_tray = "📥"
+robot_face = "🤖"
+zap = "⚡"

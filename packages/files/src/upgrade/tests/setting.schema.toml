@@ -1,0 +1,14 @@
+schema = 1
+kind = "upgrade setting"
+current = 2
+
+# Link's settings, whose secret.keychain moved to the preferences in schema 2.
+[[files]]
+location = "lnk.settings"
+encoding = "toml"
+
+[[steps]]
+from = 1
+refuse = { "secret.keychain" = "it's the secret preferences' now: lnk secret preferences set" }
+since = "0.2.0"
+until = "0.4.0"

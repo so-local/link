@@ -1,0 +1,16 @@
+[team.research]
+schema = 1
+id = "t4m9q2x7k1ab"
+name = "research"
+member.scout = { id = "a1b2c3d4e5f6", purpose = "finds sources" }
+settings.agent.turns = { rounds = 4 }
+settings.agent.window = { max = 200000 }
+
+[spec]
+schema = 1
+[spec.window]
+max = 100000
+
+[expect]
+values = { "turns.rounds" = 4, "window.max" = 100000 }
+from = { "turns.rounds" = "research", "window.max" = "yours" }

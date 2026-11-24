@@ -1,0 +1,160 @@
+# The docs' limits, each stated once: the docs checks read them, and the
+# writing guide and the writing-docs skill show them. A limit is named by
+# the id of the rule that checks it.
+
+# Files a program writes, which no line limit holds for.
+generated = []
+
+# The spec pages link-actions-surfaces writes from the declarations, in
+# their folder: a heading per field, opening with its quoted line, so the
+# rules named here, which hold every other page, don't hold them. Each is
+# one page, however long: a reader looks a field up by its heading, so a
+# reference is never split. Each entry is its declaration's help, as long
+# or short as it is and said again where two kinds share a type, and the
+# pages are looked up from their index, never read on the way to another.
+[spec-pages]
+folder = "docs/config/specs"
+exempt = [
+    "markdown-lines", "headings", "heading-paragraph", "one-paragraph",
+    "duplicates", "depth", "item-length", "thin-section", "clicks", "average-clicks",
+]
+
+# The command references link-actions-surfaces writes from the
+# declarations, in their folder: each module's commands one page, however
+# long, a heading per resource with its commands beneath, each entry its
+# declaration's help, an argument two commands take said on both, and
+# each page looked up from its index.
+[reference-pages]
+folder = "docs/more/reference"
+exempt = [
+    "markdown-lines", "headings", "heading-paragraph",
+    "duplicates", "depth", "item-length", "thin-section", "clicks", "average-clicks",
+]
+
+# What lnk-docs-survey reports as near copies: paragraphs of at least
+# near_length characters sharing near_overlap of their near_run-word runs.
+[survey]
+near_length = 200
+near_run = 6
+near_overlap = 0.5
+
+[limit.asides]
+at_most = 3
+of = "Words besides its links in a parenthesis holding a link"
+why = "Work the link into the sentence, never beside it."
+
+[limit.clicks]
+at_most = 5
+of = "Links a reader follows from the root README to a page"
+why = "Link a page where a reader meets what it explains."
+
+[limit.average-clicks]
+at_most = 265
+of = "Average hundredths of a link from the root README"
+why = "Link a page where a reader meets what it explains."
+
+[limit.headings]
+at_most = 10
+of = "Headings under a heading, and at a page's top"
+why = "Group a longer list a level deeper."
+
+[limit.pages]
+at_most = 10
+of = "Pages under a page in the site's tree"
+why = "Group a longer list in a folder."
+
+# The pages held to a number of their own, by address. The agents
+# section is the product's center and holds more first-class pages, so
+# Agents and its Tools, where each tool is a sibling, have more room. No
+# other section is excepted.
+[[limit.pages.except]]
+address = "/agents"
+at_most = 12
+why = "Agents, the product's center, holds more first-class pages."
+
+[[limit.pages.except]]
+address = "/agents/tools"
+at_most = 12
+why = "Each tool is a first-class page of the product's center."
+
+[limit.group-pages]
+at_most = 3
+of = "Pages a page with pages under it holds at least"
+why = "Fewer is a level opened for one or two pages."
+
+[limit.hub-words]
+at_most = 120
+of = "Words in a non-root README outside docs/"
+why = "A README is a map; how it works is a page."
+
+[limit.readme-shape]
+at_most = 5
+of = "Links under a README's ## Code"
+why = "Name the entry points, three or so."
+
+[limit.markdown-lines]
+at_most = 500
+of = "Lines in a Markdown file"
+why = "Split a longer page by subject."
+
+[limit.rust-lines]
+at_most = 1000
+of = "Lines in a Rust file"
+why = "Split where a responsibility ends."
+
+[limit.paragraph-length]
+at_most = 600
+of = "Characters in a paragraph"
+why = "More is two subjects: two sections."
+
+[limit.cell-length]
+at_most = 60
+of = "Characters in a table cell"
+why = "A cell is a few words; more is a section."
+
+[limit.item-length]
+at_most = 400
+of = "Characters in a list item"
+why = "An item is a line or two; more is a section."
+
+[limit.hook-length]
+at_most = 45
+of = "Characters in a hook"
+why = "It's a heading, and half the tab's title."
+
+[limit.thin-section]
+at_most = 80
+of = "Characters a section's lone paragraph has at least"
+why = "Less is too thin to stand alone: fold it in."
+
+[limit.duplicates]
+at_most = 120
+of = "Characters before two pages may not share a paragraph"
+why = "Say it once, where it belongs, and link there."
+
+[limit.depth]
+at_most = 7
+of = "Levels from the home page to a page's deepest heading"
+why = "The address and the headings are one tree."
+
+[limit.docs-ratio]
+at_most = 3.5
+exponent = 0.7
+of = "Times a package's docs are off its Rust lines to the 0.7"
+why = "Docs grow with the code they explain, more slowly."
+
+[limit.hook-words]
+at_most = 3
+of = "Words a hook has at least"
+why = "A hook says more than its page's name."
+
+# Where a page may name Rust source in every workspace (rust-names): the
+# folders, at any depth below a member's docs/, that hold its developer and
+# library references, which maintainers read. Decisions, security and
+# troubleshooting pages may too (kinds.toml's names_rust), and each
+# workspace lists its own folders in rust-pages.toml.
+# A folder named docs holding one of the manifests is a package, not
+# pages: its README keeps its ## Code list.
+[rust-names]
+within-docs = ["more"]
+manifests = ["Cargo.toml", "package.json"]

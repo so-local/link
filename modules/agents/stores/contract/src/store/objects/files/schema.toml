@@ -1,0 +1,4 @@
+schema = 1
+kind = "stored-file-record"
+current = 1
+command = "lnk bucket-store call"

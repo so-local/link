@@ -1,0 +1,24 @@
+schema = 1
+
+[format]
+enum = ["pdf", "docx"]
+description = "A document's format, by the extension it usually has"
+
+[extracted]
+description = "A document's text, or why it has none"
+oneOf = ["text", "unread"]
+x-link-markers = ["text", "unread"]
+
+[text]
+type = "object"
+description = "The document's text"
+required = ["text"]
+additionalProperties = false
+properties.text = { type = "string", description = "Its text, the first 2 MiB" }
+
+[unread]
+type = "object"
+description = "Why the document has no text"
+required = ["unread"]
+additionalProperties = false
+properties.unread = { type = "string", description = "Why it has none: scanned, locked or unreadable" }

@@ -1,0 +1,7 @@
+# A policy has its version.
+[spec]
+schema = 1
+name = "p"
+
+[expect]
+invalid = "missing field `version`"

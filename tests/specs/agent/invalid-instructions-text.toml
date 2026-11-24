@@ -1,0 +1,8 @@
+# A section's source is link, none or a file: never the text itself.
+[spec]
+schema = 1
+[spec.instructions]
+base = "Be a cat."
+
+[expect]
+invalid = "is link, none, or a markdown file"

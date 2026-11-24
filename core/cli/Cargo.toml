@@ -1,0 +1,95 @@
+"bin" = [{ "name" = "lnk", "path" = "src/main.rs" }]
+
+["package"]
+authors.workspace = true
+"name" = "link-cli"
+"description" = "`lnk` is the command-line entry point for Local Link programs"
+["package"."version"]
+"workspace" = true
+
+["package"."edition"]
+"workspace" = true
+
+["package"."license"]
+"workspace" = true
+
+["package"."metadata"."link"]
+"schema" = 1
+"role" = "application"
+owner = "core/cli"
+inputs = [{kind = "file",path = "**/Cargo.toml",scope = "workspace"}, {kind = "file",path = "**/module.toml",scope = "workspace"}, {kind = "file",path = "**/actions.toml",scope = "workspace"}, {kind = "file",path = "**/docs/**/*.md",scope = "workspace"}]
+
+["dependencies"."link-component"]
+"workspace" = true
+
+["dependencies"."link-core"]
+workspace = true
+
+["dependencies"."link-actions"]
+"workspace" = true
+
+["dependencies"."link-types"]
+"workspace" = true
+
+["dependencies"."anyhow"]
+"workspace" = true
+
+["dependencies"."clap"]
+"workspace" = true
+
+["dependencies"."tokio"]
+"workspace" = true
+
+["dependencies"."serde_json"]
+"workspace" = true
+
+["dependencies"."serde"]
+"workspace" = true
+
+["dependencies"."toml"]
+"workspace" = true
+
+["build-dependencies"."link-component-build"]
+"workspace" = true
+
+["build-dependencies"."link-actions-build"]
+"workspace" = true
+
+["build-dependencies"."anyhow"]
+"workspace" = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-version]
+workspace = true
+
+[dependencies.link-runtime]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-keychain]
+workspace = true

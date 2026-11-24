@@ -1,0 +1,9 @@
+schema = 1
+kind = "workload ledger"
+current = 1
+command = "lnk env"
+
+[[files]]
+location = "lnk.envs"
+path = "ids.toml"
+encoding = "toml"

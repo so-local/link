@@ -1,0 +1,5 @@
+schema = 1
+kind = "profile"
+current = 1
+command = "lnk env profile spec show"
+about = "The worked example's second spec kind: a machine profile."

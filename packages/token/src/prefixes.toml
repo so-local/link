@@ -1,0 +1,22 @@
+# link-token's prefixes: what every secret IAM makes opens with, naming
+# its type in The IAM Model's words, never who holds it, so a person
+# reading one knows what it is and a secret scanner finds it. Read once
+# by `prefixes.rs`; whatever reads one strips its prefix in one place.
+
+# An access token: a standard JWT inside, `typ` `at+jwt`.
+access = "lnk_access_"
+
+# A refresh token: a statement signed by the issuer that alone takes it.
+refresh = "lnk_refresh_"
+
+# A client secret: random, ending in a checksum, shown to the issuer
+# alone for access tokens.
+client_secret = "lnk_client_secret_"
+
+# An API key: random, ending in a checksum, kept by the resource server
+# that issued it.
+api_key = "lnk_api_key_"
+
+# A one-time code, a machine's half: random, ending in a checksum, spent
+# once at its issuer for a refresh token.
+code = "lnk_code_"

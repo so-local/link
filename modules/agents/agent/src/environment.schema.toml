@@ -1,0 +1,11 @@
+schema = 1
+# An agent's environment on this machine, captured once when it was
+# created, and whether its setup stages ran:
+# `~/.lnk/safe/agents/environments/<name>.json`.
+kind = "agent environment"
+current = 1
+
+[[files]]
+location = "lnk.agent-environments"
+path = "*.json"
+encoding = "json"

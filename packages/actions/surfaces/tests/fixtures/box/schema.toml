@@ -1,0 +1,4 @@
+schema = 1
+kind = "box"
+current = 1
+command = "lnk box spec show"

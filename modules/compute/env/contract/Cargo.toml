@@ -1,0 +1,90 @@
+[package]
+authors.workspace = true
+name = "link-env-contract"
+description = "`link-env-contract` is the package that reads the environment file as strictly as every specification is read"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/compute/env"
+
+[dependencies]
+schemars.workspace = true
+anyhow.workspace = true
+libc.workspace = true
+reqwest = { workspace = true, features = ["rustls-no-provider"] }
+serde.workspace = true
+serde_json.workspace = true
+ring.workspace = true
+tokio.workspace = true
+toml.workspace = true
+
+[dependencies.link-secret-contract]
+workspace = true
+
+
+[dependencies.link-workplace]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dev-dependencies.link-cloud-contract]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-box-contract]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-id]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-cloud-contract]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+link-actions-build.workspace = true
+anyhow.workspace = true

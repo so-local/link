@@ -1,0 +1,10 @@
+# A spec with no sections reads no files, reaches no network and runs
+# no program.
+[spec]
+schema = 1
+name = "empty"
+version = 1
+
+[expect]
+refused = ["example.com", "1.1.1.1:80", "192.168.1.1:80", "127.0.0.1:22"]
+refused_commands = ["sh", "ls"]

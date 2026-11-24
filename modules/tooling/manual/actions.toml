@@ -1,0 +1,26 @@
+schema = 1
+
+# The short form a person may type for the module's commands.
+[aliases]
+manual = "man"
+
+[actions."manual.manual.show"]
+description = "Read Link documentation offline. Without a path, show the front page and topic index."
+role = "primary"
+docs = "/tooling/manual#read-a-topic"
+default = true
+output = "page"
+surfaces = ["cli", "tool"]
+next = ["manual.manual.show", "core.module.add", "core.core.upgrade", "core.module.list"]
+fail = ["manual.manual.show", "core.module.list", "core.core.upgrade", "core.module.add"]
+
+[actions."manual.manual.show".args]
+path = { type = "string", description = "A canonical documentation path, such as agents/start", x-link-cli = { position = 1 } }
+command = { type = "string", description = "Read one command reference, such as box create", x-link-cli = { conflicts = ["commands", "variables"], requires = ["path"] } }
+commands = { type = "boolean", description = "List the topic's commands", x-link-cli = { conflicts = ["command", "variables"], requires = ["path"] } }
+variables = { type = "boolean", description = "List the topic's environment variables", x-link-cli = { conflicts = ["commands", "command"], requires = ["path"] } }
+
+[actions."manual.manual.show".route]
+bridge = "command"
+callers = ["owner", "agent"]
+limits = { bytes = 1048576, time_ms = 10000 }

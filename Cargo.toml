@@ -1,0 +1,407 @@
+[workspace.package]
+version = "0.0.0"
+authors = ["Local Link Company"]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[workspace]
+resolver = "3"
+default-members = ["core/cli", "core/framework"]
+members = [
+    "core/cli",
+    "core/framework",
+    "interop/agents/connections/discord",
+    "interop/agents/connections/signal",
+    "interop/agents/connections/slack",
+    "interop/agents/connections/telegram",
+    "interop/agents/harnesses/deepseek",
+    "interop/agents/harnesses/hermes",
+    "interop/agents/harnesses/openclaw",
+    "interop/cloud/aws",
+    "interop/cloud/gcp",
+    "modules/agents/agent",
+    "modules/agents/agent/contract",
+    "modules/agents/agent/contract/identity",
+    "modules/agents/agent/contract/place",
+    "modules/agents/agent/contract/spec",
+    "modules/agents/agent/contract/team",
+    "modules/agents/connections/contract",
+    "modules/agents/connections/contract/policy",
+    "modules/agents/connections/webhook",
+    "modules/agents/harnesses/link",
+    "modules/agents/harnesses/mini",
+    "modules/agents/harnesses/portability/agent-state-protocol",
+    "modules/agents/harnesses/portability/conformance",
+    "modules/agents/harnesses/portability/contract",
+    "modules/agents/harnesses/portability/contract/base",
+    "modules/agents/harnesses/portability/contract/wire",
+    "modules/agents/harnesses/portability/hub",
+    "modules/agents/model",
+    "modules/agents/model/contract",
+    "modules/agents/stores/bucket-store",
+    "modules/agents/stores/contract",
+    "modules/agents/stores/file-store",
+    "modules/agents/stores/sqlite-store",
+    "modules/agents/tools/browser-tool",
+    "modules/agents/tools/browser-tool/contract",
+    "modules/agents/tools/code-tool",
+    "modules/agents/tools/code-tool/contract",
+    "modules/agents/tools/desktop-tool",
+    "modules/agents/tools/desktop-tool/contract",
+    "modules/agents/tools/file-tool",
+    "modules/agents/tools/file-tool/contract",
+    "modules/agents/tools/mcp",
+    "modules/agents/tools/memory-tool",
+    "modules/agents/tools/memory-tool/contract",
+    "modules/agents/tools/memory-tool/document-converter",
+    "modules/agents/tools/memory-tool/document-converter/contract",
+    "modules/agents/tools/run-tool",
+    "modules/agents/tools/run-tool/contract",
+    "modules/agents/tools/scheduler-tool",
+    "modules/agents/tools/scheduler-tool/contract",
+    "modules/agents/tools/web-tool",
+    "modules/agents/tools/web-tool/contract",
+    "modules/cloud/cloud",
+    "modules/cloud/cloud/contract",
+    "modules/compute/box",
+    "modules/compute/box/contract",
+    "modules/compute/env",
+    "modules/compute/env/contract",
+    "modules/security/sandbox",
+    "modules/security/sandbox/bridge",
+    "modules/security/sandbox/bridge/binding",
+    "modules/security/sandbox/confine",
+    "modules/security/sandbox/contract",
+    "modules/security/sandbox/contract/client",
+    "modules/security/sandbox/contract/route",
+    "modules/security/sandbox/proxy",
+    "modules/security/secret",
+    "modules/security/secret/contract",
+    "modules/storage/safe",
+    "modules/storage/storage",
+    "modules/storage/storage/contract",
+    "modules/tooling/archive",
+    "modules/tooling/archive/contract",
+    "modules/tooling/bundle",
+    "modules/tooling/manual",
+    "modules/tooling/measure",
+    "modules/tooling/measure/contract",
+    "modules/tooling/spec",
+    "packages/actions",
+    "packages/actions/build",
+    "packages/actions/surfaces",
+    "packages/api",
+    "packages/approvals",
+    "packages/archive",
+    "packages/artifact",
+    "packages/component",
+    "packages/component/build",
+    "packages/controls",
+    "packages/digest",
+    "packages/fetch",
+    "packages/files",
+    "packages/format",
+    "packages/id",
+    "packages/interactions",
+    "packages/interactions/contract",
+    "packages/keychain",
+    "packages/machine",
+    "packages/policy",
+    "packages/principal",
+    "packages/runtime",
+    "packages/secretive",
+    "packages/secretive/derive",
+    "packages/service",
+    "packages/settings",
+    "packages/signer",
+    "packages/spec",
+    "packages/test-kit",
+    "packages/token",
+    "packages/types",
+    "packages/untrusted",
+    "packages/version",
+    "packages/workplace",
+    "tests/docs",
+    "tests/docs/code",
+    "tests/fixtures/agent-place",
+    "tests/fixtures/connection",
+    "tests/fixtures/declarations",
+    "tests/fixtures/env",
+    "tests/fixtures/harness",
+    "tests/fixtures/webhook",
+    "tests/repository",
+    "tests/timing",
+]
+
+# Lint levels every package takes with `[lints] workspace = true`, on
+# Clippy's default groups. A suppression says why:
+# `#[expect(lint, reason = "...")]`, or `#[allow]` with its reason where the
+# lint fires only on some configurations.
+[workspace.lints.clippy]
+allow_attributes_without_reason = "deny"
+dbg_macro = "deny"
+todo = "deny"
+unimplemented = "deny"
+
+# Shared module APIs; consumers select their required features. Audits are
+# dev dependencies, and connection libraries stay in their own packages.
+[workspace.dependencies]
+agent-client-protocol = "3.4.0"
+anstream = "1"
+anstyle = "1"
+anyhow = "1"
+axum = { version = "0.8", features = ["ws"] }
+base64 = "0.23"
+bytes = "1"
+clap = { version = "4", features = ["derive", "env"] }
+futures-util = { version = "0.3", features = ["sink"] }
+http = "1"
+http-body-util = "0.1"
+hyper = { version = "1", features = ["client", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+jiff = "0.2"
+libc = "0.2"
+link-actions = { path = "packages/actions" }
+link-actions-build = { path = "packages/actions/build" }
+link-actions-surfaces = { path = "packages/actions/surfaces" }
+link-agent = { path = "modules/agents/agent" }
+link-agent-contract = { path = "modules/agents/agent/contract" }
+link-agent-identity = { path = "modules/agents/agent/contract/identity" }
+link-agent-place = { path = "modules/agents/agent/contract/place" }
+link-agent-place-fixture = { path = "tests/fixtures/agent-place" }
+link-agent-spec = { path = "modules/agents/agent/contract/spec" }
+link-agent-state-protocol = { path = "modules/agents/harnesses/portability/agent-state-protocol" }
+link-agent-team = { path = "modules/agents/agent/contract/team" }
+link-api = { path = "packages/api" }
+link-approvals = { path = "packages/approvals" }
+link-archive = { path = "packages/archive" }
+link-archive-contract = { path = "modules/tooling/archive/contract" }
+link-archive-module = { path = "modules/tooling/archive" }
+link-artifact = { path = "packages/artifact" }
+link-aws = { path = "interop/cloud/aws" }
+link-box = { path = "modules/compute/box" }
+link-box-contract = { path = "modules/compute/box/contract" }
+link-browser-tool = { path = "modules/agents/tools/browser-tool" }
+link-browser-tool-contract = { path = "modules/agents/tools/browser-tool/contract" }
+link-bucket-store = { path = "modules/agents/stores/bucket-store" }
+link-bundle = { path = "modules/tooling/bundle" }
+link-cli = { path = "core/cli" }
+link-cloud = { path = "modules/cloud/cloud" }
+link-cloud-contract = { path = "modules/cloud/cloud/contract" }
+link-code-tool = { path = "modules/agents/tools/code-tool" }
+link-code-tool-contract = { path = "modules/agents/tools/code-tool/contract" }
+link-component = { path = "packages/component" }
+link-component-build = { path = "packages/component/build" }
+link-connection-contract = { path = "modules/agents/connections/contract" }
+link-connection-fixture = { path = "tests/fixtures/connection" }
+link-connection-policy = { path = "modules/agents/connections/contract/policy" }
+link-controls = { path = "packages/controls" }
+link-core = { path = "core/framework" }
+link-declarations-fixture = { path = "tests/fixtures/declarations" }
+link-deepseek = { path = "interop/agents/harnesses/deepseek" }
+link-desktop-tool = { path = "modules/agents/tools/desktop-tool" }
+link-desktop-tool-contract = { path = "modules/agents/tools/desktop-tool/contract" }
+link-digest = { path = "packages/digest" }
+link-discord = { path = "interop/agents/connections/discord" }
+link-docs-check = { path = "tests/docs" }
+link-docs-check-code = { path = "tests/docs/code" }
+link-document-converter = { path = "modules/agents/tools/memory-tool/document-converter" }
+link-document-converter-contract = { path = "modules/agents/tools/memory-tool/document-converter/contract" }
+link-env = { path = "modules/compute/env" }
+link-env-contract = { path = "modules/compute/env/contract" }
+link-env-fixture = { path = "tests/fixtures/env" }
+link-fetch = { path = "packages/fetch" }
+link-file-store = { path = "modules/agents/stores/file-store" }
+link-file-tool = { path = "modules/agents/tools/file-tool" }
+link-file-tool-contract = { path = "modules/agents/tools/file-tool/contract" }
+link-files = { path = "packages/files" }
+link-format = { path = "packages/format" }
+link-gcp = { path = "interop/cloud/gcp" }
+link-harness = { path = "modules/agents/harnesses/link" }
+link-harness-base = { path = "modules/agents/harnesses/portability/contract/base" }
+link-harness-conformance = { path = "modules/agents/harnesses/portability/conformance" }
+link-harness-contract = { path = "modules/agents/harnesses/portability/contract" }
+link-harness-hub = { path = "modules/agents/harnesses/portability/hub" }
+link-harness-wire = { path = "modules/agents/harnesses/portability/contract/wire" }
+link-hermes = { path = "interop/agents/harnesses/hermes" }
+link-id = { path = "packages/id" }
+link-interactions = { path = "packages/interactions" }
+link-interactions-contract = { path = "packages/interactions/contract" }
+link-keychain = { path = "packages/keychain" }
+link-machine = { path = "packages/machine" }
+link-manual = { path = "modules/tooling/manual" }
+link-mcp = { path = "modules/agents/tools/mcp" }
+link-measure = { path = "modules/tooling/measure" }
+link-measure-contract = { path = "modules/tooling/measure/contract" }
+link-memory-tool = { path = "modules/agents/tools/memory-tool" }
+link-memory-tool-contract = { path = "modules/agents/tools/memory-tool/contract" }
+link-mini-harness = { path = "modules/agents/harnesses/mini" }
+link-model = { path = "modules/agents/model" }
+link-model-contract = { path = "modules/agents/model/contract" }
+link-openclaw = { path = "interop/agents/harnesses/openclaw" }
+link-policy = { path = "packages/policy" }
+link-principal = { path = "packages/principal" }
+link-repository-check = { path = "tests/repository" }
+link-run-tool = { path = "modules/agents/tools/run-tool" }
+link-run-tool-contract = { path = "modules/agents/tools/run-tool/contract" }
+link-runtime = { path = "packages/runtime" }
+link-safe = { path = "modules/storage/safe" }
+link-sandbox = { path = "modules/security/sandbox" }
+link-sandbox-binding = { path = "modules/security/sandbox/bridge/binding" }
+link-sandbox-bridge = { path = "modules/security/sandbox/bridge" }
+link-sandbox-client = { path = "modules/security/sandbox/contract/client" }
+link-sandbox-confine = { path = "modules/security/sandbox/confine" }
+link-sandbox-contract = { path = "modules/security/sandbox/contract" }
+link-sandbox-proxy = { path = "modules/security/sandbox/proxy" }
+link-sandbox-route = { path = "modules/security/sandbox/contract/route" }
+link-scheduler-tool = { path = "modules/agents/tools/scheduler-tool" }
+link-scheduler-tool-contract = { path = "modules/agents/tools/scheduler-tool/contract" }
+link-secret = { path = "modules/security/secret" }
+link-secret-contract = { path = "modules/security/secret/contract" }
+link-secretive = { path = "packages/secretive" }
+link-secretive-derive = { path = "packages/secretive/derive" }
+link-service = { path = "packages/service" }
+link-settings = { path = "packages/settings" }
+link-signal = { path = "interop/agents/connections/signal" }
+link-signer = { path = "packages/signer" }
+link-slack = { path = "interop/agents/connections/slack" }
+link-spec = { path = "packages/spec" }
+link-spec-module = { path = "modules/tooling/spec" }
+link-sqlite-store = { path = "modules/agents/stores/sqlite-store" }
+link-storage = { path = "modules/storage/storage" }
+link-storage-contract = { path = "modules/storage/storage/contract" }
+link-store-contract = { path = "modules/agents/stores/contract" }
+link-telegram = { path = "interop/agents/connections/telegram" }
+link-test-kit = { path = "packages/test-kit" }
+link-test-timing = { path = "tests/timing" }
+link-token = { path = "packages/token" }
+link-types = { path = "packages/types" }
+link-untrusted = { path = "packages/untrusted" }
+link-version = { path = "packages/version" }
+link-web-tool = { path = "modules/agents/tools/web-tool" }
+link-web-tool-contract = { path = "modules/agents/tools/web-tool/contract" }
+link-webhook-connection = { path = "modules/agents/connections/webhook" }
+link-workplace = { path = "packages/workplace" }
+proc-macro2 = { version = "1", features = ["span-locations"] }
+proptest = { version = "1", default-features = false, features = ["std"] }
+# An agent's Markdown answer, parsed once for each chat's own formatting.
+pulldown-cmark = { version = "0.13", default-features = false }
+qrcode = { version = "0.14", default-features = false }
+rand = "0.10"
+regex = "1"
+reqwest = { version = "0.13", default-features = false, features = ["stream"] }
+ring = "0.17"
+rmp-serde = "1"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+rustls-native-certs = "0.8"
+rustls-platform-verifier = "0.7"
+schemars = "1"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11"
+serde_ignored = "0.1"
+serde_json = "1"
+sha2 = "0.11"
+shlex = "2"
+syn = { version = "3", features = ["full", "visit"] }
+tokio = { version = "1", features = ["full"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12"] }
+tokio-tungstenite = { version = "0.29", features = ["rustls-tls-webpki-roots"] }
+toml = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+zstd = { version = "0.14", default-features = false }
+
+[profile.dev]
+debug = false
+# Off so both workspaces' `target/` fit the 30 GB reference machine:
+# the incremental cache was 8.4 GB of the public 15 GB. A one-line edit
+# rebuilds in 3.7 s without it, against 1.6 s with it.
+incremental = false
+
+[profile.dev.package.scrypt]
+opt-level = 3
+
+[profile.dev.package.salsa20]
+opt-level = 3
+
+# What a release ships carries no symbol table: about a quarter of each
+# program's bytes on disk. A panic still says its message and where; a
+# backtrace names no functions.
+[profile.release]
+strip = true
+
+# The copyright notice each generated file header carries: its holder
+# and years, read by `link-docs-check-code`'s file catalogue.
+[workspace.metadata.link.copyright]
+holder = "Local Link Company"
+years = "2026"
+
+# A crate locked at a second version, and why. The repository checks
+# (`link-repository-check`) fail on one listed nowhere here, and on one
+# listed that is at one version again.
+[workspace.metadata.second-versions]
+base64 = "axum asks for 0.22; hyper-util for 0.23"
+bitflags = "serde_with (ACP's schema) locks 1 for jiff's defmt, a feature Link never builds"
+block-buffer = "axum's WebSockets ask for sha1 0.10, on RustCrypto's 0.10 line"
+cpufeatures = "axum's WebSockets ask for sha1 0.10, on RustCrypto's 0.10 line"
+crypto-common = "axum's WebSockets ask for sha1 0.10, on RustCrypto's 0.10 line"
+digest = "axum's WebSockets ask for sha1 0.10, on RustCrypto's 0.10 line"
+getrandom = "ring 0.17 asks for 0.2; rand_core 0.9 and tempfile for 0.3; rand 0.10 for 0.4"
+hashbrown = "rusqlite's WebAssembly VFS (rsqlite-vfs 0.1) asks for 0.16, indexmap for 0.17"
+indexmap = "serde_with (ACP's schema) locks 1 for a feature Link never builds"
+nom = "lopdf (the document converter) asks for 8; tantivy-query-grammar for 7"
+r-efi = "with getrandom"
+rand = "axum's WebSockets (tungstenite 0.29) ask for 0.9"
+rand_core = "with rand"
+schemars = "typify 0.8 (link-api's generated types) asks for 0.8"
+schemars_derive = "with schemars"
+serde_derive_internals = "with schemars"
+syn = "curve25519-dalek, phf and typify ask for 2"
+webpki-roots = "tokio-tungstenite asks for 0.26, which only re-exports 1.0"
+windows-sys = "ring 0.17 asks for 0.52, on Windows"
+
+# The advisories against a locked version that stay, each by its id and
+# why: no release fixes it. The repository checks fail on any other, an
+# unmaintained crate's among them, and on one listed that no longer
+# applies. An unmaintained crate is listed only where it reads no input
+# from outside Link.
+[workspace.metadata.advisories]
+RUSTSEC-2026-0543 = "chrono is unmaintained: serde_with (ACP's schema) locks it for a feature Link never builds, so Link never runs it; Link's times are jiff's"
+GHSA-g3hv-75wg-m249 = "minimatch 3.1.5 and 10.2.6, pinned to ^3 by eslint and to ^10 by typescript-estree, match only our own lint globs; the fix is in 11, which neither accepts"
+
+# The npm scopes and maintainers whose packages are first-party, and why.
+# The repository checks judge every other npm package by its downloads
+# in the last week.
+[workspace.metadata.trusted-npm-owners]
+"@anthropic-ai" = "Anthropic's own scope: the Claude Agent SDK and API SDK"
+"@modelcontextprotocol" = "the Model Context Protocol's own scope: its SDK"
+"@next" = "Vercel's scope for Next.js's own packages"
+"@vercel" = "Vercel's own scope"
+"@tailwindcss" = "Tailwind Labs' own scope"
+"@types" = "DefinitelyTyped's scope, TypeScript's types, published by Microsoft's bot"
+
+# The crates.io owners whose crates are first-party: a team's GitHub
+# organization (`github:tokio-rs:core` is tokio-rs) or a user, and why.
+# The repository checks judge every other crate by its downloads.
+[workspace.metadata.trusted-owners]
+agentclientprotocol = "the Agent Client Protocol's own organization: its Rust SDK"
+awslabs = "AWS's own organization: its Rust SDK and aws-lc-rs"
+briansmith = "ring's and untrusted's author, who publishes them"
+crossbeam-rs = "crossbeam's own organization"
+dalek-cryptography = "curve25519-dalek's and subtle's own organization"
+dtolnay = "the author and publisher of serde, syn, anyhow and thiserror"
+googleapis = "Google's own organization: its Cloud client libraries"
+hyperium = "hyper's and http's own organization"
+kennykerr = "Microsoft's windows-rs author, who publishes windows-sys"
+rust-lang = "the Rust project"
+rust-lang-nursery = "the Rust project's crates in incubation: log, regex"
+rust-lang-owner = "the Rust project's publishing account: libc, cc, hashbrown"
+rust-random = "rand's and getrandom's own organization"
+rustcrypto = "RustCrypto's own organization"
+rustls = "rustls's own organization"
+serde-rs = "serde's own organization"
+smol-rs = "smol's own organization, async primitives tokio and hyper use"
+tokio-rs = "tokio's own organization: tokio, axum, tracing, bytes, mio"
+tower-rs = "tower's own organization"
+unicode-org = "the Unicode Consortium: ICU4X"
+wasm-bindgen = "wasm-bindgen's own organization"

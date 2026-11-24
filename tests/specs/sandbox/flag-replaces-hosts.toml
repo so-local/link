@@ -1,0 +1,15 @@
+# A flag giving a key replaces the file's.
+[spec]
+schema = 1
+[spec.internet]
+hosts = ["example.org"]
+
+[run]
+flags = ["--internet.hosts", "example.com"]
+
+[spec.commands]
+toolchains = ["shell"]
+
+[expect]
+reaches = ["example.com"]
+refused = ["example.org"]

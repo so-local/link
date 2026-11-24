@@ -1,0 +1,8 @@
+# A dot folder in your home holds what runs outside.
+[spec]
+schema = 1
+[spec.files]
+write = ["~/.ssh"]
+
+[expect]
+invalid = "dot folder"

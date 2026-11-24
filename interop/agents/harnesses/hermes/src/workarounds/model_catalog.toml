@@ -1,0 +1,307 @@
+# Hermes 0.23.3, commit caafe5389ae585ef77387a962aee05b1bcf17029.
+# ACP session creation must not wait for an unrelated public registry.
+
+# Provider labels and credential discovery also read the registry. Scope every
+# registry read in the ACP picker, without changing explicit native discovery.
+[[patches]]
+path = "agent/models_dev.py"
+before = "from utils import atomic_json_write, atomic_write_text\n"
+after = '''
+from contextvars import ContextVar
+_link_cached_picker = ContextVar("link_cached_picker", default=False)
+
+from utils import atomic_json_write, atomic_write_text
+'''
+
+[[patches]]
+path = "agent/models_dev.py"
+before = '''
+    global _models_dev_cache, _models_dev_cache_time, _models_dev_retry_after
+    if not allow_network:
+'''
+after = '''
+    global _models_dev_cache, _models_dev_cache_time, _models_dev_retry_after
+    allow_network = allow_network and not _link_cached_picker.get()
+    if not allow_network:
+'''
+
+[[patches]]
+path = "acp_adapter/model_catalog.py"
+before = '''
+def build_model_state(model: str, provider: str, base_url: str) -> SessionModelState | None:
+'''
+after = '''
+def _link_cached_model_picker(build):
+    from functools import wraps
+    @wraps(build)
+    def cached(*args, **kwargs):
+        from agent.models_dev import _link_cached_picker
+        token = _link_cached_picker.set(True)
+        try:
+            return build(*args, **kwargs)
+        finally:
+            _link_cached_picker.reset(token)
+    return cached
+
+@_link_cached_model_picker
+def build_model_state(model: str, provider: str, base_url: str) -> SessionModelState | None:
+'''
+
+[[patches]]
+path = "acp_adapter/model_catalog.py"
+before = "\n        probe_custom_providers=False, probe_current_custom_provider=False, max_models=ACP_MAX_MODELS_PER_PROVIDER,\n"
+after = "\n        probe_custom_providers=False, probe_current_custom_provider=False, max_models=ACP_MAX_MODELS_PER_PROVIDER, non_blocking_catalogs=True,\n"
+
+# The existing non-blocking option also needs to reach models.dev.
+# Explicit refresh resets non_blocking_catalogs before this call.
+[[patches]]
+path = "hermes_cli/model_switch_providers.py"
+before = "\n    data = fetch_models_dev()\n"
+after = "\n    data = fetch_models_dev(allow_network=not non_blocking_catalogs)\n"
+
+# Ollama Cloud's cached fallback must not redownload the same registry.
+[[patches]]
+path = "hermes_cli/models_local.py"
+before = "\n        mdev_models = list_agentic_models(\"ollama-cloud\")\n"
+after = "\n        mdev_models = list_agentic_models(\"ollama-cloud\", allow_network=not cache_only)\n"
+
+# A hosted provider behind Link's loopback relay is not a local model server.
+# Keep all metadata probes on its inference API instead of probing Ollama,
+# LM Studio and llama.cpp routes that the hosted capability correctly refuses.
+# A model on this machine, at the address Link hands Hermes, is behind Link's
+# local-model route, which serves inference and a few read-only paths: its
+# server-type waterfall and Ollama's /api/show are refused there, and failed
+# detection probes again each turn until the sandbox stops the route.
+[[patches]]
+path = "agent/model_metadata.py"
+before = '''
+def _normalize_base_url(base_url: str) -> str:
+    return (base_url or "").strip().rstrip("/")
+'''
+after = '''
+def _link_hosted_relay(base_url: str) -> bool:
+    try:
+        parsed = urlparse((base_url or "").strip())
+        return (parsed.scheme == "http"
+                and parsed.hostname in {"127.0.0.1", "localhost", "::1"}
+                and parsed.path.rstrip("/") in {"/_link/model", "/_link/model/v1"}
+                and parsed.username is None and parsed.password is None
+                and not parsed.query and not parsed.fragment)
+    except ValueError:
+        return False
+
+
+def _link_local_route(base_url: str) -> bool:
+    import os
+    given = (os.environ.get("LNK_HERMES_MODEL_URL") or "").strip().rstrip("/")
+    if not given or _link_hosted_relay(given):
+        return False
+    asked = (base_url or "").strip().rstrip("/")
+    return asked.removesuffix("/v1") == given.removesuffix("/v1")
+
+
+def _normalize_base_url(base_url: str) -> str:
+    normalized = (base_url or "").strip().rstrip("/")
+    if _link_hosted_relay(normalized) and not normalized.endswith("/v1"):
+        normalized += "/v1"
+    return normalized
+'''
+
+[[patches]]
+path = "agent/model_metadata.py"
+before = '''
+def is_local_endpoint(base_url: str) -> bool:
+    """True for loopback, container-internal DNS, unqualified hosts, RFC-1918,
+    link-local and Tailscale CGNAT (so a trusted Ollama box over Tailscale gets
+    the same timeout auto-bumps as localhost)."""
+    try:
+'''
+after = '''
+def is_local_endpoint(base_url: str) -> bool:
+    """True for loopback, container-internal DNS, unqualified hosts, RFC-1918,
+    link-local and Tailscale CGNAT (so a trusted Ollama box over Tailscale gets
+    the same timeout auto-bumps as localhost)."""
+    if _link_hosted_relay(base_url):
+        return False
+    try:
+'''
+
+[[patches]]
+path = "agent/model_metadata.py"
+before = '''
+def detect_local_server_type(base_url: str, api_key: str = "") -> Optional[str]:
+    """Probe known endpoints: "ollama", "lm-studio", "vllm", "llamacpp", or None (TTL-cached)."""
+    import httpx
+'''
+after = '''
+def detect_local_server_type(base_url: str, api_key: str = "") -> Optional[str]:
+    """Probe known endpoints: "ollama", "lm-studio", "vllm", "llamacpp", or None (TTL-cached)."""
+    if _link_hosted_relay(base_url) or _link_local_route(base_url):
+        return None
+    import httpx
+'''
+
+# The custom-endpoint fallback probes Ollama even for non-local URLs, once
+# per turn when it fails. Hosted inference cannot answer this management API.
+[[patches]]
+path = "agent/model_metadata.py"
+before = '''
+def _query_ollama_api_show(model: str, base_url: str, api_key: str = "") -> Optional[int]:
+    """Provider-agnostic Ollama ``/api/show`` probe (any hostname; non-Ollama servers 404 fast).
+    GGUF-first (hosted users can't set num_ctx) — the reverse of query_ollama_num_ctx(), hence the namespaced memo key."""
+    return _memo_local_probe(("ollama_show", _strip_provider_prefix(model), base_url.rstrip("/")), lambda: _query_ollama_api_show_uncached(model, base_url, api_key=api_key))
+'''
+after = '''
+def _query_ollama_api_show(model: str, base_url: str, api_key: str = "") -> Optional[int]:
+    """Provider-agnostic Ollama ``/api/show`` probe (any hostname; non-Ollama servers 404 fast).
+    GGUF-first (hosted users can't set num_ctx) — the reverse of query_ollama_num_ctx(), hence the namespaced memo key."""
+    if _link_hosted_relay(base_url) or _link_local_route(base_url):
+        return None
+    return _memo_local_probe(("ollama_show", _strip_provider_prefix(model), base_url.rstrip("/")), lambda: _query_ollama_api_show_uncached(model, base_url, api_key=api_key))
+'''
+
+# Auxiliary titles and compaction use the same protected Anthropic relay.
+# Recognize only that scoped loopback path; preserve foreign-host refusal.
+[[patches]]
+path = "agent/auxiliary_client.py"
+before = '''
+def _is_anthropic_compatible_host(url: str) -> bool:
+    """True for native Anthropic hosts and gateways serving Messages under a ``/anthropic`` path
+    (same convention as runtime_provider / ``_wrap_if_needed``), so a configured ``model.base_url``
+    whose gateway holds auth is not discarded. A bare non-Anthropic base_url is False."""
+    if not url:
+        return False
+    try:
+        parsed = urlparse(url)
+        if (parsed.hostname or "").strip().lower().rstrip(".") in _ANTHROPIC_COMPATIBLE_HOSTS:
+            return True
+        path = (parsed.path or "").rstrip("/").lower()
+        return path.endswith("/anthropic") or path.endswith("/anthropic/v1")
+    except Exception:
+        return False
+'''
+after = '''
+def _is_anthropic_compatible_host(url: str) -> bool:
+    """True for native Anthropic hosts and gateways serving Messages under a ``/anthropic`` path
+    (same convention as runtime_provider / ``_wrap_if_needed``), so a configured ``model.base_url``
+    whose gateway holds auth is not discarded. A bare non-Anthropic base_url is False."""
+    if not url:
+        return False
+    from agent.model_metadata import _link_hosted_relay
+    if _link_hosted_relay(url):
+        return True
+    try:
+        parsed = urlparse(url)
+        if (parsed.hostname or "").strip().lower().rstrip(".") in _ANTHROPIC_COMPATIBLE_HOSTS:
+            return True
+        path = (parsed.path or "").rstrip("/").lower()
+        return path.endswith("/anthropic") or path.endswith("/anthropic/v1")
+    except Exception:
+        return False
+'''
+
+# Link owns this profile's foreground gateway. A reconnect after its death
+# must fail instead of silently starting a daemon outside that ownership.
+[[patches]]
+path = "hermes_cli/gateway_client.py"
+before = '''
+        # A client's own start: the daemon it may launch ends itself once idle (no client, adapter,
+        # cron/kanban work or admission), and the next client starts a fresh one.
+        result = await asyncio.to_thread(ensure_gateway_runtime, home, idle_exit=True)
+'''
+after = '''
+        # A client's own start: the daemon it may launch ends itself once idle (no client, adapter,
+        # cron/kanban work or admission), and the next client starts a fresh one.
+        if os.environ.get("LNK_HERMES_MANAGED_GATEWAY") == "1":
+            from hermes_cli.gateway_runtime import discover_gateway_endpoint, DEFAULT_ENSURE_TIMEOUT
+            deadline = time.monotonic() + DEFAULT_ENSURE_TIMEOUT
+            result = await asyncio.to_thread(discover_gateway_endpoint, home)
+            while result.state == "starting":
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                await asyncio.sleep(min(0.05, remaining))
+                result = await asyncio.to_thread(discover_gateway_endpoint, home,
+                                                timeout=min(2.0, max(0.001, deadline - time.monotonic())))
+        else:
+            result = await asyncio.to_thread(ensure_gateway_runtime, home, idle_exit=True)
+'''
+
+# Link owns this profile's foreground gateway and stops it with its process
+# group. Its shutdown diagnostic starts `timeout 5 bash -c 'ps; pstree; dmesg'`
+# in a session of its own, outside that group, running programs its sandbox
+# never grants (`timeout` first): the stop is refused and leaves it behind.
+# Only Link runs this payload, and Link's own logs say why it stopped.
+[[patches]]
+path = "gateway/run_bootstrap.py"
+before = '''
+            _best_effort(_log_context, "format_context_for_log failed: %s")
+            _best_effort(_diagnostic, "spawn_async_diagnostic failed: %s")
+'''
+after = '''
+            _best_effort(_log_context, "format_context_for_log failed: %s")
+            # Link stops this gateway with its process group: nothing detached outlives it.
+'''
+
+# Schema descriptions are not image requests. Keep their metadata reads local;
+# real attachment/tool-result routing retains native network discovery.
+[[patches]]
+path = "agent/image_routing.py"
+before = '''
+def _probe_models_dev(provider: str, model: str, cfg: Optional[dict[str, Any]]) -> Optional[bool]:
+    """models.dev catalog verdict. ``allow_network=True`` on purpose: this runs only
+    when an image needs routing, and the text-only-main guard depends on catalog
+    data — a cold cache returning "unknown" would reintroduce attempting the call.
+    The fetch is cached (4h TTL) and backoff-limited."""
+'''
+after = '''
+from contextvars import ContextVar
+_link_schema_only = ContextVar("link_schema_only", default=False)
+
+
+def _link_schema_call(function, *args, **kwargs):
+    token = _link_schema_only.set(True)
+    try:
+        return function(*args, **kwargs)
+    finally:
+        _link_schema_only.reset(token)
+
+
+def _probe_models_dev(provider: str, model: str, cfg: Optional[dict[str, Any]]) -> Optional[bool]:
+    """Schema descriptions use cached facts; actual image routing retains native
+    discovery, cache freshness, network deadlines and backoff."""
+'''
+
+[[patches]]
+path = "agent/image_routing.py"
+before = '''
+    caps = get_model_capabilities(provider, model, allow_network=True)
+    return None if caps is None else caps.supports_vision
+'''
+after = '''
+    from agent.auxiliary_client import _aux_probe_active
+    caps = get_model_capabilities(provider, model,
+                                  allow_network=not (_link_schema_only.get() or _aux_probe_active()))
+    return None if caps is None else caps.supports_vision
+'''
+
+[[patches]]
+path = "tools/registry.py"
+before = '''
+                overrides = entry.dynamic_schema_overrides()
+'''
+after = '''
+                from agent.image_routing import _link_schema_call
+                overrides = _link_schema_call(entry.dynamic_schema_overrides)
+'''
+
+# Availability has the same truth table: a configured auxiliary vision client
+# already makes the tool available, without probing the main model first.
+[[patches]]
+path = "tools/vision_tools.py"
+before = '''
+    return _should_use_native_vision_fast_path() or check_video_requirements()
+'''
+after = '''
+    return check_video_requirements() or _should_use_native_vision_fast_path()
+'''

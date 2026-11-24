@@ -1,0 +1,15 @@
+# Tests keep to the testing kit (`packages/test-kit`), which writes once what
+# keeps a test free of races and of the machine. A call that stays says
+# why: `#[expect(clippy::disallowed_methods, reason = "...")]` where it is.
+disallowed-methods = [
+    { path = "clap::Parser::parse", reason = "read process arguments once through link_spec::entry; explicit fixture input uses parse_from" },
+    { path = "clap::Parser::try_parse", reason = "read process arguments once through link_spec::entry" },
+    { path = "clap::Command::get_matches", reason = "read process arguments once through link_spec::entry" },
+    { path = "clap::Command::try_get_matches", reason = "read process arguments once through link_spec::entry" },
+    { path = "clap::Command::get_matches_mut", reason = "read process arguments once through link_spec::entry" },
+    { path = "std::env::args", reason = "read process arguments once through link_spec::entry" },
+    { path = "std::env::args_os", reason = "read process arguments once through link_spec::entry" },
+    { path = "std::thread::sleep", reason = "wait for what's needed with `link_test_kit::wait`; a sleep that stays says why" },
+    { path = "tokio::time::sleep", reason = "wait for what's needed with `link_test_kit::wait`, or drive a paused clock; a sleep that stays says why" },
+    { path = "std::process::Command::new", reason = "a test's program starts from `link_test_kit::env::command`, Link's from `link_secretive::process::command`" },
+]

@@ -1,0 +1,72 @@
+schema = 1
+
+[defines.LNK_JOB_OUT]
+type = "string"
+description = "In a job's environment: the folder whose files go to its bucket with `--out`."
+
+[defines.LNK_SUDO]
+type = "string"
+description = "What runs a root stage, service or job on a box, for tests. A debug build reads it; a release build doesn't."
+
+[defines.LNK_TEST_BOX_ROOT]
+type = "string"
+description = "A folder standing for `/` where `lnk box user` keeps a box's users and their programs, owned by the user rather than root, for tests of a stand-in box. A debug build reads it; a release build doesn't."
+
+[defines.LNK_TEST_JOB_GROUP]
+type = "string"
+description = "Debug builds only: sample this process group instead of the current job process tree."
+
+[defines.LNK_TEST_KEEPER]
+type = "string"
+description = "The socket of a keeper of your secrets that a test serves, used in place of `/run/lnk-secrets/keeper.sock` whether or not this machine has the `lnk-secrets` user. A debug build reads it; a release build doesn't."
+
+[defines.LNK_TEST_MACHINE_KIND]
+type = "string"
+description = "A file read in place of `/etc/lnk/kind.toml`, owned by the user rather than root, for tests of a stand-in box. A debug build reads it; a release build doesn't."
+
+[defines.LNK_TEST_WORKERS_SETTINGS]
+type = "string"
+description = "A trusted worker settings file for a test's stand-in box, owned by the current user or root. A debug build reads it; a release build doesn't."
+
+[[uses]]
+name = "HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LANG"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_EXE"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_RELEASES_URL"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LOGNAME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "TERM"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "USER"
+access = ["read"]
+context = "runtime"
+
+[readers]
+"here::confining::confined_in" = "The variables a confined stage is given: those it keeps, and its stage's own (`with.env`)."

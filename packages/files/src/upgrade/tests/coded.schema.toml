@@ -1,0 +1,18 @@
+schema = 1
+kind = "upgrade coded"
+current = 1
+
+# Takes the settings' name by its own code, as a list of machines.
+[[files]]
+location = "lnk.measures"
+path = "coded.toml"
+encoding = "toml"
+
+[[transfers]]
+from = "upgrade setting"
+schema = 1
+source = { location = "lnk.settings", encoding = "toml" }
+take = { name = "machine" }
+migration = "upgrade coded_from_upgrade setting_1"
+since = "0.2.0"
+until = "0.4.0"

@@ -1,0 +1,7 @@
+[spec]
+schema = 1
+[spec.tool.scheduler]
+background = 2
+
+[expect]
+invalid = "only [tool.run] takes it"

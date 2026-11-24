@@ -1,0 +1,28 @@
+[package]
+authors.workspace = true
+name = "link-archive-contract"
+description = "`link-archive-contract` holds the questions the archive module asks the modules whose kinds it carries"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/tooling/archive"
+
+[dependencies]
+serde.workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+serde_json.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

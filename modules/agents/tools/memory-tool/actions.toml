@@ -1,0 +1,168 @@
+schema = 1
+
+# The memory protocol's commands this engine answers, declared by its
+# contract (`link-memory-tool-contract`).
+[implements]
+memory = ["memory.memory.install", "memory.launch.show", "memory.memory.serve-many"]
+
+[verbs]
+bridge = { description = "Serve one agent's memory, reached through its machine's bridges, as an MCP server over stdio", effect = "insert" }
+serve = { description = "Serve the tool to a harness as an MCP server over stdio, until its input closes", effect = "insert" }
+search = { description = "Search memory, for a model calling the tool", effect = "find" }
+read = { description = "Read a document in memory, for a model calling the tool", effect = "find" }
+links = { description = "Say a document's links, for a model calling the tool", effect = "find" }
+remember = { description = "Note something in the agent's notes, for a model calling the tool", effect = "update" }
+
+# What the program gives its tool calls at runtime: the tokens a search
+# or a read answers with by default, where its notes are and how much they
+# hold, and whether it has notes at all.
+[tools]
+fills = ["tokens", "most"]
+conditions = ["notes"]
+
+[actions."memory-tool.memory-tool.serve"]
+description = """
+Serve the folder's search as an MCP server over stdio, its index in
+--index, its embedding model --embed, and at most --tokens in a search
+or a read unless asked for another (6000 if left out). With --agent-folder,
+the agent's own folder, its conversations and skills are read there,
+not in the folder. With --notes, a markdown file in the agent's own
+folder (else in the folder), it offers remember too, which writes the
+agent's notes there, at most --notes-most bytes (4096 if left out).
+"""
+role = "plumbing"
+output = "memory.served"
+checks = ["embed"]
+
+[actions."memory-tool.memory-tool.serve".args]
+agent-folder = { type = "string", x-link-path = true, description = "The agent's own folder, its conversations and skills there" }
+embed = { type = "string", description = "The embedding model it searches by meaning with" }
+embed-url = { type = "string", description = "An embeddings server already running, for the model; empty, served for it but by no runtime here, so it searches by words", x-link-cli = { env = "LNK_MEMORY_MODEL" } }
+folder = { type = "string", x-link-path = true, description = "The folder it searches: the agent's Home", required = true, x-link-cli = { position = 1 } }
+from-others = { type = "boolean", description = "Note in only the owner's conversations: the harness names each call's" }
+index = { type = "string", x-link-path = true, description = "The file its index is kept in [default: in memory]" }
+notes = { type = "string", x-link-path = true, description = "The agent's notes, which remember writes" }
+notes-most = { type = "integer", minimum = 1, description = "The most bytes the notes hold" }
+tokens = { type = "integer", minimum = 1, maximum = 6000, description = "The most a search or a read gives unless asked for another" }
+index-memory = { type = "integer", minimum = 1048576, description = "The most bytes the service holds of its own for the index, besides mapped pages [default: Link's specification's]" }
+reserve = { type = "integer", minimum = 0, description = "The bytes of disk left free: indexing pauses below it [default: Link's specification's]" }
+file-most = { type = "integer", minimum = 1, description = "The largest file indexed, in bytes [default: Link's specification's]" }
+threads = { type = "integer", minimum = 1, maximum = 1024, description = "The threads indexing takes [default: Link's specification's]" }
+deadline-ms = { type = "integer", minimum = 1, description = "How long a search ranks before it answers with what it has, in milliseconds [default: Link's specification's]" }
+dimensions = { type = "integer", minimum = 1, maximum = 65535, description = "How many of the model's dimensions are kept [default: Link's specification's]" }
+folders = { type = "array", items = { type = "string", enum = ["memory", "chats"] }, description = "The agent's folders indexed, memory or chats (repeatable) [default: Link's specification's]" }
+kept-off = { type = "integer", minimum = 1048576, description = "The largest index kept off the machine, in bytes [default: Link's specification's]" }
+
+[actions."memory-tool.memory-tool.bridge"]
+description = """
+Serve memory as an MCP server over stdio for one agent whose Home is kept
+in a bucket, reached through the files bridge at --socket, each call proved
+as agent --as of the Link account --account with its key in the keyring at
+--keyring (this machine's, if left out). Each --kept <collection>=<place>
+says where a collection is kept: one kept elsewhere than the agent's folder
+is reached through the storage bridge at --store, its conversations read
+there and, with --notes-most, its notes written there by remember, at most
+that many bytes. It searches by words alone. Its index is a cache, in
+--cache, of the copy kept beside Home: fetched at its start, its memory/
+listed again then and once a minute, written back once a minute while it changes and when its
+input closes. With --team <id>, the team's memory instead, the team as
+--team-name names it to the files bridge, its index written back only with
+--team-writes. With --once it serves nothing: it lists what changed, writes
+the index back, removes --cache and ends.
+"""
+role = "plumbing"
+output = "memory.served"
+checks = ["bridge"]
+
+[actions."memory-tool.memory-tool.bridge".args]
+account = { type = "string", description = "The Link account the agent is of", required = true }
+as = { type = "string", description = "The agent each call is proved as, by its ID", required = true }
+cache = { type = "string", x-link-path = true, description = "The folder its index is fetched into", required = true }
+keyring = { type = "string", x-link-path = true, description = "The keyring the agent's key is in [default: this machine's]" }
+kept = { type = "array", items = { type = "string", pattern = "^[a-z]+=[a-z0-9-]+$" }, description = "Where a collection is kept, <collection>=<place> (repeatable)" }
+notes-most = { type = "integer", minimum = 1, description = "The most bytes its notes hold, where it writes them" }
+once = { type = "boolean", description = "List what changed, write the index back and end, serving nothing" }
+socket = { type = "string", x-link-path = true, description = "The files bridge's socket", required = true }
+store = { type = "string", x-link-path = true, description = "The storage bridge's socket, where a collection is kept elsewhere" }
+team = { type = "string", description = "A team's ID: its memory served instead of the agent's" }
+team-name = { type = "string", description = "The team as the agent names it to the files bridge, with --team" }
+team-writes = { type = "boolean", description = "The agent writes all of the team's folder: its index is written back, with --team" }
+
+# The calls a model makes, as `serve` offers them (`tools/list`).
+[actions."memory-tool.memory-tool.search"]
+description = "Search memory: the files in its folder and your past conversations, best match first, by the query's words and by its meaning. Each result has its path and the line where it matched (for 'read'), its kind ('file' or 'conversation'), a snippet, and 'matched': 'words', 'meaning' or 'both'. Where there are more, 'next' is the 'page' that carries on; 'stopped' says it stopped ranking at its deadline."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."memory-tool.memory-tool.search".tool]
+name = "search"
+open-world = false
+
+[actions."memory-tool.memory-tool.search".args]
+query = { type = "string", description = "What to look for: words, or a question in your own words.", required = true, x-link-summary = 1 }
+kind = { type = "string", enum = ["file", "conversation"], description = "Only files you dropped in, or only past conversations; both if left out." }
+under = { type = "string", description = "Only those in this folder, such as 'memory/taxes' or 'chats/<thread>'." }
+since = { type = "string", pattern = '^(\d+|\d{4}-\d{2}-\d{2}([T ]\d{2}(:\d{2}(:\d{2}(\.\d+)?)?)?Z?)?)$', description = "Only those changed, or first seen, after this: a date ('2026-09-01'), a date and time in UTC ('2026-09-01T14:30:00Z'), or seconds since 1970 written as digits ('1788000000'), as 'list' gives 'modified'." }
+limit = { type = "integer", minimum = 1, maximum = 50, description = "At most this many results (10 if left out)." }
+page = { type = "string", description = "Where to carry on: the 'next' of the search before." }
+tokens = { type = "integer", minimum = 1, maximum = 6000, description = "At most about this many tokens (four characters each; {tokens} if left out). Where it stops before the end, 'next' says where to carry on." }
+
+[actions."memory-tool.memory-tool.read"]
+description = "Read a document in memory, by the path 'search' or 'list' gave, or a skill's file by its path ('skills/<name>/SKILL.md'), whole or some of its lines, up to a size: where it stops before the end, 'next' is the line to read from next."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."memory-tool.memory-tool.read".tool]
+name = "read"
+open-world = false
+
+[actions."memory-tool.memory-tool.read".args]
+path = { type = "string", required = true, description = "The document's path, as 'search' or 'list' gave it, or a skill's file ('skills/<name>/SKILL.md').", x-link-summary = 1 }
+from = { type = "integer", minimum = 1, description = "The first line to read (1 if left out)." }
+lines = { type = "integer", minimum = 1, description = "How many lines (all if left out)." }
+tokens = { type = "integer", minimum = 1, maximum = 6000, description = "At most about this many tokens (four characters each; {tokens} if left out). Where it stops before the end, 'next' says where to carry on." }
+
+[actions."memory-tool.memory-tool.list"]
+description = "List the documents in memory, changed most recently first, with how many there are in all. With 'since', what changed after it: each document says whether it's 'new' or 'changed', and 'removed' lists what was deleted, so you can catch up at the start of a session. What doesn't fit the size or the limit is left out: it says 'cut', and 'next' is the 'page' that carries on."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."memory-tool.memory-tool.list".tool]
+name = "list"
+open-world = false
+
+[actions."memory-tool.memory-tool.list".args]
+kind = { type = "string", enum = ["file", "conversation"], description = "Only files you dropped in, or only past conversations; both if left out." }
+under = { type = "string", description = "Only those in this folder, such as 'memory/taxes' or 'chats/<thread>'.", x-link-summary = 1 }
+since = { type = "string", pattern = '^(\d+|\d{4}-\d{2}-\d{2}([T ]\d{2}(:\d{2}(:\d{2}(\.\d+)?)?)?Z?)?)$', description = "Only those changed, or first seen, after this: a date ('2026-09-01'), a date and time in UTC ('2026-09-01T14:30:00Z'), or seconds since 1970 written as digits ('1788000000'), as 'list' gives 'modified'." }
+limit = { type = "integer", minimum = 1, maximum = 500, description = "At most this many (50 if left out)." }
+page = { type = "string", description = "Where to carry on: the 'next' of the list before. 'removed' comes with the first page only." }
+tokens = { type = "integer", minimum = 1, maximum = 6000, description = "At most about this many tokens (four characters each; {tokens} if left out). Where it stops before the end, 'next' says where to carry on." }
+
+[actions."memory-tool.memory-tool.links"]
+description = "A document's links, by the path 'search' or 'list' gave: what it links to and what links to it, from markdown links and '[[name]]' links, each with the line the link is on; and 'missing', what it links to that memory doesn't hold. What doesn't fit the size is left out: it says 'cut', and 'next' is the 'skip' that carries on."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."memory-tool.memory-tool.links".tool]
+name = "links"
+open-world = false
+
+[actions."memory-tool.memory-tool.links".args]
+path = { type = "string", required = true, description = "The document's path, as 'search' or 'list' gave it.", x-link-summary = 1 }
+skip = { type = "integer", minimum = 0, description = "Leave out this many of its links, counted through 'to', then 'from', then 'missing': the 'next' of the call before." }
+tokens = { type = "integer", minimum = 1, maximum = 6000, description = "At most about this many tokens (four characters each; {tokens} if left out). Where it stops before the end, 'next' says where to carry on." }
+
+[actions."memory-tool.memory-tool.remember"]
+description = "Note something for yourself, a line, kept in your notes, which are given to you in your instructions in every conversation from your next message on (they aren't a file you read). With 'replaces', change the note holding that text instead, or forget it if 'note' is empty. Your notes hold at most {most} bytes: past that, change or forget some first."
+surfaces = ["tool"]
+output = "core.mcp"
+
+[actions."memory-tool.memory-tool.remember".tool]
+name = "remember"
+open-world = false
+when = "notes"
+
+[actions."memory-tool.memory-tool.remember".args]
+note = { type = "string", description = "The note, in a line: what to keep in mind, said plainly." }
+replaces = { type = "string", description = "Some of the text of the one note to change, or to forget with an empty 'note'." }

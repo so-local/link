@@ -1,0 +1,17 @@
+schema = 1
+# An adapter's native memory as it last exported it, so a later export
+# keeps a deleted note's identity and a correction is compared with what
+# the harness had: `.lnk/data/agents/context/memory-<adapter>.json` in a
+# harness home.
+kind = "native memory revisions"
+current = 1
+
+[[files]]
+location = "lnk.agent-data"
+path = "*/harnesses/*/.lnk/data/agents/context/memory-*.json"
+encoding = "json"
+
+[[files]]
+location = "lnk.shared-harnesses"
+path = "*/.lnk/data/agents/context/memory-*.json"
+encoding = "json"

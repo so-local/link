@@ -1,0 +1,8 @@
+# Tags starting lnk- are Link's.
+[spec]
+schema = 1
+[spec.machine.tags]
+lnk-owner = "github-1"
+
+[expect]
+invalid = "is Link's own"

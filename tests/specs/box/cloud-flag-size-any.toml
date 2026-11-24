@@ -1,0 +1,9 @@
+# A cloud's own table's flags, and --zone in the table of the account's
+# cloud, whichever.
+[run]
+kind = "third"
+flags = ["--machine.third.size", "large"]
+zone = "zone-2"
+
+[expect]
+size = "large"

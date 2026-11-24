@@ -1,0 +1,14 @@
+# A user is root or a Linux user's name.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.stage]]
+name = "build"
+run = "make"
+sandbox = "build.toml"
+user = "Build Bot"
+
+[expect]
+invalid = "lowercase letters, digits, _ and -, at most 32"

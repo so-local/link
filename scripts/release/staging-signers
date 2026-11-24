@@ -1,0 +1,3 @@
+# The staging signer, in ssh-keygen's allowed-signers format: staging builds are
+# signed by it, and only staging builds (built with LNK_BUILD=staging) trust it,
+# beside Link's signer. A production build never does.

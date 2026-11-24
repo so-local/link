@@ -1,0 +1,15 @@
+{
+  "widths": [
+    640,
+    960,
+    1280,
+    1920,
+    2560
+  ],
+  "fullQuality": 80,
+  "blurWidth": 32,
+  "blurSigma": 1,
+  "blurQuality": 60,
+  "shareWidth": 1600,
+  "layerHeight": 112
+}

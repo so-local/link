@@ -1,0 +1,20 @@
+schema = 1
+
+[defines.LNK_SECRETS_FD]
+type = "string"
+description = "Private Link child-process protocol: descriptor for the sealed-off secret handoff pipe; never a credential value."
+
+[defines.LNK_SECRET_DUMPABLE]
+type = "string"
+description = "Debug builds only: a nonempty value leaves process dumping enabled for a debugger or memory-isolation test."
+
+[readers]
+"process::held" = "Each of this process's variables naming a secret, held once as a secret."
+"process::hand" = "The secrets handed to a child, each under the variable its caller names."
+"process::give" = "A secret, under the variable its caller names."
+"process::environment" = "Each of this process's variables but those naming a secret, which a child keeps."
+"process::command" = "This process's variables a child keeps (`environment`)."
+"process::carried" = "The secrets a command carries, each under the variable its caller names."
+"process::guard" = "Capture inherited variables identified as secrets before starting threads or child processes; their names come from the inherited environment."
+"process::take" = "Read the variable named by the Secret::from_env caller, retain it as a Secret and remove the inherited copy while single threaded."
+"test_var" = "Read the caller-named test substitute only in a debug build; release builds return no substitute."

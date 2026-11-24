@@ -1,0 +1,43 @@
+schema = 1
+
+[defines.LD_PRELOAD]
+type = "string"
+description = "Libraries the system's dynamic loader loads into every program first, which a confined program never inherits, and `lnk sandbox check` sets to prove a loaded library stays inside the sandbox too."
+
+[defines.LD_AUDIT]
+type = "string"
+description = "Libraries the system's dynamic loader hands every symbol a program binds: never inherited by a confined program."
+
+[defines.LD_LIBRARY_PATH]
+type = "string"
+description = "Folders the system's dynamic loader searches for a program's libraries before its own: never inherited by a confined program."
+
+[[uses]]
+name = "HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SANDBOX_LEARN_FD"
+access = ["read", "set", "unset"]
+context = "runtime"
+
+[[uses]]
+name = "SSL_CERT_FILE"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "XDG_CONFIG_HOME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["set"]
+context = "runtime"
+
+[readers]
+"linux::workers::run" = "Each of this process's variables a worker never inherits (`dropped`), removed from its command."
+"macos::watch::learn" = "The variables the watched program is given, as its caller names them."
+"linux::learn::learn" = "The variables the learned program is given, as its caller names them."

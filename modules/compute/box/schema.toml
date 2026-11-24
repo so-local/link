@@ -1,0 +1,5 @@
+schema = 1
+kind = "box"
+current = 1
+command = "lnk box spec show"
+about = "A box specification describes a machine in your own cloud as a TOML file: its CPUs, memory, disk, system and region, the `lnk` installed on it, what it attaches, and how a box made here is isolated. The same file makes the best fit on any cloud."

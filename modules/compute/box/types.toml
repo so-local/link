@@ -1,0 +1,376 @@
+schema = 1
+
+[said]
+type = "object"
+description = "What a command did, said to a person: it answers no JSON of its own"
+additionalProperties = false
+
+[listed]
+type = "object"
+description = "A box of yours: one this computer knows, or one a connected cloud account has tagged as yours"
+x-link-display = { columns = ["account", "place", "id", "name"] }
+required = ["name", "account", "kind", "place", "id", "size", "state", "created", "found", "stopped_by_cloud", "tags"]
+additionalProperties = false
+properties.name = { type = "string", description = "Its name" }
+properties.account = { type = "string", description = "The cloud account it's in" }
+properties.kind = { type = "string", description = "Its cloud's kind (`aws`, `gcp`)" }
+properties.place = { type = "string", description = "Its region or zone" }
+properties.id = { type = "string", description = "Its cloud's instance ID, which a box made again under the name doesn't have" }
+properties.resource = { type = "string", format = "link-id", x-link-kind = "box", description = "Its installation ID, `box:<id>`; left out while Link doesn't know it" }
+properties.size = { type = "string", description = "Its machine type" }
+properties.ip = { type = "string", description = "Its address, when known" }
+properties.state = { type = "string", description = "`running`, `stopped`, ..." }
+properties.created = { type = "integer", minimum = 0, description = "When this computer made it, in Unix seconds; 0 for one found in a cloud" }
+properties.found = { type = "string", description = "`here`, or `cloud` for one found just now by its tags" }
+properties.stopped_by_cloud = { type = "boolean", description = "A spot box its cloud stopped, as its adapter says" }
+properties.tags = { type = "object", additionalProperties = { type = "string" }, description = "Its tags in its cloud" }
+properties.price = "price"
+properties.deadline = { type = "integer", minimum = 0, description = "When it ends itself, in Unix seconds" }
+
+[boxes]
+type = "array"
+description = "Your boxes: where, how big, their address and state"
+items = "listed"
+
+[price]
+type = "object"
+description = "What a box costs, in dollars, as its cloud's rates say"
+additionalProperties = false
+properties.machine = { type = "number", description = "Its machine type, an hour" }
+properties.disk = { type = "number", description = "Its disk, as big as it is, an hour" }
+properties.address = { type = "number", description = "Its public address, an hour" }
+properties.egress = { type = "number", description = "What it sends out to the internet, a GB" }
+
+
+[size]
+type = "object"
+description = "The machines a box could be"
+x-link-resource = { id = "size" }
+x-link-display = { columns = ["size", "cpus", "memory_mb", "gpus", "arch", "price"] }
+required = ["size", "cpus", "memory_mb", "arch"]
+additionalProperties = false
+properties.size = { type = "string", description = "Its name in the cloud (`t3.small`, `e2-standard-4`)" }
+properties.cpus = { type = "integer", minimum = 0, description = "Its CPUs" }
+properties.memory_mb = { type = "integer", minimum = 0, description = "Its memory in MiB" }
+properties.gpus = { type = "integer", minimum = 0, description = "Its GPUs" }
+properties.gpu_model = { type = "string", description = "Its GPUs' model in Link's words (`nvidia-l4`)" }
+properties.arch = { type = "string", description = "`x86_64` or `arm64`" }
+properties.price = { type = "number", description = "Dollars an hour, only from a rate the cloud gives" }
+
+[sizes]
+type = "object"
+description = "The machines a box could be, best first: what a box would pick, then the rest that fit"
+required = ["pick", "place", "sizes", "disk_gb", "disk_type"]
+additionalProperties = false
+properties.pick = { type = "string", description = "The machine type a box would be" }
+properties.place = { type = "string", description = "The region or zone it would be in" }
+properties.sizes = { type = "array", items = "size", description = "The machine types that fit, the pick first" }
+properties.rates = "cloud-contract.rates"
+properties.disk_gb = { type = "integer", minimum = 0, description = "Its disk, in whole GB" }
+properties.disk_type = "cloud-contract.disk-type"
+
+[image]
+type = "object"
+description = "Save a box as an image, list your images, or remove one"
+x-link-resource = { id = "id" }
+x-link-display = { columns = ["name", "place", "disk_gb", "arch", "state", "created"] }
+required = ["id", "name", "state"]
+additionalProperties = false
+properties.id = { type = "string", description = "Its id in the cloud (`ami-...`, `lnk-web-ready`)" }
+properties.name = { type = "string", description = "What you call it" }
+properties.place = { type = "string", description = "Its region (AWS); empty where an image is the whole project's (Google Cloud)" }
+properties.state = { type = "string", description = "`ready`, `pending` or `failed`, or another word its cloud says" }
+properties.disk_gb = { type = "integer", minimum = 0, description = "The disk it was saved from, in GiB: a box from it has at least that" }
+properties.arch = { type = "string", description = "`x86_64` or `arm64`, when the cloud says" }
+properties.created = { type = "string", description = "When it was made, as the cloud says it" }
+properties.hash = { type = "string", description = "A hash of what made it, given to `lnk box image create --hash`" }
+
+[images]
+type = "array"
+description = "The images Link made for you in a cloud account"
+items = "image"
+
+[key]
+type = "object"
+description = "Link's SSH key to your boxes, made the first time it's needed"
+required = ["public"]
+additionalProperties = false
+properties.public = { type = "string", description = "Its public half, one OpenSSH line" }
+
+[user]
+type = "object"
+description = "People with a user of their own on this box, each in their own sandbox"
+x-link-resource = { id = "name" }
+x-link-display = { columns = ["name", "folder", "key", "sandbox"] }
+required = ["name", "folder", "key", "sandbox"]
+additionalProperties = false
+properties.name = { type = "string", description = "Their user's name" }
+properties.folder = { type = "string", x-link-path = true, description = "Their home, the one folder they write" }
+properties.key = { type = "string", description = "Their public key" }
+properties.sandbox = { type = "string", x-link-path = true, description = "Their sandbox's specification, kept by root" }
+
+[users]
+type = "array"
+description = "This box's users"
+items = "user"
+
+[checked]
+description = "What `lnk box check` found: a specification's attachments in a cloud account, or its plan for a cloud of one kind"
+oneOf = ["checked-attachments", "checked-plan"]
+examples = [{ kind = "attachments", attachments = "present" }]
+
+[checked-attachments]
+type = "object"
+description = "A specification's attachments, looked up in its cloud account"
+required = ["kind", "attachments"]
+additionalProperties = false
+properties.attachments = { const = "present", description = "`present`: each one the specification attaches is there" }
+
+[checked-attachments.properties.kind]
+type = "string"
+description = "What was checked: the attachments in an account, or the plan for a cloud's kind"
+const = "attachments"
+
+[checked-plan]
+type = "object"
+description = "What a specification asks of a box in a cloud of one kind (`--plan`)"
+required = ["kind", "want"]
+additionalProperties = false
+properties.want = "want"
+
+[checked-plan.properties.kind]
+type = "string"
+description = "What was checked: the attachments in an account, or the plan for a cloud's kind"
+const = "plan"
+
+[want]
+type = "object"
+description = "What a box asks a cloud of one kind for: its specification, that cloud's table laid over and every default filled in"
+required = ["cpus", "memory", "gpus", "arch", "disk", "disk_type", "os", "spot", "tags", "matching"]
+additionalProperties = false
+properties.cpus = "count-range"
+properties.memory = "size-range"
+properties.gpus = "count-range"
+properties.gpu_model = { type = "string", description = "Its GPUs' model in Link's words (`nvidia-l4`)" }
+properties.arch = { enum = ["x86_64", "arm64"], description = "Its processor" }
+properties.disk = { type = "string", description = "Its disk's size, with its unit, as `20 GB`" }
+properties.disk_type = "cloud-contract.disk-type"
+properties.os = "core.os"
+properties.spot = { type = "boolean", description = "Whether it's a spot machine" }
+properties.tags = { type = "object", additionalProperties = { type = "string" }, description = "Your tags on the machine and its disk" }
+properties.region = { type = "string", description = "Its region or zone, when pinned" }
+properties.size = { type = "string", description = "A pinned machine type: no matching" }
+properties.matching = { type = "boolean", description = "Whether its machine type is matched to CPUs, memory, GPUs and an arm64 processor; else it's `size`, or the adapter's default" }
+
+
+[count-range]
+description = "How many: a count, `4`, or a range, `{ min = 2, max = 8 }`, either end left out"
+oneOf = [{ type = "integer", minimum = 0 }, "count-bounds"]
+examples = [4, { min = 2, max = 8 }]
+
+[count-bounds]
+type = "object"
+description = "How many, from min to max, either left out"
+additionalProperties = false
+properties.min = { type = "integer", minimum = 0, description = "At least this many" }
+properties.max = { type = "integer", minimum = 0, description = "At most this many" }
+
+[size-range]
+description = "How much: a size with its unit, `\"8 GB\"`, or a range of them, `{ min = \"4 GB\", max = \"16 GB\" }`, either end left out"
+oneOf = [{ type = "string" }, "size-bounds"]
+examples = ["8 GB", { min = "4 GB", max = "16 GB" }]
+
+[size-bounds]
+type = "object"
+description = "How much, from min to max, each a size with its unit, as `4 GB`, either left out"
+additionalProperties = false
+properties.min = { type = "string", description = "At least this much" }
+properties.max = { type = "string", description = "At most this much" }
+
+[box]
+type = "object"
+description = "A box specification describes a machine in your own cloud as a TOML file: its CPUs, memory, disk, system and region, the `lnk` installed on it, what it attaches, and how a box made here is isolated"
+x-link-spec = { kind = "box" }
+additionalProperties = false
+properties.isolation = "isolation"
+properties.attach = { shape = "cloud-contract.attach", description = "Existing resources attached to the machine, which the box uses and never creates or deletes." }
+properties.lnk = { shape = "lnk", description = "The `lnk` installed on the box." }
+
+[box.properties.env]
+type = "string"
+x-link-path = true
+examples = ["env.toml"]
+description = """
+The environment file the box is set up from, at every placement,
+captured once when the box is made and started again at each `lnk
+box start`. Left out, the box has no application setup."""
+
+[box.properties.link_tags]
+type = "array"
+items = { type = "string" }
+examples = [["lnk-group=example"]]
+description = """
+Link's own tags on the machine, beside yours, such as the group a
+job's boxes are in. Link writes these for its own boxes."""
+
+[box.properties.self_remove]
+type = "boolean"
+description = """
+Whether the machine may remove itself when its work ends, as a box
+a job made does."""
+
+[box.properties.deadline]
+shape = "core.duration"
+examples = ["4h"]
+description = """
+How long the box lives, from one second through seven days, such
+as `30m`, `4h` or `7d`. Left out, it lives until it's deleted."""
+
+[box.properties.name]
+type = "string"
+examples = ["web"]
+description = """
+What its boxes are named after: `web` makes `web-1`, `web-2` and so
+on. Lowercase letters, digits and dashes, starting with a letter,
+at most 27. Left out, the account's name; `--name` still names one
+box exactly."""
+
+[box.properties.version]
+type = "integer"
+minimum = 0
+maximum = 4294967295
+examples = [3]
+description = """
+A whole number, yours to bump, which each box remembers it was made
+from."""
+
+[box.properties.machine]
+shape = "machine"
+examples = [{ cpus = { min = 2, max = 4 }, memory = { min = "4 GB", max = "16 GB" }, gpus = { min = 1, max = 2, model = "nvidia-l4" }, arch = "x86_64", disk = { min = "40 GB", type = "fast" }, os = "ubuntu-24.04", spot = true, tags = { project = "research" }, aws = { region = "eu-west-2", size = "g6.xlarge", disk = { min = "80 GB" }, spot = false, tags = { cost = "ci" } }, gcp = { region = "europe-west2", memory = { min = "8 GB", max = "32 GB" }, os = "ubuntu-22.04" } }]
+description = """
+The machine, as you'd describe one at a store: every cloud gets the
+smallest that fits, and a cloud's own table, `[machine.<cloud>]`,
+replaces any of its keys on that cloud."""
+
+[isolation]
+type = "object"
+description = "How a box made here is isolated: in its sandbox, the default, or directly. A box in a cloud account is a machine of its own, so it refuses the whole table."
+additionalProperties = false
+
+[isolation.properties.vm]
+type = "string"
+x-link-path = true
+x-link-unavailable = "this build of Link has no VM provider"
+description = """
+A VM specification, for a workload in a VM, relative to its file. This
+build has no VM provider, so a file naming one is refused, never
+run in a sandbox instead."""
+
+[isolation.properties.no_sandbox]
+type = "boolean"
+examples = [false]
+description = """
+Whether it runs directly, with your own access and no sandbox;
+refused where this machine's policy says `unsandboxed = false`."""
+
+[isolation.properties.sandbox]
+type = "string"
+x-link-path = true
+examples = ["box-sandbox.toml"]
+description = """
+The sandbox specification it runs in; given with no file, it only runs in
+its sandbox again."""
+
+[lnk]
+type = "object"
+description = "`[lnk]`: the `lnk` on the box"
+additionalProperties = false
+
+[lnk.properties.version]
+type = "string"
+examples = ["1.0.0"]
+description = """
+The `lnk` release to install with its modules, such as `0.14.0` or
+a prerelease, 0.11.0 or later. From a file it can't be behind this
+computer's `lnk`, so a specification someone hands you can't install a
+release with a known hole; `--lnk.version` given yourself can.
+Left out, the latest."""
+
+[lnk.properties.login]
+type = "boolean"
+description = """
+Whether the box's `lnk` signs in to your Link account, which a box
+made for a service turns off with `false`."""
+
+[machine]
+type = "object"
+description = "`[machine]`: its fields, and each cloud's own table, `[machine.<cloud>]`, by the cloud's kind (`aws`, as `lnk cloud list` says): every key of `[machine]`, replacing it on that cloud, and the only place for region and size"
+additionalProperties = "machine"
+properties.cpus = { shape = "count-range", description = "How many CPUs: a count, `4`, or a range, `{ min = 2, max = 8 }`. Left out, the default size's." }
+properties.memory = { shape = "size-range", description = "How much memory: a size with its unit, `\"8 GB\"`, or a range of them, `{ min = \"4 GB\", max = \"16 GB\" }`. Left out, the default size's." }
+properties.gpus = { shape = "gpus", description = "How many GPUs, and which model. Left out, none." }
+properties.disk = { shape = "disk", description = "The boot disk: how big, and how fast. Left out, 20 GB, `balanced`." }
+properties.os = { shape = "core.os", description = "The system, `ubuntu-24.04` by default." }
+
+[machine.properties.arch]
+enum = ["x86_64", "arm64"]
+description = "The processor, `x86_64` by default."
+
+[machine.properties.spot]
+type = "boolean"
+description = """
+Whether it's a spot machine: cheaper, but the cloud may stop it and
+start it again. `false` by default."""
+
+[machine.properties.tags]
+type = "object"
+additionalProperties = { type = "string" }
+examples = [{ project = "research" }]
+description = """
+Your tags on the machine and its disk, at most 40, each key
+starting with a lowercase letter, keys and values lowercase
+letters, digits and dashes. Keys starting `lnk-` or `aws:`, and
+`Name`, are Link's or the cloud's, and refused."""
+
+[machine.properties.region]
+type = "string"
+examples = ["eu-west-2"]
+description = """
+Where the box is made: a cloud's region, or on Google Cloud a zone
+in it, in a cloud's own table only. `--zone` with `--cloud` sets
+the named cloud's. Left out, the account's."""
+
+[machine.properties.size]
+type = "string"
+examples = ["t3.large"]
+description = """
+A machine type, such as `t3.large`, in a cloud's own table only, in
+place of `cpus`, `memory` and `gpus`, which it has built in. Left
+out, the smallest that fits is picked."""
+
+[gpus]
+description = "How many GPUs: a count, `1`, or at least min, at most max, of a model, `{ min = 1, max = 2, model = \"nvidia-l4\" }`"
+oneOf = [{ type = "integer", minimum = 0 }, "gpu-bounds"]
+examples = [1, { min = 1, max = 2, model = "nvidia-l4" }]
+
+[gpu-bounds]
+type = "object"
+description = "How many GPUs, from min to max, and which model"
+additionalProperties = false
+properties.min = { type = "integer", minimum = 0, description = "At least this many" }
+properties.max = { type = "integer", minimum = 0, description = "At most this many" }
+properties.model = { enum = ["nvidia-t4", "nvidia-l4", "nvidia-l40s", "nvidia-a10g", "nvidia-a100", "nvidia-h100", "nvidia-h200", "nvidia-b200"], description = "Which GPU: a model alone means at least one" }
+
+[disk]
+type = "object"
+description = "`disk`: how big, and how fast, as `{ min = \"40 GB\", type = \"fast\" }`"
+additionalProperties = false
+properties.type = { shape = "cloud-contract.disk-type", description = "How fast: `balanced` (gp3 on AWS, pd-balanced on Google Cloud), the default, or `fast` (io2 at 50 IOPS a GB, or pd-ssd), billed for its speed too." }
+
+[disk.properties.min]
+type = "string"
+examples = ["40 GB"]
+description = """
+Its least size, such as `"40 GB"`: what the box gets unless its
+image needs more, as NVIDIA's images for a box with GPUs do. 20 GB
+by default."""

@@ -1,0 +1,8 @@
+# A pinned size, as the adapter lists it.
+[spec]
+schema = 1
+[spec.machine.aws]
+size = "m7i.2xlarge"
+
+[expect]
+size = "m7i.2xlarge"

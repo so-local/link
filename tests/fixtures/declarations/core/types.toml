@@ -1,0 +1,16 @@
+schema = 1
+
+[checked]
+type = "object"
+description = "What check found"
+required = ["problems"]
+additionalProperties = false
+properties.problems = { type = "array", items = { type = "string" } }
+
+[module]
+type = "object"
+description = "An installed module"
+x-link-resource = { id = "name" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string" }

@@ -1,0 +1,9 @@
+schema = 1
+title = "Personal Assistant"
+description = "A personal assistant that learns about you, keeps your lists and reminders, and plans your day"
+
+[map]
+"link.agents" = "Agents"
+"link.agent-settings" = "Safe/Agents"
+
+["agent.personal"]

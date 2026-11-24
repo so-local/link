@@ -1,0 +1,14 @@
+# What researcher may do on this machine: write its Home, where its
+# reports go, and its own instructions and skills, reach the internet
+# over HTTPS through its proxy, and call Link Web. It runs no program.
+schema = 1
+[files]
+write = [".", "instructions", "skills"]
+
+[internet]
+hosts = ["*"]
+
+[tools]
+# Link Web: pages fetched, and a search where Web has a search key.
+# Where Web isn't added on this machine, it starts without it.
+names = ["web"]

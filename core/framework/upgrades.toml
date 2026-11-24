@@ -1,0 +1,6 @@
+[notice]
+check = "1 day"
+newer = "1 day"
+recommended = "1 day"
+critical = "every command"
+quiet = ["newer", "recommended"]

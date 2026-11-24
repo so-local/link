@@ -1,0 +1,9 @@
+schema = 1
+kind = "agent identity"
+current = 1
+command = "lnk agent create"
+
+[[files]]
+location = "lnk.agents"
+path = "*/identity.toml"
+encoding = "toml"

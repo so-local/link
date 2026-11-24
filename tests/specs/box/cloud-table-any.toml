@@ -1,0 +1,14 @@
+# A cloud the box module has never heard of has a table of its own.
+[spec]
+schema = 1
+[spec.machine]
+cpus = 2
+
+[spec.machine.third]
+cpus = 8
+
+[run]
+kind = "third"
+
+[expect]
+size = "large"

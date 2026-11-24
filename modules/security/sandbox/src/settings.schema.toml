@@ -1,0 +1,9 @@
+schema = 1
+kind = "sandbox settings"
+current = 1
+command = "lnk sandbox"
+
+[[files]]
+location = "lnk.sandboxes"
+path = "settings.toml"
+encoding = "toml"

@@ -1,0 +1,62 @@
+[package]
+authors.workspace = true
+name = "link-archive-module"
+description = "The archive module, `lnk archive`, exports your things' state to one `.tar.gz` file and imports one"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-archive"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[dependencies.link-archive]
+workspace = true
+
+[dependencies.link-archive-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

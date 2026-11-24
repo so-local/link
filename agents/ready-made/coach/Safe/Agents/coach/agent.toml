@@ -1,0 +1,31 @@
+# coach: a personal coach for endurance, strength, team sports and food.
+# It keeps everything in a fixed set of files in its files folder, so it
+# never invents structure, and it checks in on its own on schedules it
+# creates once it knows your time zone.
+schema = 1
+harness = "link"
+sandbox = true
+# Awake: its schedules fire without you opening a chat.
+awake = true
+
+[behavior]
+
+[behavior.instructions]
+# Its files folder is not a code repository: no AGENTS.md or CLAUDE.md
+# should be read into its prompt.
+repository = "none"
+
+[behavior.tool.file]
+# Reads, writes, replaces and finds in its files folder: how it keeps
+# the logs, plans and profile described in home/README.md.
+enabled = true
+
+[behavior.tool.scheduler]
+# Lets it check in on its own: onboarding creates its daily check-in and
+# weekly review as schedules in the person's own time zone, which only
+# they can say. No `run` tool is enabled: it needs no shell, only files
+# and arithmetic.
+enabled = true
+# Its check-ins recur by design, and it makes them while onboarding, when
+# no one may be there to answer: they start without asking you.
+recurring = "allow"

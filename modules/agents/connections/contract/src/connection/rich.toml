@@ -1,0 +1,8 @@
+# What a chat may link from an agent's answer (`rich::web_url`): a link
+# whose scheme isn't named here is shown as text, never linked.
+schemes = ["http", "https", "mailto"]
+# The characters of a linked URL written percent-encoded, as `%28` for
+# `(`: each could end the link early in a chat's markup, as Telegram's
+# quoted HTML attribute, Slack's `<url|text>` and Discord's `[text](url)`
+# would read it.
+encoded = " \"<>|`()[]{}\\"

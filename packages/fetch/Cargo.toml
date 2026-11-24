@@ -1,0 +1,43 @@
+[package]
+authors.workspace = true
+name = "link-fetch"
+description = "`link-fetch` is an HTTP client with explicit transport policy, bounded responses, and consistent errors"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/fetch"
+
+[dependencies]
+bytes.workspace = true
+futures-util.workspace = true
+link-secretive.workspace = true
+reqwest = { workspace = true, features = ["rustls-no-provider"] }
+rustls.workspace = true
+serde.workspace = true
+# An answer's fields that its type doesn't name, found for any type, so
+# every answer is closed: `deny_unknown_fields` without each type saying so.
+serde_ignored = "0.1"
+serde_json.workspace = true
+# Query strings and forms.
+serde_urlencoded = "0.7"
+# Names found for a client that sends plain http:// beyond this machine,
+# the timers a stalled stream is given up by, and the runtime a blocking
+# client's calls run on.
+tokio.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+axum.workspace = true
+
+[dev-dependencies.link-component]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

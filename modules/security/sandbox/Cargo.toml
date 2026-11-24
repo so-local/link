@@ -1,0 +1,113 @@
+[package]
+authors.workspace = true
+name = "link-sandbox"
+description = "The sandbox module, `lnk-sandbox`: the one sandbox Link runs every harness in, and anything else"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+# One test program, tests/main.rs, with every file a module of it.
+autotests = false
+
+[[test]]
+name = "sandbox"
+path = "tests/main.rs"
+
+[[bin]]
+name = "lnk-sandbox"
+path = "src/main.rs"
+
+[dependencies]
+link-digest.workspace = true
+# The wall: what confines a program on each OS.
+link-sandbox-confine.workspace = true
+# The one way out: the filtering proxy, which this module mounts its routes on.
+link-sandbox-proxy.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+libc.workspace = true
+reqwest = { workspace = true, features = ["rustls-no-provider"] }
+rustls.workspace = true
+rustls-platform-verifier.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tokio-rustls.workspace = true
+toml.workspace = true
+
+[dependencies.link-interactions]
+workspace = true
+
+[dependencies.link-sandbox-client]
+workspace = true
+
+[dependencies.link-secret-contract]
+workspace = true
+
+[dependencies.link-sandbox-binding]
+workspace = true
+
+[dependencies.link-sandbox-route]
+workspace = true
+
+[dependencies.link-sandbox-bridge]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-service]
+workspace = true
+
+# The question it answers, measure.traffic (`lnk-sandbox answer`).
+[dependencies.link-measure-contract]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+link-core = { workspace = true}
+base64.workspace = true
+proptest.workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dev-dependencies.link-model-contract]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies.futures-util]
+workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true

@@ -1,0 +1,76 @@
+"test" = [{ "name" = "process", "harness" = false }]
+
+["package"]
+authors.workspace = true
+"name" = "link-secretive"
+"description" = "`link-secretive` holds every secret Local Link keeps, in one of three types by where it may go: opaque, exposed only by name, or sealed to one recipient"
+["package"."version"]
+"workspace" = true
+
+["package"."edition"]
+"workspace" = true
+
+["package"."license"]
+"workspace" = true
+
+["package"."metadata"."link"]
+"schema" = 1
+"role" = "library"
+owner = "packages/secretive"
+
+["dependencies"]
+"subtle" = "2"
+"zeroize" = "1"
+
+["dependencies"."base64"]
+"workspace" = true
+
+["dependencies"."link-secretive-derive"]
+"workspace" = true
+
+["dependencies"."libc"]
+"workspace" = true
+
+["dependencies"."http"]
+"workspace" = true
+"optional" = true
+
+["dependencies"."hpke"]
+"version" = "0.14"
+"default-features" = false
+"features" = ["alloc", "getrandom", "x25519", "chacha"]
+
+["dependencies"."ring"]
+"workspace" = true
+
+["dependencies"."serde"]
+"workspace" = true
+
+["dependencies"."serde_json"]
+"workspace" = true
+
+["dev-dependencies"]
+"static_assertions" = "1"
+
+["dev-dependencies"."toml"]
+"workspace" = true
+
+["dev-dependencies".link-component]
+workspace = true
+["features"]
+"http" = ["dep:http"]
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dev-dependencies.clap]
+workspace = true
+
+[dev-dependencies.link-spec]
+workspace = true

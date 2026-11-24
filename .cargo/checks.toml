@@ -1,0 +1,77 @@
+# What `lnk-check` runs (`cargo full-check`, `cargo session-check` and
+# `lnk-check copies`,
+# aliases in config.toml beside this): each check's steps in order. Every
+# step runs even after one fails. A step whose `programs`, `paths` or Rust
+# `targets` are missing is skipped, saying which. `{packages}` stands for `-p <name>`
+# for each package named. The one step with `tests = true` is the test
+# command, whose saved output Test Timings reads
+# (tests/timing/docs/more/developing/testing/test-timing.md).
+schema = 1
+flakes = "tests/repository/flakes.toml"
+# How many copies of one test `lnk-check copies` runs at once, to find a
+# flake again or prove its fix.
+copies = 300
+
+# Every check over the whole workspace, once per initiative.
+[[full]]
+name = "fmt"
+run = ["cargo", "fmt", "--all", "--check"]
+
+[[full]]
+name = "clippy"
+run = ["cargo", "clippy", "--locked", "--workspace", "--all-targets", "--", "-D", "warnings"]
+
+[[full]]
+name = "build"
+run = ["cargo", "build", "--locked", "--workspace", "--bins"]
+
+[[full]]
+name = "test"
+run = ["cargo", "test", "--locked", "--workspace", "--no-fail-fast", "--message-format=json-render-diagnostics"]
+tests = true
+
+[[full]]
+name = "sandbox-musl"
+run = ["cargo", "test", "--locked", "--target", "x86_64-unknown-linux-musl", "-p", "link-sandbox", "-p", "link-sandbox-confine", "-p", "link-sandbox-proxy", "--lib"]
+targets = ["x86_64-unknown-linux-musl"]
+
+[[full]]
+name = "shellcheck"
+run = ["sh", "-c", "git ls-files '*.sh' | xargs shellcheck"]
+programs = ["shellcheck"]
+
+[[full]]
+name = "web-lint"
+run = ["npm", "run", "lint"]
+dir = "web"
+programs = ["npm"]
+paths = ["web/node_modules"]
+
+[[full]]
+name = "web-build"
+run = ["npm", "run", "build"]
+dir = "web"
+programs = ["npm"]
+paths = ["web/node_modules"]
+
+# The quick checks, then the packages a change touched.
+[[session]]
+name = "repository"
+run = ["cargo", "test", "--locked", "-p", "link-docs-check", "-p", "link-docs-check-code", "-p", "link-repository-check"]
+
+[[session]]
+name = "fmt"
+run = ["cargo", "fmt", "--all", "--check"]
+
+[[session]]
+name = "clippy"
+run = ["cargo", "clippy", "--locked", "{packages}", "--all-targets", "--", "-D", "warnings"]
+
+[[session]]
+name = "build"
+run = ["cargo", "build", "--locked", "--workspace", "--bins"]
+
+[[session]]
+name = "test"
+run = ["cargo", "test", "--locked", "{packages}", "--no-fail-fast", "--message-format=json-render-diagnostics"]
+tests = true

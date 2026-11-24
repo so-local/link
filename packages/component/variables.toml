@@ -1,0 +1,17 @@
+schema = 1
+
+[defines.CARGO]
+type = "string"
+description = "The Cargo that builds a component's programs for its tests [default: cargo]."
+
+[defines.LNK_BUILT_FROM]
+type = "string"
+description = "The commit a release build from source was built from, which a component's build script gives each program as it's compiled (`link_component::SOURCE_VARIABLE`), so a question names the commit its asker was built from."
+
+[defines.LNK_DESCRIPTION_PROTOCOL]
+type = "string"
+description = "The description protocol version of the program asking another for its description or `lnk` for its registry (`link_component::PROTOCOL_VARIABLE`). The answerer answers in it, and refuses one below the oldest it accepts, naming the upgrade."
+
+[readers]
+"cargo::for_test" = "Each of this process's variables Cargo sets for a test (`set_for_tests`), removed so a component's own build is Cargo's alone."
+"requirements::command_values" = "Resolve each option through the environment name in its owning OptionDeclaration."

@@ -1,0 +1,7 @@
+# The bridge protocol: a bridge's challenge, a caller's proof and its
+# action, then the answer. Each side states `current` when it connects and
+# refuses one older than `oldest`.
+name = "bridge"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

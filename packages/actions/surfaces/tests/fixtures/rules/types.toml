@@ -1,0 +1,9 @@
+schema = 1
+
+# A spec kind a package owns: no command of its own shows it.
+[rules]
+type = "object"
+description = "What each caller may do"
+x-link-spec = { kind = "rules" }
+additionalProperties = false
+properties.allow = { type = "array", items = { type = "string" }, description = "What it may do" }

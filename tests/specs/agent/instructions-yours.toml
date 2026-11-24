@@ -1,0 +1,11 @@
+[spec]
+schema = 1
+[spec.instructions]
+base = "instructions/base.md"
+
+[spec.instructions.max]
+standing = "8 KB"
+
+[expect]
+values = { "instructions.base" = "instructions/base.md", "instructions.environment" = "link", "instructions.standing" = "instructions/instruction.md", "instructions.max.standing" = "8 KB", "instructions.max.base" = "16 KB" }
+from = { "instructions.base" = "yours", "instructions.max.standing" = "yours", "instructions.now" = "link", "instructions.max.base" = "link" }

@@ -1,0 +1,8 @@
+# The system's folders are never written.
+[spec]
+schema = 1
+[spec.files]
+write = ["/usr/local/bin"]
+
+[expect]
+invalid = "system's folders"

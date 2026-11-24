@@ -1,0 +1,9 @@
+# Every key is one the spec names.
+[spec]
+schema = 1
+name = "app"
+version = 1
+image = "app"
+
+[expect]
+invalid = "unknown field"

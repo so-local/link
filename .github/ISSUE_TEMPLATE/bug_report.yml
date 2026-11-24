@@ -1,0 +1,31 @@
+name: Bug report
+description: Something in lnk, a module, the relay or the website doesn't work.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran, what you expected, and what happened instead. Paste output as text.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: lnk version
+      description: Output of `lnk --version`.
+      placeholder: lnk 0.11.0
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: macOS 26.0 (arm64)
+    validations:
+      required: true
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else
+      description: Logs (`lnk agent log show`), the harness in use, whether it worked before. Remove tokens and passwords.

@@ -1,0 +1,9 @@
+# A toolchain is one the sandbox declares, or refused by its name with
+# those there are.
+[spec]
+schema = 1
+[spec.commands]
+toolchains = ["cobol"]
+
+[expect]
+invalid = "unknown variant `cobol`, expected one of `shell`"

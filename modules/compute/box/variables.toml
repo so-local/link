@@ -1,0 +1,82 @@
+schema = 1
+
+[defines.AWS_DEFAULT_REGION]
+type = "string"
+description = "Read once by `lnk cloud connect aws`: the login to reuse and its region."
+
+[defines.AWS_PROFILE]
+type = "string"
+description = "Read once by `lnk cloud connect aws`: the login to reuse and its region."
+
+[defines.AWS_REGION]
+type = "string"
+description = "Read once by `lnk cloud connect aws`: the login to reuse and its region."
+
+[defines.CLOUDSDK_CONFIG]
+type = "string"
+description = "gcloud's own settings, as gcloud reads them: `lnk cloud connect gcp` asks gcloud where its login is."
+
+[defines.LNK_AWS]
+type = "string"
+description = "The cloud CLIs the adapters run (tests)."
+
+[defines.LNK_BOX]
+type = "string"
+description = "In a setup script's environment: the box it sets up."
+
+[defines.LNK_BOX_HERE]
+type = "string"
+description = "In what `lnk box run` and `lnk box ssh` run in a box here: the box's name. `lnk box user` refuses there, since a box user is a login on a machine of its own."
+
+[defines.LNK_BOX_SSH]
+type = "string"
+description = "How `lnk box` reaches a box: `direct`, its port 22; `tunnel`, through its cloud's own tunnel over HTTPS (AWS Systems Manager, Google Cloud's IAP), where port 22 can't be reached, as from a network that allows only HTTPS. A tunnel to a box on AWS needs AWS's `session-manager-plugin` here. Anything else fails, saying so."
+
+[defines.LNK_GCLOUD]
+type = "string"
+description = "The cloud CLIs the adapters run (tests)."
+
+[defines.LNK_SSH]
+type = "string"
+description = "What `lnk box` runs (tests)."
+
+[defines.LNK_SSH_KEYGEN]
+type = "string"
+description = "What `lnk box` runs (tests)."
+
+[defines.LNK_TEST_BOX_END]
+type = "string"
+description = "Debug builds only: read the disposable-box ending policy from this file instead of `/etc/lnk/end.json`."
+
+[[uses]]
+name = "LNK_SUDO"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_VERSION"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "SHELL"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_RELEASES_URL"
+access = ["unset"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["set"]
+context = "runtime"
+
+[namespaces]
+"LNK_*" = "SSH program overrides: append the uppercase program name with dashes changed to underscores, such as `LNK_SSH` or `LNK_SSH_KEYGEN`."

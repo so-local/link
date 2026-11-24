@@ -1,0 +1,21 @@
+schema = 1
+
+[verbs]
+
+[program.args]
+help = { type = "boolean", description = "Show Link's help", x-link-cli = { short = "h" } }
+version = { type = "boolean", description = "Print Link's installed version", x-link-cli = { short = "V" } }
+link-history = { type = "boolean", description = "Print the command history for discovery", x-link-cli = { hidden = true } }
+
+[args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."core.core.check"]
+description = "Look for what's wrong on this machine, changing nothing"
+output = "checked"
+
+[actions."core.module.add"]
+description = "Install a module"
+
+[actions."core.module.add".args]
+name = { type = "string", description = "The module, by its name", required = true, x-link-cli = { position = 1 } }

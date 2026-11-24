@@ -1,0 +1,42 @@
+# Hermes's staged payload and the exact upstream sources its adapter repairs.
+commit = "caafe5389ae585ef77387a962aee05b1bcf17029"
+code = "hermes-agent"
+launcher = ".hermes/bin/hermes"
+acp = ".hermes/bin/hermes-acp"
+store = "tools"
+installs = "installs"
+facts = "facts.json"
+environments = "environments"
+venv-config = "pyvenv.cfg"
+manifest = "manifest.json"
+extras = ["anthropic"]
+install-key-characters = 16
+max-document-bytes = 1048576
+runtime-env = { HERMES_DISABLE_LAZY_INSTALLS = "1" }
+runtime-remove = ["HERMES_RUNTIME_DIR", "HERMES_INSTALL_ROOT"]
+# Folders in the staged payload, each by the variable its installer's tools
+# read: uv installs the Python that starts Hermes's package manager there, the
+# one folder the install step may run what it downloads from.
+installer-folders = { UV_PYTHON_INSTALL_DIR = "bootstrap-python" }
+
+[manager]
+directory = "pm-runtime"
+selection = "selected.json"
+generations = "generations"
+marker = "pm-runtime.json"
+python = "bin/python"
+libraries = "lib"
+python-prefix = "python"
+site-packages = "site-packages"
+
+[sources.environments]
+path = "pm/environments.py"
+sha256 = "9cbcc0583da807d71e877790fac5d6bd995136a05cd6c6f41d97c1cf4e84c828"
+
+[sources.paths]
+path = "pm/paths.py"
+sha256 = "8f15860b82f443a424186317dc361ea6063e0e7c3113af9b56a76f6b89e97737"
+
+[sources.runtime]
+path = "pm/runtime.py"
+sha256 = "ee233f99b08d3440cb9a76a5bb9029716b526fb6d031b1f14b5acb99bbed2df9"

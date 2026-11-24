@@ -1,0 +1,449 @@
+{
+  "$defs": {
+    "sandbox.browser": {
+      "additionalProperties": false,
+      "description": "Pages it may ask you to open in your browser, asking you each time. A\nsection needs `hosts`.\n",
+      "properties": {
+        "hosts": {
+          "description": "Hosts a page may be on, or `[\"*\"]` for any.",
+          "examples": [
+            [
+              "github.com"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "linux": {
+          "$ref": "#/$defs/sandbox.browser",
+          "description": "Linux's own keys for this section: each one given replaces the section's there."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.browser",
+          "description": "macOS's own keys for this section: each one given replaces the section's there."
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.commands": {
+      "additionalProperties": false,
+      "description": "The programs it may run: a section needs `allow` or\n`toolchains`, and with a specification one left out runs nothing.\n",
+      "properties": {
+        "allow": {
+          "description": "Programs, folders of them ending `/`, or `[\"*\"]` for any.\n\nA program is a name on `PATH` or a path. `[\"*\"]` stands alone.\n",
+          "examples": [
+            [
+              "sh",
+              "git",
+              "/usr/lib/git-core/"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "developer_tools": {
+          "description": "`true`: Xcode's and the Command Line Tools' programs.\n\nThey're read only and may run, so git and compilers run, on macOS; it\nmeans nothing elsewhere.\n",
+          "examples": [
+            true
+          ],
+          "type": "boolean"
+        },
+        "linux": {
+          "$ref": "#/$defs/sandbox.commands",
+          "description": "Linux's own keys for this section: each one given replaces the section's there."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.commands",
+          "description": "macOS's own keys for this section: each one given replaces the section's there."
+        },
+        "toolchains": {
+          "description": "Toolchains, each standing for the programs it names (`lnk sandbox permission list` lists each one's programs).\n\nA toolchain also runs the programs its own programs keep, and those a\nbuild writes under the folders it writes, such as Rust's build scripts.\n",
+          "examples": [
+            [
+              "rust",
+              "git"
+            ]
+          ],
+          "items": {
+            "$ref": "#/$defs/sandbox.toolchain",
+            "description": "A toolchain: a name standing for the programs it lets run, so a grant always says what it lets run"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.files": {
+      "additionalProperties": false,
+      "description": "Your folders it reads and writes: a section needs `write` or `read`.\n`read = [\"~\"]` is your whole home, never Link's settings, and a\nproject's dot files that run outside (`.git` among them) stay read only\nunless `write_dot_files` names their folder.\n",
+      "properties": {
+        "hide": {
+          "description": "Folders closed whatever else opens them.\n\nThe folders of `write` and `read` in them stay open, and it adds\nup across the default table, an OS's and the flags.\n",
+          "examples": [
+            [
+              "~/code/app/secrets"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "linux": {
+          "$ref": "#/$defs/sandbox.files",
+          "description": "Linux's own keys for this section: each one given replaces the section's there, but `hide`, which adds up."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.files",
+          "description": "macOS's own keys for this section: each one given replaces the section's there, but `hide`, which adds up."
+        },
+        "read": {
+          "description": "Folders it reads; `\"~\"`, your whole home.",
+          "examples": [
+            [
+              "~/Documents/reports"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "write": {
+          "description": "Folders it reads and writes.",
+          "examples": [
+            [
+              "~/code/app"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "write_dot_files": {
+          "description": "Folders of `write` whose outside dot files it writes too.\n\nThose are the dot files that run outside the sandbox: `.git`,\n`.envrc`, `.vscode` and `.idea`.\n",
+          "examples": [
+            [
+              "~/code/app"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.internet": {
+      "additionalProperties": false,
+      "description": "Public hosts it reaches, through Link's proxy and logged; never this\nmachine or its network. A section needs `hosts`.\n",
+      "properties": {
+        "hosts": {
+          "description": "Hosts, or `[\"*\"]` for any public host.\n\nEach is a name (`api.openai.com`), the names under one\n(`*.github.com`) or an address.\n",
+          "examples": [
+            [
+              "api.openai.com",
+              "github.com"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "linux": {
+          "$ref": "#/$defs/sandbox.internet",
+          "description": "Linux's own keys for this section: each one given replaces the section's there."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.internet",
+          "description": "macOS's own keys for this section: each one given replaces the section's there."
+        },
+        "per_minute": {
+          "description": "A whole number, at least 1: the most calls a minute.",
+          "examples": [
+            600
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tcp": {
+          "description": "`host:port` endpoints it reaches beyond HTTPS and HTTP.",
+          "examples": [
+            [
+              "github.com:22"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.lan": {
+      "additionalProperties": false,
+      "description": "Other machines of your network it reaches, through Link's proxy; never\nthis machine or a cloud's metadata service. A section needs `hosts`.\n",
+      "properties": {
+        "hosts": {
+          "description": "Hosts, or `[\"*\"]` for the private ranges.\n\nEach is a name, an address or a range (`192.168.1.0/24`).\n",
+          "examples": [
+            [
+              "nas.local",
+              "192.168.1.0/24"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "linux": {
+          "$ref": "#/$defs/sandbox.lan",
+          "description": "Linux's own keys for this section: each one given replaces the section's there."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.lan",
+          "description": "macOS's own keys for this section: each one given replaces the section's there."
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.localhost": {
+      "additionalProperties": false,
+      "description": "Servers on this machine it calls, each port named; a model's for\ninference only. A section needs `ports` or `models`.\n",
+      "properties": {
+        "linux": {
+          "$ref": "#/$defs/sandbox.localhost",
+          "description": "Linux's own keys for this section: each one given replaces the section's there."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.localhost",
+          "description": "macOS's own keys for this section: each one given replaces the section's there."
+        },
+        "models": {
+          "description": "Ports of local model runtimes, for inference only.\n\nEach is reached through the proxy, never as a raw port; alone, the\nsection needs no `ports`.\n",
+          "examples": [
+            [
+              11434
+            ]
+          ],
+          "items": {
+            "maximum": 65535,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "ports": {
+          "description": "Port numbers, or `[\"*\"]` for every port.\n\n`[\"*\"]` only with `[network] mode = \"host\"`. Left out, only\n`models` are reached.\n",
+          "items": {
+            "$ref": "#/$defs/sandbox.port",
+            "description": "A port, or `\"*\"`."
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.network": {
+      "additionalProperties": false,
+      "description": "How it reaches the network: through Link's filtering proxy, the default,\nor this machine's network as it is, with no proxy between.\n",
+      "properties": {
+        "linux": {
+          "$ref": "#/$defs/sandbox.network",
+          "description": "Linux's own keys for this section: each one given replaces the section's there."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.network",
+          "description": "macOS's own keys for this section: each one given replaces the section's there."
+        },
+        "mode": {
+          "$ref": "#/$defs/sandbox.network-mode",
+          "description": "`\"proxy\"`, the default, or `\"host\"`, with no proxy.\n\n`\"host\"` is this machine's network as it is, so nothing is\nfiltered or logged and the sections a proxy carries are refused\nbeside it; of the loopback, every port on Linux, `[localhost]\nports` on macOS.\n"
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.network-mode": {
+      "description": "`\"proxy\"`, the default, or `\"host\"`, with no proxy.\n\n`\"host\"` is this machine's network as it is, so nothing is\nfiltered or logged and the sections a proxy carries are refused\nbeside it; of the loopback, every port on Linux, `[localhost]\nports` on macOS.\n",
+      "enum": [
+        "proxy",
+        "host"
+      ],
+      "type": "string"
+    },
+    "sandbox.port": {
+      "description": "A port, or `\"*\"`.",
+      "examples": [
+        8080,
+        "*"
+      ],
+      "oneOf": [
+        {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "const": "*"
+        }
+      ]
+    },
+    "sandbox.team-folders": {
+      "additionalProperties": false,
+      "description": "What of a shared folder the sandbox may reach: folders of it it\nwrites, and those it only reads, each a folder's name in it (`drafts`),\nor `.` for the whole folder. The rest of it is closed.\n",
+      "properties": {
+        "read": {
+          "default": [],
+          "description": "Folders of the shared folder it only reads.",
+          "examples": [
+            [
+              "sources"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "write": {
+          "default": [],
+          "description": "Folders of the shared folder it reads and writes, each a\nfolder's name in it, or `.` for all of it.\n",
+          "examples": [
+            [
+              "drafts"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "sandbox.toolchain": {
+      "description": "A toolchain: a name standing for the programs it lets run, so a grant always says what it lets run",
+      "enum": [
+        "shell",
+        "git",
+        "rust",
+        "node",
+        "python",
+        "go",
+        "c",
+        "desktop",
+        "jvm"
+      ],
+      "type": "string",
+      "x-link-values": {
+        "c": "C and C++ compilers, make, CMake and Ninja, Valgrind, and clangd",
+        "desktop": "An X server with no screen (Xvfb), and the keymap compiler and shell it runs",
+        "git": "Git, with its own programs and ssh, which it runs for a remote",
+        "go": "Go, its language server and golangci-lint",
+        "jvm": "Java and Kotlin, their builds (Gradle, Maven), and their language servers",
+        "node": "Node.js and its package managers (npm, pnpm, Yarn, Bun), with a package's commands",
+        "python": "Python and its project tools (pip, uv, Poetry, tox), with a virtual environment's programs",
+        "rust": "Rust: Cargo, rustc and rust-analyzer, with rustup's toolchains, the linker, proc-macro servers, and a build's scripts and tests",
+        "shell": "A shell and the everyday programs a script runs"
+      }
+    },
+    "sandbox.tools": {
+      "additionalProperties": false,
+      "description": "Your tools from `lnk sandbox tool add`, MCP tools which run outside the\nsandbox with your logins, asking you. A section needs `names`.\n",
+      "properties": {
+        "linux": {
+          "$ref": "#/$defs/sandbox.tools",
+          "description": "Linux's own keys for this section: each one given replaces the section's there."
+        },
+        "macos": {
+          "$ref": "#/$defs/sandbox.tools",
+          "description": "macOS's own keys for this section: each one given replaces the section's there."
+        },
+        "names": {
+          "description": "Your tools' names, as `lnk sandbox tool add` named them.",
+          "examples": [
+            [
+              "gh"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A sandbox, written down: each section one grant, and everything it leaves out closed",
+  "properties": {
+    "browser": {
+      "$ref": "#/$defs/sandbox.browser",
+      "description": "Pages it may ask you to open in your browser, asking you each time. A\nsection needs `hosts`.\n"
+    },
+    "commands": {
+      "$ref": "#/$defs/sandbox.commands",
+      "description": "The programs it may run: a section needs `allow` or\n`toolchains`, and with a specification one left out runs nothing.\n"
+    },
+    "files": {
+      "$ref": "#/$defs/sandbox.files",
+      "description": "Your folders it reads and writes: a section needs `write` or `read`.\n`read = [\"~\"]` is your whole home, never Link's settings, and a\nproject's dot files that run outside (`.git` among them) stay read only\nunless `write_dot_files` names their folder.\n"
+    },
+    "internet": {
+      "$ref": "#/$defs/sandbox.internet",
+      "description": "Public hosts it reaches, through Link's proxy and logged; never this\nmachine or its network. A section needs `hosts`.\n"
+    },
+    "lan": {
+      "$ref": "#/$defs/sandbox.lan",
+      "description": "Other machines of your network it reaches, through Link's proxy; never\nthis machine or a cloud's metadata service. A section needs `hosts`.\n"
+    },
+    "localhost": {
+      "$ref": "#/$defs/sandbox.localhost",
+      "description": "Servers on this machine it calls, each port named; a model's for\ninference only. A section needs `ports` or `models`.\n"
+    },
+    "name": {
+      "description": "Text: what it's called, to tell specifications apart.",
+      "examples": [
+        "app"
+      ],
+      "type": "string"
+    },
+    "network": {
+      "$ref": "#/$defs/sandbox.network",
+      "description": "How it reaches the network: through Link's filtering proxy, the default,\nor this machine's network as it is, with no proxy between.\n"
+    },
+    "teams": {
+      "additionalProperties": {
+        "$ref": "#/$defs/sandbox.team-folders",
+        "description": "What of a shared folder the sandbox may reach: folders of it it\nwrites, and those it only reads, each a folder's name in it (`drafts`),\nor `.` for the whole folder. The rest of it is closed.\n"
+      },
+      "description": "Of each shared folder it reaches, by the folder's name, what it\nwrites and only reads; one not here it can't reach. Only the program\nthat starts the sandbox knows where each shared folder is, so it's\nthat program's grant, and a sandbox run of its own refuses it.\n",
+      "type": "object",
+      "x-link-unavailable": "a grant from the program that starts the sandbox, which a sandbox run of its own refuses"
+    },
+    "tools": {
+      "$ref": "#/$defs/sandbox.tools",
+      "description": "Your tools from `lnk sandbox tool add`, MCP tools which run outside the\nsandbox with your logins, asking you. A section needs `names`.\n"
+    },
+    "version": {
+      "description": "A whole number, yours to bump when you change it.",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "type": "object",
+  "x-link-generator": "Generated by link-actions-surfaces from the module declarations: change those and regenerate, never this file."
+}

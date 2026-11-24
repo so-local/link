@@ -1,0 +1,5 @@
+# The fields whose strings are labels, never identities, so a word with
+# an ID's shape there isn't a bare ID: a name, and the folder names a
+# sandbox's `[files]` lists write and read (`instructions` is twelve
+# lowercase letters, as a minted ID is).
+labels = ["name", "read", "write"]

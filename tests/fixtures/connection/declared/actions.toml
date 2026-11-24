@@ -1,0 +1,22 @@
+schema = 1
+
+# Every command of the connection protocol, declared by its contract
+# (`link-connection-contract`): the contract answers those the fixture
+# gives no way of its own with a usage error.
+[implements]
+connection = [
+    "connection.connection.connect",
+    "connection.connection.describe",
+    "connection.connection.rule",
+    "connection.connection.bridge",
+    "connection.connection.send",
+    "connection.connection.owner",
+    "connection.connection.share",
+    "connection.connection.hook",
+    "connection.connection.unhook",
+    "connection.connection.sift",
+    "connection.connection.receive",
+    "connection.connection.hold",
+    "connection.connection.link",
+    "connection.connection.state",
+]

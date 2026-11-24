@@ -1,0 +1,16 @@
+# Your notes: read from another file, kept smaller, and memory's notes
+# as large as the section; Link's file and sizes beneath them.
+[spec]
+schema = 1
+[spec.instructions]
+notes = "instructions/remembered.md"
+
+[spec.instructions.max]
+notes = "2 KB"
+
+[spec.tool.memory]
+notes = "2 KB"
+
+[expect]
+values = { "instructions.notes" = "instructions/remembered.md", "instructions.max.notes" = "2 KB", "tool.memory.notes" = "2 KB" }
+from = { "instructions.notes" = "yours", "instructions.max.notes" = "yours", "tool.memory.notes" = "yours" }

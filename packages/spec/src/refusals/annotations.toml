@@ -1,0 +1,13 @@
+# JSON Schema annotation keywords that do not constrain an owning object.
+annotations = [
+    "$defs",
+    "$schema",
+    "definitions",
+    "title",
+    "description",
+    "default",
+    "examples",
+    "deprecated",
+    "readOnly",
+    "writeOnly",
+]

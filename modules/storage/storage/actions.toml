@@ -1,0 +1,456 @@
+schema = 1
+
+[verbs]
+adopt = { description = "For the module that keeps an owner: put the owner's buckets in place here, from what export wrote", effect = "insert" }
+clean = { description = "Delete files here, only where every cloud has a checked copy", effect = "delete" }
+export = { description = "For the module that keeps an owner: write out the owner's buckets and password", effect = "insert" }
+find = { description = "Find owners' buckets in your cloud accounts, by label", effect = "find" }
+keys = { description = "For the module that keeps an owner: make a key reaching only each of its buckets", effect = "insert" }
+label = { description = "For the module that keeps an owner: add Link's labels to each of its buckets", effect = "update" }
+leave = { description = "For the module that keeps an owner: let go of the owner's encryption and clouds here", effect = "delete" }
+pull = { description = "Get files back from a cloud, and check each", effect = "update" }
+push = { description = "Send files to every cloud, and check each copy", effect = "update" }
+rclone = { description = "Run rclone itself on your clouds", effect = "insert" }
+restore = { description = "For the module that keeps an owner: put its buckets in place and pull its files", effect = "update" }
+revoke = { description = "For the module that keeps an owner: remove the keys keys made", effect = "delete" }
+read = { description = "Read a text file's contents", effect = "find" }
+write = { description = "Write a text file, refused when it changed since it was read", effect = "update" }
+
+[roles.writer.storage.file]
+list = ["*"]
+read = ["*"]
+write = ["*"]
+show = ["*"]
+
+[actions."storage.file.list"]
+description = "List a folder's files, each with its size and revision"
+resource = "folder"
+role = "secondary"
+surfaces = ["rest"]
+
+[actions."storage.file.list".args]
+folder = { type = "string", format = "link-id", x-link-kind = "folder", description = "The folder, by its ID, folder:<id>", required = true }
+path = { type = "string", description = "Only the files under this path [default: every file]" }
+
+[actions."storage.file.read"]
+description = "Read one text file of a folder, and the revision it was read at"
+resource = "folder"
+role = "secondary"
+output = "file-text"
+surfaces = ["rest"]
+
+[actions."storage.file.read".args]
+folder = { type = "string", format = "link-id", x-link-kind = "folder", description = "The folder, by its ID, folder:<id>", required = true }
+path = { type = "string", description = "Its path in the folder", required = true }
+
+[actions."storage.file.show"]
+description = "Show one file's details: its size and revision"
+resource = "folder"
+role = "secondary"
+surfaces = ["rest"]
+
+[actions."storage.file.show".args]
+folder = { type = "string", format = "link-id", x-link-kind = "folder", description = "The folder, by its ID, folder:<id>", required = true }
+path = { type = "string", description = "Its path in the folder", required = true }
+
+[actions."storage.file.write"]
+description = "Write one text file of a folder, refused with conflict when it changed since the revision named"
+resource = "folder"
+role = "secondary"
+output = "file"
+surfaces = ["rest"]
+
+[actions."storage.file.write".args]
+folder = { type = "string", format = "link-id", x-link-kind = "folder", description = "The folder, by its ID, folder:<id>", required = true }
+path = { type = "string", description = "Its path in the folder", required = true }
+text = { type = "string", description = "Its new text", required = true }
+revision = { type = "string", description = "The revision it was read at [default: none, for a new file]" }
+
+[actions."storage.folder.show"]
+description = "Show a folder's details: how many files it holds, and their size"
+resource = "folder"
+role = "secondary"
+surfaces = ["rest"]
+
+[actions."storage.folder.show".args]
+folder = { type = "string", format = "link-id", x-link-kind = "folder", description = "The folder, by its ID, folder:<id>", required = true }
+
+[actions."storage.storage.adopt"]
+description = """
+For the module that keeps an owner, when its folder moves here: the
+buckets of the owner with this ID put in place here, from JSON on stdin
+({"password" | "plain", "buckets", "credentials": {cloud: {"bucket", "credential"}}})
+"""
+role = "plumbing"
+output = "core.report"
+stdin = "adopting"
+
+[actions."storage.storage.adopt".args]
+owner = { type = "string", description = "The owner's ID, <kind>:<id>", required = true }
+
+[actions."storage.storage.clean"]
+description = "Delete files here, only if every cloud has a checked copy"
+role = "primary"
+docs = "/services/storage/guide#free-up-space"
+output = "core.report"
+next = ["storage.storage.clean", "storage.storage.list", "storage.storage.pull"]
+fail = ["storage.storage.list", "storage.storage.push", "storage.storage.clean"]
+
+[actions."storage.storage.clean".args]
+paths = { type = "array", items = { type = "string" }, description = "Paths in `~/Link/Files` or an owner's folder", required = true, x-link-cli = { position = 1 } }
+dry = { type = "boolean", description = "Check, and say what would be deleted, without deleting" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."storage.storage.connect"]
+output = "core.report"
+description = """
+Use buckets that exist already (from another machine, or after
+disconnect)
+"""
+role = "primary"
+docs = "/services/storage/guide#use-a-bucket-from-another-machine"
+checks = ["owner_with_bucket"]
+next = ["storage.storage.push", "storage.storage.list", "storage.storage.pull"]
+fail = ["storage.storage.connect", "storage.storage.create", "storage.storage.list", "cloud.cloud.list"]
+
+[actions."storage.storage.connect".args]
+kind = { type = "string", description = """
+aws, gcp, s3 (R2, Wasabi, MinIO), drive (a folder on one, such as an external drive), or an
+rclone storage type (`lnk storage rclone help backends`)
+""", required = true, x-link-cli = { position = 1 } }
+bucket = { type = "string", description = """
+The bucket for your files (for a drive cloud, the folder inside it,
+such as local-link/personal)
+""", required = true }
+owner-bucket = { type = "string", description = """
+The bucket for an owner's folder; asks for its encryption password.
+Without it, one is made, encrypted, on the first push of its files
+""" }
+owner = { type = "string", description = """
+Whose bucket --owner-bucket is, <kind>:<name>, as the module that keeps
+that kind names it [default: the only owner with a folder here]
+""" }
+cloud = { type = "string", description = """
+aws, gcp: the cloud account it is (`lnk cloud list`), and is named as
+[default: the one named as its type, connected first if there's none]
+""" }
+encrypt = { type = "boolean", description = """
+Encrypt files and their names before they leave this machine. Lose the
+password and the files can't be read, by anyone
+""" }
+endpoint = { type = "string", description = "s3: the endpoint URL" }
+key-id = { type = "string", description = """
+aws (connecting its account), s3: use this access ID (the secret is
+asked for) instead of an existing login
+""" }
+name = { type = "string", description = "s3, drive, rclone: what to call it [default: its type]; lets you have two of one type" }
+path = { type = "string", x-link-path = true, description = "drive: the folder to use, e.g. /Volumes/MyDrive" }
+profile = { type = "string", description = """
+aws: connecting its account, the `~/.aws` profile to use [default:
+`AWS_PROFILE`, else default]
+""" }
+project = { type = "string", description = """
+gcp: the project new buckets go in [default: the `lnk cloud` account's]
+""" }
+region = { type = "string", description = """
+Where new buckets go (aws: [default: the `lnk cloud` account's region];
+gcp: a location such as US or europe-west1)
+""" }
+setting = { type = "array", items = { type = "string" }, description = "An rclone type's setting, KEY=VALUE (repeatable; rclone asks for the rest)" }
+
+[actions."storage.storage.create"]
+output = "core.report"
+description = """
+Make buckets in a cloud: aws, gcp, s3, drive --path <folder>, or any
+rclone storage
+
+Makes a bucket for your files there (each owner's folder gets its own,
+encrypted, on its first push). `lnk storage connect` uses
+buckets that exist already; `lnk storage delete` deletes them.
+"""
+role = "primary"
+docs = "/services/storage/guide#what-lnk-storage-create-makes"
+next = ["storage.storage.push", "storage.storage.list", "storage.storage.pull"]
+fail = ["storage.storage.create", "storage.storage.list", "cloud.cloud.list"]
+
+[actions."storage.storage.create".args]
+kind = { type = "string", description = """
+aws, gcp, s3 (R2, Wasabi, MinIO), drive (a folder on one, such as an external drive), or an
+rclone storage type (`lnk storage rclone help backends`)
+""", required = true, x-link-cli = { position = 1 } }
+cloud = { type = "string", description = """
+aws, gcp: the cloud account it is (`lnk cloud list`), and is named as
+[default: the one named as its type, connected first if there's none]
+""" }
+encrypt = { type = "boolean", description = """
+Encrypt files and their names before they leave this machine. Lose the
+password and the files can't be read, by anyone
+""" }
+endpoint = { type = "string", description = "s3: the endpoint URL" }
+key-id = { type = "string", description = """
+aws (connecting its account), s3: use this access ID (the secret is
+asked for) instead of an existing login
+""" }
+name = { type = "string", description = "s3, drive, rclone: what to call it [default: its type]; lets you have two of one type" }
+path = { type = "string", x-link-path = true, description = "drive: the folder to use, e.g. /Volumes/MyDrive" }
+profile = { type = "string", description = """
+aws: connecting its account, the `~/.aws` profile to use [default:
+`AWS_PROFILE`, else default]
+""" }
+project = { type = "string", description = """
+gcp: the project new buckets go in [default: the `lnk cloud` account's]
+""" }
+region = { type = "string", description = """
+Where new buckets go (aws: [default: the `lnk cloud` account's region];
+gcp: a location such as US or europe-west1)
+""" }
+setting = { type = "array", items = { type = "string" }, description = "An rclone type's setting, KEY=VALUE (repeatable; rclone asks for the rest)" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."storage.storage.delete"]
+output = "core.report"
+description = """
+Delete a cloud's buckets and everything in them, and forget it
+
+The buckets `lnk storage create` made. Files in them are `lnk
+storage remove`; `lnk storage disconnect` forgets a cloud,
+deleting nothing.
+"""
+role = "secondary"
+docs = "/services/storage/guide#disconnect-or-delete-a-cloud"
+next = ["storage.storage.list", "storage.storage.create"]
+fail = ["storage.storage.list", "storage.storage.remove", "storage.storage.pull", "storage.storage.delete"]
+
+[actions."storage.storage.delete".args]
+name = { type = "string", description = "The cloud's name (`lnk storage list`)", required = true, x-link-cli = { position = 1 } }
+everywhere = { type = "boolean", description = "Delete it even where it holds the only copy of some files" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."storage.storage.disconnect"]
+output = "core.report"
+description = "Forget a cloud and its credentials (deletes nothing in it)"
+role = "secondary"
+docs = "/services/storage/guide#disconnect-or-delete-a-cloud"
+next = ["storage.storage.list", "storage.storage.connect"]
+fail = ["storage.storage.list"]
+
+[actions."storage.storage.disconnect".args]
+name = { type = "string", description = "The cloud's name (`lnk storage list`)", required = true, x-link-cli = { position = 1 } }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."storage.storage.export"]
+description = """
+For the module that keeps an owner, when its folder moves: the buckets
+here of the owner with this ID, and its password (obscured), as JSON
+({"password", "buckets": {cloud: {name, resource}}}, resource the bucket's ID as
+bucket:<id>, which it keeps where it arrives), or null
+"""
+role = "plumbing"
+output = "exported"
+
+[actions."storage.storage.export".args]
+owner = { type = "string", description = "The owner's ID, <kind>:<id>", required = true }
+
+[actions."storage.storage.find"]
+description = """
+Owners' buckets in your `lnk cloud` accounts, by label, as JSON
+[{"cloud", "bucket", "place", "owner", "name"}]
+"""
+role = "plumbing"
+output = "found"
+
+[actions."storage.storage.find".args]
+owner = { type = "string", description = """
+Only this owner's, <kind>:<name>, or its ID's id in place of the name
+[default: every owner's]
+""" }
+
+[actions."storage.storage.keys"]
+description = """
+For the module that keeps an owner, when its folder moves to a box: a
+key reaching only each bucket of the owner with this ID (found by label,
+through `lnk cloud`), as JSON {cloud: {"bucket", "credential"}}; any key made
+for them before stops working
+"""
+role = "plumbing"
+output = "keyed"
+
+[actions."storage.storage.keys".args]
+owner = { type = "string", description = "The owner's ID, <kind>:<id>", required = true }
+
+[actions."storage.storage.label"]
+description = """
+For the module that keeps an owner: labels of Link's added to each
+bucket of the owner with this ID (found by label, through `lnk cloud`),
+as JSON {cloud: bucket} of those labelled; never a label that says whose
+a bucket is
+"""
+role = "plumbing"
+output = "labelled"
+
+[actions."storage.storage.label".args]
+owner = { type = "string", description = "The owner's ID, <kind>:<id>", required = true }
+labels = { type = "array", items = { type = "string" }, description = "Each label, <name>=<value>: a name of Link's (lnk-), up to 63 lowercase letters, digits, - and _ each", required = true, x-link-cli = { position = 1 } }
+
+[actions."storage.storage.leave"]
+description = """
+For the module that keeps an owner, when its folder moved away: the
+owner with this ID's encryption, and clouds only for it, go
+"""
+role = "plumbing"
+output = "core.report"
+
+[actions."storage.storage.leave".args]
+owner = { type = "string", description = "The owner's ID, <kind>:<id>", required = true }
+
+[actions."storage.storage.list"]
+description = """
+List your clouds, or with --tree what's where: here, offloaded, and in
+which clouds
+"""
+role = "primary"
+docs = "/services/storage/guide#connect-a-cloud"
+next = ["storage.storage.list", "storage.storage.show", "storage.storage.create", "storage.storage.push", "storage.storage.pull", "storage.storage.clean", "storage.storage.rclone"]
+fail = ["storage.storage.create"]
+
+[actions."storage.storage.list".args]
+tree = { type = "boolean", description = "What's where instead: every file of each folder, here, offloaded, and in which clouds" }
+path = { type = "string", description = """
+With --tree, a path in `~/Link/Files` or an owner's folder [default: every
+folder]
+""", x-link-cli = { position = 1, requires = ["tree"] } }
+level = { type = "integer", minimum = 0, description = "With --tree, descend only this many levels, like `tree -L`", x-link-cli = { short = "L", requires = ["tree"] } }
+dirs-only = { type = "boolean", description = "With --tree, folders only, like `tree -d`", x-link-cli = { short = "d", requires = ["tree"] } }
+refresh = { type = "boolean", description = """
+With --tree, list the clouds again first (finds files pushed from
+another machine)
+""", x-link-cli = { requires = ["tree"] } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."storage.storage.pull"]
+description = "Get files back from the cheapest cloud that has them, and check each"
+role = "primary"
+docs = "/services/storage/guide#get-files-back"
+output = "core.report"
+next = ["storage.storage.list"]
+fail = ["storage.storage.list", "storage.storage.push", "storage.storage.pull"]
+
+[actions."storage.storage.pull".args]
+paths = { type = "array", items = { type = "string" }, description = "Paths to get back; globs work: 'photos/**/*.jpg'", required = true, x-link-cli = { position = 1 } }
+cloud = { type = "string", description = "Only from this cloud account (`lnk cloud list`)" }
+remote = { type = "string", description = "Only from this remote: s3, a folder or rclone's (`lnk storage list`)", x-link-cli = { conflicts = ["cloud"] } }
+replace = { type = "boolean", description = "Replace files here that differ from the cloud's copy" }
+yes = { x-link-cli = { shared = "yes" } }
+flags = { type = "array", items = { type = "string" }, description = "After --: flags for rclone's copy, e.g. -- --bwlimit 10M", x-link-cli = { rest = true } }
+
+[actions."storage.storage.push"]
+description = "Send files to every cloud, and check each copy"
+role = "primary"
+docs = "/services/storage/guide#back-up"
+output = "core.report"
+next = ["storage.storage.list", "storage.storage.clean"]
+fail = ["storage.storage.list", "storage.storage.push", "storage.storage.pull", "storage.storage.create", "cloud.cloud.list"]
+
+[actions."storage.storage.push".args]
+paths = { type = "array", items = { type = "string" }, description = """
+Paths in `~/Link/Files` or an owner's folder (from the current folder
+when you're in one of them)
+""", required = true, x-link-cli = { position = 1 } }
+cloud = { type = "array", items = { type = "string" }, description = "Only these cloud accounts (`lnk cloud list`)" }
+remote = { type = "array", items = { type = "string" }, description = "Only these remotes: s3, a folder or rclone's (`lnk storage list`)" }
+archive = { type = "boolean", description = """
+Store them in the archive tier (aws, gcp): about $1 per TB a month, but
+slow and costly to read back
+""" }
+replace = { type = "boolean", description = """
+Replace cloud copies that differ from the files here; without it they're
+kept and reported
+""" }
+recheck = { type = "boolean", description = """
+Send and check every file, even those unchanged (same size and
+modification time) since their copy was checked
+""" }
+yes = { x-link-cli = { shared = "yes" } }
+flags = { type = "array", items = { type = "string" }, description = """
+After --: flags for rclone's copy, e.g. -- --bwlimit 10M --transfers 8
+""", x-link-cli = { rest = true } }
+
+[actions."storage.storage.rclone"]
+description = """
+Run rclone itself on your clouds: mount, sync, serve, ...
+
+Each cloud is a remote named after it; `lnk storage list` shows
+each one's remote.
+"""
+role = "primary"
+docs = "/services/storage/guide#use-rclone-directly"
+output = "ran"
+next = ["storage.storage.list"]
+fail = ["storage.storage.list"]
+
+[actions."storage.storage.rclone".args]
+args = { type = "array", items = { type = "string" }, description = "rclone's arguments, e.g. lsd aws: or mount aws: `~/mnt`", x-link-cli = { rest = true } }
+
+[actions."storage.storage.remove"]
+description = """
+Remove files from clouds
+
+The copies in your clouds, not the files here: `lnk storage clean`
+frees the space here. A cloud's buckets are `lnk storage
+delete`.
+"""
+role = "primary"
+docs = "/services/storage/guide#remove-from-your-clouds"
+output = "core.report"
+next = ["storage.storage.clean", "storage.storage.list", "storage.storage.pull"]
+fail = ["storage.storage.list", "storage.storage.pull", "storage.storage.remove"]
+
+[actions."storage.storage.remove".args]
+paths = { type = "array", items = { type = "string" }, description = "Paths in `~/Link/Files` or an owner's folder", required = true, x-link-cli = { position = 1 } }
+cloud = { type = "array", items = { type = "string" }, description = "Only from these cloud accounts (`lnk cloud list`) [default: every cloud]" }
+remote = { type = "array", items = { type = "string" }, description = "Only from these remotes: s3, a folder or rclone's (`lnk storage list`)" }
+everywhere = { type = "boolean", description = "Remove them even where that's the last copy anywhere" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."storage.storage.restore"]
+description = """
+For the module that keeps an owner: the named owner's buckets put in
+place here (found by label in your `lnk cloud` accounts, their password
+asked for, a key reaching only them where a cloud makes one) and its
+files pulled into <FOLDER>; prints {"owner", "buckets", "labels"} as
+JSON on stdout, and all else on stderr
+"""
+role = "plumbing"
+output = "restored"
+
+[actions."storage.storage.restore".args]
+owner = { type = "string", description = """
+Whose, <kind>:<name>, or its ID's id in place of the name when two
+owners of the kind have the name
+""", required = true }
+folder = { type = "string", x-link-path = true, description = "The folder its files come back to", required = true }
+
+[actions."storage.storage.revoke"]
+description = """
+For the module that keeps an owner, when its folder moves back from a
+box: the keys `keys` made for the owner with this ID, gone
+"""
+role = "plumbing"
+output = "core.report"
+
+[actions."storage.storage.revoke".args]
+owner = { type = "string", description = "The owner's ID, <kind>:<id>", required = true }
+
+[actions."storage.storage.show"]
+diagnoses = "storage"
+output = "core.report"
+description = "Show how one cloud is set up and what it holds, never a credential"
+role = "secondary"
+docs = "/services/storage#show-a-connected-cloud"
+next = ["storage.storage.disconnect", "storage.storage.delete", "storage.storage.list"]
+fail = ["storage.storage.list"]
+
+[actions."storage.storage.show".args]
+name = { type = "string", description = "The cloud's name (`lnk storage list`)", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }
+

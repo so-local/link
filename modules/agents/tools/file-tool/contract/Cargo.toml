@@ -1,0 +1,42 @@
+[package]
+authors.workspace = true
+name = "link-file-tool-contract"
+description = "`link-file-tool-contract` holds Link File's command line, which the agent module and Local Link's units build and `lnk-file-tool` reads"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[lib]
+doctest = false
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/tools/file-tool"
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[build-dependencies]
+anyhow.workspace = true
+link-actions-build.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

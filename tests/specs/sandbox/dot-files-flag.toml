@@ -1,0 +1,16 @@
+# --files.write_dot_files beside a spec opens them as its key does, for that
+# folder only.
+[spec]
+schema = 1
+[spec.files]
+write = ["app", "docs"]
+
+[run]
+flags = ["--files.write_dot_files", "app"]
+
+[spec.commands]
+toolchains = ["shell", "git"]
+
+[expect]
+dot_files_open = ["app"]
+dot_files_closed = ["docs"]

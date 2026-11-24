@@ -1,0 +1,145 @@
+# The words a command may and may not use for what it does
+# (`link_repository_check::commands`), read against every module's
+# `actions.toml`, hidden commands included.
+#
+# The reason: one verb per meaning. **create / delete** is for what comes
+# into and goes out of existence, **add / remove** for a connection between
+# two things, and the pairs never cross. **set / get** write and read one
+# value of a thing named by its ID, `get` answering nothing when it has
+# none. **check** reads and tries without making anything, and **run** runs
+# a command. A lifecycle word outside the set below is a second name for a
+# meaning that already has one.
+
+# The lifecycle pairs, and the verbs that stand alone.
+pairs = [
+    ["create", "delete"],
+    ["add", "remove"],
+    ["connect", "disconnect"],
+    ["install", "uninstall"],
+    ["start", "stop"],
+    ["set", "get"],
+]
+crossed = [["create", "remove"], ["add", "delete"]]
+alone = ["list", "show", "check", "run"]
+
+# The other words a command may end in, each group with its reason. A
+# command's last word that is on no list here (and is no pair, `list`,
+# `show`, `check` or `run`) fails: a new word comes in only by saying why, in review.
+
+[[allowed]]
+reason = "Hidden plumbing between Link's own programs: a person never types it, a program runs it for another (a bridge, a worker, a proxy, a callback, a protocol operation)."
+words = [
+    "account-input", "account-input-schema", "guest-service", "placeholders", "probe",
+    "agent-abort", "agent-backup", "agent-chat", "agent-connect", "agent-create",
+    "agent-in", "agent-left", "agent-list", "agent-out", "agent-receive",
+    "agent-restore", "agent-runs", "agent-send", "agent-team", "delete-objects",
+    "resource-journal-schema", "socket",
+    "acp", "add-key", "bucket-credential", "buckets", "cleanup",
+    "clear-schedules", "configure", "connections", "contract", "conversation",
+    "defaults", "describe", "endpoint", "health", "hold",
+    "hook", "hostkeys", "image-list", "image-remove", "image-save",
+    "instructions", "internet-hosts", "launch", "link", "nexts",
+    "object-read", "owner", "remove-keys", "revoke-key", "rule",
+    "save-hostkeys", "schedules", "sift", "sizes", "state",
+    "storage", "tag", "traces", "tunnel", "unhook",
+    "upload-once", "version", "wait", "written",
+    "action-bridge", "apply", "bootstrap", "bridge", "bridges", "call",
+    "command", "confine", "cookie", "delete-request", "dns-socket",
+    "end", "end-here", "enter", "fixture", "forward", "gate", "keep",
+    "lookup", "loopback", "machine-call", "machine-state",
+    "machine-submit", "machine-tunnel", "machine-worker", "mcp-namespace",
+    "mcp-remote", "mcp-shared", "network-forward", "network-worker",
+    "on-stop", "proxy", "proxy-inside", "refusals", "serve-many", "service",
+    "socks", "state-send", "stream", "supervise", "sweep", "text",
+    "try-exec", "visitors", "worker", "workers", "wrap",
+]
+
+[[allowed]]
+reason = "Runs a program, a task or a server: the work is what the command does, not a change to a thing's existence."
+words = [
+    "learn", "schedule", "serve", "watch",
+]
+
+[[allowed]]
+reason = "Reads, finds or checks without changing anything, in a shape `list` (many of one kind) and `show` (one thing) don't cover."
+words = [
+    "context", "count", "definition", "diagnostics", "find", "glob", "grep",
+    "inspect", "log", "man", "measurement", "needs", "output", "plan",
+    "preview", "read", "references", "resolve", "schema", "search", "shared",
+    "spec", "status", "usage", "validate",
+]
+
+[[allowed]]
+reason = "Moves content between two places or two parties: what is sent, received, copied or carried, with the thing itself staying."
+words = [
+    "adopt", "answer", "ask", "chat", "compact", "convert", "copy",
+    "deliver", "embed", "export", "fetch", "goal", "handoff", "import",
+    "left", "publish", "pull", "push", "queue", "receive", "send", "steer",
+    "transcribe", "verbose",
+]
+
+[[allowed]]
+reason = "An action on a screen, a page or a file, the vocabulary of the browser, desktop and file tools."
+words = [
+    "click", "close", "drag", "edit", "key", "open", "remember",
+    "screenshot", "scroll", "select", "type", "write",
+]
+
+[[allowed]]
+reason = "Changes a thing's state or keeps it, without creating or deleting it, so no pair of D5 says it: pausing, renewing, restoring, resetting, moving, renaming."
+words = [
+    "approve", "backup", "block", "clean", "fork", "label", "migrate", "move",
+    "pause", "prepare", "reconcile", "rename", "renew", "reset", "restart",
+    "restore", "resume", "revoke", "rotate", "share", "unblock",
+]
+
+[[allowed]]
+reason = "Joining and leaving another account's team, said by the one who joins, where `add` and `remove` would read as its owner's act."
+words = [
+    "join", "leave",
+]
+
+[[allowed]]
+reason = "Logging in and out, setting up and keeping Link current: the commands of a person's own session."
+words = [
+    "login", "logout", "setup", "signer", "token", "up", "upgrade",
+]
+
+[[allowed]]
+reason = "A command typed in a chat (surfaces = [\"command\"]), in the words a chat's commands use: `help` listing them."
+words = [
+    "help",
+]
+
+[[allowed]]
+reason = "A noun: the command names the thing it acts on (its output or its subcommands are about it), not a verb."
+words = [
+    "account", "agent", "guest", "backend", "backends", "context-mcp", "env",
+    "exit", "here", "image", "keys", "links", "machine", "mcp", "rclone",
+    "relay", "route", "secret", "ssh", "unsandboxed",
+]
+
+# Words that are no command's verb, and what to say instead.
+[banned]
+give = "add, or create"
+take = "remove, or delete"
+new = "create"
+forget = "delete, or remove"
+cancel = "stop"
+allow = "add"
+deny = "remove"
+destroy = "delete"
+make = "create"
+rm = "remove"
+register = "add"
+unregister = "remove"
+attach = "add"
+detach = "remove"
+
+# A flag that is no flag's name, and what to say instead.
+[banned_flags]
+dry-run = "--dry"
+
+# Commands still to be renamed: each module file, then the commands in
+# it, with who owns the rename. A command here may leave, never join.
+[held]

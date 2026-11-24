@@ -1,0 +1,9 @@
+schema = 1
+# A measure store file's line, `~/.lnk/data/measures/<folder>/<span>.jsonl`:
+# a time and each unit's values.
+kind = "measure store line"
+current = 1
+command = "lnk measure"
+# What happened, never rewritten by an upgrade: each line is read as its
+# schema says.
+holds = "history"

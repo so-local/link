@@ -1,0 +1,11 @@
+schema = 1
+# A tool a sandbox reaches, an MCP server run outside it:
+# `~/.lnk/safe/sandboxes/tools/<name>.json` (600).
+kind = "sandbox tool"
+current = 1
+command = "lnk sandbox tool add"
+
+[[files]]
+location = "lnk.sandboxes"
+path = "tools/*.json"
+encoding = "json"

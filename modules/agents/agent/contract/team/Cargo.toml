@@ -1,0 +1,56 @@
+[package]
+authors.workspace = true
+name = "link-agent-team"
+description = "`link-agent-team` reads a team from its file"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/agent"
+
+[dependencies.link-agent-identity]
+workspace = true
+
+[dependencies.link-harness-base]
+workspace = true
+
+[dependencies.link-policy]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[lib]
+doctest = false
+
+[dev-dependencies.toml]
+workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[dependencies.link-spec]
+workspace = true

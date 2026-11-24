@@ -1,0 +1,14 @@
+# Root runs outside any sandbox.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.stage]]
+name = "system"
+run = "apt-get install -y git"
+sandbox = "system.toml"
+user = "root"
+
+[expect]
+invalid = 'has a sandbox and user = "root"'

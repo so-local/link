@@ -1,0 +1,182 @@
+schema = 1
+
+# The protocol every cloud adapter answers, declared once: `lnk box`,
+# `lnk storage`, `lnk cloud` and the agent call an adapter of any kind
+# the same way, its request on standard input and its reply on standard
+# output. Each adapter lists the actions it answers under [implements].
+
+[verbs]
+storage = { description = "Say what reaches the account's own buckets, as the account", effect = "find" }
+defaults = { description = "Say the machine type and place a box gets when its specification names neither", effect = "find" }
+sizes = { description = "List the machine types a box can be in a place, with the place's rates", effect = "find" }
+launch = { description = "Make a machine as a box's resolved specification says", effect = "insert" }
+wait = { description = "Wait until a machine runs and say its address", effect = "find" }
+state = { description = "Say a machine's state and address", effect = "find" }
+describe = { description = "Say what a machine is: its size, disk, OS and whether it's spot", effect = "find" }
+hostkeys = { description = "Read a machine's SSH host keys from its console", effect = "find" }
+cleanup = { description = "Delete what a box left in the account once its machine is gone", effect = "delete" }
+save-hostkeys = { description = "Keep a machine's SSH host keys where the next run finds them", effect = "update" }
+add-key = { description = "Let an SSH public key into a machine for a while", effect = "insert" }
+remove-keys = { description = "Take every SSH key added to a machine out", effect = "delete" }
+tag = { description = "Add tags to a machine and its disk", effect = "update" }
+label = { description = "Add labels to a bucket", effect = "update" }
+buckets = { description = "List the account's buckets by their labels", effect = "find" }
+upload-once = { description = "Sign a write-once upload of one object into a bucket", effect = "find" }
+delete-objects = { description = "Delete objects of a bucket by their names", effect = "delete" }
+object-read = { description = "Read one object of a bucket", effect = "find" }
+bucket-credential = { description = "Make a credential that reaches one bucket alone", effect = "insert" }
+revoke-key = { description = "Revoke the keys made for a bucket", effect = "delete" }
+image-save = { description = "Save a stopped machine's disk as an image", effect = "insert" }
+image-list = { description = "List the account's images by their tags", effect = "find" }
+image-remove = { description = "Delete an image", effect = "delete" }
+tunnel = { description = "Carry a box's SSH stream through its cloud account", effect = "insert" }
+
+[actions."cloud-contract.cloud-contract.add-key"]
+description = "Answer the cloud adapter contract's add-key request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.bucket-credential"]
+description = "Answer the cloud adapter contract's bucket-credential request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.buckets"]
+description = "Answer the cloud adapter contract's buckets request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.cleanup"]
+description = "Answer the cloud adapter contract's cleanup request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.defaults"]
+description = "Answer the cloud adapter contract's defaults request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.delete-objects"]
+description = "Answer the cloud adapter contract's delete-objects request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.describe"]
+description = "Answer the cloud adapter contract's describe request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.disconnect"]
+description = "Answer the cloud adapter contract's forget request on standard input: forget what the adapter kept for an account."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.hostkeys"]
+description = "Answer the cloud adapter contract's hostkeys request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.image-list"]
+description = "Answer the cloud adapter contract's image-list request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.image-remove"]
+description = "Answer the cloud adapter contract's image-remove request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.image-save"]
+description = "Answer the cloud adapter contract's image-save request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.label"]
+description = "Answer the cloud adapter contract's label request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.launch"]
+description = "Answer the cloud adapter contract's launch request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.list"]
+description = "Answer the cloud adapter contract's list request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.object-read"]
+description = "Answer the cloud adapter contract's object-read request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.remove"]
+description = "Answer the cloud adapter contract's remove request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.remove-keys"]
+description = "Answer the cloud adapter contract's remove-keys request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.revoke-key"]
+description = "Answer the cloud adapter contract's revoke-key request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.save-hostkeys"]
+description = "Answer the cloud adapter contract's save-hostkeys request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.sizes"]
+description = "Answer the cloud adapter contract's sizes request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.start"]
+description = "Answer the cloud adapter contract's start request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.state"]
+description = "Answer the cloud adapter contract's state request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.stop"]
+description = "Answer the cloud adapter contract's stop request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.storage"]
+description = "Answer the cloud adapter contract's storage request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.tag"]
+description = "Answer the cloud adapter contract's tag request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.tunnel"]
+description = "Carry a box's SSH stream through its cloud account."
+role = "plumbing"
+output = "tunneled"
+
+[actions."cloud-contract.cloud-contract.tunnel".args]
+cloud = { x-link-cli = { shared = "cloud" } }
+id = { type = "string", description = "The box identifier in its cloud account.", required = true }
+zone = { type = "string", description = "The cloud region or zone containing the box.", required = true }
+
+[actions."cloud-contract.cloud-contract.upload-once"]
+description = "Answer the cloud adapter contract's upload-once request on standard input."
+role = "plumbing"
+output = "reply"
+
+[actions."cloud-contract.cloud-contract.wait"]
+description = "Answer the cloud adapter contract's wait request on standard input."
+role = "plumbing"
+output = "reply"

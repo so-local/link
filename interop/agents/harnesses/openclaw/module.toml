@@ -1,0 +1,47 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+"recommends" = [{ "dependency" = "agent" }, { "dependency" = "sandbox" }, {dependency = "signal"}]
+
+["module"]
+id = "openclaw"
+"kind" = "harness"
+owner = "interop/agents/harnesses/openclaw"
+
+["dependencies"."agent"]
+"kind" = "module"
+"id" = "agent"
+
+["dependencies"."sandbox"]
+kind = "module"
+id = "sandbox"
+
+["dependencies"."engine"]
+"kind" = "external"
+"id" = "openclaw"
+
+["dependencies".signal]
+kind = "module"
+id = "signal"
+["documentation"]
+"topic" = "agents/harnesses/openclaw"
+"root" = "docs"
+
+["pins"."openclaw"]
+"file" = "externals.json"
+"pointer" = "/openclaw"
+
+["pins"."openclaw-install-policy"]
+"file" = "externals.json"
+"pointer" = "/openclaw-install-policy"
+
+["removal"]
+"parts" = ["agents"]
+
+[dependencies.harness-contract]
+kind = "package"
+id = "harness-contract"

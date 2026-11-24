@@ -1,0 +1,5 @@
+# Disks saved in the first schema.
+schema = 1
+# The machine's name.
+name = "web"
+disk = "20G" # one string, size and unit

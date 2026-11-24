@@ -1,0 +1,30 @@
+# The order of a workspace's root `Cargo.toml` and of every
+# `package.json`, most read first. A root `Cargo.toml` goes: what the
+# workspace is (its version and edition), what it holds, its lint levels,
+# its dependencies, how it builds, and last what only Link's checks read.
+# A table goes at the first place that names it: by its whole name, or
+# under a family's prefix. Read by `link_repository_check::manifest_order`.
+
+[[places]]
+table = "workspace.package"
+# The first key, so the version is the file's first value.
+first = "version"
+
+[[places]]
+table = "workspace"
+
+[[places]]
+family = "workspace.lints"
+
+[[places]]
+table = "workspace.dependencies"
+
+[[places]]
+family = "profile"
+
+[[places]]
+family = "workspace.metadata"
+
+# Every `package.json` opens with these keys, in this order.
+[npm]
+first = ["name", "version"]

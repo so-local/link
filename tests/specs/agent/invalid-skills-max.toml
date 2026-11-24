@@ -1,0 +1,8 @@
+# A section's most is 64 B to 64 KB, the skills' too.
+[spec]
+schema = 1
+[spec.instructions.max]
+skills = "1 MB"
+
+[expect]
+invalid = "[instructions.max] skills is 64 B to 64 KB"

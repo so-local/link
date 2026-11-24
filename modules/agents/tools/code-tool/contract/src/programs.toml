@@ -1,0 +1,6 @@
+# The programs Link code names (`env_program()`), read once.
+
+# The program that sets a language server's variables inside its
+# sandbox, which clears the environment (`serve`'s `--var`): the agent
+# module lets the sandbox run it.
+env = "/usr/bin/env"

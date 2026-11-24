@@ -1,0 +1,7 @@
+# The protocol of the question storage.home: an agent's hosted Home
+# moved. One line from the asker, one back, each stating the version it
+# speaks.
+name = "storage home answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

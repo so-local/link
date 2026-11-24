@@ -1,0 +1,9 @@
+schema = 1
+kind = "cloud teams"
+current = 1
+command = "lnk agent team list"
+
+[[files]]
+location = "lnk.agent-places"
+path = "hosted-teams.toml"
+encoding = "toml"

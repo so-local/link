@@ -1,0 +1,9 @@
+schema = 1
+kind = "cloud accounts"
+current = 1
+command = "lnk cloud"
+
+[[files]]
+location = "lnk.clouds"
+path = "accounts.toml"
+encoding = "toml"

@@ -1,0 +1,11 @@
+# What wrapping a program needs of this machine, by operating system and
+# the effective command policy: each a dependency of `module.toml`, by
+# its name there.
+
+[macos]
+restricted = ["seatbelt"]
+unrestricted = ["seatbelt"]
+
+[linux]
+restricted = ["wall", "namespaces", "filter"]
+unrestricted = ["wall", "namespaces"]

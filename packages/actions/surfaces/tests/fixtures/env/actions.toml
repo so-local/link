@@ -1,0 +1,46 @@
+schema = 1
+
+[verbs]
+compact = { description = "Make what was said shorter, keeping its sense", effect = "update" }
+
+[actions."env.env.create"]
+description = "Make a box from an environment file"
+spec = "env"
+output = "created"
+role = "primary"
+
+[actions."env.env.create".args]
+cloud = { type = "string", description = "The cloud account to make it on", required = true, x-link-cli = { position = 1 } }
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml)", required = true }
+yes = { x-link-cli = { shared = "yes" } }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."env.approval.add"]
+description = "Give an environment file a secret it asks for, ahead of its run"
+
+[actions."env.approval.add".args]
+secret = { type = "string", description = "The secret, by its name", required = true, x-link-cli = { position = 1 } }
+file = { type = "string", x-link-path = true, description = "The environment file", required = true }
+
+# A command an agent's harness alone runs: on no surface but its route.
+[actions."env.env.compact"]
+description = "Compact what the environment has said so far"
+output = "created"
+surfaces = []
+
+[actions."env.env.compact".route]
+bridge = "harness"
+callers = ["owner"]
+command = true
+names = ["/compact"]
+
+# A program's own call: its template offers it, never tools.json.
+[actions."env.env.show"]
+description = "Show the environment as it stands"
+surfaces = ["tool"]
+output = "created"
+
+[actions."env.env.show".tool]
+name = "environment"
+[actions."env.env.show".args]
+detail = { type = "boolean", description = "Every field, not only the set ones" }

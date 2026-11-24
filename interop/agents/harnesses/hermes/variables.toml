@@ -1,0 +1,77 @@
+schema = 1
+
+[defines.LNK_HERMES_MODEL_URL]
+type = "string"
+description = "The model's address in Hermes's `config.yaml`, reached through Link's proxy with the proxy's secret in it"
+
+[defines.LNK_HERMES_MANAGED_GATEWAY]
+type = "string"
+description = "Set to 1 in the Hermes gateway Link starts, so its workarounds know Link manages it"
+
+[defines.HERMES_HOME]
+type = "string"
+description = "Where Hermes keeps its configuration and state: the agent's own folder, given to each Hermes process it runs."
+
+[[uses]]
+name = "LNK_AGENT"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_FILES"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_HERMES_MODEL_URL"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_HERMES_MANAGED_GATEWAY"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "NODE_USE_ENV_PROXY"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "PATH"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_AGENT_ID"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_OWNER"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_SERVICES"
+access = ["forward"]
+context = "test"
+
+[readers]
+"workarounds::runtime" = "The variables the Hermes runtime is given and those it never inherits, from the workarounds' settings (`runtime_env`)."
+"serve" = "The variables Hermes's ACP process is given, from the harness's launch."

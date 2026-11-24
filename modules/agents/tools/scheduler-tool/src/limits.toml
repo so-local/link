@@ -1,0 +1,69 @@
+# Link scheduler's limits (`limits()`), read once.
+
+# A job's message.
+
+# The longest message a job sends, in bytes.
+text_max = 16384
+
+# The most of a job's message `list` shows, in characters: `read` gives
+# it whole.
+listed_text_max = 200
+
+# The longest description a subagent is given, in bytes: a few words.
+description_max = 200
+
+# The most jobs an agent keeps waiting: one past it isn't sent.
+jobs_max = 1000
+
+# The most jobs one subagent may wait on.
+after_max = 32
+
+# The most jobs `list` gives, the soonest first: the rest are counted.
+list_max = 100
+
+# A firing.
+
+# How late a firing may be before it's a missed one, in seconds: the
+# runner looks at least once a minute, so later means it wasn't running.
+late_after_secs = 120
+
+# How many times a failed firing is tried again, a minute after, then
+# two, four, eight and sixteen: half an hour, a laptop finding its
+# network on waking. Then it's given up, and the runner says so.
+retries = 5
+
+# The wait before a failed firing's first try again, in seconds, doubled
+# each time.
+retry_after_secs = 60
+
+# An ended job.
+
+# How long an ended job is kept, with its outcome, for the jobs that wait
+# on it and whoever reads it, in seconds: a week, the newest `ended_max`
+# at most.
+ended_keep_secs = 604800
+
+# The most ended jobs kept: past it, the longest ended go first.
+ended_max = 256
+
+# The most of an ended job's answer kept, in bytes.
+result_max = 16384
+
+# The runner.
+
+# How often the runner looks whether the jobs changed, in milliseconds:
+# a job set for now fires within this.
+look_every_ms = 1000
+
+# The longest the runner sleeps between two looks at every job, in
+# seconds.
+look_at_most_secs = 60
+
+# A team's relay.
+
+# The most of a relay's messages put as jobs at one look, so a full
+# mailbox never crowds out what's due.
+pulls_at_a_look = 4
+
+# How long before its end a kept token is made again, in seconds.
+token_margin_secs = 60

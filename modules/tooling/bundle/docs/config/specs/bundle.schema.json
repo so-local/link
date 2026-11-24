@@ -1,0 +1,161 @@
+{
+  "$defs": {
+    "bundle.build": {
+      "description": "Its stage, which says what its `lnk` trusts: `dev` (the bundle's own\nsigner and Link's), `staging` (the staging signer and Link's) or `prod`\n(the bundle's own signer alone, at the workspace's version).",
+      "enum": [
+        "dev",
+        "staging",
+        "prod"
+      ],
+      "type": "string"
+    },
+    "bundle.target": {
+      "description": "A target a bundle builds for: one of Link's release targets, each an operating system on an architecture, or `host`, this computer's",
+      "enum": [
+        "host",
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "x86_64-unknown-linux-musl",
+        "aarch64-unknown-linux-musl"
+      ],
+      "type": "string",
+      "x-link-values": {
+        "aarch64-apple-darwin": "macOS on arm64",
+        "aarch64-unknown-linux-musl": "Linux on arm64, built with musl so it needs no system libraries",
+        "host": "this computer's own target, one of the others",
+        "x86_64-apple-darwin": "macOS on x86_64",
+        "x86_64-unknown-linux-musl": "Linux on x86_64, built with musl so it needs no system libraries"
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Which of Link's programs to build from source, for which targets, and how to seal and sign them into one release folder",
+  "properties": {
+    "build": {
+      "$ref": "#/$defs/bundle.build",
+      "description": "Its stage, which says what its `lnk` trusts: `dev` (the bundle's own\nsigner and Link's), `staging` (the staging signer and Link's) or `prod`\n(the bundle's own signer alone, at the workspace's version)."
+    },
+    "components": {
+      "description": "A component folder, outside the built `lnk`'s own workspace, whose\nmodule the bundle's `lnk` lists, repeated for more. Its commands then\nanswer on the machine the bundle installs to. A prod build lists it\nonly if it's released. It's none when none is given, whatever the\nbuild's shell or folder says.",
+      "examples": [
+        [
+          "../extra/modules/example"
+        ]
+      ],
+      "items": {
+        "format": "path",
+        "type": "string",
+        "x-link-path": true
+      },
+      "type": "array"
+    },
+    "file": {
+      "description": "A file sealed beside the programs, such as a manifest its installer\nreads, repeated for more.",
+      "examples": [
+        [
+          "manifest.toml"
+        ]
+      ],
+      "items": {
+        "format": "path",
+        "type": "string",
+        "x-link-path": true
+      },
+      "type": "array"
+    },
+    "from": {
+      "description": "Parts built before, unsigned, sealed instead of building, repeated for\neach part.",
+      "examples": [
+        [
+          "part-linux"
+        ]
+      ],
+      "items": {
+        "format": "path",
+        "type": "string",
+        "x-link-path": true
+      },
+      "type": "array"
+    },
+    "out": {
+      "description": "Where the bundle goes, `~/.lnk/data/bundles/<name>/<version>` when none is\ngiven.",
+      "examples": [
+        "dist"
+      ],
+      "format": "path",
+      "type": "string",
+      "x-link-path": true
+    },
+    "outside": {
+      "description": "A TOML file declaring programs Link doesn't build, such as Caddy,\nrepeated for more.",
+      "examples": [
+        [
+          "outside.toml"
+        ]
+      ],
+      "items": {
+        "format": "path",
+        "type": "string",
+        "x-link-path": true
+      },
+      "type": "array"
+    },
+    "program": {
+      "description": "A program to build, by its file name, such as `lnk-measure` or a program\nof your own, repeated for more. It's `lnk` and every module of the first\nsource when none is given.",
+      "examples": [
+        [
+          "lnk",
+          "lnk-box"
+        ]
+      ],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "signer": {
+      "description": "Who signs it: `link`, `staging`, a signer of your own by name, kept in\n`~/.lnk/safe/bundles/signers` and made on first use, or an\nallowed-signers file. Dev and prod require a signer, including unsigned\nparts that must embed its trust. Staging may omit it for unsigned parts.",
+      "examples": [
+        "dev"
+      ],
+      "type": "string"
+    },
+    "source": {
+      "description": "A workspace to find programs in, repeated for more. It's this folder\nwhen none is given.",
+      "examples": [
+        [
+          "."
+        ]
+      ],
+      "items": {
+        "format": "path",
+        "type": "string",
+        "x-link-path": true
+      },
+      "type": "array"
+    },
+    "target": {
+      "description": "A target to build for, one of Link's release targets, such as\n`x86_64-unknown-linux-musl`, or `host` for this computer's, repeated for\nmore. It's `host` when none is given.",
+      "examples": [
+        [
+          "x86_64-unknown-linux-musl"
+        ]
+      ],
+      "items": {
+        "$ref": "#/$defs/bundle.target",
+        "description": "A target a bundle builds for: one of Link's release targets, each an operating system on an architecture, or `host`, this computer's"
+      },
+      "type": "array"
+    },
+    "version": {
+      "description": "Its version. It's the workspace's, stamped for staging and dev, when\nnone is given.",
+      "examples": [
+        "0.14.0"
+      ],
+      "type": "string"
+    }
+  },
+  "type": "object",
+  "x-link-generator": "Generated by link-actions-surfaces from the module declarations: change those and regenerate, never this file."
+}

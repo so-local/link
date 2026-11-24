@@ -1,0 +1,12 @@
+# A pinned size is made as given when listing fails, saying why.
+[spec]
+schema = 1
+[spec.machine.aws]
+size = "t3.large"
+
+[run]
+sizes_error = "lnk-aws sizes: An error occurred (UnauthorizedOperation)"
+
+[expect]
+size = "t3.large"
+note = "couldn't list its machine types in us-east-2"

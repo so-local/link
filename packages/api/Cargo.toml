@@ -1,0 +1,57 @@
+[package]
+authors.workspace = true
+name = "link-api"
+description = "`link-api` is Local Link's typed client for the account service's API, with one function per route, built on `link-fetch`"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/api"
+inputs = [{kind = "file",path = "schemas/account.yaml",scope = "owner"}, {kind = "file", path = "schemas/remote.yaml", scope = "owner"}]
+
+[dependencies]
+link-fetch.workspace = true
+link-version.workspace = true
+link-secretive.workspace = true
+# `Principal` and `PrincipalKind`, the spec's, defined once there for the
+# crates that name a principal without this API (`build.rs`).
+link-principal.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+# Access tokens: their parts, and the randomness of an assertion's id.
+base64.workspace = true
+ring.workspace = true
+# What the generated types are made of: a pattern's check, an id, a time.
+jiff = { version = "0.2", default-features = false, features = ["serde", "std"] }
+regress = "0.12"
+uuid = { version = "1", features = ["serde"] }
+
+[build-dependencies]
+# The spec's schemas made Rust types (`build.rs`), at every build.
+typify = "0.8"
+serde_json.workspace = true
+serde_norway = "0.9"
+syn = { version = "3", features = ["full", "visit-mut"] }
+prettyplease = "0.3"
+quote = "1"
+
+[dev-dependencies]
+link-test-kit.workspace = true
+# The minted IDs a principal's pattern is held to.
+link-id.workspace = true
+axum.workspace = true
+# The spec read, to hold the routes to it.
+serde_norway = "0.9"
+tokio.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[build-dependencies.link-secretive]
+workspace = true

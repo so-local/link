@@ -1,0 +1,100 @@
+# A teammate: its own policy reaches its own things, and a team's role
+# what the team grants it: its teammates' messages and its folders.
+[spec]
+schema = 1
+name = "scout"
+version = 1
+
+[[spec.allow]]
+actions = ["agent.*"]
+on = ["agent:scout"]
+
+[[role]]
+schema = 1
+name = "team-r7"
+version = 1
+
+[[role.allow]]
+actions = ["team.read", "team.member"]
+on = ["team:r7"]
+
+[[role.allow]]
+actions = ["agent.message"]
+on = ["agent:quill", "agent:scout"]
+
+[[role.allow]]
+actions = ["bucket.read", "bucket.write"]
+on = ["bucket:team-r7/drafts/*"]
+
+[[role.allow]]
+actions = ["bucket.read"]
+on = ["bucket:team-r7/notes/*"]
+
+[expect]
+name = "scout"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "agent.admin"
+on = "agent:scout"
+said = "allowed by grant 1"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "agent.read"
+on = "agent:quill"
+said = "refused: no grant"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "agent.message"
+on = "agent:quill"
+said = "allowed by grant 2 of the role team-r7"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "team.member"
+on = "team:r7"
+said = "allowed by grant 1 of the role team-r7"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "team.read"
+on = "team:other"
+said = "refused: no grant"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "team.admin"
+on = "team:r7"
+said = "refused: no grant"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "bucket.write"
+on = "bucket:team-r7/drafts/"
+said = "allowed by grant 3 of the role team-r7"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "bucket.read"
+on = "bucket:team-r7/notes/"
+said = "allowed by grant 4 of the role team-r7"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "bucket.write"
+on = "bucket:team-r7/notes/"
+said = "refused: no grant"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "bucket.share"
+on = "bucket:team-r7/drafts/"
+said = "refused: no grant"
+
+[[check]]
+as = "service:scoutsimjo7n"
+action = "bucket.read"
+on = "bucket:team-r7/"
+said = "refused: no grant"

@@ -1,0 +1,182 @@
+schema = 1
+
+[env]
+type = "object"
+description = "What every box made from it has"
+x-link-spec = { kind = "env" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", pattern = "^[a-z0-9-]+$", description = "Its name: lowercase letters, digits and dashes" }
+properties.workdir = { type = "string", x-link-path = true, description = "Where a run starts, from the home folder" }
+properties.variables = { type = "object", additionalProperties = { type = "string" }, description = "Not secret: given to every run as written" }
+properties.stages = { type = "array", items = "stage", description = "The stages, in order" }
+properties.owner = { type = "string", format = "link-id", x-link-kind = "user", description = "Who it's for" }
+properties.steps = { type = "array", items = "step", description = "Steps, each a stage or a group run together" }
+properties.size = "size"
+properties.grant = { type = "string", description = "What it lends an agent", x-link-unavailable = "a sandbox run lends no agent anything" }
+
+[stage]
+type = "object"
+required = ["name", "run"]
+additionalProperties = false
+properties.name = { type = "string" }
+properties.run = { type = "string", description = "A command line, for sh -c" }
+properties.timeout = { type = "string", format = "duration", description = "How long it may run" }
+properties.ready-within = { shape = "core.duration", default = "1m", description = "How long it may take to be ready, a minute unless it says" }
+properties.retries = { type = "integer", minimum = 0, maximum = 9, default = 1, description = "How often it's tried again" }
+properties.ready = "ready"
+properties.sandbox = { type = "string", x-link-path = "confined", description = "Its sandbox spec, inside the file's folder" }
+
+[created]
+type = "object"
+x-link-display = { key = "box" }
+required = ["box", "cloud"]
+additionalProperties = false
+properties.box = { type = "string", format = "link-id", x-link-kind = "box" }
+properties.cloud = { type = "string" }
+
+[approval]
+type = "object"
+x-link-resource = { id = "secret" }
+required = ["secret", "file"]
+additionalProperties = false
+properties.secret = { type = "string", format = "link-id", x-link-kind = "secret" }
+properties.file = { type = "string", x-link-path = true }
+
+[ready]
+description = "How a stage says it's ready"
+oneOf = [
+    { type = "object", required = ["kind", "port"], additionalProperties = false, properties = { kind = { const = "port" }, port = "port" } },
+    { type = "object", required = ["kind", "run"], additionalProperties = false, properties = { kind = { const = "run" }, run = { type = "string", minLength = 1 } } },
+]
+
+[port]
+type = "integer"
+description = "A port"
+minimum = 1
+maximum = 65535
+
+[size]
+description = "A machine's size"
+enum = ["small", "large"]
+x-link-values = { small = "Two processors and 4 GB", large = "Eight processors and 32 GB" }
+
+[probed]
+type = "object"
+description = "What env probe read"
+required = ["count"]
+additionalProperties = false
+properties.count = { type = "integer" }
+properties.said = { x-link-any = true, description = "Anything else it said, as written" }
+
+[step]
+description = "A stage, or a group of stages run together, told apart by run or parallel"
+oneOf = ["stage", "group"]
+x-link-markers = ["run", "parallel"]
+
+[group]
+type = "object"
+description = "Stages run together"
+required = ["parallel"]
+additionalProperties = false
+properties.name = { type = "string" }
+properties.parallel = { type = "array", items = "stage", minItems = 1 }
+
+[profile]
+type = "object"
+description = "A machine profile, the module's second spec kind"
+x-link-spec = { kind = "profile" }
+x-link-resource = { id = "name" }
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string" }
+properties.size = "size"
+
+[status]
+type = "string"
+description = "How the environment is, in a line"
+
+[compact-at]
+description = "When to compact: a share of the window, or never"
+oneOf = [{ type = "number", minimum = 0, maximum = 1 }, { const = "never" }]
+
+[amount]
+description = "How much: a count, a size, or a range"
+oneOf = [
+    { type = "integer", minimum = 1 },
+    { type = "string", pattern = "^[0-9]+ ?(GB|MB)$" },
+    { type = "object", additionalProperties = false, properties = { min = { type = "integer", minimum = 1 }, max = { type = "integer" } } },
+]
+
+[tools]
+type = "object"
+description = "Each tool by name: Link's own typed, any other passed on"
+additionalProperties = "tool"
+properties.web = "tool"
+
+[tool]
+type = "object"
+description = "One tool"
+additionalProperties = false
+properties.enabled = { type = "boolean" }
+properties.limit = { type = "integer", minimum = 1 }
+
+[labels]
+type = "array"
+description = "Labels, each a lowercase word"
+items = { type = "string", pattern = "^[a-z]+$" }
+
+[state]
+type = "object"
+description = "What the environment keeps between runs"
+additionalProperties = false
+properties.runs = { type = "integer" }
+
+[count-or-all]
+description = "How many: a whole number with no bounds, or all"
+oneOf = [{ type = "integer" }, { const = "all" }]
+
+# Whole numbers, each the smallest Rust integer its bounds fit.
+[widths]
+type = "object"
+description = "A whole number of each width"
+additionalProperties = false
+properties.small = { type = "integer", minimum = 0, maximum = 255 }
+properties.wide = { type = "integer", minimum = 0, maximum = 4294967295 }
+properties.counted = { type = "integer", minimum = 0 }
+properties.offset = { type = "integer", minimum = -5, maximum = 5 }
+properties.free = { type = "integer" }
+properties.isolation = { shape = "isolation", default = {} }
+properties.network = "isolation"
+
+# A table every field of which defaults: its holder's field is never optional.
+[isolation]
+type = "object"
+description = "How a run is kept apart"
+additionalProperties = false
+properties.network = { type = "boolean", default = true }
+properties.files = { type = "array", items = { type = "string" } }
+
+# A limit, or none at all: a size, a rate or the word, told by value.
+[body-limit]
+description = "The most a request's body holds, or none"
+oneOf = [{ const = "none" }, { type = "string", format = "size" }]
+
+[pace]
+description = "How many requests start in each period, or none"
+oneOf = [{ type = "string", format = "rate" }, { const = "none" }]
+
+# A domain's name, typed: a map's keys are this shape. A hook of its
+# own refuses what its pattern can't, wherever it's read.
+[domain]
+description = "A domain, by its name"
+type = "string"
+pattern = "^[a-z][a-z0-9-]*$"
+x-link-checks = ["domain"]
+
+# A map whose keys are a typed shape of their own.
+[opinions]
+description = "What is thought of each domain"
+type = "object"
+propertyNames = "domain"
+additionalProperties = { type = "string", description = "What is thought of it" }

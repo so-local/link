@@ -1,0 +1,28 @@
+{
+  "openclaw": {
+    "schema": 1,
+    "kind": "environment",
+    "version": "2026.11.7",
+    "released": "2026-11-22",
+    "url": "https://raw.githubusercontent.com/openclaw/openclaw/e31bbf056de321127988ec5c1a36ff1b59297de0/scripts/install-cli.sh",
+    "sha256": "908512f7dd88f0112d9e4f8c2910d3a88ee58879484e90f0d4c7fb87372a2191",
+    "archive": "none",
+    "program": "openclaw-installer",
+    "reproducibility": "untracked",
+    "inputs": [
+      "upstream installer resolves its runtime and transitive packages at installation time"
+    ]
+  },
+  "openclaw-install-policy": {
+    "schema": 1,
+    "kind": "environment",
+    "version": "2026.11.7",
+    "released": "2026-11-22",
+    "url": "https://raw.githubusercontent.com/openclaw/openclaw/e31bbf056de321127988ec5c1a36ff1b59297de0/scripts/install-policy.sh",
+    "sha256": "dfdf7ea425df67c74cf3c0b794612b60da5b48d7647c77eda7a686fcf347666c",
+    "archive": "none",
+    "program": "openclaw-install-policy",
+    "reproducibility": "tracked",
+    "inputs": []
+  }
+}

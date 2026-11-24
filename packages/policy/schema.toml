@@ -1,0 +1,4 @@
+schema = 1
+kind = "policy"
+current = 1
+about = "A policy specification says what a principal may do as a TOML file: its grants, each some actions on some resources, and how much it may have. What it doesn't grant is refused. A service's scopes, a role and what a host lets a guest do are each one."

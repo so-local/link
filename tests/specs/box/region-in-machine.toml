@@ -1,0 +1,8 @@
+# A region names one cloud's place.
+[spec]
+schema = 1
+[spec.machine]
+region = "us-east-2"
+
+[expect]
+invalid = "[machine] region names one cloud's"

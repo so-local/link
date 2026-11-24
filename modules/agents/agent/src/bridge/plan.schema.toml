@@ -1,0 +1,9 @@
+schema = 1
+kind = "agent bridge plan"
+current = 1
+command = "lnk agent start"
+
+[[files]]
+location = "lnk.agents"
+path = "*/bridge.json"
+encoding = "json"

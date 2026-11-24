@@ -1,0 +1,63 @@
+schema = 1
+
+[measured]
+description = "What lnk measure answers: a look at this machine or one unit, a retained job profile with --job, or with --last the watcher's last look, null with no watcher running"
+x-link-any = true
+
+[capacity]
+type = "object"
+description = "This execution's CPU, memory and filesystem capacity, each left out where unknown"
+required = ["version", "id", "unix_ns", "os", "architecture", "cpu", "memory", "filesystems"]
+additionalProperties = false
+properties.version = { type = "integer", minimum = 1, description = "Its format version" }
+properties.id = { type = "string", description = "The observation's ID" }
+properties.unix_ns = { type = "integer", minimum = 0, description = "When it was observed, in Unix nanoseconds" }
+properties.os = { type = "string", description = "The operating system" }
+properties.architecture = { type = "string", description = "The processor architecture" }
+properties.kernel = { type = "string", description = "The kernel's version" }
+properties.cpu = "cpu"
+properties.memory = "memory"
+properties.filesystems = { type = "array", items = "filesystem", description = "Each filesystem observed, by its label" }
+
+[cpu]
+type = "object"
+description = "The processor, as the OS reports it"
+additionalProperties = false
+properties.model = { type = "string", description = "Its model" }
+properties.logical_cores = { type = "integer", minimum = 0, description = "Logical cores on the machine" }
+properties.physical_cores = { type = "integer", minimum = 0, description = "Physical cores on the machine" }
+properties.affinity_cores = { type = "integer", minimum = 0, description = "Cores this process may run on" }
+properties.parallelism_cores = { type = "integer", minimum = 0, description = "The parallelism the runtime reports" }
+properties.quota_cores = { type = "number", minimum = 0, description = "Cores its container's CPU quota allows" }
+properties.available_cores = { type = "number", minimum = 0, description = "Cores it can use" }
+properties.base_hz = { type = "integer", minimum = 0, description = "The base clock, in hertz" }
+properties.observed_hz = { type = "integer", minimum = 0, description = "The clock observed, in hertz" }
+
+[memory]
+type = "object"
+description = "Memory, the machine's and the container's"
+additionalProperties = false
+properties.machine_total_bytes = { type = "integer", minimum = 0, description = "The machine's memory" }
+properties.machine_available_bytes = { type = "integer", minimum = 0, description = "The machine's memory available" }
+properties.limit_bytes = { type = "integer", minimum = 0, description = "The container's memory limit" }
+properties.used_bytes = { type = "integer", minimum = 0, description = "Memory used within it" }
+properties.available_bytes = { type = "integer", minimum = 0, description = "Memory it can use" }
+
+[filesystem]
+type = "object"
+description = "A filesystem's capacity, by the caller's label"
+required = ["label"]
+additionalProperties = false
+properties.label = { type = "string", description = "workspace or temporary" }
+properties.total_bytes = { type = "integer", minimum = 0, description = "Its size" }
+properties.free_bytes = { type = "integer", minimum = 0, description = "Space free" }
+properties.available_bytes = { type = "integer", minimum = 0, description = "Space this user can allocate, without reserved blocks" }
+properties.read_only = { type = "boolean", description = "Whether it's read-only" }
+
+[export]
+type = "object"
+description = "Where the watcher also sends its looks: an OTLP endpoint, with the headers sent beside each"
+required = ["url", "headers"]
+additionalProperties = false
+properties.url = { type = "string", description = "The OTLP/HTTP address looks go to, at `<url>/v1/metrics`" }
+properties.headers = { type = "integer", minimum = 0, description = "How many headers go with each look, kept only for you to read" }

@@ -1,0 +1,11 @@
+schema = 1
+
+[[uses]]
+name = "HOSTNAME"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_TEST_MACHINE_KIND"
+access = ["read"]
+context = "runtime"

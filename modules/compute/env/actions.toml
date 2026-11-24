@@ -1,0 +1,226 @@
+schema = 1
+
+[verbs]
+export = { description = "Write an environment out as a document for another machine", effect = "find" }
+here = { description = "Take the step lnk on your computer asks of the machine an environment is on", effect = "insert" }
+import = { description = "Prepare an environment from a document another machine wrote", effect = "insert" }
+prepare = { description = "Make an environment ready on this machine", effect = "update" }
+reset = { description = "Put a service back as the image had it", effect = "update" }
+serve = { description = "Run one of an environment's services until it's stopped", effect = "insert" }
+setup = { description = "Set a machine up as an environment says, saving no image", effect = "update" }
+
+[actions."env.env.check"]
+description = """
+Read an environment file, its specifications and inputs, and print what it sets
+up and the hash its image is found by
+
+Everything that reads the file reads it this way: an unknown key, a
+specification or input that's missing, or a value that can't be is refused,
+naming its line.
+"""
+role = "secondary"
+spec = "env"
+checks = ["input"]
+docs = "/services/environments#check-an-environment-file"
+output = "checked"
+next = ["env.image.create", "env.env.setup", "env.env.create", "env.approval.list"]
+fail = ["core.module.list"]
+
+[actions."env.env.check".args]
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml)", required = true }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."env.env.create"]
+description = """
+Make a box as an environment says
+
+From the image with the file's hash, built first when there's none;
+then the stages run at every start, and each service started and
+waited on until it's ready.
+"""
+role = "primary"
+spec = "env"
+checks = ["input"]
+docs = "/services/environments#create-a-box"
+output = "made"
+next = ["env.env.reset", "box.box.list", "box.box.ssh"]
+fail = ["env.env.create", "env.env.check", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."env.env.create".args]
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml)", required = true }
+cloud = { type = "string", description = "The cloud account (`lnk cloud list`)", required = true }
+box = { type = "string", x-link-path = true, description = "The box file (box.toml) of the box made [default: the least that works]" }
+name = { type = "string", description = "The box's name [default: the file's name and a number, app-1]" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."env.env.export"]
+description = "Export the environment's file and named inputs as JSON, without secret values"
+role = "plumbing"
+spec = "env"
+checks = ["input"]
+output = "packed"
+
+[actions."env.env.export".args]
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml)", required = true }
+
+[actions."env.env.here"]
+description = """
+On the machine an environment is on: the step `lnk` on your computer
+asks for, its request on the first line of its input
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."env.image.create"]
+description = """
+Build and save an environment's image now
+
+A box made for it, the stages saved in the image run there, the box
+saved as an image with the file's hash (`lnk box image create --hash`),
+then removed, whatever happened.
+"""
+role = "primary"
+spec = "env"
+checks = ["input"]
+docs = "/services/environments/image#create-an-image"
+output = "ended"
+next = ["env.env.create", "env.env.check", "box.image.create"]
+fail = ["env.image.create", "env.env.check", "box.box.list", "cloud.cloud.list", "cloud.cloud.connect"]
+
+[actions."env.image.create".args]
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml)", required = true }
+cloud = { type = "string", description = "The cloud account to build it in (`lnk cloud list`), on a box made for it" }
+here = { type = "boolean", description = "On a box alone (`/etc/lnk/kind.toml`): the stages run here, for the computer that made it to save" }
+place = { type = "string", description = "A cloud account, or here: short for --cloud <cloud> or --here", x-link-cli = { position = 1 } }
+timeout = { type = "string", format = "duration", description = """
+How long the build on a box made for it may run, as 30m or 2h; reaching
+it fails the build [default: none, only each stage's own]
+""" }
+yes = { x-link-cli = { shared = "yes" } }
+
+[actions."env.env.import"]
+description = "Import an environment from JSON on standard input, prepare it, and print its paths as JSON"
+role = "plumbing"
+output = "prepared"
+
+[actions."env.env.prepare"]
+description = "Prepare a reviewed environment and print its file and workdir as JSON"
+role = "plumbing"
+spec = "env"
+checks = ["input"]
+output = "prepared"
+
+[actions."env.env.prepare".args]
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml)", required = true }
+
+[actions."env.env.reset"]
+description = """
+Put a service back as the image had it, with its reset command
+
+For a fresh test run without a new box.
+"""
+role = "primary"
+spec = "env"
+checks = ["input"]
+docs = "/services/environments/guide#reset-a-service"
+output = "ended"
+fail = ["env.env.create"]
+
+[actions."env.env.reset".args]
+service = { type = "string", description = "The service, as the file names it", required = true, x-link-cli = { position = 1 } }
+on = { type = "string", description = "The box (`lnk box list`) made from the environment" }
+place = { type = "string", description = "A cloud account, or here: short for --cloud <cloud> or --here", x-link-cli = { position = 2 } }
+
+[actions."env.env.serve"]
+description = """
+On the machine an environment is on: one of its services, in its
+sandbox, until it's stopped (what its background service runs)
+"""
+role = "plumbing"
+output = "ended"
+
+[actions."env.env.serve".args]
+service = { type = "string", description = "The service", required = true, x-link-cli = { position = 1 } }
+spec = { type = "string", x-link-path = true, description = "The environment file there", required = true }
+no-sandbox = { type = "boolean", description = "Run it with no sandbox, as its environment was started; refused where trusted machine policy forbids it (`unsandboxed = false` in agents.toml)" }
+
+[actions."env.env.setup"]
+fail = ["env.env.check"]
+description = """
+Set a box or this machine up as an environment says, saving no image
+
+The stages an image would save, run there in order, each in its
+sandbox. On your computer a root stage is refused before anything
+runs: only a box runs one (`/etc/lnk/kind.toml`).
+"""
+role = "primary"
+spec = "env"
+checks = ["input"]
+docs = "/services/environments/guide#set-a-machine-up-without-an-image"
+output = "ended"
+next = ["env.env.check"]
+
+[actions."env.env.setup".args]
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml)", required = true }
+on = { type = "string", description = "A box (`lnk box list`) to set up" }
+here = { type = "boolean", description = "Set this machine up" }
+place = { type = "string", description = "Here, short for --here", x-link-cli = { position = 1 } }
+timeout = { type = "string", format = "duration", description = """
+How long it may run, as 30m or 2h; reaching it fails the setup
+[default: none, only each stage's own]
+""" }
+
+[actions."env.approval.add"]
+fail = ["env.env.check"]
+description = """
+Say yes, ahead of a run, to giving the environment file a secret it asks for
+
+Kept for the file's path, its name and the secret's ID: a different file
+there, a changed name or a secret made again asks again.
+"""
+role = "secondary"
+docs = "/services/environments/approval#add-an-approval"
+next = ["env.approval.list"]
+
+[actions."env.approval.add".args]
+secret = { type = "string", description = "The secret, by its name or its ID, secret:<id> (`lnk secret list`)", required = true, x-link-cli = { position = 1 } }
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml) that asks for it", required = true }
+
+[actions."env.approval.list"]
+fail = ["env.env.check"]
+description = "The secrets you've said yes to giving environment files"
+role = "secondary"
+docs = "/services/environments/approval#list-approvals"
+output = "approvals"
+next = ["env.approval.show", "env.approval.add", "env.approval.remove"]
+
+[actions."env.approval.list".args]
+spec = { type = "string", x-link-path = true, description = "Only this environment file's" }
+json = { x-link-cli = { shared = "json" } }
+
+[actions."env.approval.remove"]
+fail = ["env.approval.list"]
+description = """
+Take back a yes: the environment file's next run isn't given the secret
+without asking again
+"""
+role = "secondary"
+docs = "/services/environments/approval#remove-an-approval"
+next = ["env.approval.list"]
+
+[actions."env.approval.remove".args]
+secret = { type = "string", description = "The secret, by its name or its ID, secret:<id> (`lnk secret list`)", required = true, x-link-cli = { position = 1 } }
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml) that asks for it", required = true }
+
+[actions."env.approval.show"]
+fail = ["env.approval.list"]
+description = "Whether you've said yes to giving the environment file a secret"
+role = "secondary"
+docs = "/services/environments/approval#show-an-approval"
+output = "found"
+next = ["env.approval.list"]
+
+[actions."env.approval.show".args]
+secret = { type = "string", description = "The secret, by its name or its ID, secret:<id> (`lnk secret list`)", required = true, x-link-cli = { position = 1 } }
+spec = { type = "string", x-link-path = true, description = "The environment file (env.toml) that asks for it", required = true }
+json = { x-link-cli = { shared = "json" } }

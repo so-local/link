@@ -1,0 +1,40 @@
+schema = 1
+
+[defines.LNK_SLACK_API]
+type = "string"
+description = "Slack's Web API, for tests"
+
+[defines.LNK_SLACK_APP_TOKEN]
+type = "string"
+description = "The app-level token (xapp-...), with the bot token or neither, read by connect, which asks for it when it's unset"
+carries = { secret = "slack.app_token" }
+
+[defines.LNK_SLACK_BOT_TOKEN]
+type = "string"
+description = "The bot token (xoxb-...), with the app token or neither, read by connect, which asks for it when it's unset"
+carries = { secret = "slack.bot_token" }
+
+[[uses]]
+name = "LNK_SLACK_API"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SLACK_APP_TOKEN"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SLACK_BOT_TOKEN"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SLACK_API"
+access = ["set", "forward"]
+context = "test"
+
+[[uses]]
+name = "NO_PROXY"
+access = ["set", "forward"]
+context = "test"

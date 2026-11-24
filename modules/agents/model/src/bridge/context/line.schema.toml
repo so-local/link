@@ -1,0 +1,9 @@
+schema = 1
+# A line of `model/context/<agent ID>/<chat>.jsonl`: one model call of a
+# chat, part by part, names and numbers only.
+kind = "model context call"
+current = 1
+command = "lnk model"
+# What happened, never rewritten by an upgrade: each line is read as its
+# schema says.
+holds = "history"

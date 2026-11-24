@@ -1,0 +1,90 @@
+# What Link knows of models: facts, not opinions. Refreshed with the
+# models' current figures at every release (`refresh-models`); yours
+# (~/.lnk/safe/models/facts.toml, the same format) adds a model or corrects
+# one, field by field, and wins.
+#
+# Each model, by its provider's name for it, or a router's:
+#   window    its whole window, the answer included, in tokens
+#   answer    the longest answer it writes, in tokens
+#   thinking  how it's asked to think: adaptive, budget, effort or no
+#   price     US dollars a million tokens: input, output, cached (read
+#             from the provider's cache)
+#   above     where its price jumps, lowest first: past a jump's
+#             `tokens` of prompt (the whole prompt, the cache's
+#             included), a call costs that jump's `price`
+#   cache     what its provider's prompt cache offers, the one it keeps
+#             unasked first: how long each `lasts`, and what a token
+#             written to it costs (`write`, a multiple of the input price)
+
+version = 1
+
+# Anthropic.
+
+[model."claude-fable-5-2"]
+window = 1000000
+answer = 128000
+thinking = "adaptive"
+price = { input = 8.0, output = 40.0, cached = 0.2 }
+cache = [{ lasts = "5m", write = 1.25 }, { lasts = "1h", write = 2.0 }]
+
+[model."claude-opus-5-5"]
+window = 1000000
+answer = 128000
+thinking = "adaptive"
+price = { input = 4.0, output = 20.0, cached = 0.2 }
+cache = [{ lasts = "5m", write = 1.25 }, { lasts = "1h", write = 2.0 }]
+
+[model."claude-sonnet-5-5"]
+window = 1000000
+answer = 128000
+thinking = "adaptive"
+price = { input = 2.0, output = 10.0, cached = 0.1 }
+cache = [{ lasts = "5m", write = 1.25 }, { lasts = "1h", write = 2.0 }]
+
+[model."claude-haiku-5-5"]
+window = 1000000
+answer = 128000
+thinking = "adaptive"
+price = { input = 0.1, output = 0.5, cached = 0.01 }
+above = [{ tokens = 100000, price = { input = 0.5, output = 2.5, cached = 0.05 } }]
+cache = [{ lasts = "5m", write = 1.25 }, { lasts = "1h", write = 2.0 }]
+
+# OpenAI.
+
+[model."gpt-6-astra"]
+window = 1050000
+answer = 128000
+thinking = "effort"
+price = { input = 10.0, output = 50.0, cached = 1.0 }
+above = [{ tokens = 272000, price = { input = 20.0, output = 75.0, cached = 2.0 } }]
+cache = [{ lasts = "30m", write = 1.25 }]
+
+[model."gpt-6.1-sol"]
+window = 1050000
+answer = 128000
+thinking = "effort"
+price = { input = 2.0, output = 10.0, cached = 0.1 }
+above = [{ tokens = 272000, price = { input = 4.0, output = 15.0, cached = 0.2 } }]
+cache = [{ lasts = "30m", write = 1.25 }]
+
+[model."gpt-6.1-terra"]
+window = 1050000
+answer = 128000
+thinking = "effort"
+price = { input = 1.0, output = 5.0, cached = 0.05 }
+above = [{ tokens = 272000, price = { input = 2.0, output = 7.5, cached = 0.1 } }]
+cache = [{ lasts = "30m", write = 1.25 }]
+
+[model."gpt-6-luna"]
+window = 1050000
+answer = 128000
+thinking = "effort"
+price = { input = 0.1, output = 0.5, cached = 0.01 }
+above = [{ tokens = 272000, price = { input = 0.2, output = 0.75, cached = 0.02 } }]
+cache = [{ lasts = "30m", write = 1.25 }]
+
+# OpenRouter. Its auto router sends each prompt to a model of its
+# choosing, and reports what that one cost: no price of its own.
+
+[model."openrouter/auto"]
+window = 2000000

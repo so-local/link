@@ -1,0 +1,70 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+"recommends" = [{ "dependency" = "agent" }, { "dependency" = "scheduler-tool" }, { "dependency" = "run-tool" }, { "dependency" = "file-tool" }, { "dependency" = "code-tool" }, { "dependency" = "memory-tool" }, { "dependency" = "web-tool" }, { "dependency" = "measure" }, {dependency = "model"}, {dependency = "sandbox"}, {dependency = "sqlite-store"}]
+
+["module"]
+id = "harness"
+"kind" = "harness"
+owner = "modules/agents/harnesses/link"
+
+["dependencies"."agent"]
+"kind" = "module"
+"id" = "agent"
+
+["dependencies"."file-tool"]
+"kind" = "module"
+"id" = "file-tool"
+
+["dependencies".code-tool]
+"kind" = "module"
+"id" = "code-tool"
+
+["dependencies".memory-tool]
+"kind" = "module"
+"id" = "memory-tool"
+
+["dependencies".run-tool]
+"kind" = "module"
+"id" = "run-tool"
+
+["dependencies".scheduler-tool]
+"kind" = "module"
+"id" = "scheduler-tool"
+
+["dependencies".web-tool]
+"kind" = "module"
+"id" = "web-tool"
+
+["dependencies"."measure"]
+"kind" = "module"
+"id" = "measure"
+
+["dependencies".sandbox]
+kind = "module"
+id = "sandbox"
+
+["dependencies".model]
+kind = "module"
+id = "model"
+
+["dependencies".sqlite-store]
+kind = "module"
+id = "sqlite-store"
+["menu"]
+"label" = "Link Harness"
+"group" = "agents"
+"default" = true
+"next" = "lnk agent start"
+
+["documentation"]
+"topic" = "agents/link"
+"root" = "docs"
+
+[dependencies.harness-contract]
+kind = "package"
+id = "harness-contract"

@@ -1,0 +1,68 @@
+schema = 1
+
+[defines.LNK_MODEL_CREDENTIAL]
+type = "string"
+description = "The model's key in dsh's .env, which its provider reads by name"
+
+[defines.npm_config_cache]
+type = "string"
+description = "npm's cache folder, which a harness's install gives npm inside the harness's home, never the machine user's."
+
+[defines.npm_config_update_notifier]
+type = "string"
+description = "Whether npm checks for a newer npm: false in a harness's install, so npm never checks for its own updates."
+
+[[uses]]
+name = "LNK_AGENT"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_FILES"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_MODEL_CREDENTIAL"
+access = ["forward"]
+context = "runtime"
+
+[[uses]]
+name = "PATH"
+access = ["set", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "NODE_EXTRA_CA_CERTS"
+access = ["read"]
+context = "test"
+
+[[uses]]
+name = "HOME"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "PATH"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "XDG_RUNTIME_DIR"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_FILES"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_PORT"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "LNK_SERVICES"
+access = ["forward"]
+context = "test"

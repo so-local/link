@@ -1,0 +1,20 @@
+schema = 1
+
+[defines.LNK_STORE_DIR]
+type = "string"
+description = "Storage driver protocol: the absolute folder holding the agent collections the storage bridge asks the driver to serve"
+
+[defines.LNK_STORE_AGENT]
+type = "string"
+description = "Storage driver protocol: the agent the storage bridge selected for the request being served"
+
+[[uses]]
+name = "LNK_STORE_DIR"
+access = ["forward"]
+context = "runtime"
+
+[readers]
+"store::serving::start" = "The variables a store's driver is given as it serves, from its specification (`env`)."
+"store::driver::contract" = "The variables a store's driver is given, from its specification (`env`)."
+"store::driver::call" = "The variables a store's driver is given, from its specification (`env`)."
+"store::driver::call_once" = "The variables a store's driver is given for one call, from its specification (`env`)."

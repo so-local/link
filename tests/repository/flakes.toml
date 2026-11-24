@@ -1,0 +1,142 @@
+# Flaky tests met in tests a change didn't write: each fails and then
+# passes on one build with nothing changed. The check sorts a listed
+# test's failure apart, so a run meeting it goes on. Whoever takes this
+# list fixes each at its cause, proves the fix with
+# `cargo test-copies -p <package> <test>`, and takes its entry out
+# (`link_repository_check::flakes`; the lifecycle is Testing's Flakes).
+
+[[flake]]
+package = "link-sandbox"
+test = "bridges::open::tests::a_page_opens_once_you_allow_it_and_its_login_answers_inside"
+seen = "2026-11-09"
+commit = "58c5177daf897c53d8614cfc809c91ba42f531f8"
+run = "Failed in cargo test --locked --workspace --no-fail-fast; passed 3 of 3 alone (cargo test -p link-sandbox --lib a_page_opens_once), about 0.25s each"
+said = "HTTP/1.1 403 Forbidden ... opening a page asks you first, and asking failed: this exact source call is already settled or claimed; its outcome must never be replayed"
+
+[[flake]]
+package = "link-agent"
+test = "agents::ids::an_id_that_moved_away_never_reaches_its_namesake"
+seen = "2026-11-15"
+commit = "bf0418b3e116"
+run = "cargo test --workspace --no-fail-fast (Linux container, 4 cores, LNK_TEST_TIME_SCALE=3) failed once; passed five times alone"
+said = "the second `lnk agent status` answered `Broken pipe (os error 32)` from modules/agents/agent/src/machine.rs:363 where the first answered `subprocess exited with exit status: 1`"
+
+[[flake]]
+package = "link-memory-tool"
+test = "home::documents::a_documents_parser_runs_in_a_child_holding_no_secret"
+seen = "2026-11-15"
+commit = "b4d2ed9b5"
+run = "Passed in a whole-workspace run (cargo test --workspace at a7bd4e339); failed once in cargo test -p link-memory-tool and twelve other packages at b4d2ed9b5, with another cargo build running beside it"
+said = "the parser child held fd 3 -> pipe:[...] beside its probe (modules/agents/tools/memory-tool/tests/home/documents.rs:104): an inherited pipe, likely the running cargo's jobserver"
+
+[[flake]]
+package = "link-desktop-tool"
+test = "desktop::a_window_is_seen_clicked_and_typed_into"
+seen = "2026-11-15"
+commit = "ac9cb54f1"
+run = "Twelve copies of the desktop test program at once (target/debug/deps/desktop-*, Linux container with bwrap): eleven passed, one failed; alone it passes"
+said = "Xvfb ended (exit status: 1): bwrap: Can't get type of source /tmp/.X11-unix/.git: No such file or directory; a `.git` in the shared /tmp/.X11-unix, likely another sandbox's dot-file probe, gone between the sandbox listing it and bwrap binding it"
+
+[[flake]]
+package = "link-agent"
+test = "bridge::tests::outbox::a_child_result_survives_a_disconnected_parent_and_keeps_its_original_destination"
+seen = "2026-11-17"
+commit = "67d74e72028818912bc595a775013abdd3569455"
+run = "cargo test -q -p link-agent (lib, LNK_TEST_TIME_SCALE=3, Linux container) failed once; alone (cargo test -p link-agent --lib outbox) it passed"
+said = "panicked at modules/agents/agent/src/bridge/tests/outbox.rs:96:56"
+
+[[flake]]
+package = "link-sandbox"
+test = "dotfiles::what_a_killed_run_left_goes_with_the_next"
+seen = "2026-11-18"
+commit = "0b311f55eb19"
+run = "Failed once in cargo test -p link-sandbox --test sandbox (Linux container); passed in the next run of blank::, dotfiles::, proxy:: and run::secrets on the same build. An earlier run of the suite left a bwrap child (cwd its deleted dotfiles-killed home) holding the output pipe open after the tests ended"
+said = "the next run to end removes it:  then  (modules/security/sandbox/tests/dotfiles.rs:312)"
+
+[[flake]]
+package = "link-sandbox"
+test = "bridges::asks::tests::a_chat_and_dialog_share_one_decision_and_losing_controls_cannot_replace_it"
+seen = "2026-11-18"
+commit = "2d37c3f95"
+run = "cargo test --locked -p link-sandbox --lib (Linux container, 4 cores, LNK_TEST_TIME_SCALE=3) failed once in 4 runs, then passed 6 of 6"
+said = "a thread panicked at modules/security/sandbox/src/bridges/asks/tests.rs:75:14: this exact source call is already settled or claimed; its outcome must never be replayed"
+
+[[flake]]
+package = "link-sandbox"
+test = "blank::a_blank_proxy_refuses_everything_until_it_is_bound_once"
+seen = "2026-11-19"
+commit = "684661c5d1d3"
+run = "Failed in cargo test -p link-sandbox --no-fail-fast (Linux container, 4 cores) while another program's integration suite ran beside it; passed in the same suite on a quiet machine, and alone"
+said = "panicked at modules/security/sandbox/tests/blank.rs:226"
+
+[[flake]]
+package = "link-sandbox"
+test = "proxy::the_listening_proxy_serves_a_model_for_inference_only"
+seen = "2026-11-19"
+commit = "684661c5d1d3"
+run = "Failed in cargo test -p link-sandbox --no-fail-fast (Linux container, 4 cores) while another program's integration suite ran beside it; passed in the same suite on a quiet machine, and alone"
+said = "panicked at modules/security/sandbox/tests/proxy.rs:407"
+
+[[flake]]
+package = "link-sandbox"
+test = "proxy::a_hosted_models_key_stays_outside"
+seen = "2026-11-19"
+commit = "684661c5d1d3"
+run = "Failed in cargo test -p link-sandbox --no-fail-fast (Linux container, 4 cores) while another program's integration suite ran beside it; passed in the same suite on a quiet machine, and alone"
+said = "panicked at modules/security/sandbox/tests/proxy.rs:640"
+
+[[flake]]
+package = "link-sandbox"
+test = "proxy::a_model_is_reached_for_inference_only"
+seen = "2026-11-19"
+commit = "684661c5d1d3"
+run = "Failed in cargo test -p link-sandbox --no-fail-fast (Linux container, 4 cores) while another program's integration suite ran beside it; passed in the same suite on a quiet machine, and alone"
+said = "panicked at modules/security/sandbox/tests/proxy.rs:518"
+
+[[flake]]
+package = "link-sandbox"
+test = "proxy::a_services_secret_stays_outside"
+seen = "2026-11-19"
+commit = "684661c5d1d3"
+run = "Failed in cargo test -p link-sandbox --no-fail-fast (Linux container, 4 cores) while another program's integration suite ran beside it; passed in the same suite on a quiet machine, and alone"
+said = "panicked at modules/security/sandbox/tests/proxy.rs:782"
+
+[[flake]]
+package = "link-sandbox"
+test = "run::secrets::a_sealed_token_clones_with_git_and_stays_outside"
+seen = "2026-11-19"
+commit = "684661c5d1d3"
+run = "Failed in cargo test -p link-sandbox --no-fail-fast (Linux container, 4 cores) while another program's integration suite ran beside it; passed in the same suite on a quiet machine, and alone"
+said = "panicked at modules/security/sandbox/tests/run/secrets.rs:625"
+
+[[flake]]
+package = "link-agent"
+test = "stop::an_agent_in_a_terminal_has_the_calendar_wake_its_scheduler"
+seen = "2026-11-23"
+commit = "4089128a51"
+run = "cargo test --locked -p link-agent -p link-actions-surfaces --no-fail-fast (Linux container, 4 cores, LNK_TEST_TIME_SCALE=3) failed once; passed alone (cargo test -p link-agent --test harness calendar_wake_its_scheduler)"
+said = "assertion `left == right` failed, left: \"cron install\\n\", right: \"cron install\\ncron uninstall\\n\", at modules/agents/agent/tests/stop.rs:249:5"
+
+[[flake]]
+package = "link-memory-tool"
+test = "semantic::a_vector_lands_only_on_the_passage_it_was_made_from"
+seen = "2026-11-23"
+commit = "88e4ca0a8d1c"
+run = "Failed once in cargo test --locked -p link-memory-tool -p link-agent (Linux container, 4 cores, no LNK_TEST_TIME_SCALE), with a crates.io evidence refresh running beside it; 100 copies at once (50 at a time) all passed"
+said = "assertion failed: beds(&db).1 at modules/agents/tools/memory-tool/tests/semantic.rs:561: the rewritten passage held no vector slot after embed_pending answered none pending"
+
+[[flake]]
+package = "link-memory-tool"
+test = "home::documents::a_document_is_read_once_link_document_converter_is_installed"
+seen = "2026-11-24"
+commit = "f3ba549fb387"
+run = "Failed once in cargo test --locked --no-fail-fast -p link-memory-tool -p link-agent (Linux container, 4 cores, no LNK_TEST_TIME_SCALE), with a crates.io evidence refresh running beside it; passed alone and in 40 copies at once (20 at a time)"
+said = "panicked at modules/agents/tools/memory-tool/tests/home/documents.rs:285:5: assert_eq!(paths(&index, \"accountant\"), [\"memory/refund.pdf\"]): once the converter was given, the refresh's search didn't find the PDF's word"
+
+[[flake]]
+package = "link-agent"
+test = "stop::a_stop_ends_the_scheduler_runner_of_an_agent_in_a_terminal"
+seen = "2026-11-24"
+commit = "798d620bb"
+run = "Failed in cargo session-check -p link-interactions -p link-agent -p link-harness -p link-store-contract -p link-memory-tool (Linux container, 4 cores, LNK_TEST_TIME_SCALE=3); passed 3 of 3 alone, about 2 s each. cargo test-copies' 300 copies ran this machine's disk out (No space left on device installing lnk-sandbox), so they prove nothing either way"
+said = "waited 30.005457989s for nothing of its left running; the last check saw the agent's sandboxed /bin/sleep 300 under bwrap, lnk-sandbox confine and proxy-inside"

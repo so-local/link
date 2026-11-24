@@ -1,0 +1,8 @@
+schema = 1
+
+[checked]
+type = "object"
+description = "Whether the caller may"
+additionalProperties = false
+required = ["allowed"]
+properties.allowed = { type = "boolean", description = "Whether it may" }

@@ -1,0 +1,81 @@
+[package]
+authors.workspace = true
+name = "link-core"
+description = "`link-core` is the Local Link package that describes, discovers, installs, updates, and removes modules, and checks their signed releases"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "core/framework"
+
+[dependencies.link-component]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-version]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.ring]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.tokio]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-digest]
+workspace = true
+
+[dependencies.link-keychain]
+workspace = true

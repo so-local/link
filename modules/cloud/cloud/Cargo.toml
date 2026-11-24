@@ -1,0 +1,60 @@
+[package]
+authors.workspace = true
+name = "link-cloud"
+description = "The cloud module (`lnk-cloud`) connects your Amazon Web Services and Google Cloud accounts once, for every part of Local Link that uses them"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lnk-cloud"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+
+[dependencies.link-cloud-contract]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[build-dependencies]
+link-component-build.workspace = true
+link-actions-build.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-keychain]
+workspace = true
+
+[dependencies.link-settings]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true

@@ -1,0 +1,7 @@
+# The protocol of the question sandbox.grants: what an agent may reach
+# now from its sandbox. One line from the asker, one back, each stating
+# the version it speaks.
+name = "sandbox grants answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

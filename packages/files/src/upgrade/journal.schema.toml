@@ -1,0 +1,10 @@
+schema = 1
+kind = "upgrade journal"
+current = 1
+about = "The transfers an upgrade has under way, so a rerun after an interruption finishes each and takes nothing twice."
+
+# A journal of state, which an upgrade converts like any other.
+[[files]]
+location = "lnk.upgrades"
+path = "transfers.toml"
+encoding = "toml"

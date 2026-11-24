@@ -1,0 +1,25 @@
+[package]
+authors.workspace = true
+name = "link-runtime"
+description = "Runtime gives synchronous callers one reusable Tokio runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/runtime"
+
+[dependencies]
+tokio.workspace = true
+anyhow.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

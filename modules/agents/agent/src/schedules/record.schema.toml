@@ -1,0 +1,10 @@
+schema = 1
+# The identities of an agent's schedules, by their names:
+# `~/.lnk/safe/agents/<agent>/schedules.json`.
+kind = "schedule identities"
+current = 1
+
+[[files]]
+location = "lnk.agents"
+path = "*/schedules.json"
+encoding = "json"

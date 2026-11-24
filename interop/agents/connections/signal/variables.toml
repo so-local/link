@@ -1,0 +1,48 @@
+schema = 1
+
+[defines.LNK_SIGNAL_CLI]
+type = "string"
+description = "On Link Harness, a `signal-cli` of your own to carry Signal with, for tests; the account stays in `~/.lnk/safe/agents/<agent>/connections/signal`"
+
+[defines.LNK_SIGNAL_NUMBER]
+type = "string"
+description = "The agent's Signal number, with its country code, not yours; connect asks for it when it's unset"
+
+[defines.LNK_SIGNAL_OWNER]
+type = "string"
+description = "Your Signal number, with its country code, not the agent's; connect asks for it when it's unset"
+
+[[uses]]
+name = "LNK_SIGNAL_CLI"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SIGNAL_NUMBER"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SIGNAL_OWNER"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["set", "forward"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_SIGNAL_CLI"
+access = ["forward"]
+context = "test"
+
+[[uses]]
+name = "HOME"
+access = ["unset"]
+context = "test"
+
+[[uses]]
+name = "HTTPS_PROXY"
+access = ["unset", "forward"]
+context = "test"

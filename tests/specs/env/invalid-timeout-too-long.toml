@@ -1,0 +1,14 @@
+# A stage's timeout is at most a day.
+[spec]
+schema = 1
+name = "app"
+version = 1
+
+[[spec.stage]]
+name = "deps"
+run = "make deps"
+sandbox = "deps.toml"
+timeout = "25h"
+
+[expect]
+invalid = "from a second to a day"

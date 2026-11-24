@@ -1,0 +1,9 @@
+schema = 1
+kind = "bucket ID ledger"
+current = 1
+command = "lnk storage"
+
+[[files]]
+location = "lnk.storage"
+path = "ids.toml"
+encoding = "toml"

@@ -1,0 +1,45 @@
+schema = 1
+
+[verbs]
+export = { description = "Write things to one archive file", effect = "insert" }
+import = { description = "Bring the things in an archive file in, each as a new one", effect = "insert" }
+
+[actions."archive.archive.export"]
+description = """
+Write the things you select to one archive
+
+One thing goes to `~/Link/Archive/<name>.tar.gz`, several to
+`~/Link/Archive/<date>.tar.gz`, unless --to names another file. A running
+thing is refused, naming the command that stops it. --from writes an
+archive kept as a folder, such as one in a Git repository, instead of
+things here. Give exactly one of --select, --all and --from.
+"""
+role = "primary"
+docs = "/tooling/archive#export"
+output = "core.report"
+checks = ["export_one_source"]
+next = ["archive.archive.import"]
+fail = ["archive.archive.import"]
+
+[actions."archive.archive.export".args]
+all = { type = "boolean", description = "Every thing here of every kind that exports", x-link-cli = { conflicts = ["from"] } }
+from = { type = "string", x-link-path = true, description = "An archive kept as a folder, archive.toml at its top, to write as one .tar.gz [default name: the folder's]" }
+select = { type = "string", description = "The things to export, comma-separated, each as <kind>.<name>: agent.programmer,agent.work", x-link-cli = { conflicts = ["all", "from"] } }
+to = { type = "string", x-link-path = true, description = "The archive to write, a new .tar.gz file [default: in `~/Link/Archive`]" }
+
+[actions."archive.archive.import"]
+description = """
+Import the things in an archive on disk, each as a new one
+
+Checks the whole archive, asks whether to rename each thing, moves it
+into place and names what it still needs. Nothing is installed,
+connected or started.
+"""
+role = "primary"
+docs = "/tooling/archive#import"
+output = "core.report"
+next = ["agent.agent.start"]
+
+[actions."archive.archive.import".args]
+path = { type = "string", x-link-path = true, description = "The archive, a .tar.gz file on disk", required = true, x-link-cli = { position = 1 } }
+select = { type = "string", description = "Only these things, each as <kind>.<name>, or <kind>.<name>=<kind>.<new name> to import it under another name" }

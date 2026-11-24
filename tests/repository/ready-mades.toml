@@ -1,0 +1,39 @@
+# Where a ready-made agent's Home is in its archive folder, the files in
+# a Home that describe it rather than hold an entry, and the tools each
+# ready-made agent comes with (`link_repository_check::ready_mades`).
+
+# The archives' folder, from the workspace's root.
+archives = "agents/ready-made"
+# Each agent's folder in an archive, a folder per agent below it.
+agents = "Agents"
+# The agent's Home, in its folder.
+home = "home"
+# A Home's guides, by file name: they say what each file holds.
+guides = ["README.md"]
+# Each agent's settings folder in an archive, its spec and sandbox file in
+# a folder per agent below it.
+settings = "Safe/Agents"
+
+# Each ready-made agent's tools: those its spec turns on
+# (`[behavior.tool.<name>] enabled = true`), the programs its sandbox file
+# allows (`[commands] allow`) and the tools it names (`[tools] names`).
+# What an agent comes with changes here, on purpose, or not at all.
+[tools.coach]
+enabled = ["file", "scheduler"]
+commands = []
+named = []
+
+[tools.programmer]
+enabled = ["code", "file", "run"]
+commands = []
+named = []
+
+[tools.personal]
+enabled = ["browser", "file", "mcp", "run", "scheduler"]
+commands = ["sh"]
+named = ["web"]
+
+[tools.researcher]
+enabled = ["file"]
+commands = []
+named = ["web"]

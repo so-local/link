@@ -1,0 +1,7 @@
+schema = 1
+
+# The resource its own `state clear-schedules` acts on: the harness
+# protocol's state, as its contract declares it.
+[state]
+shape = "harness-contract.state"
+description = "What in the harness's home is the agent's"

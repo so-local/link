@@ -1,0 +1,7 @@
+# A name and a version: an environment with nothing in it.
+[spec]
+schema = 1
+name = "empty"
+version = 1
+
+[expect]

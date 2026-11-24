@@ -1,0 +1,8 @@
+# Another cloud's table: any cloud's, by its kind, with no say here.
+[spec]
+schema = 1
+[spec.machine.third]
+cpus = 8
+
+[expect]
+size = "t3.small"

@@ -1,0 +1,26 @@
+[package]
+authors.workspace = true
+name = "link-principal"
+description = "`link-principal` names who acts, or may act, as one type, `user:<id>` or `service:<id>`"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/principal"
+
+[dependencies]
+link-id.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true
+serde_json.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true

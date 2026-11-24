@@ -1,0 +1,56 @@
+[package]
+authors.workspace = true
+name = "link-service"
+description = "`link-service` holds the shared background-service API, with native and explicitly selected Linux guest implementations"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "library"
+owner = "packages/service"
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.libc]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true

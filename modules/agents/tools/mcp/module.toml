@@ -1,0 +1,25 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+schema = 1
+# What leads into the module from `lnk up`.
+next = ["mcp.mcp.serve"]
+requires = [{ dependency = "manual" }]
+
+[module]
+id = "mcp"
+kind = "tool"
+owner = "modules/agents/tools/mcp"
+
+[documentation]
+topic = "agents/tools/mcp"
+root = "docs"
+
+[dependencies.manual]
+kind = "module"
+id = "manual"
+
+# It keeps nothing of its own: its uninstall reports no part.

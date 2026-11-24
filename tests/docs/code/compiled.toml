@@ -1,0 +1,11 @@
+# The variables Cargo sets for every crate it compiles, which a crate's
+# `env!` and `option_env!` read as it's built: Cargo's interface, so no
+# `variables.toml` defines them. A name ending in `*` is a family. Read
+# by the variables check (`src/environment.rs`).
+cargo = [
+    "CARGO_BIN_EXE_*",
+    "CARGO_MANIFEST_DIR",
+    "CARGO_PKG_*",
+    "CARGO_TARGET_TMPDIR",
+    "OUT_DIR",
+]

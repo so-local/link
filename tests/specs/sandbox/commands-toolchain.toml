@@ -1,0 +1,10 @@
+# A toolchain stands for the programs it names: the shell's runs these,
+# and a program it doesn't name stays refused.
+[spec]
+schema = 1
+[spec.commands]
+toolchains = ["shell"]
+
+[expect]
+runs = ["sh", "ls", "id", "cat"]
+refused_commands = ["git"]

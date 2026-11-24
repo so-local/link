@@ -1,0 +1,37 @@
+schema = 1
+
+[verbs]
+convert = { description = "Rewrite a specification file in its kind's current schema", effect = "update" }
+
+[actions."spec.spec.convert"]
+description = "Rewrite a specification file in its kind's current schema, keeping its comments, key order and permissions"
+role = "secondary"
+docs = "/tooling/spec#convert-a-file"
+output = "core.report"
+fail = ["spec.spec.list"]
+
+[actions."spec.spec.convert".args]
+file = { type = "string", x-link-path = true, description = "The specification file", required = true, x-link-cli = { position = 1 } }
+
+[actions."spec.spec.list"]
+description = "List every specification kind, the module that owns it and its current schema"
+role = "secondary"
+docs = "/tooling/spec#list-the-kinds"
+next = ["spec.spec.show"]
+fail = ["core.module.list"]
+
+[actions."spec.spec.list".args]
+json = { x-link-cli = { shared = "json" } }
+
+[actions."spec.spec.show"]
+diagnoses = "kind"
+description = "Show a kind's fields with their flags, the actions that consume it and its history"
+role = "secondary"
+docs = "/tooling/spec#show-a-kind"
+output = "shown"
+next = ["spec.spec.list", "spec.spec.convert"]
+fail = ["spec.spec.list"]
+
+[actions."spec.spec.show".args]
+kind = { type = "string", description = "The specification kind, such as agent", required = true, x-link-cli = { position = 1 } }
+json = { x-link-cli = { shared = "json" } }

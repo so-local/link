@@ -1,0 +1,8 @@
+# One GPU, any model.
+[spec]
+schema = 1
+[spec.machine]
+gpus = 1
+
+[expect]
+size = "g6.xlarge"

@@ -1,0 +1,11 @@
+schema = 1
+
+[[uses]]
+name = "PATH"
+access = ["read", "set"]
+context = "runtime"
+
+[[uses]]
+name = "HOME"
+access = ["set"]
+context = "runtime"

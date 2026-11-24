@@ -1,0 +1,12 @@
+# A project's dot files that run outside (its .git, .envrc, .vscode,
+# .idea) are read only in a folder it writes.
+[spec]
+schema = 1
+[spec.files]
+write = ["app"]
+
+[spec.commands]
+toolchains = ["shell", "git"]
+
+[expect]
+dot_files_closed = ["app"]

@@ -1,0 +1,8 @@
+# A folder is named, never "*".
+[spec]
+schema = 1
+[spec.files]
+read = ["*"]
+
+[expect]
+invalid = "can't be \"*\""

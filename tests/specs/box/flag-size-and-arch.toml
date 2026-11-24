@@ -1,0 +1,6 @@
+# A size with an arch: the size's processor, checked, not ignored.
+[run]
+flags = ["--machine.aws.size", "t4g.small", "--machine.aws.arch", "arm64"]
+
+[expect]
+size = "t4g.small"

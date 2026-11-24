@@ -1,0 +1,8 @@
+[spec]
+schema = 1
+[spec.tool.scheduler]
+driver = "cron"
+
+[expect]
+values = { "tool.scheduler.driver" = "cron", "tool.scheduler.enabled" = false }
+from = { "tool.scheduler.driver" = "yours", "tool.scheduler.enabled" = "link" }

@@ -1,0 +1,72 @@
+# Local Link repository metadata: declares this component and its requirements.
+# Author: Local Link Company
+# SPDX-FileCopyrightText: 2026 Local Link Company
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Reference: ../../../docs/more/reference/files.md#component
+# Header maintained by lnk-docs-inventories; the declaration below is authored here.
+"schema" = 1
+# What leads into the module from `lnk up`.
+next = ["sandbox.sandbox.run", "sandbox.sandbox.check"]
+answers = ["measure.traffic"]
+"recommends" = [{dependency = "agent"}, {dependency = "box"}, {dependency = "storage"}, {dependency = "cloud"}, {dependency = "measure"}, {dependency = "model"}, {dependency = "secret"}, {dependency = "telegram"}]
+
+["module"]
+id = "sandbox"
+"kind" = "module"
+owner = "modules/security/sandbox"
+
+["dependencies".wall]
+kind = "external"
+id = "bubblewrap"
+
+["dependencies".namespaces]
+kind = "capability"
+id = "linux.user-namespaces"
+
+["dependencies".filter]
+kind = "capability"
+id = "linux.landlock"
+min_abi = 1
+
+["dependencies".seatbelt]
+kind = "capability"
+id = "macos.seatbelt"
+
+["dependencies".agent]
+kind = "module"
+id = "agent"
+
+["dependencies".box]
+kind = "module"
+id = "box"
+
+["dependencies".storage]
+kind = "module"
+id = "storage"
+
+["dependencies".cloud]
+kind = "module"
+id = "cloud"
+
+["dependencies".measure]
+kind = "module"
+id = "measure"
+
+["dependencies".model]
+kind = "module"
+id = "model"
+
+["dependencies".secret]
+kind = "module"
+id = "secret"
+
+["dependencies".telegram]
+kind = "module"
+id = "telegram"
+
+["dependencies".ssh-fixture]
+kind = "capability"
+id = "unix.openssh-test"
+["documentation"]
+"topic" = "security/sandbox"
+"root" = "docs"

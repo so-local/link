@@ -1,0 +1,1998 @@
+{
+  "$defs": {
+    "agent-state-protocol.destination": {
+      "examples": [
+        {
+          "connection": "slack",
+          "kind": "owner"
+        },
+        {
+          "kind": "thread",
+          "thread": "slack:C0TEAM"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/$defs/agent-state-protocol.destination-owner",
+          "description": "Its owner, as if they'd sent it."
+        },
+        {
+          "$ref": "#/$defs/agent-state-protocol.destination-thread",
+          "description": "A chat, as if sent there."
+        }
+      ]
+    },
+    "agent-state-protocol.destination-owner": {
+      "additionalProperties": false,
+      "description": "Its owner, as if they'd sent it.",
+      "properties": {
+        "connection": {
+          "description": "The connection of the owner's direct chat it comes from\n(`slack`); left out, the CLI inbox.\n",
+          "type": "string"
+        },
+        "kind": {
+          "const": "owner",
+          "description": "Where it goes: its owner, on a connection or the CLI inbox, or a thread."
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "agent-state-protocol.destination-thread": {
+      "additionalProperties": false,
+      "description": "A chat, as if sent there.",
+      "properties": {
+        "kind": {
+          "const": "thread",
+          "description": "Where it goes: its owner, on a connection or the CLI inbox, or a thread."
+        },
+        "thread": {
+          "description": "The chat, by its connection and its id there\n(`slack:C0TEAM`).\n",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "thread"
+      ],
+      "type": "object"
+    },
+    "agent-state-protocol.when": {
+      "examples": [
+        {
+          "cron": "0 9 * * 1-5",
+          "kind": "cron",
+          "zone": "Europe/London"
+        },
+        {
+          "anchor": 0,
+          "kind": "every",
+          "seconds": 3600
+        },
+        {
+          "at": 1790000000,
+          "kind": "at"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/$defs/agent-state-protocol.when-cron",
+          "description": "On a cron line's times, in a zone."
+        },
+        {
+          "$ref": "#/$defs/agent-state-protocol.when-every",
+          "description": "Every so many seconds, counted from an anchor."
+        },
+        {
+          "$ref": "#/$defs/agent-state-protocol.when-at",
+          "description": "Once."
+        }
+      ]
+    },
+    "agent-state-protocol.when-at": {
+      "additionalProperties": false,
+      "description": "Once.",
+      "properties": {
+        "at": {
+          "description": "The Unix time, in seconds, it fires.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "const": "at",
+          "description": "Which timing it is: cron, every so many seconds, or once at a time."
+        }
+      },
+      "required": [
+        "at",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "agent-state-protocol.when-cron": {
+      "additionalProperties": false,
+      "description": "On a cron line's times, in a zone.",
+      "properties": {
+        "cron": {
+          "description": "Five fields: minute, hour, day of the month, month and day of\nthe week (`0 9 * * 1-5`).\n",
+          "type": "string"
+        },
+        "kind": {
+          "const": "cron",
+          "description": "Which timing it is: cron, every so many seconds, or once at a time."
+        },
+        "zone": {
+          "description": "The IANA time zone its times are in (`Europe/London`).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cron",
+        "kind",
+        "zone"
+      ],
+      "type": "object"
+    },
+    "agent-state-protocol.when-every": {
+      "additionalProperties": false,
+      "description": "Every so many seconds, counted from an anchor.",
+      "properties": {
+        "anchor": {
+          "description": "The Unix time, in seconds, its firings are counted from.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "const": "every",
+          "description": "Which timing it is: cron, every so many seconds, or once at a time."
+        },
+        "seconds": {
+          "description": "How many seconds apart, at least one.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "anchor",
+        "kind",
+        "seconds"
+      ],
+      "type": "object"
+    },
+    "agent.agent": {
+      "additionalProperties": false,
+      "description": "An agent, written down: the file `lnk agent start --spec` reads and\n`lnk agent spec show` prints.\n",
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/agent.agent-message-access",
+          "description": "An agent specification's `[access]`: who besides its owner may message it.\nIt takes chats alone, so a team's `member` isn't one of its keys.\n"
+        },
+        "approvals": {
+          "$ref": "#/$defs/interactions.interaction-opinions"
+        },
+        "command_response": {
+          "description": "Text shown before a command's harness answer; empty disables it.",
+          "examples": [
+            "> "
+          ],
+          "type": "string"
+        },
+        "commands": {
+          "$ref": "#/$defs/agent.agent-commands",
+          "description": "Its commands: a message of its owner's that names one (`/new`) runs\nit in place of a turn. Each is on when it's true here; left out, off.\n"
+        },
+        "connection": {
+          "additionalProperties": {
+            "$ref": "#/$defs/connection-policy.connection",
+            "description": "A connection's opinions (`[connections]` for every connection, `[connection.<name>]`\nfor one).\n"
+          },
+          "description": "Each connection's own, by its module's name (`slack`).",
+          "examples": [
+            {
+              "slack": {
+                "activity": "keep",
+                "activity_mark": "*",
+                "activity_separator": " - ",
+                "documents": true,
+                "groups": "mention",
+                "images": true,
+                "pace": "1s",
+                "steered": "wave",
+                "stream": true,
+                "voice": true,
+                "working": "eyes"
+              }
+            }
+          ],
+          "type": "object"
+        },
+        "connections": {
+          "$ref": "#/$defs/connection-policy.connection",
+          "description": "A connection's opinions (`[connections]` for every connection, `[connection.<name>]`\nfor one).\n"
+        },
+        "env": {
+          "description": "Environment input for future agent creation, relative to this file.",
+          "examples": [
+            "env.toml"
+          ],
+          "format": "path",
+          "type": "string",
+          "x-link-path": true
+        },
+        "extends": {
+          "$ref": "#/$defs/agent.agent-extends",
+          "description": "What a specification starts from. `link`, link's specification, as when it's left out; `none`, nothing: every key is the file's own."
+        },
+        "goals": {
+          "$ref": "#/$defs/agent.agent-goals",
+          "description": "How long a goal is pursued, turn after turn, before it's left:\nwhichever is reached first.\n"
+        },
+        "harness": {
+          "$ref": "#/$defs/agent.agent-harness"
+        },
+        "instructions": {
+          "$ref": "#/$defs/agent.agent-instructions",
+          "description": "What it's told to be: one file, nothing, or Link's sections. With\nLink's assembly, where each section of its prompt comes from,\nand how large each may be. A section's source is `link` (Link's own),\n`none`, or a file in the agent's files folder (`instructions/base.md`).\nThe model's and the tools' have no source: its file in\n`instructions/models/` and what each tool says of itself, so only\ntheir most is set. The repository's is `link` (its `AGENTS.md` files)\nor `none`.\n"
+        },
+        "isolation": {
+          "$ref": "#/$defs/agent.agent-isolation",
+          "description": "An agent specification's `[isolation]`: the VM a new agent is made in, its\nonly key a specification may set.\n"
+        },
+        "model": {
+          "$ref": "#/$defs/agent.agent-model",
+          "description": "The model, and how it's asked."
+        },
+        "name": {
+          "description": "The agent's own name, no other: lowercase letters, digits and dashes. A\nspecification naming another agent is refused.\n",
+          "examples": [
+            "main"
+          ],
+          "type": "string"
+        },
+        "run": {
+          "$ref": "#/$defs/agent.agent-run",
+          "description": "How an agent runs on its machine (`[run]`)."
+        },
+        "schedules": {
+          "description": "Schedule definitions owned by this agent, independent of its harness.",
+          "items": {
+            "$ref": "#/$defs/agent.agent-schedule",
+            "description": "A schedule the agent keeps: a message sent to it at a time, as if\nfrom where it goes.\n"
+          },
+          "type": "array"
+        },
+        "storage": {
+          "$ref": "#/$defs/store.storage",
+          "description": "Where an agent would keep each of its collections (its specification's\n`[storage]`): a place's name each, a request its machine has the\nlast word on. A harness from outside Link keeps its own conversations\nhowever it does.\n"
+        },
+        "tool": {
+          "additionalProperties": {
+            "$ref": "#/$defs/agent.agent-tool",
+            "description": "A tool's opinions (`[tools]` for every tool, `[tool.<name>]` for one).\nLink's tools' keys are typed; a tool from outside Link may have keys\nof its own ([`Tool::other`]).\n"
+          },
+          "description": "Each tool's own, by its name (`memory`).",
+          "examples": [
+            {
+              "browser": {
+                "headless": true,
+                "timeout": "1m"
+              },
+              "code": {
+                "servers": {
+                  "rust": {
+                    "command": [
+                      "rust-analyzer"
+                    ],
+                    "files": [
+                      "rs"
+                    ],
+                    "roots": [
+                      "Cargo.toml"
+                    ]
+                  }
+                }
+              },
+              "file": {
+                "diffs": true,
+                "find": true
+              },
+              "memory": {
+                "keep": "30d",
+                "max_age": "1d",
+                "model": "local/qwen3:8b",
+                "notes": "4 KB",
+                "tokens": 4000
+              },
+              "run": {
+                "background": 2,
+                "background_keep": "1d",
+                "background_output": "16 MB",
+                "background_per_day": 10,
+                "background_timeout": "1h",
+                "output": "16 KB"
+              },
+              "scheduler": {
+                "ask": true,
+                "driver": "service",
+                "enabled": true,
+                "firing": "1m",
+                "hops": 3,
+                "interval": "10m",
+                "late": "skip",
+                "per_day": 20,
+                "recurring": "ask",
+                "subagents": 2,
+                "zone": "Europe/London"
+              },
+              "web": {
+                "fetch": "24 KB",
+                "hosts": [
+                  "docs.rs",
+                  "*.wikipedia.org"
+                ]
+              }
+            }
+          ],
+          "propertyNames": {
+            "description": "A tool's name, read as the name it has today",
+            "type": "string",
+            "x-link-ref": "tool"
+          },
+          "type": "object"
+        },
+        "tools": {
+          "$ref": "#/$defs/agent.agent-tool",
+          "description": "A tool's opinions (`[tools]` for every tool, `[tool.<name>]` for one).\nLink's tools' keys are typed; a tool from outside Link may have keys\nof its own ([`Tool::other`]).\n",
+          "examples": [
+            {
+              "answer": "32 KB",
+              "strangers": [
+                "web__fetch"
+              ],
+              "timeout": "30s"
+            }
+          ]
+        },
+        "turns": {
+          "$ref": "#/$defs/agent.agent-turns",
+          "description": "How long a turn may go on."
+        },
+        "version": {
+          "description": "A whole number of yours, to say which revision of the specification this\nis; Link reads nothing from it.\n",
+          "examples": [
+            3
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "window": {
+          "$ref": "#/$defs/agent.agent-window",
+          "description": "How much of the model's window a turn fills."
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-chat": {
+      "description": "A chat on a connection, whoever is in it, `chat:<connection>:<id>`:\na group the connection keeps, which a specification lets message its agent,\nnever a principal. Its id is the connection's own (Slack's `C0TEAM`,\nTelegram's `-1001234`).\n",
+      "examples": [
+        "chat:slack:C0TEAM"
+      ],
+      "type": "string"
+    },
+    "agent.agent-code-server": {
+      "additionalProperties": false,
+      "description": "A language server of code's (`[tool.code.servers.<language>]`). Each\nkey is its own in a specification's union, so a specification may change one alone: a\nkey left out is the specification before's.\n",
+      "properties": {
+        "command": {
+          "description": "The program and its arguments, as `run` would start them; empty,\nno server for the language.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "files": {
+          "description": "The files it serves, by their extension (`rs`).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "roots": {
+          "description": "The files that mark a project's root (`Cargo.toml`): the nearest\nfolder above a file that holds one is the root its server is\nstarted in; none found, the files folder.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "settings": {
+          "additionalProperties": {
+            "description": "A section of the server's settings, as the server reads it"
+          },
+          "description": "The server's settings, by the section it asks for\n(`rust-analyzer`): given whole when it asks for its configuration,\nand told once it starts. Left out, it has its own defaults.\n",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-commands": {
+      "additionalProperties": false,
+      "description": "Its commands: a message of its owner's that names one (`/new`) runs\nit in place of a turn. Each is on when it's true here; left out, off.\n",
+      "properties": {
+        "ask": {
+          "description": "`/chat:ask`: a question answered apart, nothing kept.",
+          "type": "boolean"
+        },
+        "compact": {
+          "description": "`/chat:compact`: what's before the last message summarized now.",
+          "type": "boolean"
+        },
+        "create": {
+          "description": "`/new`: a new conversation in the same chat.",
+          "type": "boolean"
+        },
+        "export": {
+          "description": "`/chat:export`: this conversation written to a file.",
+          "type": "boolean"
+        },
+        "fork": {
+          "description": "`/chat:fork`: a conversation holding this one as it stands.",
+          "type": "boolean"
+        },
+        "goal": {
+          "description": "`/goal`: a goal it pursues after each answer until it holds,\nwithin `[goals]`' limits.\n",
+          "type": "boolean"
+        },
+        "help": {
+          "description": "`/help`: the commands that are on.",
+          "type": "boolean"
+        },
+        "model": {
+          "description": "`/model`: the model, or a switch to another of its provider's.",
+          "type": "boolean"
+        },
+        "models": {
+          "description": "`/models`: the models offered by its provider.",
+          "type": "boolean"
+        },
+        "queue": {
+          "description": "`/chat:queue`: the next message waits for the running turn.",
+          "type": "boolean"
+        },
+        "rename": {
+          "description": "`/chat:rename`: this conversation's name.",
+          "type": "boolean"
+        },
+        "resume": {
+          "description": "`/chat:resume`: the chat's conversations, or one taken up again.",
+          "type": "boolean"
+        },
+        "skills": {
+          "description": "`/skill:list`, and each skill run as `/skill:<name>`.",
+          "type": "boolean"
+        },
+        "status": {
+          "description": "`/status`: the model and what the conversation holds.",
+          "type": "boolean"
+        },
+        "steer": {
+          "description": "`/chat:steer`: the next message joins the running turn, where\n`[turns] busy` steers.\n",
+          "type": "boolean"
+        },
+        "stop": {
+          "description": "`/stop`: the answer being written stopped.",
+          "type": "boolean"
+        },
+        "tasks": {
+          "description": "`/tasks` and `/ps`: its running and scheduled work.",
+          "type": "boolean"
+        },
+        "verbose": {
+          "description": "`/chat:verbose`: whether the chat shows each tool call.",
+          "type": "boolean"
+        },
+        "write": {
+          "description": "`/learn`: a skill written from what it just did, where it may\nwrite `skills/` with its file tool.\n",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-compact-at": {
+      "description": "When a conversation is compacted (`[window] compact_at`): once it fills this share of what the window holds of it, or `never`.",
+      "examples": [
+        0.8,
+        "never"
+      ],
+      "oneOf": [
+        {
+          "description": "Once it fills this share of what the window holds of it",
+          "type": "number"
+        },
+        {
+          "const": "never",
+          "description": "Never"
+        }
+      ]
+    },
+    "agent.agent-extends": {
+      "description": "What a specification starts from. `link`, link's specification, as when it's left out; `none`, nothing: every key is the file's own.",
+      "enum": [
+        "link",
+        "none"
+      ],
+      "type": "string"
+    },
+    "agent.agent-goals": {
+      "additionalProperties": false,
+      "description": "How long a goal is pursued, turn after turn, before it's left:\nwhichever is reached first.\n",
+      "properties": {
+        "tokens": {
+          "description": "The most tokens those turns spend, its prompts' and answers', at least\n1000: Link's specification sets 1000000.\n",
+          "examples": [
+            1000000
+          ],
+          "minimum": 0,
+          "type": "integer"
+        },
+        "turns": {
+          "description": "The most turns it takes on its own toward a goal, after the one that set\nit, from 1 to 1000. Link's specification sets 10.\n",
+          "examples": [
+            10
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-harness": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "The harness's name, as `lnk agent harness list` names it (`link`,\n`openclaw`): lowercase letters, digits and dashes.\n",
+          "examples": [
+            "link"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object",
+      "x-link-shorthand": "name"
+    },
+    "agent.agent-instructions": {
+      "additionalProperties": false,
+      "description": "What it's told to be: one file, nothing, or Link's sections. With\nLink's assembly, where each section of its prompt comes from,\nand how large each may be. A section's source is `link` (Link's own),\n`none`, or a file in the agent's files folder (`instructions/base.md`).\nThe model's and the tools' have no source: its file in\n`instructions/models/` and what each tool says of itself, so only\ntheir most is set. The repository's is `link` (its `AGENTS.md` files)\nor `none`.\n",
+      "properties": {
+        "base": {
+          "description": "The prompt's first section, what any agent of yours is: `link` (Link's,\na personal agent who answers briefly), `none`, or a file in its files\n(`instructions/base.md`). Link's specification sets `\"link\"`.\n",
+          "examples": [
+            "link"
+          ],
+          "type": "string"
+        },
+        "environment": {
+          "description": "The fourth section, what it runs with here as Link resolved it at its\nstart: where its files are, which folders it may change, its\nconnections; `link`, `none` or a file. Link's specification sets `\"link\"`.\n",
+          "examples": [
+            "link"
+          ],
+          "type": "string"
+        },
+        "max": {
+          "$ref": "#/$defs/agent.agent-sections-max",
+          "description": "Each section's most ([`Instructions::max`])."
+        },
+        "notes": {
+          "description": "The ninth section, what the agent noted for itself, the file its\nmemory's `remember` writes, read at each message, or `none`. Link's specification\nsets `\"memory/notes.md\"`; the old `instructions/notes.md` reads as it.\n",
+          "examples": [
+            "memory/notes.md"
+          ],
+          "type": "string"
+        },
+        "now": {
+          "description": "The date, the time here, the connection and who's speaking, at the head\nof each message, never in the system prompt: `link` or `none`. Link's\nspecification sets `\"link\"`.\n",
+          "examples": [
+            "link"
+          ],
+          "type": "string"
+        },
+        "owner": {
+          "description": "The seventh section, who you are (your name, your work, the people in\nyour life, how you like things): a file of yours in its files, read at\neach message, or `none`. Link's specification sets `\"instructions/owner.md\"`.\n",
+          "examples": [
+            "instructions/owner.md"
+          ],
+          "type": "string"
+        },
+        "persona": {
+          "description": "The sixth section, who it is apart from any task (its name, its voice,\nits character): a file of yours in its files, read at each message, or\n`none`. Link's specification sets `\"instructions/persona.md\"`.\n",
+          "examples": [
+            "instructions/persona.md"
+          ],
+          "type": "string"
+        },
+        "repository": {
+          "description": "What the repository it works in says of itself: `link` (its `AGENTS.md`,\nelse `CLAUDE.md`, nearest folder first) or `none`. A feature's switch,\noff when left out.\n",
+          "examples": [
+            "link"
+          ],
+          "type": "string"
+        },
+        "skills": {
+          "description": "The fifth section, each skill's name and what it's for, from\n`skills/<name>/SKILL.md` in its files, sorted by name; `link`, `none` or\na file. Link's specification sets `\"link\"`.\n",
+          "examples": [
+            "link"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "description": "The whole prompt's source: `\"link\"`, as left out, assembles the sections\nbelow; a Markdown file in the agent's files\n(`\"instructions/instruction.md\"`) supplies the whole system prompt, read\nagain each turn without headings, templates, model overrides or message\ntimes; `\"none\"` supplies none.\n\nA file is read up to 64 KB, its outer whitespace trimmed; a missing,\nempty or linked one supplies nothing. Section sources and sizes hold\nonly with `\"link\"`, and with `extends = \"none\"` a file or `\"none\"` needs\nno section keys. Only a harness whose contract takes instructions, as\nLink Harness does, takes the table: a start refuses it for any other.\n",
+          "examples": [
+            "link"
+          ],
+          "type": "string"
+        },
+        "standing": {
+          "description": "The eighth section, your standing instructions: a file in its files it\nmay edit, read at each message, or `none`. Link's specification sets\n`\"instructions/instruction.md\"`.\n",
+          "examples": [
+            "instructions/instruction.md"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-isolation": {
+      "additionalProperties": false,
+      "description": "An agent specification's `[isolation]`: the VM a new agent is made in, its\nonly key a specification may set.\n",
+      "properties": {
+        "vm": {
+          "description": "The VM specification a new agent is made in, relative to this file. This\nbuild has no VM provider, so a specification naming one is refused, never\nrun in a sandbox instead.\n",
+          "format": "path",
+          "type": "string",
+          "x-link-path": true,
+          "x-link-unavailable": "this build of Link has no VM provider"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-late": {
+      "description": "What a firing missed while the machine slept does. `run`, it fires once, on waking; `skip`, it doesn't; a recurring one fires at its next time.",
+      "enum": [
+        "run",
+        "skip"
+      ],
+      "type": "string"
+    },
+    "agent.agent-message-access": {
+      "additionalProperties": false,
+      "description": "An agent specification's `[access]`: who besides its owner may message it.\nIt takes chats alone, so a team's `member` isn't one of its keys.\n",
+      "properties": {
+        "message": {
+          "description": "Who may message the agent, besides its owner: chats on its\nconnections, whoever is in them, each `chat:<connection>:<chat\nid>` (`chat:slack:C0TEAM`).\n",
+          "items": {
+            "$ref": "#/$defs/agent.agent-chat",
+            "description": "A chat on a connection, whoever is in it, `chat:<connection>:<id>`:\na group the connection keeps, which a specification lets message its agent,\nnever a principal. Its id is the connection's own (Slack's `C0TEAM`,\nTelegram's `-1001234`).\n"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-model": {
+      "additionalProperties": false,
+      "description": "The model, and how it's asked.",
+      "properties": {
+        "aliases": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Names for models, each a word for a model as its provider names it\n(`high = \"claude-opus-5-5\"`): `/model:set high`, a subagent started on\n`high` and a fallback of `high` each run that model. Only `[model]`\ntakes the table, never a provider's, and Link's specification has none.\n",
+          "type": "object"
+        },
+        "allow": {
+          "description": "The only models it may run; left out, any.",
+          "examples": [
+            [
+              "anthropic/claude-sonnet-5-5"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "answer": {
+          "description": "The longest answer, in tokens, as you set it, at least 256; left out,\n`[window] answer`'s share of the window, at most the model's own.\n",
+          "examples": [
+            4096
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "anthropic": {
+          "$ref": "#/$defs/agent.agent-provider-model",
+          "description": "A provider's table of `[model]`: the keys that differ by provider,\neach replacing `[model]`'s for an agent thinking with one of its\nmodels. It holds no tables of its own.\n"
+        },
+        "default": {
+          "description": "The model when the agent names none.\n\nIn `[model]`, named with who serves it (`local/qwen3:8b`,\n`anthropic/claude-opus-5-5`); in a provider's table, as that provider\nnames it. Link's specification sets `claude-haiku-5-5` on Anthropic, `gpt-6-luna`\non OpenAI and `anthropic/claude-haiku-5.5` on OpenRouter. `lnk agent\nstart --model.default <model>` selects it for the agent.\n",
+          "examples": [
+            "anthropic/claude-sonnet-5-5"
+          ],
+          "type": "string"
+        },
+        "fallback": {
+          "description": "Whether a turn its model can't answer goes to the fallback model,\n`fallback_model`: the model is off, the turn's prompt is past its\nwindow, or its provider is busy (429, or a 5xx). False, it fails,\nand the agent keeps no fallback.\n",
+          "type": "boolean"
+        },
+        "fallback_model": {
+          "description": "The hosted model used when falling back, named as `default` names\none (`anthropic/claude-sonnet-5-5`), or one of `aliases`. Its\ncredential is its provider's, or `LNK_FALLBACK_CREDENTIAL`'s. Link\nHarness falls back; a harness that can't says so.\n",
+          "examples": [
+            "anthropic/claude-haiku-5-5"
+          ],
+          "type": "string"
+        },
+        "local": {
+          "$ref": "#/$defs/agent.agent-provider-model",
+          "description": "A provider's table of `[model]`: the keys that differ by provider,\neach replacing `[model]`'s for an agent thinking with one of its\nmodels. It holds no tables of its own.\n"
+        },
+        "ollama": {
+          "$ref": "#/$defs/agent.agent-provider-model",
+          "description": "A provider's table of `[model]`: the keys that differ by provider,\neach replacing `[model]`'s for an agent thinking with one of its\nmodels. It holds no tables of its own.\n"
+        },
+        "openai": {
+          "$ref": "#/$defs/agent.agent-provider-model",
+          "description": "A provider's table of `[model]`: the keys that differ by provider,\neach replacing `[model]`'s for an agent thinking with one of its\nmodels. It holds no tables of its own.\n"
+        },
+        "openrouter": {
+          "$ref": "#/$defs/agent.agent-provider-model",
+          "description": "A provider's table of `[model]`: the keys that differ by provider,\neach replacing `[model]`'s for an agent thinking with one of its\nmodels. It holds no tables of its own.\n"
+        },
+        "thinking": {
+          "$ref": "#/$defs/model.thinking",
+          "description": "How hard a model thinks: `off`, `low`, `medium` or `high`."
+        },
+        "thinking_budget": {
+          "description": "The most tokens it thinks, at least 1024, for a model that thinks within\na budget. Link's specification sets 2048.\n",
+          "examples": [
+            2048
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "transcribe": {
+          "description": "The model of its provider a voice note is heard with, its words the\nmessage's (`[connections] voice`); left out, or `\"none\"`, a voice note\nis left out, and the agent told so. Link's specification sets OpenAI's\n`gpt-4o-mini-transcribe`.\n",
+          "examples": [
+            "gpt-4o-mini-transcribe"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-provider-model": {
+      "additionalProperties": false,
+      "description": "A provider's table of `[model]`: the keys that differ by provider,\neach replacing `[model]`'s for an agent thinking with one of its\nmodels. It holds no tables of its own.\n",
+      "properties": {
+        "allow": {
+          "description": "The only models of this provider it may run; left out, `[model]`'s.",
+          "examples": [
+            [
+              "claude-sonnet-5-5"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "answer": {
+          "description": "The longest answer, in tokens, at least 256.",
+          "examples": [
+            4096
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "default": {
+          "description": "The model when the agent names none, as this provider names it\n(`claude-sonnet-5-5`).\n",
+          "examples": [
+            "claude-sonnet-5-5"
+          ],
+          "type": "string"
+        },
+        "thinking": {
+          "$ref": "#/$defs/model.thinking",
+          "description": "How hard a model thinks: `off`, `low`, `medium` or `high`."
+        },
+        "thinking_budget": {
+          "description": "The most tokens it thinks, at least 1024, for a model that thinks\nwithin a budget.\n",
+          "examples": [
+            2048
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "transcribe": {
+          "description": "The model of this provider a voice note is heard with; `\"none\"`,\nnone.\n",
+          "examples": [
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-run": {
+      "additionalProperties": false,
+      "description": "How an agent runs on its machine (`[run]`).",
+      "properties": {
+        "files": {
+          "description": "The agent's workspace folder. A relative path is from the folder the\nstart runs in; left out, it keeps the workspace it has. `lnk agent start\n--run.files <dir>` sets it.\n",
+          "examples": [
+            "/home/me/work"
+          ],
+          "format": "path",
+          "type": "string",
+          "x-link-path": true
+        },
+        "idle_after": {
+          "description": "How long it goes with no message, no turn and no background command\nbefore it stops, holding no process, memory or port, started again by\nits next message: at least `\"1s\"`, or `\"never\"`, memory kept against a\nstart from cold. Link's specification sets `\"5m\"`.\n\nIt holds only where the machine's `shared_bridge` is on\n(`~/.lnk/safe/agents/policy.toml`), since the\nbridge then listens for it, and for an agent whose harness speaks none\nof its connections itself.\n",
+          "examples": [
+            "5m"
+          ],
+          "type": "string"
+        },
+        "let_sleep": {
+          "description": "Whether the machine may sleep while this agent runs: left out or false,\nthe agent keeps it awake; true, the machine's own sleep policy applies.\n",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-schedule": {
+      "additionalProperties": false,
+      "description": "A schedule the agent keeps: a message sent to it at a time, as if\nfrom where it goes.\n",
+      "properties": {
+        "enabled": {
+          "description": "Whether it fires; false keeps it, firing nothing.",
+          "type": "boolean"
+        },
+        "message": {
+          "description": "The message the agent is sent when it fires.",
+          "examples": [
+            "Summarize what came in overnight."
+          ],
+          "type": "string"
+        },
+        "name": {
+          "description": "Its name, unique among the agent's schedules, which its record\nknows it by.\n",
+          "examples": [
+            "morning"
+          ],
+          "type": "string"
+        },
+        "to": {
+          "$ref": "#/$defs/agent-state-protocol.destination"
+        },
+        "when": {
+          "$ref": "#/$defs/agent-state-protocol.when"
+        }
+      },
+      "required": [
+        "enabled",
+        "message",
+        "name",
+        "to",
+        "when"
+      ],
+      "type": "object"
+    },
+    "agent.agent-scheduler-driver": {
+      "description": "What wakes the scheduler's runner. `service`, the agent's bridge, a background service, runs it for good; `cron`, the machine's calendar (launchd on a mac, cron elsewhere) starts\nit once a minute; nothing of it runs between; `address`, a machine that runs the agent only while it answers: the\nscheduler tells it, at the address the machine gives, when the\nagent's jobs are next due, and whatever wakes the agent then runs\nit once; nothing of it runs between.\n",
+      "enum": [
+        "service",
+        "cron",
+        "address"
+      ],
+      "type": "string"
+    },
+    "agent.agent-scheduler-recurring": {
+      "description": "The scheduler's: whether a recurring schedule the agent makes asks you\nfirst. `ask`, it waits for you to allow it unless its call says once;\n`allow`, it starts without asking, as a one-off reminder does, though\n`ask = true` still asks first of every call that writes. Link's specification\nsets `ask`.\n",
+      "enum": [
+        "ask",
+        "allow"
+      ],
+      "type": "string"
+    },
+    "agent.agent-sections-max": {
+      "additionalProperties": false,
+      "description": "Each section's most ([`Instructions::max`]).",
+      "properties": {
+        "base": {
+          "description": "The base section: its most (`\"16 KB\"`), past which it's cut.",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "environment": {
+          "description": "What it runs with here: its most (`\"16 KB\"`), past which it's cut.",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "model": {
+          "description": "The model's own section, the second, from\n`instructions/models/<maker>/<model>/instruction.md` in its files: its\nmost, past which it's cut. It has no source key.\n",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "notes": {
+          "description": "What the agent noted for itself: its most (`\"16 KB\"`), past which it's\ncut.\n",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "now": {
+          "description": "The date, connection and speaker at the head of each message: its most\n(`\"16 KB\"`), past which it's cut.\n",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "owner": {
+          "description": "Who its owner is: its most (`\"16 KB\"`), past which it's cut.",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "persona": {
+          "description": "Who it is: its most (`\"16 KB\"`), past which it's cut.",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "repository": {
+          "description": "What the repository it works in says of itself: its most (`\"16 KB\"`),\npast which it's cut.\n",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "skills": {
+          "description": "Its skills: its most (`\"16 KB\"`), past which it's cut.",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "standing": {
+          "description": "What its owner tells it to be: its most (`\"16 KB\"`), past which it's\ncut.\n",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        },
+        "tools": {
+          "description": "The tools' section, the third, what each tool says of itself: its most,\npast which tools are cut whole. It has no source key.\n",
+          "examples": [
+            "16 KB"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-tool": {
+      "additionalProperties": {
+        "description": "A key of a tool from outside Link, its own to read: Link keeps it and doesn't read it"
+      },
+      "description": "A tool's opinions (`[tools]` for every tool, `[tool.<name>]` for one).\nLink's tools' keys are typed; a tool from outside Link may have keys\nof its own ([`Tool::other`]).\n",
+      "examples": [
+        {
+          "enabled": false
+        },
+        {
+          "answer": "8 KB",
+          "ask": true,
+          "background": 2,
+          "background_keep": "1d",
+          "background_output": "16 MB",
+          "background_per_day": 10,
+          "background_timeout": "1h",
+          "diffs": true,
+          "driver": "service",
+          "enabled": true,
+          "fetch": "24 KB",
+          "find": true,
+          "firing": "1m",
+          "hops": 3,
+          "interval": "10m",
+          "keep": "30d",
+          "late": "skip",
+          "max_age": "1d",
+          "model": "local/qwen3:8b",
+          "notes": "4 KB",
+          "output": "16 KB",
+          "per_day": 20,
+          "recurring": "ask",
+          "servers": {
+            "rust": {
+              "command": [
+                "rust-analyzer"
+              ],
+              "files": [
+                "rs"
+              ],
+              "roots": [
+                "Cargo.toml"
+              ]
+            }
+          },
+          "strangers": [
+            "web__fetch"
+          ],
+          "subagents": 2,
+          "timeout": "30s",
+          "tokens": 4000,
+          "zone": "Europe/London"
+        }
+      ],
+      "properties": {
+        "answer": {
+          "description": "What's kept of a tool's answer, 1 KB to 16 MB; in `[tool.<name>]`, one\ntool's. Link's specification sets `\"32 KB\"`.\n",
+          "type": "string"
+        },
+        "ask": {
+          "description": "The scheduler's: whether every call but those that only read asks you\nfirst. A recurring schedule asks you either way, unless its call says\nonce or `recurring` is `allow`. Link's specification sets false.\n",
+          "type": "boolean"
+        },
+        "background": {
+          "description": "Run's: the most background commands at once, 0 to 64; 0, none. Link's\nspecification sets 4.\n",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "background_keep": {
+          "description": "Run's: how long a background command's record and output stay once it\nended and the agent was told, 1m to 365d. Link's specification sets `\"1d\"`.\n",
+          "examples": [
+            "1d"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "background_output": {
+          "description": "Run's: what's kept on disk of a background command's output, its end, 1\nKB to 1 GB. Link's specification sets `\"16 MB\"`.\n",
+          "type": "string"
+        },
+        "background_per_day": {
+          "description": "Run's: the most background commands started in a day, each of whose\nendings starts a turn, 1 to 65535. Link's specification sets 100.\n",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "background_timeout": {
+          "description": "Run's: the longest a background command runs before it's stopped, 1s to\n7d. Link's specification sets `\"1h\"`.\n",
+          "examples": [
+            "1h"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "deadline": {
+          "description": "Memory's: how long a search ranks before it answers with what it has.\nLink's specification sets `\"300ms\"`.\n",
+          "examples": [
+            "300ms"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "diffs": {
+          "description": "File's: whether `write` and `replace` answer with the change as a diff.\nA feature's switch, off when left out.\n",
+          "type": "boolean"
+        },
+        "dimensions": {
+          "description": "Memory's: how many of the embedding model's dimensions are kept: fewer\ncost less memory and disk, more rank a little better. Link's\nspecification sets 256.\n",
+          "maximum": 65535,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "driver": {
+          "$ref": "#/$defs/agent.agent-scheduler-driver",
+          "description": "What wakes the scheduler's runner. `service`, the agent's bridge, a background service, runs it for good; `cron`, the machine's calendar (launchd on a mac, cron elsewhere) starts\nit once a minute; nothing of it runs between; `address`, a machine that runs the agent only while it answers: the\nscheduler tells it, at the address the machine gives, when the\nagent's jobs are next due, and whatever wakes the agent then runs\nit once; nothing of it runs between.\n"
+        },
+        "enabled": {
+          "description": "Whether Link starts the tool for the agent, in `[tool.scheduler]`,\n`[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false\nwithholds it. Link's specification starts the file tool enabled, and the\nscheduler, run, code and Link MCP disabled. Without the scheduler, no subagents or\nschedules run. `[tool.browser]` and `[tool.desktop]` take it too: true\ngives the screen at a start where this machine runs it, false takes it\naway, and Link's specification says neither, leaving what `lnk agent tool add`\ngave.\n",
+          "type": "boolean"
+        },
+        "fetch": {
+          "description": "Web's: the most of a page one fetch gives, 1 KB to 1 MB; each part says\nwhere the next starts. Link's specification sets `\"24 KB\"`.\n",
+          "type": "string"
+        },
+        "file": {
+          "description": "Memory's: the largest file in its folders it indexes; a larger one is\nleft out, and a search's reply names it. Link's specification sets\n`\"16 MB\"`.\n",
+          "examples": [
+            "16 MB"
+          ],
+          "type": "string"
+        },
+        "find": {
+          "description": "File's: whether it finds files by name and lines by a pattern (`find`).\nA feature's switch, off when left out.\n",
+          "type": "boolean"
+        },
+        "firing": {
+          "description": "The scheduler's: how long it waits on a firing, a subagent's whole work,\nbefore it gives up on it, 1s to 1d. Link's specification sets `\"30m\"`.\n",
+          "examples": [
+            "30m"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "folders": {
+          "description": "Memory's: the agent's folders it indexes, `memory` (its Home's) and\n`chats` (its conversations). Link's specification sets both.\n",
+          "examples": [
+            [
+              "memory",
+              "chats"
+            ]
+          ],
+          "items": {
+            "enum": [
+              "memory",
+              "chats"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "hops": {
+          "description": "The scheduler's: how deep a chain of messages goes, each sent by an\nagent on its own, from 1: a depth and not a count, as a recurring job's\nfirings start again. Link's specification sets 8.\n",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hosts": {
+          "description": "Web's: the only hosts it fetches, as `[internet] hosts` names them: a\nname (`docs.rs`), `*.` and a name for every name under it, or an\naddress; each redirect is held to them too. Left out, it fetches any\npublic host, as Link's specification leaves it. Link Harness sends it with each\ncall.\n",
+          "examples": [
+            [
+              "docs.rs",
+              "*.wikipedia.org"
+            ]
+          ],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "interval": {
+          "description": "The scheduler's: the shortest a recurring schedule may repeat, 1m to 1d;\na model's `cron` that fires more often is refused when it's made. Link's\nspecification sets `\"5m\"`.\n",
+          "examples": [
+            "5m"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "keep": {
+          "description": "Memory's: how long its session stays once no turn uses it. Link's specification\nsets `\"10m\"`.\n",
+          "examples": [
+            "10m"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "kept_off": {
+          "description": "Memory's: the largest index kept off the machine, fetched at each wake\nwhere the machine runs agents only while they answer. Link's\nspecification sets `\"2 GB\"`.\n",
+          "examples": [
+            "2 GB"
+          ],
+          "type": "string"
+        },
+        "late": {
+          "$ref": "#/$defs/agent.agent-late",
+          "description": "What a firing missed while the machine slept does. `run`, it fires once, on waking; `skip`, it doesn't; a recurring one fires at its next time."
+        },
+        "max_age": {
+          "description": "Memory's: how long its session lives at most. Link's specification sets `\"1h\"`.",
+          "examples": [
+            "1h"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "memory": {
+          "description": "Memory's: the most its service holds of its own for this agent's index,\nbesides the pages of files it maps. Link's specification sets\n`\"512 MB\"`.\n",
+          "examples": [
+            "512 MB"
+          ],
+          "type": "string"
+        },
+        "model": {
+          "description": "Memory's: the embedding model it ranks by; `none`, by words only, no\nmodel started. Link's specification sets `qwen3-embedding`.\n",
+          "type": "string"
+        },
+        "notes": {
+          "description": "Memory's: how large the agent's notes may grow, 64 B to 64 KB, past\nwhich `remember` refuses to write. Link's specification sets `\"4 KB\"`.\n",
+          "type": "string"
+        },
+        "output": {
+          "description": "Run's: what's kept of each of a command's output and its errors, its\nstart and its end, 1 KB to 16 MB. Link's specification sets `\"16 KB\"`.\n",
+          "type": "string"
+        },
+        "per_day": {
+          "description": "The scheduler's: messages its schedules send the agent a day, the day\nin its `zone`, from 1; subagents' work is outside it. It bounds how many\nmessages agents send each other, and caps what the agent takes from each\nteammate a day (UTC). Link's specification sets 100.\n",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "program": {
+          "description": "The browser's: the Chromium-family program it starts, by its absolute\npath, in place of the one it finds on this machine. It's an executable\nprogram, never a launcher script (a file starting with `#!`), which\nwould run inside the browser's sandbox and be refused the programs it\ncalls; each start checks it, and refuses one that isn't. Left out, the\nbrowser finds one, as Link's specification leaves it.\n",
+          "examples": [
+            "/opt/chromium/chrome"
+          ],
+          "type": "string"
+        },
+        "recurring": {
+          "$ref": "#/$defs/agent.agent-scheduler-recurring",
+          "description": "The scheduler's: whether a recurring schedule the agent makes asks you\nfirst. `ask`, it waits for you to allow it unless its call says once;\n`allow`, it starts without asking, as a one-off reminder does, though\n`ask = true` still asks first of every call that writes. Link's specification\nsets `ask`.\n"
+        },
+        "reserve": {
+          "description": "Memory's: the disk left free; below it indexing pauses, calls go on\nanswering, and it resumes once there's room. Link's specification sets\n`\"1 GB\"`.\n",
+          "examples": [
+            "1 GB"
+          ],
+          "type": "string"
+        },
+        "servers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/agent.agent-code-server",
+            "description": "A language server of code's (`[tool.code.servers.<language>]`). Each\nkey is its own in a specification's union, so a specification may change one alone: a\nkey left out is the specification before's.\n"
+          },
+          "description": "Code's: the language servers it may start, by the language each\nserves (`rust`).\n",
+          "type": "object"
+        },
+        "strangers": {
+          "description": "`[tools]` only: the tools a stranger's message may use, by the\nnames the harness offers them (`web__fetch`), its conversation\ngiven these or fewer ([`crate::access::Standing::Stranger`]). Left\nout, none.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "subagents": {
+          "description": "The scheduler's: subagents at work at once, from 1. Link's specification sets 5.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "threads": {
+          "description": "Memory's: the threads indexing takes, so a laptop isn't\ntaken over. Link's specification sets 1.\n",
+          "maximum": 1024,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout": {
+          "description": "How long a tool's call may take, at least a second; past it the model is\ntold it didn't answer. In `[tool.<name>]`, one tool's: the run tool\nstops a command a tenth before it (2 s at least, half at most), with\nall it started, so what it printed comes back. Waiting for you to allow a call isn't counted: a\ntool not Link's own has `[connections] ask_wait` beside it. Link's specification\nsets `\"5m\"`, and the run tool's `\"2m\"`.\n",
+          "examples": [
+            "5m"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "tokens": {
+          "description": "Memory's: the most tokens a search or a read gives, at least 100 and at\nmost 6000, the most one answer holds. Link's specification sets 6000.\n",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "zone": {
+          "description": "The scheduler's: the time zone its times are in, `local` (this\nmachine's) or a zone's name (`Europe/Paris`). Link's specification sets `local`.\n",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-turns": {
+      "additionalProperties": false,
+      "description": "How long a turn may go on.",
+      "properties": {
+        "busy": {
+          "$ref": "#/$defs/harness-wire.busy",
+          "description": "What a message sent while a turn runs does. `queue`, it gets a turn of its own after; `steer`, it joins the running turn, at its next round; `interrupt`, the running turn ends now, and it gets a turn of its own."
+        },
+        "calls": {
+          "description": "The most calls one answer makes, from 1. Link's specification sets 16.",
+          "examples": [
+            16
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lapse": {
+          "description": "How long a lease not renewed lasts before its turn is taken for crashed\nand finished, more than twice `renew`. Link's specification sets `\"60s\"`.\n",
+          "examples": [
+            "60s"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "renew": {
+          "description": "How often a running turn renews its lease, at least `\"1s\"`. Link's specification\nsets `\"10s\"`.\n",
+          "examples": [
+            "10s"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "rounds": {
+          "description": "The most rounds of calls in one turn, from 1. Link's specification sets 8.",
+          "examples": [
+            8
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "agent.agent-window": {
+      "additionalProperties": false,
+      "description": "How much of the model's window a turn fills.",
+      "properties": {
+        "answer": {
+          "description": "The share of the window kept for the answer, over 0 and under 1 and\nunder 1 with `margin`, at most the model's longest, where `[model]\nanswer` doesn't say. Link's specification sets 0.25.\n",
+          "examples": [
+            0.25
+          ],
+          "type": "number"
+        },
+        "compact_at": {
+          "$ref": "#/$defs/agent.agent-compact-at",
+          "description": "When a conversation is compacted (`[window] compact_at`): once it fills this share of what the window holds of it, or `never`."
+        },
+        "margin": {
+          "description": "The share of the window kept back, from 0 to under 0.5: tokens are\ncounted roughly before a turn, exactly by the provider after (`0.125`,\nan eighth). Link's specification sets 0.125.\n",
+          "examples": [
+            0.125
+          ],
+          "type": "number"
+        },
+        "max": {
+          "description": "The window a turn fills, in tokens, at least 1024: yours or a team's as\nset, Link's held to the model's own window; left out, the model's whole\nwindow. Link's specification sets 128000.\n",
+          "examples": [
+            128000
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "past_price_jump": {
+          "description": "Whether a turn fills the window past its model's first price jump, where\na long prompt costs more (the model's facts' `above`, as `lnk model\nshow` prints them).\n\nFalse fills the window only up to that size, `max` included, so the\nconversation compacts within it; true fills the whole window, each call\npast the jump at its higher price. Link's specification sets false.\n",
+          "type": "boolean"
+        },
+        "save_notes": {
+          "description": "Whether, before it compacts, the model is asked to save what matters to\nits notes, where it has a tool to (`memory__remember`), in a\nconversation you spoke in, never one of others' messages alone. Link's\nspecification sets true.\n",
+          "type": "boolean"
+        },
+        "unknown": {
+          "description": "The window of a model Link doesn't know, in tokens, at least 1024.\nLink's specification sets 32768.\n",
+          "examples": [
+            32768
+          ],
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "agent.team-access": {
+      "additionalProperties": false,
+      "description": "A team file's `[access]`: which agents of other accounts may be on\nit. It takes members alone, so an agent's `message` isn't one of its\nkeys.\n",
+      "properties": {
+        "member": {
+          "description": "Which agents of other accounts may be on the team, each the\nservice it acts as, `service:<agent id>`: the team owner's yes; the\nagent's owner says the other, by joining.\n",
+          "items": {
+            "examples": [
+              "service:k3m4n5p6q7r8"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "agent.team-files": {
+      "additionalProperties": false,
+      "description": "`[files]`: the folder the team's members share.",
+      "properties": {
+        "shared": {
+          "description": "The shared folder, from the home folder (`~/Link/Teams/research`).",
+          "examples": [
+            "~/Link/Teams/research"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "shared"
+      ],
+      "type": "object"
+    },
+    "agent.team-indexer": {
+      "examples": [
+        {
+          "kind": "auto"
+        },
+        {
+          "kind": "member",
+          "member": "scout"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/$defs/agent.team-indexer-auto",
+          "description": "One eligible whole-folder writer, elected outside the runtime."
+        },
+        {
+          "$ref": "#/$defs/agent.team-indexer-member",
+          "description": "The selected member; names resolve to permanent IDs at delivery."
+        }
+      ]
+    },
+    "agent.team-indexer-auto": {
+      "additionalProperties": false,
+      "description": "One eligible whole-folder writer, elected outside the runtime.",
+      "properties": {
+        "kind": {
+          "const": "auto",
+          "description": "Which keeper it is: auto, elected, or a named member."
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "agent.team-indexer-member": {
+      "additionalProperties": false,
+      "description": "The selected member; names resolve to permanent IDs at delivery.",
+      "properties": {
+        "kind": {
+          "const": "member",
+          "description": "Which keeper it is: auto, elected, or a named member."
+        },
+        "member": {
+          "description": "The member, by its name in the team's file.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "member"
+      ],
+      "type": "object"
+    },
+    "agent.team-member": {
+      "additionalProperties": false,
+      "description": "A team's member, by its name in the file.",
+      "properties": {
+        "agent": {
+          "$ref": "#/$defs/agent.agent",
+          "description": "An agent, written down: the file `lnk agent start --spec` reads and\n`lnk agent spec show` prints.\n"
+        },
+        "id": {
+          "description": "The agent's ID.",
+          "examples": [
+            "a1b2c3d4e5f6"
+          ],
+          "type": "string"
+        },
+        "owner": {
+          "description": "Its account, for another account's agent, which the team's\n`[access] member` names: none, the team owner's own.\n",
+          "type": "string"
+        },
+        "purpose": {
+          "description": "What it's for on the team, for people and its teammates.",
+          "type": "string"
+        },
+        "read": {
+          "description": "For another account's agent, the folders of the team's folder it\nmay only read.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "service": {
+          "description": "The service the agent acts as, written service:<id>: the role holder\na teammate's check names. An own agent's is read from its settings\nas the team is loaded; another account's is named in the file.\n",
+          "format": "link-id",
+          "type": "string",
+          "x-link-kind": "service"
+        },
+        "write": {
+          "description": "For another account's agent, the folders of the team's folder it\nmay write, and those it may only read, as `[teams.<team>]`\nnames them: the most it reaches, the team owner's to say. An own\nagent's are in its sandbox file.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "agent.team-memory": {
+      "additionalProperties": false,
+      "description": "A team's memory: one memory over its shared folder, handed to the members granted all of it",
+      "properties": {
+        "daily_credits": {
+          "description": "Shared daily memory spending in credits; required when enabling\nsemantic search. All callers debit the same team budget.\n",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "enabled": {
+          "default": false,
+          "description": "Whether the team has a memory over its shared folder, handed to the\nmembers granted all of it: off until the owner turns it on (`lnk agent\nteam-memory start`).\n",
+          "type": "boolean"
+        },
+        "indexer": {
+          "$ref": "#/$defs/agent.team-indexer",
+          "default": {
+            "kind": "auto"
+          }
+        },
+        "payer": {
+          "$ref": "#/$defs/agent.team-payer",
+          "default": {
+            "kind": "owner"
+          }
+        },
+        "semantic": {
+          "default": false,
+          "description": "Non-indexers use words until the owner enables semantic queries.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "agent.team-payer": {
+      "examples": [
+        {
+          "kind": "owner"
+        },
+        {
+          "kind": "member",
+          "member": "scout"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/$defs/agent.team-payer-owner",
+          "description": "The team's owner."
+        },
+        {
+          "$ref": "#/$defs/agent.team-payer-member",
+          "description": "The account of this accepted member, with its explicit spending\nauthority; naming it in a specification alone grants no billing consent.\n"
+        }
+      ]
+    },
+    "agent.team-payer-member": {
+      "additionalProperties": false,
+      "description": "The account of this accepted member, with its explicit spending\nauthority; naming it in a specification alone grants no billing consent.\n",
+      "properties": {
+        "kind": {
+          "const": "member",
+          "description": "Who pays: the team's owner, or a named member."
+        },
+        "member": {
+          "description": "The member, by its name in the team's file.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "member"
+      ],
+      "type": "object"
+    },
+    "agent.team-payer-owner": {
+      "additionalProperties": false,
+      "description": "The team's owner.",
+      "properties": {
+        "kind": {
+          "const": "owner",
+          "description": "Who pays: the team's owner, or a named member."
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "agent.team-settings": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "$ref": "#/$defs/agent.agent",
+          "default": {},
+          "description": "An agent, written down: the file `lnk agent start --spec` reads and\n`lnk agent spec show` prints.\n"
+        },
+        "memory": {
+          "$ref": "#/$defs/agent.team-memory",
+          "default": {},
+          "description": "A team's memory: one memory over its shared folder, handed to the members granted all of it"
+        }
+      },
+      "type": "object"
+    },
+    "connection-policy.activity": {
+      "description": "How each tool it calls shows, a line each with what it works on\n(`› file read: notes/plan.md`, `› run command: cargo test`), where its\nharness tells its calls (ACP's `tool_call`), as Link Harness does:\n`replace`, above the answer being written, the latest eight, the\nfinished answer then shown alone; `keep`, the same, every line staying\nabove the finished answer as a log; or `off`, none. Link's specification sets\n`replace`; `/chat:verbose` turns it off and on for one conversation.\n",
+      "enum": [
+        "replace",
+        "keep",
+        "off"
+      ],
+      "examples": [
+        "replace"
+      ],
+      "type": "string"
+    },
+    "connection-policy.connection": {
+      "additionalProperties": false,
+      "description": "A connection's opinions (`[connections]` for every connection, `[connection.<name>]`\nfor one).\n",
+      "properties": {
+        "activity": {
+          "$ref": "#/$defs/connection-policy.activity",
+          "description": "How each tool it calls shows, a line each with what it works on\n(`› file read: notes/plan.md`, `› run command: cargo test`), where its\nharness tells its calls (ACP's `tool_call`), as Link Harness does:\n`replace`, above the answer being written, the latest eight, the\nfinished answer then shown alone; `keep`, the same, every line staying\nabove the finished answer as a log; or `off`, none. Link's specification sets\n`replace`; `/chat:verbose` turns it off and on for one conversation.\n"
+        },
+        "activity_mark": {
+          "description": "What leads each tool call's line (`\"›\"`): empty (`\"\"`), nothing.\nLink's specification sets `\"›\"`.\n",
+          "examples": [
+            "›"
+          ],
+          "maxLength": 8,
+          "type": "string"
+        },
+        "activity_separator": {
+          "description": "What stands between a tool call and what it works on (`\": \"`), as\n`› run command: git commit`; a call with nothing to show it works\non shows none (`› web search`). Link's specification sets `\": \"`.\n",
+          "examples": [
+            ": "
+          ],
+          "maxLength": 8,
+          "type": "string"
+        },
+        "ask_wait": {
+          "description": "How long a question for you waits for your answer, a call of a tool that\nasks first or a page to open, a second to a day: no answer in time is\nno, and a tool's call has its own `timeout` beside it. `[connections]`'s\nalone, since a question waits as long on every connection. Link's specification\nsets `\"10m\"`.\n",
+          "examples": [
+            "10m"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "cache": {
+          "description": "How long its provider's cache is asked to keep a conversation's\nprompt: `\"auto\"`, the lifetime expected to cost least, or one the\nprovider offers (`\"1h\"`). Link's specification sets `\"auto\"`.\n",
+          "examples": [
+            "auto"
+          ],
+          "type": "string"
+        },
+        "compact_after": {
+          "description": "When a quiet conversation on it is compacted by time: `\"auto\"`, just\nbefore its cache ends when that costs less than reading it again; a\ntime of quiet, at least `\"1m\"`; or `\"never\"`. It needs the `scheduler`\ntool. Link's specification sets `\"auto\"`, and `\"never\"` for `link`.\n",
+          "examples": [
+            "auto"
+          ],
+          "type": "string"
+        },
+        "documents": {
+          "description": "Whether a message's documents (PDF or text) reach the agent; false\nor left out, each is left out and the agent told so.\n",
+          "type": "boolean"
+        },
+        "groups": {
+          "$ref": "#/$defs/connection-policy.groups",
+          "description": "Which of the owner's messages in a group an agent answers. `mention`, those that mention it, or answer one of its messages; `never`, none: it talks in direct messages only."
+        },
+        "images": {
+          "description": "Whether a message's images reach the agent; false or left out,\neach is left out and the agent told so.\n",
+          "type": "boolean"
+        },
+        "pace": {
+          "description": "How often an answer being written is shown again, over 0; never more\noften than the platform documents a bot may write: Telegram once a\nsecond in a chat and every 3 seconds in a group, Slack every 1.2\nseconds, and Discord its global 50 requests a second and the limits it\nanswers with. Told by the platform to wait, Telegram and Slack show\nnothing more until then, and only the finished answer waits and tries\nagain. Link's specification sets `\"1s\"`.\n",
+          "examples": [
+            "1s"
+          ],
+          "format": "duration",
+          "type": "string"
+        },
+        "pauses": {
+          "description": "What `\"auto\"` assumes of a new conversation's pauses, each counted as\none it saw. Link's specification sets a chat's to `[\"1m\", \"1m\", \"20m\", \"8h\"]`.\n",
+          "examples": [
+            [
+              "1m",
+              "20m",
+              "8h"
+            ]
+          ],
+          "items": {
+            "format": "duration",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "steered": {
+          "description": "A reaction on a message that joined a running turn ([`Busy::Steer`]),\nwhere the connection has them; empty (`\"\"`) or left out, none.\n",
+          "examples": [
+            "wave"
+          ],
+          "type": "string"
+        },
+        "stream": {
+          "description": "The answer shown as it's written; false, once it's done. Link's specification\nsets true.\n",
+          "type": "boolean"
+        },
+        "voice": {
+          "description": "Whether a message's voice notes reach the agent, heard as their\nwords by its provider (`[model] transcribe`); false or left out,\neach is left out and the agent told so.\n",
+          "type": "boolean"
+        },
+        "working": {
+          "description": "A reaction on your message while it answers, by its name (`\"eyes\"`),\nwhere the connection has them; empty (`\"\"`) or left out, none. Of\nLink's connections Slack and Discord mark a message, so it's refused\nfor Telegram and Signal; Discord knows the names its\n`reactions.toml` lists. Link's `[connection.slack]` and\n`[connection.discord]` set `\"eyes\"`.\n",
+          "examples": [
+            "eyes"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "connection-policy.groups": {
+      "description": "Which of the owner's messages in a group an agent answers. `mention`, those that mention it, or answer one of its messages; `never`, none: it talks in direct messages only.",
+      "enum": [
+        "mention",
+        "never"
+      ],
+      "type": "string"
+    },
+    "harness-wire.busy": {
+      "description": "What a message sent while a turn runs does. `queue`, it gets a turn of its own after; `steer`, it joins the running turn, at its next round; `interrupt`, the running turn ends now, and it gets a turn of its own.",
+      "enum": [
+        "queue",
+        "steer",
+        "interrupt"
+      ],
+      "type": "string"
+    },
+    "interactions.domain-id": {
+      "description": "A domain of questions (`tool.approval`): letters, digits and `.`, `_`, `:`, `-` or `/`, at most 256 of them.",
+      "maxLength": 256,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._:/-]+$",
+      "type": "string"
+    },
+    "interactions.domain-opinion": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_request_overrides": {
+          "description": "Whether the asker's own wait and fallbacks replace these.",
+          "type": "boolean"
+        },
+        "choice": {
+          "$ref": "#/$defs/interactions.fallback",
+          "description": "What a question left unanswered becomes. `expire`, nothing: it expires unanswered; `use_default`, its default answer; `use_recommended`, its recommended answer."
+        },
+        "confirmation": {
+          "$ref": "#/$defs/interactions.fallback",
+          "description": "What a question left unanswered becomes. `expire`, nothing: it expires unanswered; `use_default`, its default answer; `use_recommended`, its recommended answer."
+        },
+        "text": {
+          "$ref": "#/$defs/interactions.fallback",
+          "description": "What a question left unanswered becomes. `expire`, nothing: it expires unanswered; `use_default`, its default answer; `use_recommended`, its recommended answer."
+        },
+        "wait_secs": {
+          "description": "How long a question waits for an answer, in seconds, at most a\nday.\n",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "interactions.fallback": {
+      "description": "What a question left unanswered becomes. `expire`, nothing: it expires unanswered; `use_default`, its default answer; `use_recommended`, its recommended answer.",
+      "enum": [
+        "expire",
+        "use_default",
+        "use_recommended"
+      ],
+      "type": "string"
+    },
+    "interactions.interaction-opinions": {
+      "additionalProperties": false,
+      "properties": {
+        "domains": {
+          "additionalProperties": {
+            "$ref": "#/$defs/interactions.domain-opinion"
+          },
+          "default": {},
+          "description": "How long a question of each kind waits for its owner, and what an\nunanswered one becomes, by its domain (`tool.approval`). A domain's\nopinion holds for the domains below it unless theirs says.\n",
+          "propertyNames": {
+            "$ref": "#/$defs/interactions.domain-id",
+            "description": "A domain of questions (`tool.approval`): letters, digits and `.`, `_`, `:`, `-` or `/`, at most 256 of them."
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "model.thinking": {
+      "description": "How hard a model thinks: `off`, `low`, `medium` or `high`.",
+      "enum": [
+        "off",
+        "low",
+        "medium",
+        "high"
+      ],
+      "type": "string"
+    },
+    "store.storage": {
+      "additionalProperties": false,
+      "description": "Where an agent would keep each of its collections (its specification's\n`[storage]`): a place's name each, a request its machine has the\nlast word on. A harness from outside Link keeps its own conversations\nhowever it does.\n",
+      "properties": {
+        "conversations": {
+          "description": "Where a new conversation is kept: a place (`file`\nor a driver's name, `sqlite` the program `lnk-sqlite-store`,\na store), or `log` or `compact`,\neach `file`. A conversation already kept is read\nwhere it is: `lnk agent chat export --format` converts it.\n",
+          "examples": [
+            "log"
+          ],
+          "type": "string"
+        },
+        "home": {
+          "description": "Where it would keep its home, the person's documents and work (`Home/`):\na place's name, lowercase letters, digits and dashes. It's a request:\nthe machine's `[storage]` has the last word, and a place it doesn't\nsupport gets its default. Link's specification sets `\"file\"`.\n",
+          "examples": [
+            "file"
+          ],
+          "type": "string"
+        },
+        "instructions": {
+          "description": "Where it would keep its instructions, which you edit. It's a request:\nthe machine's `[storage]` has the last word, and a place it doesn't\nsupport gets its default. Link's specification sets `\"file\"`.\n",
+          "examples": [
+            "file"
+          ],
+          "type": "string"
+        },
+        "memory": {
+          "description": "Where it would keep memory's notes and index. It's a request: the\nmachine's `[storage]` has the last word, and a place it doesn't support\ngets its default. Link's specification sets `\"file\"`.\n",
+          "examples": [
+            "file"
+          ],
+          "type": "string"
+        },
+        "schedule": {
+          "description": "Where it would keep its scheduled jobs. It's a request: the machine's\n`[storage]` has the last word, and a place it doesn't support gets its\ndefault. Link's specification sets `\"file\"`.\n",
+          "examples": [
+            "file"
+          ],
+          "type": "string"
+        },
+        "skills": {
+          "description": "Where it would keep its skills, which you edit. It's a request: the\nmachine's `[storage]` has the last word, and a place it doesn't support\ngets its default. Link's specification sets `\"file\"`.\n",
+          "examples": [
+            "file"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A team's file: its head (`[access]` among it), its roster and its\nshared settings, the opinions\nevery member shares in `[settings.agent]`.\n",
+  "properties": {
+    "access": {
+      "$ref": "#/$defs/agent.team-access",
+      "description": "A team file's `[access]`: which agents of other accounts may be on\nit. It takes members alone, so an agent's `message` isn't one of its\nkeys.\n"
+    },
+    "files": {
+      "$ref": "#/$defs/agent.team-files",
+      "description": "`[files]`: the folder the team's members share."
+    },
+    "id": {
+      "description": "The team's permanent ID, which keeps it the same team through\nrenames, restarts and moves; left out, the first apply assigns it.\n",
+      "examples": [
+        "k3m4n5p6q7r8"
+      ],
+      "type": "string"
+    },
+    "lead": {
+      "description": "The member a message addressed to the team reaches, by its name;\nleft out, the team takes none until you name one.\n",
+      "examples": [
+        "scout"
+      ],
+      "type": "string"
+    },
+    "member": {
+      "additionalProperties": {
+        "$ref": "#/$defs/agent.team-member",
+        "description": "A team's member, by its name in the file."
+      },
+      "description": "Its members, by their names in the team: each an existing agent by\nits ID, or an agent definition the team makes and manages.\n",
+      "examples": [
+        {
+          "reviewer": {
+            "id": "k3m4n5p6q7r8",
+            "owner": "a1b2c3d4",
+            "purpose": "Reviews drafts",
+            "read": [
+              "sources"
+            ],
+            "service": "service:k3m4n5p6q7r8",
+            "write": [
+              "drafts"
+            ]
+          },
+          "scout": {
+            "agent": {
+              "model": {
+                "thinking": "medium"
+              }
+            },
+            "purpose": "Finds sources"
+          }
+        }
+      ],
+      "type": "object"
+    },
+    "name": {
+      "description": "The team's name: lowercase letters, digits and dashes.",
+      "examples": [
+        "research"
+      ],
+      "type": "string"
+    },
+    "settings": {
+      "$ref": "#/$defs/agent.team-settings",
+      "default": {},
+      "examples": [
+        {
+          "agent": {
+            "window": {
+              "compact_at": 0.75
+            }
+          },
+          "memory": {
+            "daily_credits": 100,
+            "indexer": {
+              "kind": "auto"
+            },
+            "payer": {
+              "kind": "owner"
+            },
+            "semantic": true
+          }
+        }
+      ]
+    },
+    "version": {
+      "description": "A whole number of yours, to say which revision of the file this\nis; Link reads nothing from it.\n",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "type": "object",
+  "x-link-generator": "Generated by link-actions-surfaces from the module declarations: change those and regenerate, never this file."
+}

@@ -1,0 +1,95 @@
+[package]
+authors.workspace = true
+name = "link-model-contract"
+description = "`link-model-contract` holds what Local Link knows of models (each one's window, its longest answer, how it thinks, and what it costs), included as data, and the model routes a program behind its proxy calls"
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/agents/model"
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.link-sandbox-route]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-component]
+workspace = true
+
+[lib]
+doctest = false
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[features]
+client = ["dep:reqwest", "dep:tokio"]
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.reqwest]
+workspace = true
+features = ["rustls-no-provider"]
+optional = true
+
+[dependencies.tokio]
+workspace = true
+optional = true
+
+[lints]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.link-fetch]
+workspace = true
+
+[dependencies.link-secretive]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.schemars]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-types]
+workspace = true
+
+[build-dependencies.link-actions-build]
+workspace = true
+
+[build-dependencies.anyhow]
+workspace = true

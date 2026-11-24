@@ -1,0 +1,7 @@
+# The protocol of the question cloud.accounts: the cloud accounts a
+# module found. One line from the asker, one back, each stating the
+# version it speaks.
+name = "cloud accounts answers"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

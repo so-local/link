@@ -1,0 +1,9 @@
+schema = 1
+# A line of the resource journal: a launch's credential-free intent,
+# written before the cloud allocates its machine, each line naming its
+# schema.
+kind = "launch intent"
+current = 1
+# What happened, never rewritten by an upgrade: each record is read as
+# its schema says.
+holds = "history"

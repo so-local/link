@@ -1,0 +1,10 @@
+schema = 1
+# Where an agent runs, the box it was created on and how it was made:
+# `~/.lnk/safe/agents/machines/<name>.json`.
+kind = "agent placement"
+current = 1
+
+[[files]]
+location = "lnk.agent-machines"
+path = "*.json"
+encoding = "json"

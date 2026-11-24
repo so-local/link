@@ -1,0 +1,11 @@
+schema = 1
+# What an agent's memory tool was last defined from,
+# `~/.lnk/safe/agents/<name>/memory.json`, and a team's beside its own.
+kind = "memory tool record"
+current = 1
+command = "lnk agent start"
+
+[[files]]
+location = "lnk.agents"
+path = "*/memory.json"
+encoding = "json"

@@ -1,0 +1,120 @@
+schema = 1
+
+[defines.LNK_WEB_SEARCH]
+type = "string"
+description = "The search API web uses when both keys are set: brave or tavily"
+
+[defines.LNK_WEB_SEARCH_URL]
+type = "string"
+description = "Where search requests go instead of the provider's API, for tests: read only by a debug build, https or http to loopback"
+
+[defines.BRAVE_API_KEY]
+type = "string"
+description = "Your Brave Search API key, in web's environment, never the harness's"
+
+[defines.TAVILY_API_KEY]
+type = "string"
+description = "Your Tavily API key, in web's environment, never the harness's"
+
+[[uses]]
+name = "LNK_WEB_SEARCH"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "LNK_WEB_SEARCH_URL"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "BRAVE_API_KEY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "TAVILY_API_KEY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HTTP_PROXY"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "HTTPS_PROXY"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "ALL_PROXY"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "NO_PROXY"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "http_proxy"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "https_proxy"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "all_proxy"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "no_proxy"
+access = ["read", "unset"]
+context = "test"
+
+[[uses]]
+name = "HTTP_PROXY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "HTTPS_PROXY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "ALL_PROXY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "NO_PROXY"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "http_proxy"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "https_proxy"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "all_proxy"
+access = ["read"]
+context = "runtime"
+
+[[uses]]
+name = "no_proxy"
+access = ["read"]
+context = "runtime"
+
+[readers]
+"searching::from_env" = "Read the credential variable named by the selected search Provider; provider selection and URL overrides are declared separately."

@@ -1,0 +1,43 @@
+schema = 1
+
+[listed]
+type = "object"
+description = "A cloud account as Link keeps it, without its credential: its name, kind, place and who it signs in as"
+x-link-display = { columns = ["name", "kind", "place", "identity"] }
+required = ["name", "kind", "place", "identity", "login"]
+additionalProperties = false
+properties.name = { type = "string", description = "What you call it, unique" }
+properties.kind = { type = "string", description = "Its adapter: aws, gcp, ..." }
+properties.place = { type = "string", description = "Where things go by default: an AWS region, a Google Cloud zone" }
+properties.identity = { type = "string", description = "Who the sign-in is, as last checked" }
+properties.login = { type = "string", description = "How it signs in, without secrets" }
+properties.machine = { type = "boolean", default = false, description = "Whether the account is one machine, reached with `--on`, rather than a cloud that makes machines" }
+
+[accounts]
+type = "array"
+description = "The cloud accounts you connected, without their credentials"
+items = "listed"
+
+
+[forgotten]
+type = "object"
+description = "A cloud account forgotten, nothing in it deleted"
+required = ["name"]
+additionalProperties = false
+properties.name = { type = "string", description = "The account" }
+
+[accepted]
+type = "object"
+description = "A connected account taken from standard input"
+required = ["version", "name", "kind"]
+additionalProperties = false
+properties.version = { type = "integer", description = "The input's version" }
+properties.name = { type = "string", description = "The account" }
+properties.kind = { type = "string", description = "Its adapter" }
+
+[input-schema]
+type = "object"
+description = "The version of a connected account account-input takes"
+required = ["version"]
+additionalProperties = false
+properties.version = { type = "integer", description = "The input's version" }

@@ -1,0 +1,8 @@
+# A section needs its first key.
+[spec]
+schema = 1
+[spec.internet]
+tcp = ["github.com:22"]
+
+[expect]
+invalid = "[internet] needs hosts"

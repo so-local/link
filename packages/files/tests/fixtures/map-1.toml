@@ -1,0 +1,7 @@
+schema = 1
+link = "Link"
+
+[locations]
+# Kept apart, on the larger disk.
+"link.documents" = "/srv/files"
+"lnk.migration-journal" = "safe/journal"

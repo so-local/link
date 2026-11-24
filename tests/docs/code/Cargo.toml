@@ -1,0 +1,255 @@
+[package]
+authors.workspace = true
+name = "link-docs-check-code"
+description = "`link-docs-check-code` checks documentation examples and inventories against the command parsers, types, and declarations Local Link releases"
+publish = false
+
+[package.version]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "fixture"
+owner = "tests/docs/code"
+# Every folder's docs; the code it checks them against is its dependencies.
+inputs = [{kind = "documentation"}]
+
+[dependencies.link-docs-check]
+workspace = true
+
+
+[dev-dependencies.link-version]
+workspace = true
+
+[dev-dependencies.link-test-kit]
+workspace = true
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.link-cli]
+workspace = true
+
+[dependencies.link-web-tool]
+workspace = true
+
+[dependencies.link-browser-tool]
+workspace = true
+
+[dependencies.link-desktop-tool]
+workspace = true
+
+[dependencies.link-scheduler-tool]
+workspace = true
+
+[dependencies.link-file-tool]
+workspace = true
+
+[dependencies.link-code-tool]
+workspace = true
+
+[dependencies.link-run-tool]
+workspace = true
+
+[dependencies.link-document-converter]
+workspace = true
+
+[dependencies.link-memory-tool]
+workspace = true
+
+[dependencies.link-mcp]
+workspace = true
+
+[dependencies.link-actions]
+workspace = true
+
+[dependencies.link-component]
+workspace = true
+
+[dependencies.link-repository-check]
+workspace = true
+
+[dependencies.link-core]
+workspace = true
+
+[dependencies.link-sandbox-client]
+workspace = true
+
+[dependencies.link-box]
+workspace = true
+
+[dependencies.link-agent-spec]
+workspace = true
+
+[dependencies.link-interactions-contract]
+workspace = true
+
+[dependencies.link-agent]
+workspace = true
+
+[dependencies.link-model-contract]
+workspace = true
+
+[dependencies.link-sandbox]
+workspace = true
+
+[lib]
+doctest = false
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-env-contract]
+workspace = true
+
+[dependencies.link-secret-contract]
+workspace = true
+
+[dependencies.link-policy]
+workspace = true
+
+[dependencies.link-files]
+workspace = true
+
+[dependencies.link-format]
+workspace = true
+
+[dependencies.shlex]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.serde_ignored]
+workspace = true
+
+[dependencies.syn]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.link-api]
+workspace = true
+
+[dependencies.link-agent-state-protocol]
+workspace = true
+
+[dependencies.link-connection-contract]
+workspace = true
+
+[dependencies.link-model]
+workspace = true
+
+
+[dependencies.link-measure]
+workspace = true
+
+
+[dependencies.link-cloud]
+workspace = true
+
+[dependencies.link-aws]
+workspace = true
+
+[dependencies.link-gcp]
+workspace = true
+
+[dependencies.link-storage]
+workspace = true
+
+[dependencies.link-env]
+workspace = true
+
+[dependencies.link-secret]
+workspace = true
+
+[dependencies.regex]
+workspace = true
+
+
+[dependencies.link-bundle]
+workspace = true
+[dependencies.link-spec-module]
+workspace = true
+
+[dependencies.link-archive]
+workspace = true
+
+[dependencies.link-archive-contract]
+workspace = true
+
+[dependencies.link-archive-module]
+workspace = true
+
+[dependencies.link-manual]
+workspace = true
+
+[dependencies.link-test-timing]
+workspace = true
+
+[lints]
+workspace = true
+
+[dependencies.link-spec]
+workspace = true
+
+[dependencies.link-sandbox-contract]
+workspace = true
+
+[dependencies.link-file-store]
+workspace = true
+
+[dependencies.link-sqlite-store]
+workspace = true
+
+[dependencies.link-bucket-store]
+workspace = true
+
+[dependencies.link-store-contract]
+workspace = true
+
+[dependencies.link-discord]
+workspace = true
+
+[dependencies.link-slack]
+workspace = true
+
+[dependencies.link-telegram]
+workspace = true
+
+[dependencies.link-signal]
+workspace = true
+
+[dependencies.link-webhook-connection]
+workspace = true
+
+[dependencies.link-deepseek]
+workspace = true
+
+[dependencies.link-hermes]
+workspace = true
+
+[dependencies.link-openclaw]
+workspace = true
+
+[dependencies.link-mini-harness]
+workspace = true
+
+[dependencies.link-harness]
+workspace = true
+
+[dependencies.link-harness-contract]
+workspace = true

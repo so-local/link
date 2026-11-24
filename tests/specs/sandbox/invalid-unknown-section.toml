@@ -1,0 +1,8 @@
+# A typo is an error, never a closed section.
+[spec]
+schema = 1
+[spec.intenet]
+hosts = ["*"]
+
+[expect]
+invalid = "unknown field `intenet`"

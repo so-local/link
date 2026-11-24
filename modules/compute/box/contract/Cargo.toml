@@ -1,0 +1,38 @@
+[package]
+authors.workspace = true
+name = "link-box-contract"
+description = "The box contract describes the machine a workload addresses, whichever cloud provider runs it"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.link]
+schema = 1
+role = "contract"
+owner = "modules/compute/box"
+
+[dependencies]
+anyhow.workspace = true
+link-files.workspace = true
+link-format.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+link-digest.workspace = true
+link-id.workspace = true
+link-version.workspace = true
+schemars.workspace = true
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies.link-machine]
+workspace = true
+
+[dependencies.link-cloud-contract]
+workspace = true
+
+[dev-dependencies]
+link-test-kit.workspace = true

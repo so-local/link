@@ -1,0 +1,6 @@
+# The machine protocol: Box's question `box.machine`, one call to the VM
+# provider and its reply, each stating the version it speaks.
+name = "box machine"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

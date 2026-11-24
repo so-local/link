@@ -1,0 +1,17 @@
+# What the interaction store keeps of what's finished. Each rule is in
+# docs/more/libraries/interactions/interactions.md, What the Store Keeps.
+#
+# The most settled inputs and controls kept, newest first: an input
+# the model has read, and a control whose work has since been replaced.
+# Each keeps its receipts and its transport event while it's kept, so a
+# retried admission of it is answered with what it got the first time
+# rather than admitted again. One that isn't settled is always kept.
+settled = 256
+#
+# The days a resolved question stays after its resolution, whether it
+# was answered, expired, cancelled or closed, with its response code,
+# deliveries and drafts, so a late reply is answered "already resolved"
+# or "expired" rather than "unknown". One that isn't resolved, whose
+# effect is still waiting or under way, or that a kept event names,
+# always stays.
+resolved_days = 30

@@ -1,0 +1,6 @@
+schema = 1
+
+# The store protocol this store answers, declared by its contract
+# (`link-store-contract`).
+[implements]
+store = ["store.store.contract", "store.store.call", "store.store.serve"]
