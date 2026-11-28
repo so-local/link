@@ -601,13 +601,19 @@ pub(crate) fn recommended() -> Option<String> {
         .next()
 }
 
-/// Installs `model` with the models module (and Ollama with it), then
-/// finds it running.
+/// What installs `model`: the models module's own command, which asks
+/// before it installs Ollama, never answered for the person.
+fn install_args(model: &str) -> [&str; 3] {
+    ["model", "install", model]
+}
+
+/// Installs `model` with the models module (and Ollama with it, once
+/// the module has asked), then finds it running.
 pub(crate) fn install_local(out: &mut Out, model: &str) -> Result<Model, Report> {
     let shown = Name::new("model", model);
     out.hand_over();
     let status = link_core::lnk()
-        .args(["model", "install", model, "--yes"])
+        .args(install_args(model))
         .status()
         .within("running lnk model install")?;
     if !status.success() {
@@ -709,6 +715,15 @@ pub(crate) fn example_models() -> &'static link_model_contract::providers::Decla
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Picking the local model leaves the models module to ask before it
+    /// installs Ollama: the first start never answers yes for the person.
+    #[test]
+    fn installing_a_local_model_lets_the_models_module_ask() {
+        let args = install_args("qwen3:8b");
+        assert_eq!(args, ["model", "install", "qwen3:8b"]);
+        assert!(!args.contains(&"--yes"));
+    }
 
     /// A model of a provider a module adds is the route's provider's, its
     /// key checked against the declared prefix and never read for its

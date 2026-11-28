@@ -116,8 +116,7 @@ pub fn import(input: impl std::io::Read) -> anyhow::Result<Prepared> {
     let mut bytes = Vec::new();
     input.take((MAX + 1) as u64).read_to_end(&mut bytes)?;
     ensure!(bytes.len() <= MAX, "an environment's files exceed 8 MiB");
-    let packed: Packed =
-        serde_json::from_slice(&bytes).within("reading the environment's files")?;
+    let packed: Packed = environment::unpack(&bytes)?;
     file::check_path("", Path::new(&packed.file), "the environment file")?;
     ensure!(
         Path::new(&packed.file).components().count() == 1,

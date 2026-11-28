@@ -9,7 +9,7 @@ installed parts. This page follows a command through those parts. The
 
 ## Programs and Their Parts
 
-A command such as [`lnk agent start`](../../../modules/agents/agent/docs/agents/README.md#create-an-agent) enters through Link core and reaches
+A command such as [`lnk agent start`](../../../modules/agents/agent/docs/agents/README.md#start-your-agent) enters through Link core and reaches
 the executable providing the requested behavior. The Agent program uses
 the Agent module, a harness implementation and the other modules or
 adapters the user selects. Each part can be installed independently;

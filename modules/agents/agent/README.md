@@ -10,18 +10,20 @@ connections, tools, and stores the agent uses.
 
 ### Pages
 
-- [Agents](docs/agents/README.md): Make any agent you can imagine, run it on this computer or in your own cloud, and share it with your friends and your community
-  - [Start Your Agent](docs/agents/start/README.md): Start an agent on this computer, choose its model, and reuse its saved settings on later starts
-  - [Chat](docs/agents/chat/README.md): Talk to your running agent in a terminal, or send a message from a script
-  - [Share Agents](docs/agents/share/README.md): Make any agent you can imagine, share it with your friends and then your community, and start the agents they share with you
-  - [Ready-Made Agents](docs/agents/ready-made/README.md): Local Link provides four ready-made agents, examples you import, start, and build on, and the first agents anyone can share
+- [Agents](docs/agents/README.md): An agent is an AI that gets things done for you
+  - [What Are Agents](docs/agents/agent.md): An agent is an AI that gets things done for you
+  - [Start Your Agent](docs/agents/start/README.md): Your first `lnk agent start` creates Onboarding, an agent that answers what Local Link can do
+  - [Talk to Your Agent](docs/agents/chat/README.md): Talk to your running agent in a terminal, send a message from a script, or text your agent from your phone
+  - [Create a Shareable Agent](docs/agents/share/README.md): People share agents the way they share open-source code: start from one someone made, make it your own, and pass it on to your friends or publish it for everyone
+  - [Create an Agent Team](docs/agents/team/README.md): A team splits a job by purpose
+  - [Move Your Agent](docs/agents/move/README.md): Move your agent to a box in your own cloud, and back
+  - [Migrate to Local Link](docs/agents/migrate/README.md): Bring an agent you already run with OpenClaw, Hermes, or DeepSeek under Local Link
+  - [State](docs/agents/state/README.md): An agent's state is the files and folders the agent has access to, and the ones that make its tools work
   - [Switch Harnesses](docs/agents/harnesses/use/README.md): Switch the harness that runs your agent with `lnk agent harness set <harness>`
   - [Switch Models](docs/agents/models/agent/README.md): Change what your agent thinks with, in one command
   - [Connect Messaging Apps](docs/agents/connections/connect/README.md): Connect your agent to a messaging app so you can text the agent from your phone or workspace
-  - [Move Your Agent](docs/agents/move/README.md): Move your agent to a box in your own cloud, and back
-  - [Teams](docs/agents/team/README.md): A team splits a job by purpose
   - [Tools and Skills](docs/agents/tools/use/README.md): Choose the tools your agent can call, and add reusable instructions for recurring work
-- [Permissions](docs/security/sandbox/permissions/README.md): What your agent may do comes in two layers: what you grant it, and what its harness asks for beyond Local Link's defaults
+- [Permissions](docs/tooling/sandbox/permissions/README.md): What your agent may do comes in two layers: what you grant it, and what its harness asks for beyond Local Link's defaults
 
 ### References
 

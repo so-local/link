@@ -18,6 +18,7 @@ fn main() -> std::process::ExitCode {
     // Safe to hold a secret before anything else: no core dump, no other
     // process of this user reading it.
     link_secretive::process::guard();
+    link_core::saved::own(&[link_cloud::saved, link_cloud_contract::prices::saved]);
     link_core::describe_component!();
     link_settings::output::run(try_main)
 }
@@ -120,6 +121,7 @@ fn connect_account(out: &mut Out, args: cli::CloudConnectArgs) -> Result<Done, R
         project,
         zone,
         credential_file,
+        machine,
         setting,
         quiet,
     } = args;
@@ -140,6 +142,9 @@ fn connect_account(out: &mut Out, args: cli::CloudConnectArgs) -> Result<Done, R
         if let Some(value) = value {
             args.extend([flag.to_string(), value]);
         }
+    }
+    if machine {
+        args.push("--machine".into());
     }
     for setting in setting {
         check_setting(&setting)?;

@@ -34,7 +34,7 @@ limits, so common management does not imply identical native behavior.
 - It configures the model route and credential handling the adapter
   supports. The adapter's guide and security page describe whether
   the harness receives a credential or Link's proxy adds it on the wire.
-- It connects your phone with [`lnk agent connect telegram`](../../../../agent/docs/agents/README.md#connect-your-channels), and [only you
+- It connects your phone with [`lnk agent connect telegram`](../../../../agent/docs/agents/connections/connect/README.md#choose-an-app), and [only you
   can talk to the agent](../../../../connections/docs/agents/connections/README.md).
 - It makes [Link Memory](../../../../tools/memory-tool/docs/agents/tools/memory/README.md)
   available through the shared tools, searching the agent's files and

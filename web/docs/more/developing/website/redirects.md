@@ -9,8 +9,10 @@ Next configuration. Each declaration points directly to its final address.
 ## Link Harness addresses
 
 The docs app adds redirects in `apps/docs/next.config.ts` while retaining
-the shared configuration. Addresses under `/agents/harnesses/link`
-redirect to `/agents/link`, with the remaining path and query preserved.
+the shared configuration. Link Harness is a part under Harnesses, so its
+pages are at `/agents/harnesses/link`, and `/agents/link` is the Leverage
+Link Harness guide. Addresses below `/agents/link` redirect to
+`/agents/harnesses/link`, with the remaining path and query preserved.
 The shared configuration, which other apps use, has none of these feature redirects.
 
 ### Languages
@@ -21,8 +23,8 @@ so an existing localized link continues to select the same language.
 
 ## Sandbox Addresses
 
-Sandbox belongs to the Security section, so addresses under
-`/tooling/sandbox` redirect to `/security/sandbox`, with the remaining path,
+Sandbox belongs to the Tooling section, so addresses under
+`/security/sandbox` redirect to `/tooling/sandbox`, with the remaining path,
 query and any language prefix preserved. The docs app holds these beside the
 Link Harness redirects in `apps/docs/next.config.ts`.
 

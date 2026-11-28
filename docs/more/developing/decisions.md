@@ -81,7 +81,10 @@ needed.
 
 Most tests wait on sockets, timers and child programs. The workspace sets
 `RUST_TEST_THREADS=16` to keep those waits concurrent. A contributor's own
-setting, or `--test-threads`, takes precedence. Tests poll the condition they need under a deadline. Fixed waits are used
+setting, or `--test-threads`, takes precedence. A system test program
+runs [one test per CPU](../../../packages/test-kit/docs/more/developing/testing/testing-kit.md#how-many-at-once)
+instead: its tests start sandboxes and servers, which need a processor,
+and 16 of them on 4 CPUs ran out of time. Tests poll the condition they need under a deadline. Fixed waits are used
 only when time itself is the behavior under test, such as verifying that a
 paused connection stays open.
 
@@ -407,10 +410,10 @@ Commands also use declared system and provider variables, such as
 
 **On the command line, not only in the docs.** A person runs commands
 and reads what they print; few read the docs first. So a command offers
-what's next where it's needed: the first [`lnk agent start`](../../../modules/agents/agent/docs/agents/README.md#create-an-agent) asks which
+what's next where it's needed: the first [`lnk agent start`](../../../modules/agents/agent/docs/agents/README.md#start-your-agent) asks which
 of Link's tools the agent gets, asking for a key where one is needed,
 rather than leaving memory to be found on a docs page; `status` lists
-the tools it has and names [`lnk agent tool list`](../../../modules/agents/agent/docs/agents/README.md#add-tools-and-skills) for the rest; a hosted
+the tools it has and names [`lnk agent tool list`](../../../modules/agents/agent/docs/agents/README.md#tools) for the rest; a hosted
 model named with `--model.default` asks for its key rather than failing. Each
 command's **Next** names the commands that follow from it, so [`lnk up`](../modules/install.md#pick-your-modules)
 leads to everything.

@@ -3,14 +3,7 @@
 Programmer is a ready-made coding agent that explores, plans, tests, reviews,
 and commits its own changes in one repository, in Rust, Python,
 TypeScript, Go, Java and Kotlin, or C and C++. The full guide is
-[Programmer](../../../modules/agents/agent/docs/agents/ready-made/programmer.md) in Local Link's docs.
-
-## How Far Programmer Goes
-
-Programmer works, but Local Link is not a coding agent platform, and Programmer
-isn't the coding agent we use ourselves. Build on it anyway. A coding
-agent you own can be really good, and coding just isn't the problem we
-chose to solve first.
+[Programmer](../../docs/agents/ready-made/programmer.md) in Local Link's docs.
 
 ## Who Programmer Is For
 
@@ -29,20 +22,21 @@ minutes a call. Its model is `claude-sonnet-5-5` on Anthropic, the
 current Sonnet, since a change spans many files. Its persona is a
 careful senior engineer.
 
-- **Tools:** run for builds, tests, and Git, file for edits, and code for language servers.
+- **Tools:** run for builds, tests, and Git, file for edits, scheduler, code for language servers, and Link MCP for Link's manual.
 - **Workflow skills:** `explore-codebase`, `plan-change`, `write-tests`, `debug`, `refactor`, `fix-ci`, `dependencies`, `security-check`, `write-docs`, `performance`, `review-diff`, and `commit-message`.
 - **Language skills:** `rust`, `python`, `typescript`, `go`, `java` for Java and Kotlin, and `c-cpp`.
 
 ## Bring Programmer In
 
 Download `link-programmer.tar.gz` from Local Link's
-[latest release](https://github.com/so-local/link-releases/releases/latest), then import it. Import checks the whole
+[latest release](https://github.com/so-local/link-releases/releases/latest), then import it from the folder you saved it in.
+Import checks the whole
 archive, asks whether to keep the name `programmer`, and places the agent in
 `~/Link/Agents/programmer/`, with its settings in `~/Link/Safe/Agents/programmer/`.
 Nothing is installed, connected, or started until you say so.
 
 ```sh
-lnk archive import ~/Downloads/link-programmer.tar.gz
+lnk archive import link-programmer.tar.gz
 ```
 
 From a checkout of Local Link's repository, pack this folder as the
@@ -97,7 +91,7 @@ lnk agent permission remove --agent programmer --files.write_dot_files .
 
 ## Make Programmer Your Own
 
-An imported agent is yours. Edit its standing instructions in
+**A coding agent you own and shape can be the best one you've used.** An imported agent is yours. Edit its standing instructions in
 `~/Link/Agents/programmer/agent/instructions/instruction.md`, or ask the agent
 to, since its sandbox writes them. Add or remove skills and tools, and
 change one key of its specification with a field flag on
@@ -110,7 +104,7 @@ lnk agent spec show programmer
 ```
 
 Rules for one project belong in that repository's `AGENTS.md`, which Programmer reads before it edits.
-[Make an Agent Your Own](../../../modules/agents/agent/docs/agents/ready-made/README.md#make-an-agent-your-own)
+[Make an Agent Your Own](../../docs/agents/ready-made/README.md#make-an-agent-your-own)
 covers each change, and
 [Share an Agent](../../../modules/agents/agent/docs/agents/share/export.md#share-your-agent)
 shows how to export your version for others.

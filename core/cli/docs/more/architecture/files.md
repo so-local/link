@@ -5,27 +5,15 @@ The files and environment variables every `lnk` program reads, and those of the 
 ## Every `lnk` program
 
 Each program reads its declared environment inputs. Command help covers
-arguments and flags. Use `lnk variable list` to browse command variable names,
-the commands that declare them and their descriptions. The list comes
-from the core and this build's module registry and never reads current values.
+arguments and flags, and [`lnk variable list`](../../config/variables.md)
+lists every command's variables by name, never their values.
 The [environment index](../../../../../docs/more/reference/environment.md)
 also covers libraries, internal overrides and tests.
-
-### List a command's variables
-
-Pass command words to narrow the list. Program-wide and ancestor command
-inputs remain included, alongside the selected command's own declarations.
-An unknown command is refused. Use `--json` for an array of entries with
-`name`, `command` and `about` fields.
-
-```sh
-lnk variable list agent start
-```
 
 ### Module Output Flags
 
 For a module, put output flags after its command, as in
-[`lnk agent list --json`](../../../../../modules/agents/agent/docs/agents/start/create.md#run-more-than-one-agent); the core refuses a leading `--json` instead of
+[`lnk agent list --json`](../../../../../modules/agents/agent/docs/agents/start/show.md#list-your-agents); the core refuses a leading `--json` instead of
 silently dropping it when it hands the invocation to the module.
 
 ### `~/.lnk/safe/releases/update.json` (600)
@@ -54,16 +42,6 @@ keep updated. The folder's location is held in the shared path map,
 
 Your output settings and the modules you add from outside Link live in Home. The machine's locator and installation notes remain in Hidden; editing a setting never changes Home's identity.
 
-### Staging Files
-
-Preparing a run cleans expired atomic-write staging from your Safes. `lnk folder check`
-lists old staging in your data without deleting it, and `--json` returns
-an array of paths. See [Abandoned Staging](../../../../../packages/files/docs/more/libraries/files/files.md#abandoned-staging)
-for the age, cadence and scan boundaries.
-
-```sh
-lnk folder check
-```
 
 ### `[modules.<name>]`
 
@@ -126,7 +104,7 @@ Where to put `lnk`, the folder its program is installed in. Left out,
 
 ### `LNK_VERSION`
 
-A specific version such as `0.14.0`. Left out, the latest. It is also the way
+A specific version such as `0.0.1`. Left out, the latest. It is also the way
 past a latest release older than the server's, which the installer refuses
 while one is being published.
 
@@ -181,7 +159,7 @@ taken, a warning says so and the notes wait.
 
 The core's `history.toml` records the modules renamed and removed, and
 the core's own retired spellings, in [the schema every module's `history.toml` keeps](../../../../../packages/spec/docs/more/libraries/types/specifications.md#history).
-Each module answers its own retired commands and flags. Link 0.1 is the
+Each module answers its own retired commands and flags. Link 0.0.1 is the
 baseline: the core's history starts empty there, and records only what a
 later release retires or renames.
 
@@ -201,7 +179,7 @@ steps](../../../../../packages/spec/docs/more/libraries/types/specifications.md#
 A `[[renamed]]` entry records a module's old name in `module`, its name
 in `now`, the release it changed in `since` and the release that deletes
 the entry in `until`, such as `module = "notes"`, `now = "notes-tool"`,
-`since = "1.2.0"` and `until = "1.5.0"`.
+`since = "0.0.2"` and `until = "0.0.5"`.
 
 #### Upgrading a renamed module
 

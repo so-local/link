@@ -11,7 +11,7 @@ lnk box list
 
 ## On this computer
 
-What [`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) and `lnk box` keep in Link's settings folder.
+What [`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) and `lnk box` keep in Link's settings folder.
 
 ### `~/.lnk/safe/clouds/accounts.toml`
 
@@ -47,7 +47,7 @@ sandbox specification captured at creation, or `{ kind = "direct" }`.
 ### `~/.lnk/safe/boxes/here/<name>.toml`
 
 Mode 600: a box here's captured sandbox specification, written from its record
-for each command [`lnk sandbox run`](../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) confines, and removed with the box.
+for each command [`lnk sandbox run`](../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) confines, and removed with the box.
 
 ### `~/Link/Boxes/<name>/home`
 
@@ -89,7 +89,7 @@ into their sandbox), each 644.
 Mode 755, root's: root's copies of `lnk` and `lnk-sandbox`, which a box
 user's sessions run, refreshed by each `lnk box user add`. Ordinary
 workers also enter through `lnk-sandbox`;
-[Worker Controller Maintenance](../../../../../../security/sandbox/docs/security/sandbox/more/workers.md)
+[Worker Controller Maintenance](../../../../../../security/sandbox/docs/tooling/sandbox/more/workers.md)
 explains refreshing that helper after sandbox upgrades.
 
 ### `/etc/ssh/sshd_config.d/60-lnk-users.conf`
@@ -100,7 +100,7 @@ forwarding.
 
 ## A Linux box's workers
 
-What the [worker installer](../../../../../../security/sandbox/docs/security/sandbox/more/workers.md)
+What the [worker installer](../../../../../../security/sandbox/docs/tooling/sandbox/more/workers.md)
 puts on a Linux box for its [working users](on-a-box.md#working-users).
 
 ### `/etc/lnk/workers.json`

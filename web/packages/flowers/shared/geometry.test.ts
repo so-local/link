@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { arc, arcPath, reach, petalPaths } from "./geometry";
-import { createField, createSingle, groundPath, pose, updateInteraction, type Pointer } from "./field";
+import { createField, createSingle, fieldCount, groundPath, pose, updateInteraction, type Pointer } from "./field";
 import { flowerDefaults, resolveFlower, resolveScene, sceneDefaults } from "./settings";
 
 test("circular stems reach the requested head center on both sides and at zero bend", () => {
@@ -61,4 +61,12 @@ test("flower props change shared petal geometry and invalid inputs fail before S
   assert.throws(() => resolveScene({ flowerCount: 1.5 }), RangeError);
   assert.throws(() => resolveFlower({ petals: { countPerRing: 10000 } }), RangeError);
   assert.throws(() => resolveFlower({ stem: { color: "url(https://example.com)" } }), RangeError);
+});
+
+test("a field holds its full count at the initial width and wider, and fewer on a phone", () => {
+  const settings = resolveScene();
+  assert.equal(fieldCount(1280, settings), 36);
+  assert.equal(fieldCount(2560, settings), 36);
+  assert.equal(fieldCount(390, settings), 20);
+  assert.equal(createField(390, 844, settings).length, 20);
 });

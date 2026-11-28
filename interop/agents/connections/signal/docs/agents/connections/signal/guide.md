@@ -22,7 +22,7 @@ lnk agent connect signal
 
 From a script, set `LNK_SIGNAL_NUMBER` to the agent's number and
 `LNK_SIGNAL_OWNER` to yours, such as `+15557654321` and `+15551234567`,
-in the environment the script runs `lnk` in. [`lnk agent connect signal`](../../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels)
+in the environment the script runs `lnk` in. [`lnk agent connect signal`](../../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app)
 reads both instead of asking, and you scan the QR code as before.
 
 ## While It Answers

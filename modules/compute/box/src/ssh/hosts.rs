@@ -95,6 +95,46 @@ fn names(hosts: &str, host: &str) -> bool {
     hosts.split(',').any(|name| name.eq_ignore_ascii_case(host))
 }
 
+/// Where a first contact with `host` (a box's alias, or its address)
+/// records the key it trusted: a file of its own beside Link's known
+/// hosts, so `ssh` never writes Link's file, which only Link writes,
+/// under its lock.
+fn first_file(file: &std::path::Path, host: &str) -> PathBuf {
+    file.with_file_name(format!("known_hosts.first-{host}"))
+}
+
+/// How ssh checks `host`'s key, and the file it reads it from: Link's
+/// known hosts and `StrictHostKeyChecking=yes` once they hold its keys;
+/// otherwise a first contact, trusted on first use (`accept-new`) into a
+/// file of its own ([`first_file`]), whose key the next connection reads
+/// back and pins under Link's lock.
+pub(super) fn checking(host: &str) -> anyhow::Result<(PathBuf, &'static str)> {
+    checking_in(&known_hosts()?, host)
+}
+
+/// [`checking`], with Link's known hosts at `file`.
+fn checking_in(file: &std::path::Path, host: &str) -> anyhow::Result<(PathBuf, &'static str)> {
+    let first = first_file(file, host);
+    let _lock = crate::state::lock(&file.with_extension("lock"))?;
+    if keys_for(file, host).is_empty() {
+        let keys = keys_for(&first, host);
+        if keys.is_empty() {
+            return Ok((first, "accept-new"));
+        }
+        let mut text = std::fs::read_to_string(file).unwrap_or_default();
+        if !text.is_empty() && !text.ends_with('\n') {
+            text.push('\n');
+        }
+        for key in keys {
+            text.push_str(&format!("{host} {key}\n"));
+        }
+        link_files::write_private(file, text.as_bytes())
+            .within(format!("writing {}", file.display()))?;
+    }
+    let _ = std::fs::remove_file(&first);
+    Ok((file.to_path_buf(), "yes"))
+}
+
 /// A box's keys kept under its address before, kept under `alias` too:
 /// what it trusted stays trusted, never asked again.
 pub(super) fn adopt(ip: &str, alias: &str) -> anyhow::Result<()> {
@@ -171,6 +211,9 @@ fn forget_in(file: &std::path::Path, ip: &str) {
         return;
     }
     let alias = at(ip).as_ref().and_then(alias);
+    for host in std::iter::once(ip).chain(alias.as_deref()) {
+        let _ = std::fs::remove_file(first_file(file, host));
+    }
     if let Some(keygen) = find("ssh-keygen") {
         for host in std::iter::once(ip).chain(alias.as_deref()) {
             let _ = link_secretive::process::command(&keygen)
@@ -224,6 +267,30 @@ mod tests {
 
         adopt_in(&file, "10.0.0.5", "lnk-aws-i-123").unwrap();
         assert_eq!(keys_for(&file, "lnk-aws-i-123"), [ed]);
+    }
+
+    /// A first contact trusts the box's key into a file of its own, and
+    /// the next connection pins it in Link's known hosts, under Link's
+    /// lock, and checks it strictly from then on.
+    #[test]
+    fn a_first_contacts_key_is_pinned_under_links_lock() {
+        let dir = link_test_kit::TempDir::new("first");
+        let file = dir.join("known_hosts");
+        let host = "lnk-gcp-123";
+        let (first, checks) = checking_in(&file, host).unwrap();
+        assert_eq!(checks, "accept-new");
+        assert_ne!(first, file, "ssh never writes Link's own file");
+        // ssh's first contact, as it records it.
+        let key =
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJBYzUtpWCyCaqTG3+K2UlSHvzBhzNjHfipRwL4XjMh";
+        std::fs::write(&first, format!("{host} {key}\n")).unwrap();
+        let (read, checks) = checking_in(&file, host).unwrap();
+        assert_eq!((read.as_path(), checks), (file.as_path(), "yes"));
+        assert_eq!(keys_for(&file, host), [key]);
+        assert!(!first.exists());
+        // Known already: strict, with nothing written.
+        assert_eq!(checking_in(&file, host).unwrap().1, "yes");
+        assert_eq!(keys_for(&file, host), [key]);
     }
 
     /// Boxes started at once each keep their pinned keys.

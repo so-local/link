@@ -108,8 +108,8 @@ esac
     }
 
     fn definitions(&self) -> Vec<link_agent_spec::Schedule> {
-        let text =
-            std::fs::read_to_string(self.home.join("Link/Safe/Agents/main/agent.toml")).unwrap();
+        let text = std::fs::read_to_string(self.home.join("Link/Safe/Agents/openclaw/agent.toml"))
+            .unwrap();
         let settings: link_agent::settings::Settings = link_files::saved::parse(&text).unwrap();
         settings.behavior.unwrap().schedules.unwrap()
     }
@@ -147,7 +147,7 @@ fn interrupted_native_import_and_switches_preserve_schedules_with_execution_stoo
         .output()
         .unwrap();
     assert!(!stopped.status.success());
-    let path = world.home.join("Link/Safe/Agents/main/agent.toml");
+    let path = world.home.join("Link/Safe/Agents/openclaw/agent.toml");
     let mut setup: toml::Table = toml::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
     setup.insert("sandbox".into(), toml::Value::Boolean(false));
     std::fs::write(path, toml::to_string(&setup).unwrap()).unwrap();
@@ -163,7 +163,7 @@ fn interrupted_native_import_and_switches_preserve_schedules_with_execution_stoo
     // Their identities are the agent's record's, the native jobs they came
     // from among them, never the spec's.
     let record: Value = serde_json::from_slice(
-        &std::fs::read(world.home.join(".lnk/safe/agents/main/schedules.json")).unwrap(),
+        &std::fs::read(world.home.join(".lnk/safe/agents/openclaw/schedules.json")).unwrap(),
     )
     .unwrap();
     assert_eq!(record["schema"], 1, "{record}");
@@ -174,7 +174,7 @@ fn interrupted_native_import_and_switches_preserve_schedules_with_execution_stoo
         "{record:?}"
     );
     let spec =
-        std::fs::read_to_string(world.home.join("Link/Safe/Agents/main/agent.toml")).unwrap();
+        std::fs::read_to_string(world.home.join("Link/Safe/Agents/openclaw/agent.toml")).unwrap();
     assert!(
         !spec.contains("revision") && !spec.contains("origin"),
         "{spec}"
@@ -186,11 +186,11 @@ fn interrupted_native_import_and_switches_preserve_schedules_with_execution_stoo
     let managed = world
         .home
         .join(link_files::layout::Hidden::AgentData.relative_to_home())
-        .join("main/harnesses/openclaw/.openclaw/cron/jobs.json");
+        .join("openclaw/harnesses/openclaw/.openclaw/cron/jobs.json");
     let cleared: Value = serde_json::from_slice(&std::fs::read(managed).unwrap()).unwrap();
     assert!(cleared["jobs"].as_array().unwrap().is_empty());
     // Supply a configured model without calling it. Harness execution is /usr/bin/true.
-    let path = world.home.join("Link/Safe/Agents/main/agent.toml");
+    let path = world.home.join("Link/Safe/Agents/openclaw/agent.toml");
     let text = std::fs::read_to_string(&path).unwrap();
     let mut setup: toml::Table = toml::from_str(&text).unwrap();
     setup.insert(

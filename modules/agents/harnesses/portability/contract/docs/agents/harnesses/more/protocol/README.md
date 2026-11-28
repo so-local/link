@@ -141,7 +141,7 @@ most 600. Left out, 60 seconds (`Launch::wait`).
 
 Exits 0 when the running harness answers, reaching it on its ports on
 this machine's loopback, the only network it has in the sandbox. Read
-by [`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#create-an-agent), and by [`lnk agent show`](../../../../../../../../agent/docs/agents/models/agent/README.md#set-its-model-and-how-hard-it-thinks) when nothing on its
+by [`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#start-your-agent), and by [`lnk agent show`](../../../../../../../../agent/docs/agents/models/agent/README.md#set-its-model-and-how-hard-it-thinks) when nothing on its
 saved ports answers a request with success, a `2xx`. What does is the
 harness, up, its proxy closing without an answer; any other answer,
 such as a `503`, is the health check's to judge.
@@ -171,7 +171,7 @@ named.
 
 A JSON list of the connections its harness speaks, by their modules'
 names (`["telegram", "slack", "discord", "signal"]`); an adapter
-without it speaks Telegram. Read by [`lnk agent connect`](../../../../../../../../agent/docs/agents/README.md#connect-your-channels), which refuses
+without it speaks Telegram. Read by [`lnk agent connect`](../../../../../../../../agent/docs/agents/connections/connect/README.md#choose-an-app), which refuses
 one the harness lacks, [`lnk agent harness set`](../../../../../../../../agent/docs/agents/harnesses/use/README.md#switch-in-one-command) and `lnk agent show`.
 
 ### `lnk-<name> endpoint`
@@ -225,7 +225,7 @@ An `agent` path is one of several agents sharing the home: `{agent}` is
 its name, `{-agent}` a dash and its name, and for the install's own
 agent `main` and nothing (`~/.openclaw/workspace{-agent}`). A `profile`
 path is another agent's whole home (`~/.hermes/profiles/{agent}`).
-[`lnk agent migrate`](../../../../../../../../agent/docs/agents/README.md#migrate-your-agent) makes each an agent of Link's.
+[`lnk agent migrate`](../../../../../../../../agent/docs/agents/README.md#migrate-to-local-link) makes each an agent of Link's.
 
 ### `lnk-<name> written <home>`
 

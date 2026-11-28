@@ -364,3 +364,25 @@ fn an_undeclared_key_is_refused() {
     assert!(serde_json::from_value::<was::Request>(odd.clone()).is_ok());
     assert!(serde_json::from_value::<Request>(odd).is_err());
 }
+
+/// A move's phase is one of its declared words, written as it was, and
+/// any other word is refused by name.
+#[test]
+fn a_phase_is_a_declared_word_and_an_unknown_one_is_refused_by_name() {
+    for word in ["copy", "switch", "files"] {
+        let request = json!({"account": account(), "phase": word});
+        same::<was::Request, Request>(request.clone());
+        let read: Request = serde_json::from_value(request).unwrap();
+        assert_eq!(read.phase.map(Words::word), Some(word));
+    }
+    let odd = json!({"account": account(), "phase": "teleport"});
+    let why = serde_json::from_value::<Request>(odd)
+        .unwrap_err()
+        .to_string();
+    assert!(why.contains("teleport"), "{why}");
+    let why = Phase::of("teleport").unwrap_err().to_string();
+    assert!(
+        why.contains("\"teleport\"") && why.contains("copy, switch, files"),
+        "{why}"
+    );
+}

@@ -12,6 +12,7 @@ impl Store {
             Request::ProtectRoute { .. } | Request::UnbindRoute { .. } => {
                 bail!("secret routes require the keeper")
             }
+            Request::RemoveUser { .. } => bail!("only the keeper keeps other users' secrets"),
             Request::List => Reply::Listed {
                 listed: self.load()?.list(),
             },

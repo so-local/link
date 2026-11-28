@@ -63,7 +63,7 @@ and its answer goes where the schedule says. OpenClaw's own cron is off
 (`cron.enabled: false`), as its channels are, so no job fires twice.
 Its cron tool is denied too (`tools.deny` gains `cron`, beside any tools
 the agent already denies), so the agent sets a schedule with Link's
-scheduler, which [`lnk agent tool add scheduler`](../../../../../../../../modules/agents/agent/docs/agents/README.md#add-tools-and-skills) turns on, never one on a
+scheduler, which [`lnk agent tool add scheduler`](../../../../../../../../modules/agents/agent/docs/agents/README.md#tools) turns on, never one on a
 cron that never fires.
 
 ## What does it need beyond Link's defaults, and when?

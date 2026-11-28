@@ -10,8 +10,8 @@ pub use protocol::{Accepted, Protocol, Unread};
 
 use serde::{Deserialize, Serialize};
 
-/// A version: three numbers (`0.14.0`), then perhaps a prerelease
-/// (`0.14.0-staging.202610131900`). Read by semantic versioning's rules, at
+/// A version: three numbers (`0.0.1`), then perhaps a prerelease
+/// (`0.0.1-staging.202610131900`). Read by semantic versioning's rules, at
 /// most one `v` before it, and no build metadata (`+...`). Ordered as they
 /// are: by its numbers, then a prerelease before the release of the same
 /// numbers, and prereleases part by part, numbers by value before words.
@@ -36,6 +36,13 @@ impl Version {
             prerelease: Vec::new(),
         }
     }
+
+    /// The release this is a build of: its numbers alone, so a staging
+    /// build of 0.0.2 (`0.0.2-staging.202611170000`) is of release 0.0.2.
+    pub fn release(&self) -> Version {
+        let [major, minor, patch] = self.numbers;
+        Version::new(major, minor, patch)
+    }
 }
 
 /// Why a text isn't a version.
@@ -48,8 +55,8 @@ impl fmt::Display for NotAVersion {
         let shown: String = self.0.chars().take(40).collect();
         write!(
             f,
-            "{shown:?} is not a version: three numbers, as 0.14.0, perhaps with a prerelease, \
-             as 0.14.0-staging.202610131900"
+            "{shown:?} is not a version: three numbers, as 0.0.1, perhaps with a prerelease, \
+             as 0.0.1-staging.202610131900"
         )
     }
 }
@@ -193,6 +200,17 @@ mod tests {
         }
     }
 
+    /// A staging build is of the release its numbers name, which a
+    /// release's own version already is.
+    #[test]
+    fn a_build_is_of_the_release_its_numbers_name() {
+        assert_eq!(
+            v("0.0.2-staging.202611170000.g1a2b3c").release(),
+            v("0.0.2")
+        );
+        assert_eq!(v("0.0.2").release(), v("0.0.2"));
+    }
+
     #[test]
     fn only_a_semantic_version_is_read() {
         for broken in [
@@ -220,15 +238,15 @@ mod tests {
 
     #[test]
     fn a_version_reads_back_as_it_was_written() {
-        for text in ["0.14.0", "0.14.0-staging.202610131900", "1.0.0-rc.1-a"] {
+        for text in ["0.0.4", "0.0.4-staging.202610131900", "1.0.0-rc.1-a"] {
             assert_eq!(v(text).to_string(), text);
             let json = serde_json::to_string(&v(text)).unwrap();
             assert_eq!(json, format!("\"{text}\""));
             assert_eq!(serde_json::from_str::<Version>(&json).unwrap(), v(text));
         }
-        assert_eq!(v("v0.14.0").to_string(), "0.14.0");
-        assert!(serde_json::from_str::<Version>("\"0.14\"").is_err());
-        assert_eq!(Version::new(0, 11, 0), v("0.11.0"));
+        assert_eq!(v("v0.0.4").to_string(), "0.0.4");
+        assert!(serde_json::from_str::<Version>("\"0.0\"").is_err());
+        assert_eq!(Version::new(1, 2, 3), v("1.2.3"));
     }
 }
 

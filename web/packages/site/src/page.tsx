@@ -11,12 +11,15 @@ import {
   fullTitle,
   isLanguage,
   languages,
+  locale,
   neighbors,
   page,
   pages,
   places,
   routes,
   folded,
+  shareImage,
+  shareTitle,
   site,
   trail,
   tree,
@@ -43,14 +46,19 @@ async function load(params: PageProps<"/[lang]/[[...path]]">["params"]) {
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/[[...path]]">): Promise<Metadata> {
   const { lang, path, found } = await load(params);
-  // The same page in each language, for search engines.
+  const s = site(lang);
+  // The home page is shared by the site's name and its headline; another
+  // page by its own title. A page's own image is its card, else the site's.
+  const shared = path.length ? found.title : shareTitle(lang);
+  const image = found.image ? { url: found.image, alt: found.title } : { url: shareImage(lang), width: 1200, height: 630, alt: shared };
+  // Next replaces the layout's openGraph and twitter whole, so each is complete here.
   const each: Metadata = {
     alternates: { canonical: found.url, languages: alternates(found.file) },
-    openGraph: { title: found.title, description: found.description, url: found.url, ...(found.image ? { images: [{ url: found.image, alt: found.title }] } : {}) },
-    twitter: { card: "summary_large_image", title: found.title, description: found.description, ...(found.image ? { images: [found.image] } : {}) },
+    openGraph: { title: shared, description: found.description, url: found.url, siteName: s.name, type: "website", locale: locale(lang), images: [image] },
+    twitter: { card: "summary_large_image", title: shared, description: found.description, images: [image.url] },
   };
-  // The home page's tab says only the site's name.
-  if (!path.length) return { title: { absolute: site(lang).name }, ...each };
+  // The home page's tab says what it's shared as.
+  if (!path.length) return { title: { absolute: shared }, ...each };
   // A section is called by its name and its hook, which says where it is
   // and sells it: "Exit: Home address, anywhere".
   const title = found.hook && found.hook !== found.title ? `${found.title}: ${found.hook}` : fullTitle(lang, found.url, found.title);

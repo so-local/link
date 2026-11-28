@@ -23,6 +23,11 @@ struct Placement {
 }
 
 link_files::specification!(Placement, include_str!("machine.schema.toml"));
+
+/// Each agent's placement, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Placement>()
+}
 fn path(name: &str) -> anyhow::Result<PathBuf> {
     link_machine::machine::check_name(name)?;
     Ok(link_files::layout::Hidden::AgentMachines

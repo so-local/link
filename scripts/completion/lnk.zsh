@@ -10,9 +10,9 @@ box:Commands: check, copy, create, delete, forward, image, key, list, run, show,
 bundle:Commands: create, list, show, signer
 cloud:Commands: connect, disconnect, list, show
 env:Commands: approval, check, create, image, reset, setup
-folder:Commands: check, create, list, set
 help:Show Link'\''s commands or the help for one command
 issue:Commands: create
+location:Commands: check, create, list, set
 man:Commands: show
 manual:Commands: show
 mcp:Commands: serve
@@ -207,7 +207,7 @@ stop:Stop the current answer'
 --connections.working:A reaction on your message while it answers, by its name (`"eyes"`), where the connection has them; empty (`""`) or left out, none. Of Link'\''s connections Slack and Discord mark a message, so it'\''s refused for Telegram and Signal; Discord knows the names its `reactions.toml` lists. Link'\''s `[connection.slack]` and `[connection.discord]` set `"eyes"`.
 --env:Environment input for future agent creation, relative to this file.
 --foreground:Run it in this terminal instead of in the background
---from:A ready-made agent to start from, by its name, with its instructions, skills and settings: a cloud that hosts agents makes it from one it lists (`agent.ready-made.list`)
+--from:An agent to start from, by the name of its archive, with its instructions, skills and settings: a cloud that hosts agents makes it from one it lists
 --goals.tokens:The most tokens those turns spend, its prompts'\'' and answers'\'', at least 1000: Link'\''s specification sets 1000000.
 --goals.turns:The most turns it takes on its own toward a goal, after the one that set it, from 1 to 1000. Link'\''s specification sets 10.
 --harness:The harness'\''s name, as `lnk agent harness list` names it (`link`, `openclaw`): lowercase letters, digits and dashes.
@@ -302,7 +302,7 @@ stop:Stop the current answer'
 --tools.diffs:File'\''s: whether `write` and `replace` answer with the change as a diff. A feature'\''s switch, off when left out.
 --tools.dimensions:Memory'\''s: how many of the embedding model'\''s dimensions are kept: fewer cost less memory and disk, more rank a little better. Link'\''s specification sets 256.
 --tools.driver:What wakes the scheduler'\''s runner. `service`, the agent'\''s bridge, a background service, runs it for good; `cron`, the machine'\''s calendar (launchd on a mac, cron elsewhere) starts it once a minute; nothing of it runs between; `address`, a machine that runs the agent only while it answers: the scheduler tells it, at the address the machine gives, when the agent'\''s jobs are next due, and whatever wakes the agent then runs it once; nothing of it runs between.
---tools.enabled:Whether Link starts the tool for the agent, in `[tool.scheduler]`, `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false withholds it. Link'\''s specification starts the file tool enabled, and the scheduler, run, code and Link MCP disabled. Without the scheduler, no subagents or schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true gives the screen at a start where this machine runs it, false takes it away, and Link'\''s specification says neither, leaving what `lnk agent tool add` gave.
+--tools.enabled:Whether Link starts the tool for the agent, in `[tool.scheduler]`, `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false withholds it. Link'\''s specification starts every tool disabled: the file tool, the scheduler, run, code and Link MCP. Without the scheduler, no subagents or schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true gives the screen at a start where this machine runs it, false takes it away, and Link'\''s specification says neither, leaving what `lnk agent tool add` gave.
 --tools.fetch:Web'\''s: the most of a page one fetch gives, 1 KB to 1 MB; each part says where the next starts. Link'\''s specification sets `"24 KB"`.
 --tools.file:Memory'\''s: the largest file in its folders it indexes; a larger one is left out, and a search'\''s reply names it. Link'\''s specification sets `"16 MB"`.
 --tools.find:File'\''s: whether it finds files by name and lines by a pattern (`find`). A feature'\''s switch, off when left out.
@@ -747,6 +747,7 @@ remove:Remove a skill from your agent'\''s skills/, by its name'
 -a:The agent, by its ID, agent:<id>; on the command line its name too, which is looked up in your agents and sent as its ID [default: the only one here]'
   'lnk agent start' '--access.message:Who may message the agent, besides its owner: chats on its connections, whoever is in them, each `chat:<connection>:<chat id>` (`chat:slack:C0TEAM`).
 --agent:The agent, by its ID, agent:<id>; on the command line its name too, which is looked up in your agents and sent as its ID [default: the only one here]
+--all:Start every agent here, each as its own start would, in the background
 --command_response:Text shown before a command'\''s harness answer; empty disables it.
 --commands.ask:`/chat:ask`: a question answered apart, nothing kept.
 --commands.compact:`/chat:compact`: what'\''s before the last message summarized now.
@@ -782,6 +783,7 @@ remove:Remove a skill from your agent'\''s skills/, by its name'
 --connections.stream:The answer shown as it'\''s written; false, once it'\''s done. Link'\''s specification sets true.
 --connections.voice:Whether a message'\''s voice notes reach the agent, heard as their words by its provider (`[model] transcribe`); false or left out, each is left out and the agent told so.
 --connections.working:A reaction on your message while it answers, by its name (`"eyes"`), where the connection has them; empty (`""`) or left out, none. Of Link'\''s connections Slack and Discord mark a message, so it'\''s refused for Telegram and Signal; Discord knows the names its `reactions.toml` lists. Link'\''s `[connection.slack]` and `[connection.discord]` set `"eyes"`.
+--during-move:The move this start is part of (`lnk agent move` passes it): let through while that move, which this computer'\''s journal holds, holds the agent
 --env:Environment input for future agent creation, relative to this file.
 --foreground:Run it in this terminal instead of in the background
 --goals.tokens:The most tokens those turns spend, its prompts'\'' and answers'\'', at least 1000: Link'\''s specification sets 1000000.
@@ -876,7 +878,7 @@ remove:Remove a skill from your agent'\''s skills/, by its name'
 --tools.diffs:File'\''s: whether `write` and `replace` answer with the change as a diff. A feature'\''s switch, off when left out.
 --tools.dimensions:Memory'\''s: how many of the embedding model'\''s dimensions are kept: fewer cost less memory and disk, more rank a little better. Link'\''s specification sets 256.
 --tools.driver:What wakes the scheduler'\''s runner. `service`, the agent'\''s bridge, a background service, runs it for good; `cron`, the machine'\''s calendar (launchd on a mac, cron elsewhere) starts it once a minute; nothing of it runs between; `address`, a machine that runs the agent only while it answers: the scheduler tells it, at the address the machine gives, when the agent'\''s jobs are next due, and whatever wakes the agent then runs it once; nothing of it runs between.
---tools.enabled:Whether Link starts the tool for the agent, in `[tool.scheduler]`, `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false withholds it. Link'\''s specification starts the file tool enabled, and the scheduler, run, code and Link MCP disabled. Without the scheduler, no subagents or schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true gives the screen at a start where this machine runs it, false takes it away, and Link'\''s specification says neither, leaving what `lnk agent tool add` gave.
+--tools.enabled:Whether Link starts the tool for the agent, in `[tool.scheduler]`, `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false withholds it. Link'\''s specification starts every tool disabled: the file tool, the scheduler, run, code and Link MCP. Without the scheduler, no subagents or schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true gives the screen at a start where this machine runs it, false takes it away, and Link'\''s specification says neither, leaving what `lnk agent tool add` gave.
 --tools.fetch:Web'\''s: the most of a page one fetch gives, 1 KB to 1 MB; each part says where the next starts. Link'\''s specification sets `"24 KB"`.
 --tools.file:Memory'\''s: the largest file in its folders it indexes; a larger one is left out, and a search'\''s reply names it. Link'\''s specification sets `"16 MB"`.
 --tools.find:File'\''s: whether it finds files by name and lines by a pattern (`find`). A feature'\''s switch, off when left out.
@@ -922,6 +924,7 @@ remove:Remove a skill from your agent'\''s skills/, by its name'
 --json:Print the answer as JSON for other programs
 -a:The agent, by its ID, agent:<id>; on the command line its name too, which is looked up in your agents and sent as its ID [default: the only one here]'
   'lnk agent stop' '--agent:The agent, by its ID, agent:<id>; on the command line its name too, which is looked up in your agents and sent as its ID [default: the only one here]
+--agent-id:The agent'\''s ID, which a move names it by: refused when the agent of this name has another
 -a:The agent, by its ID, agent:<id>; on the command line its name too, which is looked up in your agents and sent as its ID [default: the only one here]'
   'lnk agent task' 'agent:Give a task to an agent
 list:List the agent'\''s tasks
@@ -1101,7 +1104,7 @@ stop:Stop the team'\''s members, preserving agents, identities and files'
 --settings.agent.tools.diffs:File'\''s: whether `write` and `replace` answer with the change as a diff. A feature'\''s switch, off when left out.
 --settings.agent.tools.dimensions:Memory'\''s: how many of the embedding model'\''s dimensions are kept: fewer cost less memory and disk, more rank a little better. Link'\''s specification sets 256.
 --settings.agent.tools.driver:What wakes the scheduler'\''s runner. `service`, the agent'\''s bridge, a background service, runs it for good; `cron`, the machine'\''s calendar (launchd on a mac, cron elsewhere) starts it once a minute; nothing of it runs between; `address`, a machine that runs the agent only while it answers: the scheduler tells it, at the address the machine gives, when the agent'\''s jobs are next due, and whatever wakes the agent then runs it once; nothing of it runs between.
---settings.agent.tools.enabled:Whether Link starts the tool for the agent, in `[tool.scheduler]`, `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false withholds it. Link'\''s specification starts the file tool enabled, and the scheduler, run, code and Link MCP disabled. Without the scheduler, no subagents or schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true gives the screen at a start where this machine runs it, false takes it away, and Link'\''s specification says neither, leaving what `lnk agent tool add` gave.
+--settings.agent.tools.enabled:Whether Link starts the tool for the agent, in `[tool.scheduler]`, `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false withholds it. Link'\''s specification starts every tool disabled: the file tool, the scheduler, run, code and Link MCP. Without the scheduler, no subagents or schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true gives the screen at a start where this machine runs it, false takes it away, and Link'\''s specification says neither, leaving what `lnk agent tool add` gave.
 --settings.agent.tools.fetch:Web'\''s: the most of a page one fetch gives, 1 KB to 1 MB; each part says where the next starts. Link'\''s specification sets `"24 KB"`.
 --settings.agent.tools.file:Memory'\''s: the largest file in its folders it indexes; a larger one is left out, and a search'\''s reply names it. Link'\''s specification sets `"16 MB"`.
 --settings.agent.tools.find:File'\''s: whether it finds files by name and lines by a pattern (`find`). A feature'\''s switch, off when left out.
@@ -1271,7 +1274,7 @@ user:Commands: add, list, remove'
 --json:Print the answer as JSON for other programs
 --link_tags:Link'\''s own tags on the machine, beside yours, such as the group a job'\''s boxes are in. Link writes these for its own boxes.
 --lnk.login:Whether the box'\''s `lnk` signs in to your Link account, which a box made for a service turns off with `false`.
---lnk.version:The `lnk` release to install with its modules, such as `0.14.0` or a prerelease, 0.11.0 or later. From a file it can'\''t be behind this computer'\''s `lnk`, so a specification someone hands you can'\''t install a release with a known hole; `--lnk.version` given yourself can. Left out, the latest.
+--lnk.version:The `lnk` release to install with its modules, such as `0.0.1` or a prerelease. From a file it can'\''t be behind this computer'\''s `lnk`, so a specification someone hands you can'\''t install a release with a known hole; `--lnk.version` given yourself can. Left out, the latest.
 --machine.arch:The processor, `x86_64` by default.
 --machine.cpus:How many CPUs: a count, `4`, or a range, `{ min = 2, max = 8 }`. Left out, the default size'\''s.
 --machine.cpus.max:At most this many
@@ -1311,7 +1314,7 @@ user:Commands: add, list, remove'
 --isolation.vm:A VM specification, for a workload in a VM, relative to its file. This build has no VM provider, so a file naming one is refused, never run in a sandbox instead.
 --link_tags:Link'\''s own tags on the machine, beside yours, such as the group a job'\''s boxes are in. Link writes these for its own boxes.
 --lnk.login:Whether the box'\''s `lnk` signs in to your Link account, which a box made for a service turns off with `false`.
---lnk.version:The `lnk` release to install with its modules, such as `0.14.0` or a prerelease, 0.11.0 or later. From a file it can'\''t be behind this computer'\''s `lnk`, so a specification someone hands you can'\''t install a release with a known hole; `--lnk.version` given yourself can. Left out, the latest.
+--lnk.version:The `lnk` release to install with its modules, such as `0.0.1` or a prerelease. From a file it can'\''t be behind this computer'\''s `lnk`, so a specification someone hands you can'\''t install a release with a known hole; `--lnk.version` given yourself can. Left out, the latest.
 --machine.arch:The processor, `x86_64` by default.
 --machine.cpus:How many CPUs: a count, `4`, or a range, `{ min = 2, max = 8 }`. Left out, the default size'\''s.
 --machine.cpus.max:At most this many
@@ -1377,7 +1380,7 @@ list:List the images Link made for you in a cloud account'
 --json:Print the answer as JSON for other programs
 --link_tags:Link'\''s own tags on the machine, beside yours, such as the group a job'\''s boxes are in. Link writes these for its own boxes.
 --lnk.login:Whether the box'\''s `lnk` signs in to your Link account, which a box made for a service turns off with `false`.
---lnk.version:The `lnk` release to install with its modules, such as `0.14.0` or a prerelease, 0.11.0 or later. From a file it can'\''t be behind this computer'\''s `lnk`, so a specification someone hands you can'\''t install a release with a known hole; `--lnk.version` given yourself can. Left out, the latest.
+--lnk.version:The `lnk` release to install with its modules, such as `0.0.1` or a prerelease. From a file it can'\''t be behind this computer'\''s `lnk`, so a specification someone hands you can'\''t install a release with a known hole; `--lnk.version` given yourself can. Left out, the latest.
 --machine.arch:The processor, `x86_64` by default.
 --machine.cpus:How many CPUs: a count, `4`, or a range, `{ min = 2, max = 8 }`. Left out, the default size'\''s.
 --machine.cpus.max:At most this many
@@ -1412,7 +1415,8 @@ remove:Remove a user and their key (their folder stays unless asked)'
 list:List the bundles the module comes with, such as devbox and link
 show:Show a bundle'\''s programs, their targets and architectures, its sums and signature checked
 signer:Commands: create, show'
-  'lnk bundle create' '--build:Its stage, which says what its `lnk` trusts: `dev` (the bundle'\''s own signer and Link'\''s), `staging` (the staging signer and Link'\''s) or `prod` (the bundle'\''s own signer alone, at the workspace'\''s version).
+  'lnk bundle create' '--archives:A folder of archives, each a folder with its `archive.toml`, packed into `link-<name>.tar.gz` by the bundle'\''s own `lnk archive export`, with every module the bundle holds beside it, and sealed with the programs, repeated for more. It'\''s none when none is given.
+--build:Its stage, which says what its `lnk` trusts: `dev` (the bundle'\''s own signer and Link'\''s), `staging` (the staging signer and Link'\''s) or `prod` (the bundle'\''s own signer alone, at the workspace'\''s version).
 --components:A component folder, outside the built `lnk`'\''s own workspace, whose module the bundle'\''s `lnk` lists, repeated for more. Its commands then answer on the machine the bundle installs to. A prod build lists it only if it'\''s released. It'\''s none when none is given, whatever the build'\''s shell or folder says.
 --file:A file sealed beside the programs, such as a manifest its installer reads, repeated for more.
 --from:Parts built before, unsigned, sealed instead of building, repeated for each part.
@@ -1439,6 +1443,7 @@ list:List the cloud accounts you connected
 show:Show a cloud account: its kind, place and who it signs in as, without its credential'
   'lnk cloud connect' '--credential-file:gcp: A service account'\''s credential file, instead of your gcloud login
 --key-id:aws: The access ID of an AWS credential from the AWS console; its secret is asked for
+--machine:gcp: this machine'\''s own service account, from Google'\''s metadata server, with no credential file
 --name:What to call it [default: its kind]; lets you connect two accounts of one kind
 --profile:aws: the profile of your aws login to use [default: AWS_PROFILE, else default]
 --project:gcp: the project new things go in [default: --credential-file'\''s, else gcloud'\''s]
@@ -1523,18 +1528,18 @@ show:Whether you'\''ve said yes to giving the environment file a secret'
 --stage:The stages, in order: the first that fails ends the build, the start or the job, naming it.
 --timeout:How long it may run, as 30m or 2h; reaching it fails the setup
 --workdir:Where work starts, from the home folder; none, the home folder.'
-  'lnk folder' 'check:List old atomic-write staging files in your data without deleting them
-create:Make a new, empty Link folder at `~/Link`, in place of one that'\''s gone
-list:List the map: each location, by its ID, and where it is on this machine,
-set:Move a location to a path: its files, when they'\''re there, and its entry in'
-  'lnk folder check' '--json:Print the answer as JSON for other programs'
-  'lnk folder create' '--json:Print the answer as JSON for other programs'
-  'lnk folder list' '--json:Print the answer as JSON for other programs'
-  'lnk folder set' '--json:Print the answer as JSON for other programs'
   'lnk help' '--json:Print the answer as JSON for other programs'
   'lnk issue' 'create:Turn the last failure into a bug report: its fields, scrubbed of what'\''s'
   'lnk issue create' '--json:Print the answer as JSON for other programs
 --open:Open the bug form in your browser with what fits filled in'
+  'lnk location' 'check:List old atomic-write staging files in your data without deleting them
+create:Make a new, empty Link folder at `~/Link`, in place of one that'\''s gone
+list:List the map: each location, by its ID, and where it is on this machine,
+set:Move a location to a path: its files, when they'\''re there, and its entry in'
+  'lnk location check' '--json:Print the answer as JSON for other programs'
+  'lnk location create' '--json:Print the answer as JSON for other programs'
+  'lnk location list' '--json:Print the answer as JSON for other programs'
+  'lnk location set' '--json:Print the answer as JSON for other programs'
   'lnk man' 'show:Read Link documentation offline. Without a path, show the front page and topic index.'
   'lnk man show' '--command:Read one command reference, such as box create
 --commands:List the topic'\''s commands

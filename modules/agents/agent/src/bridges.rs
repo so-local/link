@@ -48,6 +48,11 @@ pub struct Record {
 
 link_files::specification!(Record, include_str!("bridges/record.schema.toml"));
 
+/// Each shared bridge's record, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Record>()
+}
+
 /// Whether agents here share one bridge: the machine says so.
 pub fn sharing() -> bool {
     crate::machine_settings::shared_bridge().unwrap_or(false)

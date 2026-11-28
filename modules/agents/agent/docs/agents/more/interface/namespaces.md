@@ -7,10 +7,10 @@ is `/task:run`, a tool is `task__run`, and a route is
 
 ## Commands and Aliases
 
-The [namespace command reference](../../../../../harnesses/link/docs/agents/link/commands/namespace-commands.md)
-lists declared command actions. The separate [alias reference](../../../../../harnesses/link/docs/agents/link/commands/aliases.md)
+The [namespace command reference](../../../../../harnesses/link/docs/agents/harnesses/link/commands/namespace-commands.md)
+lists declared command actions. The separate [alias reference](../../../../../harnesses/link/docs/agents/harnesses/link/commands/aliases.md)
 maps familiar spellings to their targets. For example, `/new` and
-`/clear` resolve to [`/chat:create`](../../../../../harnesses/link/docs/agents/link/commands/README.md#start-a-new-conversation). The target owns execution; aliases
+`/clear` resolve to [`/chat:create`](../../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md#start-a-new-conversation). The target owns execution; aliases
 add names without adding handlers or permissions. Root-level `/help`
 is a discovery command outside the namespaces.
 

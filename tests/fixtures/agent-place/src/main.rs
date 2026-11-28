@@ -54,7 +54,7 @@ fn run() -> anyhow::Result<()> {
     if command == "agent-team" && !dir.join("teams.json").exists() {
         bail!("lnk-agent-place-fixture has no command \"agent-team\"");
     }
-    let phase = request.phase.clone().unwrap_or_default();
+    let phase = request.phase.map(cloud::Phase::name).unwrap_or_default();
     let mut log = std::fs::OpenOptions::new()
         .create(true)
         .append(true)

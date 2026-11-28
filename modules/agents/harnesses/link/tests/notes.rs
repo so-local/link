@@ -87,7 +87,7 @@ async fn a_note_it_remembers_is_in_every_prompt_after() {
     let (port, asked) = fake_model().await;
     std::fs::write(
         harness_home.join("config.json"),
-        json!({"endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
+        json!({"schema": 1, "endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
             "base_url": format!("http://127.0.0.1:{port}")}})
         .to_string(),
     )
@@ -246,7 +246,7 @@ async fn compaction_saves_to_the_notes_through_memory() {
     (window.max, window.unknown) = (Some(4096), Some(4096));
     std::fs::write(
         harness_home.join("config.json"),
-        json!({"endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
+        json!({"schema": 1, "endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
             "base_url": format!("http://127.0.0.1:{port}")}, "spec": spec})
         .to_string(),
     )

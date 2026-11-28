@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test *.test.ts"
+    "test": "node --import tsx --import ./src/workarounds/async-local-storage.ts --test *.test.ts"
   },
   "dependencies": {
     "@link-web/site": "*",

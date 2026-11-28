@@ -83,7 +83,7 @@ pub struct Format {
     pub command: Option<String>,
     #[serde(default)]
     pub steps: Vec<Step>,
-    /// Shapes that predate Link 0.1, each refused by name with what
+    /// Shapes that predate Link 0.0.1, each refused by name with what
     /// replaced it ([`Before`]).
     #[serde(default)]
     pub before: Before,
@@ -422,7 +422,7 @@ impl Format {
                 self.kind,
                 self.current
             ),
-            None => self.current,
+            None => return Err(self.unnamed()),
             Some(item) => item
                 .as_integer()
                 .and_then(|n| u32::try_from(n).ok())
@@ -573,19 +573,7 @@ impl Format {
                     body.to_string()
                 })
         });
-        let spec = parse(&body).map_err(|error| {
-            if !text.lines().any(|l| l.trim_start().starts_with("schema")) {
-                let table: toml::Table = toml::from_str(text).unwrap_or_default();
-                for step in &self.steps {
-                    for key in step.rename.keys().chain(step.remove.keys()) {
-                        if value_at(&table, key).is_some() {
-                            return anyhow::anyhow!("{error}; {key} changed in {} schema {}; add schema = {} to read that format", self.kind, step.from + 1, step.from);
-                        }
-                    }
-                }
-            }
-            error
-        })?;
+        let spec = parse(&body)?;
         Ok(Read {
             spec,
             text: current,
@@ -595,8 +583,8 @@ impl Format {
     }
 
     /// A saved JSON document, its steps applied to its object as to a TOML
-    /// document's tables: `schema` names its version, missing as current
-    /// but in a spec, which is refused without one.
+    /// document's tables: `schema` names its version, and one naming none
+    /// is refused.
     pub fn read_json<T: DeserializeOwned>(&self, bytes: &[u8]) -> anyhow::Result<Read<T>> {
         let mut value: serde_json::Value = serde_json::from_slice(bytes)?;
         let object = value
@@ -619,7 +607,7 @@ impl Format {
                 self.kind,
                 self.current
             ),
-            None => self.current,
+            None => return Err(self.unnamed()),
             Some(schema) => schema
                 .as_u64()
                 .and_then(|n| u32::try_from(n).ok())
@@ -691,6 +679,25 @@ impl Format {
         }
         bytes.extend(format!("\"schema\":{}}}", self.current).into_bytes());
         Ok(bytes)
+    }
+
+    /// The refusal of a saved file that names no schema: every file Link
+    /// saves names the one it was written in, so one without is no file
+    /// of this kind, never taken for the current schema.
+    fn unnamed(&self) -> anyhow::Error {
+        anyhow::anyhow!(
+            "this {} file names no schema, and every file Link saves names the one it was \
+             written in: it isn't one Link wrote",
+            self.kind
+        )
+    }
+
+    /// An empty document of this kind in the current schema, for a file
+    /// that doesn't exist yet.
+    pub fn empty(&self) -> DocumentMut {
+        let mut doc = DocumentMut::new();
+        doc["schema"] = toml_edit::value(i64::from(self.current));
+        doc
     }
 
     fn check_readable(&self, from: u32) -> anyhow::Result<()> {
@@ -876,15 +883,6 @@ pub(crate) fn put(
         }
     }
     Ok(())
-}
-
-fn value_at<'a>(table: &'a toml::Table, path: &str) -> Option<&'a toml::Value> {
-    let (key, rest) = path::split_first(path)?;
-    let value = table.get(key)?;
-    match rest {
-        None => Some(value),
-        Some(rest) => value_at(value.as_table()?, rest),
-    }
 }
 
 mod before;

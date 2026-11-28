@@ -777,11 +777,24 @@ pub fn label(owner: &Owner, labels: &[String]) -> anyhow::Result<BTreeMap<String
     Ok(labelled)
 }
 
-/// The keys `keys` made for owner `owner`'s buckets, gone.
+/// The keys `keys` made for owner `owner`'s buckets, gone: each tried,
+/// and an error naming each that stays, so what asked (a move, a box
+/// deleted) says the key may still work.
 pub fn revoke(owner: &Owner) -> anyhow::Result<()> {
     check_owner(owner)?;
-    for found in of_owner(owner)? {
-        if let Err(err) = connect::revoke_key(&found.cloud, &found.bucket) {
+    revoke_each(of_owner(owner)?, |found| {
+        connect::revoke_key(&found.cloud, &found.bucket)
+    })
+}
+
+/// [`revoke`] of the buckets `found`, each with `revoke_key`.
+fn revoke_each(
+    found: Vec<Found>,
+    revoke_key: impl Fn(&Found) -> anyhow::Result<()>,
+) -> anyhow::Result<()> {
+    let mut stay = Vec::new();
+    for found in found {
+        if let Err(err) = revoke_key(&found) {
             said::warn(
                 sentence!(
                     "The key for {} is still there in {}.",
@@ -790,8 +803,18 @@ pub fn revoke(owner: &Owner) -> anyhow::Result<()> {
                 ),
                 &err,
             );
+            stay.push(format!(
+                "{} in {}",
+                link_format::clean(&found.bucket),
+                link_format::clean(&found.cloud)
+            ));
         }
     }
+    anyhow::ensure!(
+        stay.is_empty(),
+        "the key for {} is still there",
+        stay.join(", ")
+    );
     Ok(())
 }
 
@@ -820,6 +843,36 @@ mod tests {
         assert!(is_ours(&found(None), Some("github-1")));
         assert!(!is_ours(&found(Some("github-2")), Some("github-1")));
         assert!(is_ours(&found(Some("github-2")), None));
+    }
+
+    /// A key a cloud won't revoke fails the revoke, naming its bucket, so
+    /// a move or a box's removal says it may still work; the rest are
+    /// each tried.
+    #[test]
+    fn a_key_that_stays_fails_the_revoke() {
+        let found = |cloud: &str| Found {
+            cloud: cloud.into(),
+            bucket: format!("lnk-bucket-{cloud}"),
+            place: "eu-west-1".into(),
+            owner: "job:a1b2c3d4e5f6".parse().unwrap(),
+            name: "main".into(),
+            login: None,
+            labels: BTreeMap::new(),
+        };
+        let tried = std::cell::RefCell::new(Vec::new());
+        let refused = revoke_each(vec![found("aws"), found("gcp")], |found| {
+            tried.borrow_mut().push(found.cloud.clone());
+            match found.cloud.as_str() {
+                "aws" => anyhow::bail!("access denied"),
+                _ => Ok(()),
+            }
+        })
+        .unwrap_err();
+        assert_eq!(*tried.borrow(), ["aws", "gcp"]);
+        let refused = format!("{refused:#}");
+        assert!(refused.contains("lnk-bucket-aws in aws"), "{refused}");
+        assert!(!refused.contains("gcp"), "{refused}");
+        revoke_each(vec![found("gcp")], |_| Ok(())).unwrap();
     }
 
     fn credential(bucket: &str, settings: &[(&str, &str)]) -> Credential {

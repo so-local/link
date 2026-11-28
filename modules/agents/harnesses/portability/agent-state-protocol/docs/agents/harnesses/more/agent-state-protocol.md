@@ -65,7 +65,7 @@ that can travel in both directions.
 ## Steering
 
 What a prompt sent while a turn of its session runs does is the
-prompt's to say, in its `_meta.asp.busy`. Link Harness speaks it over [ACP](../../../../../../link/docs/agents/link/more/acp/README.md#steer-queue-or-interrupt).
+prompt's to say, in its `_meta.asp.busy`. Link Harness speaks it over [ACP](../../../../../../link/docs/agents/harnesses/link/more/acp/README.md#steer-queue-or-interrupt).
 
 <!-- json: link_agent_state_protocol::acp::schema::v1::PromptRequest -->
 ```json
@@ -179,7 +179,7 @@ skills and notes are carried through Link's agent configuration and
 memory rather than its ASP endpoint. The hub advertises capabilities
 from its harness or adapter, with session export also available from
 ACP replay where supported:
-[Link Harness's ACP](../../../../../../link/docs/agents/link/more/acp/README.md)
+[Link Harness's ACP](../../../../../../link/docs/agents/harnesses/link/more/acp/README.md)
 and [the hub](../../../../../hub/docs/agents/harnesses/more/protocol/hub.md).
 Its methods and forms are the `link-agent-state-protocol` crate's, typed and tested.
 

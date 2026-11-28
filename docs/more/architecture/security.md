@@ -14,7 +14,7 @@ a public issue.
 Each part's guarantees and gaps are on its own security page:
 
 - Agents: [Security](../../../modules/agents/agent/docs/agents/more/security.md): the harness, its sandbox, moving an agent
-- Sandbox: [Security](../../../modules/security/sandbox/docs/security/sandbox/security.md): what an agent's traffic may reach
+- Sandbox: [Security](../../../modules/security/sandbox/docs/tooling/sandbox/security.md): what an agent's traffic may reach
 - Models: [Security](../../../modules/agents/model/docs/agents/models/security.md)
 - [File Security](../../../packages/files/docs/more/libraries/files/files/security.md): control documents, path aliases and pinned handles
 - Storage: [Security](../../../modules/storage/storage/docs/services/storage/security.md): your files, share links
@@ -210,7 +210,7 @@ files that backups, dotfile syncs and copies of `~/.config` carry.
 - **Recorded.** Settings files record which secrets are in the Keychain:
   `accounts.toml`'s `keychain`, and `rclone-keychain.toml`.
 - **Read only when used.** An agent's settings file keeps its Telegram
-  bot's id, the token's public first part, so [`lnk agent list`](../../../modules/agents/agent/docs/agents/start/create.md#run-more-than-one-agent) and `lnk
+  bot's id, the token's public first part, so [`lnk agent list`](../../../modules/agents/agent/docs/agents/start/show.md#list-your-agents) and `lnk
   agent connect` name every agent's bots without reading their keys.
 - **Moving out.** An agent's items go when it leaves the machine, an
   account's when it's disconnected, and a bucket's with its section.
@@ -236,7 +236,7 @@ What each part keeps of who did what, and where it keeps it:
   user's clouds.
 - **What a call leaves.** [`lnk model serve`](../../../modules/agents/model/docs/agents/models/local.md#serve-one-on-this-machine) logs nothing per
   request. The sandboxes' proxies log where each call went, never what
-  it carried, which [`lnk sandbox log show`](../../../modules/security/sandbox/docs/security/sandbox/security/log/README.md#see-every-call-on-the-wire) shows.
+  it carried, which [`lnk sandbox log show`](../../../modules/security/sandbox/docs/tooling/sandbox/security/log/README.md#see-every-call-on-the-wire) shows.
 
 ## Known limitations
 
@@ -320,7 +320,7 @@ Each gap is followed by what limits it.
 - **A question asked on a terminal can be faked.** With no desktop, the
   sandboxed program shares the terminal and can write over the question.
   Limited by: the code typed back allows only the call that asked; with
-  a desktop it's a dialog, and [`lnk sandbox question list`](../../../modules/security/sandbox/docs/security/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks) shows a waiting
+  a desktop it's a dialog, and [`lnk sandbox question list`](../../../modules/security/sandbox/docs/tooling/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks) shows a waiting
   question as it is.
 - **A question answered on a chat is answered by whoever holds it.**
   An agent's sandbox asks its owner's direct chats too, and the reply

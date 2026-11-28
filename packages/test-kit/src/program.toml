@@ -15,3 +15,15 @@ slow = 60
 # printed, past its end: a process the test left that still holds the
 # output is ended with the rest, and its last words are not waited for.
 drain = 2
+
+# How many system tests run at once for each of the machine's CPUs. A
+# system test starts programs, servers and sandboxes, which run on a
+# processor, so the machine's width, not libtest's RUST_TEST_THREADS
+# (16, for tests that wait), is what they share. --test-threads, given
+# to the program, wins.
+per_cpu = 1
+
+# A machine with fewer CPUs than this gives every wait this many over its
+# CPUs times as long (12 over a 4-CPU machine's 4: 3), when
+# LNK_TEST_TIME_SCALE is unset. Set, it wins.
+scale_cpus = 12

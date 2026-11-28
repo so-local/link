@@ -34,6 +34,11 @@ pub static NOW_FORMAT: std::sync::LazyLock<link_files::schema::Format> =
         link_files::schema::Format::shipped(include_str!("view/now.schema.toml"))
     });
 
+/// The watcher's last look ([`NOW_FORMAT`]), which an upgrade converts.
+pub fn saved_now() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::shipped::<Value>(&NOW_FORMAT)
+}
+
 /// The lock a running watcher holds, in the same folder.
 pub const WATCH_LOCK: &str = "watch.lock";
 

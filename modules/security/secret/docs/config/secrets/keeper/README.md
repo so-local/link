@@ -39,7 +39,7 @@ under the same name is taken for the same user.
 No keeps your secrets in files of your own user, in
 `~/.lnk/safe/secrets/secrets.toml` with mode 600, and says plainly that
 any program you run outside a sandbox can read them. The answer is
-remembered in `~/.lnk/safe/secrets/preferences.toml` (`keeper = false`),
+remembered in `~/.lnk/safe/secrets/settings.toml` (`keeper = false`),
 so it isn't asked again, and `lnk secret keeper create` makes the
 keeper later. With no terminal, nothing is asked: your secrets are
 kept in your own file, and the command says so.
@@ -124,10 +124,16 @@ says so when it's made.
 `tpm2-tools` creates a fixed-TPM, fixed-parent sealed recipient. Only
 opaque TPM blobs and HPKE ciphertext persist, and TPM contexts live on
 `/run`. Another TPM can't open a copied disk. Existing plaintext keeper
-files migrate when they're read.
+files migrate when they're read. The payload is sealed at the
+envelope's schema version, so a payload sealed at an older one still
+opens while the schema reads it, and is sealed again at the current one
+when it's read.
 
 #### TPM Failure
 
-A failing TPM is an error, and never falls back to plaintext. Without a
-TPM the keeper keeps its private files. A person who declined the
-keeper keeps the explicit mode 600 file even on a computer with a TPM.
+A failing TPM is an error, and never falls back to plaintext. Setup on a
+machine with a TPM writes `--sealed` into the keeper's unit, so a keeper
+whose TPM is gone later refuses every write rather than keep a store in
+plaintext. Without a TPM at setup, the keeper keeps its private files. A
+person who declined the keeper keeps the explicit mode 600 file even on
+a computer with a TPM.

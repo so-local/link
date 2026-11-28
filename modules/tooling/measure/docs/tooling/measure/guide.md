@@ -20,7 +20,7 @@ command family.
 `lnk measure` shows the machine, each agent here and each of an agent's
 processes, with the memory each holds now, the CPU it has used since it
 started, what crossed its proxy, and its tokens, turns and spend over
-the last day. [`lnk agent list`](../../../../../agents/agent/docs/agents/start/create.md#run-more-than-one-agent) shows each agent's memory and the day's
+the last day. [`lnk agent list`](../../../../../agents/agent/docs/agents/start/show.md#list-your-agents) shows each agent's memory and the day's
 spend too, as the watcher last saw them (none while it isn't running).
 
 #### Measured from outside

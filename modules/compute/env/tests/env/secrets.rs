@@ -97,7 +97,7 @@ fn an_approval_is_given_listed_and_taken_back() {
     std::fs::write(
         &store,
         format!(
-            "[entry.{id}]\nkind = \"named\"\nname = \"NPM_TOKEN\"\nvalue = \"npm_value\"\nto = []\n"
+            "schema = 1\n[entry.{id}]\nkind = \"named\"\nname = \"NPM_TOKEN\"\nvalue = \"npm_value\"\nto = []\n"
         ),
     )
     .unwrap();
@@ -165,7 +165,7 @@ fn a_deleted_secrets_approval_is_gone() {
     std::fs::write(
         &store,
         format!(
-            "[entry.{id}]\nkind = \"named\"\nname = \"NPM_TOKEN\"\nvalue = \"npm_value\"\nto = []\n"
+            "schema = 1\n[entry.{id}]\nkind = \"named\"\nname = \"NPM_TOKEN\"\nvalue = \"npm_value\"\nto = []\n"
         ),
     )
     .unwrap();
@@ -178,7 +178,7 @@ fn a_deleted_secrets_approval_is_gone() {
     let spec = spec.display().to_string();
     let added = world.run(&["env", "approval", "add", "NPM_TOKEN", "--spec", &spec]);
     assert!(added.status.success(), "{}", text(&added.stderr));
-    std::fs::write(&store, format!("retired = [\"{id}\"]\n")).unwrap();
+    std::fs::write(&store, format!("schema = 1\nretired = [\"{id}\"]\n")).unwrap();
     let listed = world.run(&["env", "approval", "list", "--json"]);
     assert!(listed.status.success(), "{}", text(&listed.stderr));
     let json: serde_json::Value = serde_json::from_slice(&listed.stdout).unwrap();

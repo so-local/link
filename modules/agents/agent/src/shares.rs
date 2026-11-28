@@ -51,6 +51,11 @@ struct Names(BTreeMap<String, String>);
 
 link_files::specification!(Names, include_str!("shares.schema.toml"));
 
+/// Each agent's shares, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Names>()
+}
+
 fn names(agent: &str) -> BTreeMap<String, String> {
     std::fs::read(names_path(agent))
         .ok()

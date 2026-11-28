@@ -7,6 +7,6 @@ current = 2
 command = "lnk archive export"
 [[steps]]
 from = 1
-since = '0.1.0'
-until = '0.2.0'
+since = '0.0.1'
+until = '0.0.2'
 rename = { 'map."link.machines"' = 'map."link.boxes"' }

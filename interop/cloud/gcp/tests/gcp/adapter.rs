@@ -51,7 +51,7 @@ const GCLOUD: &str = r#"case "$*" in
   "compute instances describe lnk-gpu-1 "*) echo '{"name": "lnk-gpu-1", "status": "TERMINATED", "labels": {"lnk-box": "gpu-1"}, "zone": "https://x/zones/europe-west2-b", "machineType": "https://x/machineTypes/g2-standard-4", "scheduling": {"provisioningModel": "SPOT"}, "disks": [{"boot": true, "diskSizeGb": "100", "source": "https://x/disks/lnk-gpu-1", "licenses": ["https://x/projects/ubuntu-os-cloud/global/licenses/ubuntu-2204-lts"]}]}' ;;
   "compute disks describe lnk-gpu-1 "*) echo '{"type": "https://x/diskTypes/pd-ssd"}' ;;
   "compute instances describe lnk-kept "*) echo '{"status": "RUNNING", "metadata": {"items": [{"key": "lnk-host-keys", "value": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKEPTkeptKEPTkeptKEPTkeptKEPTkeptKEPTkeptKEPT"}]}}' ;;
-  "compute instances describe "*) printf '%s\n' '{"status": "RUNNING", "metadata": {"items": [{"key": "ssh-keys", "value": "ubuntu:ssh-ed25519 AAAAold lnk abc123 other-mac\nubuntu:ssh-ed25519 AAAAmine dana@laptop"}]}, "networkInterfaces": [{"accessConfigs": [{"natIP": "198.51.100.7"}]}]}' ;;
+  "compute instances describe "*) printf '%s\n' '{"status": "RUNNING", "metadata": {"items": [{"key": "ssh-keys", "value": "ubuntu:ssh-ed25519 AAAAold lnk abc123 other-mac\nubuntu:ssh-ed25519 AAAAmine dana@laptop"}]}, "networkInterfaces": [{"network": "https://www.googleapis.com/compute/v1/projects/p/global/networks/default", "accessConfigs": [{"natIP": "198.51.100.7"}]}]}' ;;
   "compute instances add-metadata "*) for a in "$@"; do case "$a" in *=/*) cp "${a#*=}" "$(dirname "$0")/added-${a%%=*}" ;; esac; done ;;
   "compute instances add-labels "*) ;;
   "compute instances list --filter labels.lnk-owner:* --format json") echo '[{"name": "lnk-k3v9q2x7m1ab", "labels": {"lnk-box": "gcp-1", "lnk-machine": "k3v9q2x7m1ab", "lnk-owner": "github-7"}, "zone": "zones/europe-west1-b", "status": "RUNNING"}, {"name": "lnk-p8r2c4n6w0zt", "labels": {"lnk-box": "gcp-1", "lnk-machine": "p8r2c4n6w0zt", "lnk-owner": "acct-9"}, "zone": "zones/us-central1-a", "status": "RUNNING"}]' ;;
@@ -467,6 +467,7 @@ fn an_account_is_gclouds_login_and_a_box_an_instance() {
 }
 
 mod credentials;
+mod machine;
 
 /// A box found from another computer: by its owner label, its key merged
 /// in, its host keys kept on it and read back, its labels added to.

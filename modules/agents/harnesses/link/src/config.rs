@@ -10,6 +10,11 @@ use serde::{Deserialize, Serialize};
 
 link_files::specification!(Config, include_str!("config.schema.toml"));
 
+/// An agent's Link Harness configuration, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Config>()
+}
+
 /// `config.json` in the harness's home, as [`crate::store::Files`] keeps it.
 #[derive(Duplicate, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Config {

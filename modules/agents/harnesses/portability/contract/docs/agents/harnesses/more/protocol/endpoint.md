@@ -10,7 +10,7 @@ For a harness that speaks no connection itself: a JSON string, the
 address of its ACP on this machine's loopback
 (`"http://127.0.0.1:18800/acp"`,
 `link_connection_contract::acp::ACP_PATH`), at one of its
-`Launch.ports`, `LNK_PORT` taken into account. Read by `lnk-agent` in [`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#create-an-agent), `connect`, `use` and `status`. A harness that speaks
+`Launch.ports`, `LNK_PORT` taken into account. Read by `lnk-agent` in [`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#start-your-agent), `connect`, `use` and `status`. A harness that speaks
 ACP over stdio is served there by the [hub](../../../../../../hub/docs/agents/harnesses/more/protocol/hub.md).
 
 ### What Link carries for it
@@ -210,14 +210,14 @@ model of its own runs on its parent's.
 A message may carry `_meta.link`'s `model`, a model's name or an alias
 of the specification's `[model.aliases]`, so its conversation runs on it from
 then on: a subagent's, started on one. It's 1 to 128 letters, digits and
-`-._:/@`, else refused. Link Harness keeps it as a [`/model:set`](../../../../../../../link/docs/agents/link/commands/models.md#switch-this-conversation) event of
+`-._:/@`, else refused. Link Harness keeps it as a [`/model:set`](../../../../../../../link/docs/agents/harnesses/link/commands/models.md#switch-this-conversation) event of
 the conversation, from the message's sender.
 
 ### A tool call's `activity`
 
 Link Harness marks each tool call it streams with `_meta.link`'s
 `activity`, `true` or `false`, where its conversation chose with
-[`/chat:verbose`](../../../../../../../link/docs/agents/link/commands/chats.md#show-its-tool-calls). The bridge then shows the call, or doesn't, in place of
+[`/chat:verbose`](../../../../../../../link/docs/agents/harnesses/link/commands/chats.md#show-its-tool-calls). The bridge then shows the call, or doesn't, in place of
 its specification's `[connections] activity`. A call without it is shown as the specification
 says.
 

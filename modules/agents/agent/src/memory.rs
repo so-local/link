@@ -35,10 +35,10 @@ use link_format::{
 use link_harness_contract::harness::layout;
 use link_memory_tool_contract::{FROM_ENV, MODEL_ENV, NOTES_ENV};
 mod connecting;
-mod defining;
+pub(crate) mod defining;
 mod embedding;
 mod engine;
-mod recording;
+pub(crate) mod recording;
 pub use connecting::{connect, service};
 pub(crate) use defining::read_fingerprint;
 use defining::{Defining, Store, define_tool, own_reads};

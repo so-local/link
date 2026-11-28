@@ -6,8 +6,9 @@ description: Build today's plan from routines, dates, reminders and open to-dos.
 # Plan the Day
 
 Read routines.md (today's weekday), dates.md (today and the next
-seven days), lists/todo.md, work.md for deadlines, and the schedules
-due today.
+seven days), lists/todo.md, work.md for deadlines, and reminders.md
+for the reminders due today. A schedule's own conversation lists none
+of the others, so reminders.md is where they all are.
 
 Answer in at most eight lines:
 

@@ -33,7 +33,7 @@ keeps no list of which commands another module may run.
 
 ### How do buckets and boxes sign in to the same cloud?
 
-The same way, as the one [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) account. The adapter alone knows
+The same way, as the one [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) account. The adapter alone knows
 how to sign in, and answers `storage` with rclone's settings for the
 account, so [`lnk storage`](../../../../../storage/storage/docs/services/storage/README.md#storage) holds no sign-in code for AWS or Google Cloud
 and a login that works for boxes works for buckets. Two ways of signing
@@ -106,7 +106,7 @@ A box is a machine running `lnk`; what runs on it belongs to the module
 that runs it locally. So a new box gets the core and your login only,
 and [`lnk agent move`](../../../../../agents/agent/docs/agents/move/README.md#move-your-agent-to-the-cloud) or [`lnk agent create --on`](../../../../../agents/agent/docs/agents/start/create.md#create-on-a-hosting-account) adds what an agent needs
 there first: the harness module, which brings the sandbox, the bucket
-module for its backups, and [`lnk sandbox check --ready --yes`](../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide), the sandbox's own
+module for its backups, and [`lnk sandbox check --ready --yes`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide), the sandbox's own
 setup, which installs bubblewrap and its AppArmor profile through the
 box's `sudo`. The box module then knows no module but `accounts` and
 `cloud`, and a box never carries modules its work doesn't use.

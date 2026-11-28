@@ -109,7 +109,7 @@ starts without it.
 ### With `ask`
 
 With `ask`, its `task`, `schedule`, `send` and `cancel` aren't allowed
-when it's defined, so each asks first, in [`lnk sandbox question list`](../../../../../../security/sandbox/docs/security/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks).
+when it's defined, so each asks first, in [`lnk sandbox question list`](../../../../../../security/sandbox/docs/tooling/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks).
 
 ## Questions on your chats
 

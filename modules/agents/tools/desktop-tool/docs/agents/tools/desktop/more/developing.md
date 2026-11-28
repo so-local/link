@@ -75,7 +75,7 @@ Manual Desktop registration supplies its display number and authorization cookie
 
 ### By hand
 
-[`lnk agent tool add desktop`](../../../../../../../agent/docs/agents/README.md#add-tools-and-skills) is the module, the display's cookie, the
+[`lnk agent tool add desktop`](../../../../../../../agent/docs/agents/README.md#tools) is the module, the display's cookie, the
 tool shared by every session of the agent with its calls allowed, and
 your agent allowed to call it. After adding the module, make the
 display's cookie with `lnk-desktop-tool cookie create

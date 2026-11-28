@@ -2,7 +2,8 @@
 # and the programs they start, rarely on a processor, and the end-to-end
 # program took 130 s at 4, 76 s at 16, in the same 1.3 GB
 # (docs/more/developing/decisions.md). RUST_TEST_THREADS set by you,
-# or --test-threads, wins.
+# or --test-threads, wins. A system test program runs one test per CPU
+# instead (packages/test-kit/src/program.toml).
 [env]
 RUST_TEST_THREADS = "16"
 

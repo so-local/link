@@ -21,17 +21,28 @@ fn a_refused_model_leaves_no_new_agent() {
     std::fs::create_dir(&bin).unwrap();
     let program = bin.join("lnk-agent");
     link_program(Path::new(env!("CARGO_BIN_EXE_lnk-agent")), &program).unwrap();
+    // The sandbox is checked before the model is asked for: a core that
+    // runs it, and a start with none where it can't run.
     let core = bin.join("lnk");
+    let sandbox = crate::common::sandbox_module();
+    link_program(&sandbox, &bin.join("lnk-sandbox")).unwrap();
     link_test_kit::write_core(
         &core,
-        "#!/bin/sh\n[ \"$*\" = 'model runtime list --json --start' ] || exit 1\nprintf '[]\\n'\n",
+        format!(
+            "#!/bin/sh\n[ \"$1\" = sandbox ] && shift && exec '{}' \"$@\"\n\
+             [ \"$*\" = 'model runtime list --json --start' ] || exit 1\nprintf '[]\\n'\n",
+            sandbox.display()
+        ),
     )
     .unwrap();
+    let gate = root.join("gate");
+    std::fs::create_dir(&gate).unwrap();
+    let sandboxed = link_test_kit::gate::sandbox(&sandbox, &gate);
     let spec = root.join("agent.toml");
     std::fs::write(&spec, "schema = 1\n[tool.scheduler]\nenabled = true\n").unwrap();
     for (label, args, agent, supplied_spec) in [
-        ("default", vec!["start"], "main", false),
-        ("spec", vec!["start"], "main", true),
+        ("default", vec!["create", "main"], "main", false),
+        ("spec", vec!["create", "main"], "main", true),
         ("named", vec!["create", "work"], "work", true),
     ] {
         let home = root.join(label);
@@ -43,6 +54,9 @@ fn a_refused_model_leaves_no_new_agent() {
             .env("LNK_EXE", &core);
         if supplied_spec {
             command.arg("--spec").arg(&spec);
+        }
+        if !sandboxed {
+            command.arg("--no-sandbox");
         }
         let output = command.output().unwrap();
         let said = String::from_utf8_lossy(&output.stderr);
@@ -64,7 +78,7 @@ fn a_refused_model_leaves_no_new_agent() {
             .output()
             .unwrap();
         assert!(
-            String::from_utf8_lossy(&status.stderr).contains("There is no agent yet"),
+            String::from_utf8_lossy(&status.stderr).contains("no agent here yet"),
             "{label}: {}{}",
             String::from_utf8_lossy(&status.stdout),
             String::from_utf8_lossy(&status.stderr)
@@ -666,12 +680,13 @@ fn a_memory_engine_goes_with_its_session() {
 #[expect(clippy::disallowed_methods, reason = "moves onto the testing kit")]
 fn no_agent_yet_is_said() {
     let root = TempDir::new("up-none");
+    const NONE: &str = "no agent here yet: lnk agent start creates your first";
     for (args, says) in [
-        (&["stop"][..], "There is no agent yet."),
-        (&["spec", "show"], "There is no agent yet."),
-        (&["show", "--permissions"], "There is no agent yet."),
-        (&["show", "--instructions"], "There is no agent yet."),
-        (&["restore"], "There is no agent here to restore."),
+        (&["stop"][..], NONE),
+        (&["spec", "show"], NONE),
+        (&["show", "--permissions"], NONE),
+        (&["show", "--instructions"], NONE),
+        (&["restore"], NONE),
     ] {
         let output = Command::new(env!("CARGO_BIN_EXE_lnk-agent"))
             .args(args)

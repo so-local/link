@@ -230,6 +230,7 @@ pub fn args(bwrap: &str, common: &Common, linux: &Linux, argv: &[String]) -> Vec
         }
     }
     cover_sockets(&mut args, crate::system::LINUX_SYSTEM_SOCKETS);
+    cover_sockets(&mut args, crate::system::LINUX_ROOT_ONLY);
     etc::args(Path::new(crate::system::LINUX_ETC), &mut args);
     if let Some(hosts) = &linux.etc_hosts {
         args.extend([
@@ -420,8 +421,9 @@ pub fn args(bwrap: &str, common: &Common, linux: &Linux, argv: &[String]) -> Vec
         // grants (the home where it is its own empty scratch, its sockets'
         // folder). The system's read-only folders are added inside, beside
         // these. Absent Landlock, nothing is passed and the mounts stand
-        // alone.
-        if linux.caps.landlock.is_some() {
+        // alone; so on Landlock's first ABI too, whose every layer refuses
+        // a rename into another folder (no `REFER`), which git does.
+        if file_wall_here(linux.caps.landlock) {
             args.push("--file-wall".into());
             let mut read = common.read.clone();
             read.push(exe.clone());
@@ -464,6 +466,13 @@ pub fn make_closed(closed: &[PathBuf], roots: &[PathBuf]) -> anyhow::Result<()> 
         }
     }
     Ok(())
+}
+
+/// Whether the file wall goes inside a sandbox on a kernel of Landlock
+/// ABI `abi`: from ABI 2, which knows `REFER`, so renames across folders
+/// inside a grant keep working.
+fn file_wall_here(abi: Option<std::num::NonZeroU32>) -> bool {
+    abi.is_some_and(|abi| abi.get() >= 2)
 }
 
 /// Covers each of `folders` that is a folder, not a link, with an empty
@@ -545,6 +554,43 @@ mod tests {
         let mut args = Vec::new();
         cover_sockets(&mut args, &[&sockets, &linked, &missing]);
         assert_eq!(args, ["--tmpfs".to_string(), sockets]);
+    }
+
+    /// Landlock's first ABI, whose layers refuse renames across folders,
+    /// gets no file wall: git would fail inside.
+    #[test]
+    fn no_file_wall_where_landlock_cant_rename() {
+        use std::num::NonZeroU32;
+        assert!(!super::file_wall_here(None));
+        assert!(!super::file_wall_here(NonZeroU32::new(1)));
+        assert!(super::file_wall_here(NonZeroU32::new(2)));
+        assert!(super::file_wall_here(NonZeroU32::new(6)));
+    }
+
+    /// A root-run sandbox reads no root-only file: `/sys`'s kernel,
+    /// firmware and zram control are covered, and a key's file in `/etc`
+    /// is never shown, wherever it is.
+    #[test]
+    fn a_root_run_sandbox_reads_no_root_only_file() {
+        for covered in ["/sys/kernel", "/sys/firmware", "/sys/class/zram-control"] {
+            assert!(
+                crate::system::LINUX_ROOT_ONLY.contains(&covered),
+                "{covered}"
+            );
+        }
+        assert!(crate::system::etc_hidden("server-key.pem"));
+        assert!(crate::system::etc_hidden("private"));
+        assert!(!crate::system::etc_hidden("server-cert.pem"));
+        assert!(!crate::system::etc_hidden("privateer"));
+        let etc = link_test_kit::TempDir::new("etc-keys");
+        std::fs::create_dir_all(etc.join("ssl/certs")).unwrap();
+        std::fs::write(etc.join("ssl/certs/ca.pem"), "").unwrap();
+        std::fs::write(etc.join("ssl/certs/host-key.pem"), "").unwrap();
+        let mut args = Vec::new();
+        crate::linux::etc::args(&etc, &mut args);
+        let joined = args.join(" ");
+        assert!(joined.contains("ssl/certs/ca.pem"), "{joined}");
+        assert!(!joined.contains("host-key.pem"), "{joined}");
     }
 
     /// Only a version bubblewrap gave decides: no output, or none in it,

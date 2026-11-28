@@ -3,3 +3,4 @@ schema = 1
 # serves.
 kind = "namespace definition"
 current = 1
+holds = "inside"

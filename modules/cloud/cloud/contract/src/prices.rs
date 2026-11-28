@@ -58,6 +58,11 @@ pub struct Prices {
 // schema.
 link_files::specification!(Prices, include_str!("prices/kept.schema.toml"));
 
+/// Each cloud's prices, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Prices>()
+}
+
 /// The adapter's settings this reads.
 #[derive(Debug, Default, Deserialize)]
 struct Settings {

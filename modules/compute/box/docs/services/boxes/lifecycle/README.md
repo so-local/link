@@ -172,7 +172,7 @@ to delete a machine by its cloud ID.
 [What's on a Box](on-a-box.md) explains how a box installs `lnk`, how
 its working users and the people you let in are kept apart, and how a
 specification and a setup reach it. [Files](files.md) lists every file
-[`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) and `lnk box` keep, on this computer, on each box and in the
+[`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) and `lnk box` keep, on this computer, on each box and in the
 cloud, and what each one holds.
 
 <!-- docs-tree:start -->

@@ -42,6 +42,11 @@ pub fn parse(line: &str) -> Option<Report> {
     let message = match line.trim_start().starts_with('{') {
         true => {
             let value: serde_json::Value = serde_json::from_str(line).ok()?;
+            // The kernel's alone (process 0): any other process can write
+            // Seatbelt's words to the log.
+            if value.get("processID").and_then(serde_json::Value::as_u64) != Some(0) {
+                return None;
+            }
             value.get("eventMessage")?.as_str()?.to_string()
         }
         false => line.to_string(),
@@ -87,15 +92,17 @@ pub fn refusal(program: &Path) -> String {
 }
 
 /// The `log` arguments streaming Seatbelt's reports of programs run, as
-/// one line each: only Seatbelt's own (its sender), never a line another
-/// program wrote to the log in its words (`logger`).
+/// one line each: only the kernel's (process 0) from Seatbelt (its
+/// sender), never a line another program wrote to the log in its words
+/// (`logger`, or a program of its own named `Sandbox`, whose lines name
+/// it their sender too).
 pub fn stream_args() -> Vec<String> {
     [
         "stream",
         "--style",
         "syslog",
         "--predicate",
-        r#"sender == "Sandbox" AND eventMessage CONTAINS "Sandbox: " AND eventMessage CONTAINS " process-exec""#,
+        r#"processID == 0 AND sender == "Sandbox" AND eventMessage CONTAINS "Sandbox: " AND eventMessage CONTAINS " process-exec""#,
     ]
     .map(String::from)
     .to_vec()
@@ -380,11 +387,22 @@ mod tests {
             "lnk sandbox: refused /usr/bin/id: add it to [commands] allow"
         );
         assert!(stream_args().iter().any(|a| a.contains("process-exec")));
-        // Seatbelt's own lines only, not one another program logged.
+        // Seatbelt's own lines only, the kernel's, not one another
+        // program logged.
         assert!(
             stream_args()
                 .iter()
-                .any(|a| a.starts_with(r#"sender == "Sandbox" AND"#))
+                .any(|a| a.starts_with(r#"processID == 0 AND sender == "Sandbox" AND"#))
         );
+    }
+
+    /// A line any process but the kernel logged in Seatbelt's words is
+    /// never a report, so `lnk sandbox learn` suggests nothing from it.
+    #[test]
+    fn learn_trusts_only_the_kernels_lines() {
+        let forged = r#"{"eventMessage":"Sandbox: bash(41520) allow(1) process-exec* /tmp/evil","processID":4242,"senderImagePath":"/Users/me/Sandbox"}"#;
+        assert_eq!(parse(forged), None);
+        let unsaid = r#"{"eventMessage":"Sandbox: bash(41520) allow(1) process-exec* /tmp/evil"}"#;
+        assert_eq!(parse(unsaid), None);
     }
 }

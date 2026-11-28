@@ -81,7 +81,7 @@ fn scope(tree: &Tree) -> Vec<Finding> {
     let owners: std::collections::BTreeSet<_> = references.iter().map(|r| r.owner).collect();
     tree.pages.values().flatten().filter_map(|path| {
         let shown = tree.shown(path);
-        if !shown.contains("/docs/config/specs/") || path.ends_with("decisions.md") { return None; }
+        if !shown.contains("/docs/config/specs/") || path.ends_with("decisions.md") || path.ends_with("README.md") { return None; }
         if references.iter().any(|r| shown == r.page) { return None; }
         let text = tree.text(path)?;
         // A page written from its module's declarations is bound to them.

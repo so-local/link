@@ -241,7 +241,7 @@ accounts and boxes:
 - **[Files to the user's clouds](../../../modules/storage/storage/docs/services/storage/README.md#storage)**: `modules/storage/storage`.
   The cloud adapter uses the connected account's credentials to copy
   files directly to its storage.
-- **[Connecting cloud accounts](../../../modules/cloud/cloud/docs/services/cloud/README.md#cloud-accounts)**, and machines in them, with [`lnk box`](../../../modules/compute/box/docs/services/boxes/README.md#boxes): `modules/cloud/cloud` and `modules/compute/box`.
+- **[Connecting cloud accounts](../../../modules/cloud/cloud/docs/services/cloud/README.md#platforms)**, and machines in them, with [`lnk box`](../../../modules/compute/box/docs/services/boxes/README.md#boxes): `modules/cloud/cloud` and `modules/compute/box`.
   Neither knows which cloud, which is the adapter's job. A box is a
   machine running `lnk`, and what runs on it belongs to the module that
   runs it locally.

@@ -31,9 +31,9 @@ sandbox, the desktop's mouse and keys, Run's background programs.
 
 ### Give your agent one
 
-[`lnk agent tool list`](../../../../../agent/docs/agents/README.md#add-tools-and-skills) shows which your agent has, and `lnk agent tool
+[`lnk agent tool list`](../../../../../agent/docs/agents/README.md#tools) shows which your agent has, and `lnk agent tool
 add memory`, `add web`, `add browser` or `add desktop` gives it one;
-its first [`lnk agent start`](../../../../../agent/docs/agents/README.md#create-an-agent) offers them.
+its first [`lnk agent start`](../../../../../agent/docs/agents/README.md#start-your-agent) offers them.
 
 ### Which harness has which
 
@@ -47,7 +47,7 @@ run on Linux only.
 ### Off until you add them
 
 Scheduler, Run, File and Code come with Link Harness, each off until
-[`lnk agent tool add <name>`](../../../../../agent/docs/agents/README.md#add-tools-and-skills) turns it on, or its agent's specification says
+[`lnk agent tool add <name>`](../../../../../agent/docs/agents/README.md#tools) turns it on, or its agent's specification says
 `[tool.<name>] enabled = true`. A tool knows
 nothing of a harness: what it reads of an agent, it reads in a
 documented format.

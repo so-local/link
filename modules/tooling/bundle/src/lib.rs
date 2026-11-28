@@ -226,18 +226,18 @@ mod tests {
             time: 1_794_182_400 + 7 * 3600 + 20 * 60,
             hash: "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b".into(),
         };
-        assert_eq!(version(Prod, None, "0.14.0", &at).unwrap(), "0.14.0");
-        assert!(version(Prod, Some("0.15.0"), "0.14.0", &at).is_err());
+        assert_eq!(version(Prod, None, "0.0.4", &at).unwrap(), "0.0.4");
+        assert!(version(Prod, Some("0.0.5"), "0.0.4", &at).is_err());
         assert_eq!(
-            version(Staging, None, "0.14.0", &at).unwrap(),
-            "0.14.0-staging.202611090720.g1a2b3c4d5e6f"
+            version(Staging, None, "0.0.4", &at).unwrap(),
+            "0.0.4-staging.202611090720.g1a2b3c4d5e6f"
         );
-        let given = "0.14.0-dev.202611090000.g0123456789ab";
-        assert!(version(Dev, Some(given), "0.14.0", &at).is_ok());
-        assert!(version(Dev, Some("0.14.0-dev.202611090000"), "0.14.0", &at).is_err());
-        let staged = "0.14.0-staging.202611090000.g0123456789ab";
-        assert!(version(Dev, Some(staged), "0.14.0", &at).is_err());
-        assert!(version(Prod, Some(staged), "0.14.0", &at).is_err());
+        let given = "0.0.4-dev.202611090000.g0123456789ab";
+        assert!(version(Dev, Some(given), "0.0.4", &at).is_ok());
+        assert!(version(Dev, Some("0.0.4-dev.202611090000"), "0.0.4", &at).is_err());
+        let staged = "0.0.4-staging.202611090000.g0123456789ab";
+        assert!(version(Dev, Some(staged), "0.0.4", &at).is_err());
+        assert!(version(Prod, Some(staged), "0.0.4", &at).is_err());
     }
 
     #[test]

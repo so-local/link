@@ -138,6 +138,39 @@ still removed once the box answers. An end on a cloud that hosts agents
 counts as over only when its `agent-abort` says so: one that fails
 keeps the entry, rather than lose track of a copy there.
 
+#### How does one move hold an agent at a time?
+
+Two moves of one agent at once would each switch it and leave it
+answering in two places.
+
+##### On the computer running it
+
+A move holds a lock on the computer running it, beside its journal
+(`~/.lnk/safe/agents/transfers/moving/<id>.lock`), so a second `lnk
+agent move` of the agent there is refused. `lnk agent start` is refused
+while the lock is held too, since a start takes the agent out of its
+pause. The move's own starts, where the agent lands and where a failed
+switch takes it back, name their move (a hidden `--during-move`), and
+are let through for a move the journal holds.
+
+##### Where the agent is
+
+Another computer's move holds no lock there, so the machine the agent
+leaves keeps a hold of its own: `lnk agent pause --move <id>` writes the
+move's ID beside the journals, in `<id>.claim`, and `pause`,
+`state-send`, `left` and `resume` of any other move are refused while
+it's there. A second computer's move fails at its pause, and its
+take-back leaves the first move's pause alone. `resume` and `left` of
+the holding move let go of it, and so does any start of the agent
+there, which ends the pause.
+
+##### By its ID
+
+Each call a move makes to either end names the agent by its ID as well
+as its name (`--agent-id`), on `stop`, `pause`, `state-send`, `resume`
+and `left`. Another agent made under the name since is refused, never
+stopped or removed for the move.
+
 #### How does a move reach a cloud with no box?
 
 Through the cloud's adapter, which may host agents by answering the

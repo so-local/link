@@ -23,8 +23,8 @@ providers your tasks need, then grant their access through your agent.
 [Link MCP](../../../mcp/docs/agents/tools/mcp/README.md) offers Local Link's
 commands as tools, so your agent can read the offline manual, inspect its
 status, and ask before it changes anything. Link MCP is off by default,
-and the personal ready-made agent comes with it on. Any other agent or
-client that speaks the Model Context Protocol (MCP) can add it as a server
+and the Onboarding ready-made agent comes with it on.
+Any other agent or client that speaks the Model Context Protocol (MCP) can add it as a server
 too.
 
 ## Manage an Agent’s Tools

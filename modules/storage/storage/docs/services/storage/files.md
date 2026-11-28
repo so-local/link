@@ -15,7 +15,7 @@ Which clouds are connected, and the keys and passwords that reach them.
 ### `rclone.conf` (600)
 
 Each cloud's settings and encryption passwords, and the keys of those
-that don't sign in as a [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) account: s3, rclone types, and a
+that don't sign in as a [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) account: s3, rclone types, and a
 box's key for one owner's bucket.
 
 ### `clouds.toml` and `rclone-keychain.toml`

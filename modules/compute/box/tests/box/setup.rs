@@ -84,7 +84,8 @@ esac"#,
         script(
             &bin.join("ssh"),
             &format!(
-                r#"echo "$*" >> {ssh}
+                r#"[ "$1" = -G ] && exit 0
+echo "$*" >> {ssh}
 case "$*" in *"-O check"*) exit 255 ;; *"-O "*|*ControlMaster=yes*) exit 0 ;; esac
 for last; do :; done
 if [ "$last" = -s ]; then

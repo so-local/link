@@ -24,7 +24,7 @@ something says Local Link.
 Link Harness is Link's own harness, the program that runs an agent's
 turns, and its program is `lnk-harness`. Its instructions and skills
 are files you edit, it shows the prompt it sends, and it keeps your
-conversations in [an event log you control](../../../modules/agents/harnesses/link/docs/agents/link/README.md).
+conversations in [an event log you control](../../../modules/agents/harnesses/link/docs/agents/harnesses/link/README.md).
 Other products' harnesses, such as Hermes, run under Link too, and
 [`lnk agent harness set link`](../../../modules/agents/agent/docs/agents/harnesses/use/README.md#switch-in-one-command) switches an agent to Link Harness.
 

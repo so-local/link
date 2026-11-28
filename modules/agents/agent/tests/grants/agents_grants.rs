@@ -279,10 +279,9 @@ fn a_script_turns_the_sandbox_off_by_name_unless_the_machine_forbids_it() {
     // The machine's identity is its own file's, never the agent policy's.
     let identity = read(&link_files::layout::Hidden::Installation.at(&world.home.join(".lnk")));
     assert!(identity.contains("id = "), "{identity}");
-    let mut settings = read(&machine);
+    let settings = read(&machine);
     assert!(!settings.contains("id = "), "{settings}");
-    settings.push_str("unsandboxed = false\n");
-    std::fs::write(&machine, settings).unwrap();
+    crate::common::add_policy(&world.home, "unsandboxed = false\n");
     for args in [&["start"][..], &["start", "--yes", "--no-sandbox"]] {
         let refused = failed(&world.start("main", args));
         assert!(
@@ -408,10 +407,7 @@ fn no_sandbox_lasts_until_sandbox_and_a_service_reads_the_switch() {
     // Then the switch set: refused, and its service removed.
     let (argv, home) = installed();
     ok(&service(&argv, &home));
-    let machine = world.home.join(".lnk/safe/agents/policy.toml");
-    let mut settings = read(&machine);
-    settings.push_str("unsandboxed = false\n");
-    std::fs::write(&machine, settings).unwrap();
+    crate::common::add_policy(&world.home, "unsandboxed = false\n");
     let refused = failed(&service(&argv, &home));
     assert!(refused.contains("this machine forbids"), "{refused}");
     assert!(!path.exists(), "its service is still there");

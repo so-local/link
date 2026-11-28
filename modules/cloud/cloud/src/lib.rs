@@ -67,6 +67,11 @@ pub struct Accounts {
 
 link_files::specification!(Accounts, include_str!("accounts.schema.toml"));
 
+/// The cloud accounts, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Accounts>()
+}
+
 impl Accounts {
     /// Include accounts an installed module exposes from an existing
     /// sign-in, without replacing a saved account's identity.
@@ -150,12 +155,33 @@ impl Accounts {
     }
 
     pub fn save_to(&self, path: &Path) -> anyhow::Result<()> {
+        self.save_with(
+            path,
+            keychain(path),
+            &mut |account, value| link_keychain::stash(account, Some(value)).map(drop),
+            &mut |account| link_keychain::delete(account).map(drop),
+        )
+    }
+
+    /// [`Accounts::save_to`], each secret stashed with `stash` and each
+    /// one no longer kept deleted with `delete` when `keychain`: the file
+    /// is written before any is deleted, so an interrupted save never
+    /// leaves the file naming a secret the Keychain no longer holds.
+    fn save_with(
+        &self,
+        path: &Path,
+        keychain: bool,
+        stash: &mut dyn FnMut(&str, &link_secretive::Secret) -> anyhow::Result<()>,
+        delete: &mut dyn FnMut(&str) -> anyhow::Result<()>,
+    ) -> anyhow::Result<()> {
         if let Some(dir) = path.parent() {
             link_files::create_private_dir(dir)?;
         }
         let mut text = toml::Value::try_from(self)?;
-        if keychain(path) {
-            // Accounts no longer here, and keys no longer secret, go.
+        let mut stale = Vec::new();
+        if keychain {
+            // Accounts no longer here, and keys no longer secret, go once
+            // the file no longer names them.
             let before = std::fs::read_to_string(path)
                 .map(|old| in_keychain(&old))
                 .unwrap_or_default();
@@ -165,7 +191,7 @@ impl Accounts {
                         .get(name)
                         .is_some_and(|a| a.env.get(var).is_some_and(|v| !v.is_empty()));
                     if !kept {
-                        link_keychain::delete(&key_account(name, var))?;
+                        stale.push(key_account(name, var));
                     }
                 }
             }
@@ -177,7 +203,7 @@ impl Accounts {
             for (account, table) in self.accounts.iter().zip(tables) {
                 let mut moved = Vec::new();
                 for (var, value) in account.env.iter().filter(|(var, _)| is_secret(var)) {
-                    link_keychain::stash(&key_account(&account.name, var), Some(value))?;
+                    stash(&key_account(&account.name, var), value)?;
                     moved.push(toml::Value::from(var.as_str()));
                     if let Some(env) = table.get_mut("env").and_then(|e| e.as_table_mut()) {
                         env.remove(var);
@@ -196,7 +222,11 @@ impl Accounts {
             );
         }
         link_files::write_private(path, toml::to_string(&text)?.as_bytes())
-            .within(format!("writing {}", path.display()))
+            .within(format!("writing {}", path.display()))?;
+        for account in &stale {
+            delete(account)?;
+        }
+        Ok(())
     }
 
     pub fn get(&self, name: &str) -> Option<&Account> {
@@ -338,6 +368,42 @@ mod tests {
             env: BTreeMap::from([("AWS_SECRET_ACCESS_KEY".into(), "s3cret".to_string().into())]),
             ..Account::default()
         }
+    }
+
+    /// A Keychain secret no longer kept is deleted only once the file no
+    /// longer names it: an interrupted save leaves no account naming a
+    /// secret that's gone.
+    #[test]
+    fn the_file_is_written_before_a_keychain_secret_is_deleted() {
+        let dir = link_test_kit::TempDir::new("cloud-accounts-order");
+        let path = dir.join("accounts.toml");
+        let mut stashed = Vec::new();
+        let mut accounts = Accounts::default();
+        accounts.put(aws("us-east-1"));
+        accounts
+            .save_with(
+                &path,
+                true,
+                &mut |a, _| {
+                    stashed.push(a.to_string());
+                    Ok(())
+                },
+                &mut |_| panic!("nothing to delete yet"),
+            )
+            .unwrap();
+        assert_eq!(stashed, ["cloud/aws/AWS_SECRET_ACCESS_KEY"]);
+        assert!(std::fs::read_to_string(&path).unwrap().contains("keychain"));
+        accounts.remove("aws");
+        let mut deleted = Vec::new();
+        accounts
+            .save_with(&path, true, &mut |_, _| Ok(()), &mut |a| {
+                let text = std::fs::read_to_string(&path).unwrap();
+                assert!(!text.contains("AWS_SECRET_ACCESS_KEY"), "{text}");
+                deleted.push(a.to_string());
+                Ok(())
+            })
+            .unwrap();
+        assert_eq!(deleted, ["cloud/aws/AWS_SECRET_ACCESS_KEY"]);
     }
 
     #[test]

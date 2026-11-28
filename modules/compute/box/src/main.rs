@@ -43,6 +43,7 @@ fn main() -> std::process::ExitCode {
     // Safe to hold a secret before anything else: no core dump, no other
     // process of this user reading it.
     link_secretive::process::guard();
+    link_core::saved::own(&[link_box::state::saved]);
     link_core::describe_component!(link_box::spec::BoxSpec);
     link_settings::output::run(|out| dispatch(out).map_err(link_box::said::report))
 }
@@ -252,6 +253,25 @@ fn dispatch(out: &mut Out) -> anyhow::Result<Done> {
                 ));
             }
             let ip = reachable(out, Some(&name))?;
+            // A port on the box's loopback is every user's of it: with
+            // users of its own, only a socket in your home is yours alone.
+            if socket.is_none() && port.is_some() {
+                let users = image::box_users(&ip, None)
+                    .within(format!("listing {name}'s users before forwarding a port"))?;
+                if !users.is_empty() {
+                    return Err(said(
+                        Report::error(sentence!(
+                            "Couldn't forward a port to {}, which has users of its own.",
+                            shown(&name)
+                        ))
+                        .why(prose!(
+                            "A port on its loopback is every one of its users' to reach, so your proxy would be theirs too; a socket in your home folder is yours alone."
+                        ))
+                        .next(out.typed().and("--socket <path>"), "forward a socket")
+                        .exit(Exit::Usage),
+                    ));
+                }
+            }
             let status = match (socket, port) {
                 (Some(socket), _) => ssh::forward_socket(&ip, &socket, proxy_port)?,
                 (None, Some(port)) => ssh::forward(&ip, port, proxy_port)?,

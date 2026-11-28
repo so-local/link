@@ -115,7 +115,7 @@ address with `LNK_TEST_RESOLVE` (`example.com=192.0.2.1`), so it passes
 on a machine without DNS, behind an HTTPS proxy alone (Claude Code on the
 web). One whose proxy speaks TLS to a host of its own gives the proxy
 that host's authority with `LNK_TEST_CA` (a PEM file), and reaches it
-through an upstream given with [`lnk sandbox run --upstream http://127.0.0.1:<port>`](../../../modules/security/sandbox/docs/security/sandbox/guide.md#sandbox-guide).
+through an upstream given with [`lnk sandbox run --upstream http://127.0.0.1:<port>`](../../../modules/security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide).
 
 ## Gotchas
 

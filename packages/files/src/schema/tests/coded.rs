@@ -52,7 +52,6 @@ fn every_later_schema_skips_the_code_it_has_passed() {
     for text in [
         "schema = 2\nname = \"web\"\n[disk]\nsize = 20\nunit = \"G\"\n",
         "schema = 3\nname = \"web\"\n[disk]\nsize = 20\nunits = \"G\"\n",
-        "name = \"web\"\n[disk]\nsize = 20\nunits = \"G\"\n",
     ] {
         assert_eq!(
             crate::saved::parse::<Disks>(text).unwrap(),

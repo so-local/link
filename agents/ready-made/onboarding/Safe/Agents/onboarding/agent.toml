@@ -1,0 +1,17 @@
+# onboarding: the agent to start with. Ask it what it can do, and it reads
+# Local Link's manual to answer. Only what differs from Link's defaults,
+# where every tool is off, is set here.
+schema = 1
+
+# It keeps what you ask it to as plain files.
+[behavior.tool.file]
+enabled = true
+
+# It can remind you and work on a schedule.
+[behavior.tool.scheduler]
+enabled = true
+
+# Link MCP: it reads Link's manual and runs Link's declared commands,
+# and a change asks you first. Onboarding is why it's on here.
+[behavior.tool.mcp]
+enabled = true

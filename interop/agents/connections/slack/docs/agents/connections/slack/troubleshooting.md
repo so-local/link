@@ -25,7 +25,7 @@ the app's page, then connect again.
 
 ## The pairing code gets no response
 
-Keep [`lnk agent connect slack`](../../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels) running while sending the code in the
+Keep [`lnk agent connect slack`](../../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app) running while sending the code in the
 app's Messages tab. Link listens in Socket Mode before showing the
 code and displays that it is waiting. If Slack closes the connection,
 pairing fails with a reason; if no matching DM arrives, the code expires

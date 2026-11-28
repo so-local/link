@@ -19,8 +19,8 @@ command = "lnk disks spec show"
 
 [[steps]]
 from = 1
-since = "0.1.0"
-until = "0.3.0"
+since = "0.0.1"
+until = "0.0.3"
 migration = "disks_1_to_2"
 ```
 
@@ -59,8 +59,8 @@ current = 2
 
 [[steps]]
 from = 1
-since = "0.1.0"
-until = "0.3.0"
+since = "0.0.1"
+until = "0.0.3"
 migration = "disks_1_to_2"
 flags = { disk = "say its size and unit apart: --disk.size 20 --disk.unit G" }
 ```
@@ -80,7 +80,7 @@ takes away but no step names is reported by its path.
 
 ## Formats Without Their Code
 
-A format exported to another program, as [`lnk spec convert`](../../../../../../../modules/tooling/spec/docs/tooling/spec/README.md#convert-a-file) reads one,
+A format exported to another program, as [`lnk spec convert`](../../../../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#convert-a-file) reads one,
 carries the step's name but not its code. That program refuses a file
 that needs the step, and names the kind's print command where its
 `schema.toml` declares one (`command`, left out where no module that comes

@@ -21,6 +21,11 @@ pub struct Manifest {
 
 link_files::specification!(Manifest, include_str!("manifest.schema.toml"));
 
+/// The storage manifest, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Manifest>()
+}
+
 /// One file in the bucket, by its path.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Entry {

@@ -121,9 +121,10 @@ it.
 ### `lnk-<kind> connect`
 
 `[--name] [--region] [--profile] [--key-id] [--project] [--zone]
-[--credential-file] [--setting KEY=VALUE]...`: signs in to an account (the
-cloud's own login, reused, else asking on the terminal, questions on
-stderr), checks it, and prints its `Account` as JSON. Read by `lnk
+[--credential-file] [--machine] [--setting KEY=VALUE]...`: signs in to an
+account (the cloud's own login, reused, else asking on the terminal,
+questions on stderr, or with `--machine` the machine's own account, asking
+nothing), checks it, and prints its `Account` as JSON. Read by `lnk
 cloud connect`.
 
 ### Its settings

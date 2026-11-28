@@ -14,6 +14,7 @@ Every field the reader takes, with an example value.
 ```toml
 kind = "bundle"
 schema = 1
+archives = ["archives"]
 build = "dev"
 components = ["../extra/modules/example"]
 file = ["manifest.toml"]
@@ -27,8 +28,17 @@ program = [
 signer = "dev"
 source = ["."]
 target = ["x86_64-unknown-linux-musl"]
-version = "0.14.0"
+version = "0.0.1"
 ```
+
+## `archives`
+
+> **Type** a list, each text · **Flag** `--archives`
+
+A folder of archives, each a folder with its `archive.toml`, packed
+into `link-<name>.tar.gz` by the bundle's own `lnk archive export`,
+with every module the bundle holds beside it, and sealed with the
+programs, repeated for more. It's none when none is given.
 
 ## `build`
 

@@ -3,7 +3,7 @@
 Import an agent a friend, your community, or Local Link made, and start it as your own. Import checks every file first, gives the agent an ID of its own, and installs, connects, and starts nothing.
 
 ```sh
-lnk archive import ~/Downloads/coach.tar.gz
+lnk archive import link-coach.tar.gz
 lnk agent start --agent coach
 ```
 

@@ -246,8 +246,8 @@ Next is how a person learns Link without its help, manual or website.
 
 ### Why does every command end on Next?
 
-On success it leads on, such as [`lnk agent connect telegram`](../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels) after a first
-[`lnk agent start`](../../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent), and on failure it is the way out. A report's Next is
+On success it leads on, such as [`lnk agent connect telegram`](../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app) after a first
+[`lnk agent start`](../../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent), and on failure it is the way out. A report's Next is
 never empty, and when nothing can be done it says how to report it with
 the record. A Next is a typed command, parsed against the command line
 when it is made, so every one can run exactly as shown.
@@ -264,7 +264,7 @@ A Next that leads nowhere is found by a test, never by reading. Each
 command declares the Nexts it can give, a program with a Next its command
 did not declare panics in a debug build, and the graph read from the
 programs must reach every command from `lnk up`. No failure may trap a
-person in a retry, and [`lnk issue create`](../../../../../../../docs/more/modules/guide.md#get-help), in every report's last line, counts
+person in a retry, and [`lnk issue create`](../../../../../../../core/cli/docs/tooling/issue.md#report-a-bug), in every report's last line, counts
 for neither since it cannot stand in for a real way on.
 
 ## Reports and records

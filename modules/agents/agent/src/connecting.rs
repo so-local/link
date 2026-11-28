@@ -350,9 +350,12 @@ pub(crate) async fn connect(
                         .why(prose!("Its own words are above.")),
                 );
             }
-            serde_json::from_slice::<link_connection_contract::Connected>(&output.stdout)
-                .within(format!("reading what lnk-{connection} connect made"))
-                .map_err(Report::from)
+            link_connection_contract::read::<link_connection_contract::Connected>(
+                &format!("lnk-{connection}"),
+                &output.stdout,
+            )
+            .within(format!("reading what lnk-{connection} connect made"))
+            .map_err(Report::from)
         });
     let connected = match made {
         Ok(connected) => connected,

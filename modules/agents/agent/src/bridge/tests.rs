@@ -199,7 +199,7 @@ fn a_way_in_parses_its_agents_spec_once() {
     if !crate::settings::tests::own_config() {
         return;
     }
-    let mut agent = Settings::new("main");
+    let mut agent = crate::settings::tests::blank("main");
     agent.save().unwrap();
     let parses = || crate::settings::configuration::PARSES.with(std::cell::Cell::get);
     let before = parses();

@@ -21,7 +21,7 @@ Socket Mode, which needs no public address.
 
 ## How does the Slack bridge hear messages?
 
-In Socket Mode, with the app-level token [`lnk agent connect slack`](../../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels)
+In Socket Mode, with the app-level token [`lnk agent connect slack`](../../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app)
 already asks for: the module opens the connection, so the user needs no
 public address and Link runs no web server for Slack. Each event is
 acknowledged at once, before the answer is written, so Slack doesn't

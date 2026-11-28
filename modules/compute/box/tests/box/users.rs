@@ -76,7 +76,7 @@ impl StandIn {
         .unwrap();
         // The box's own commands: what they were asked, and a home made.
         let log = dir.join("host.log");
-        for program in ["groupadd", "userdel", "systemctl", "chown"] {
+        for program in ["groupadd", "userdel", "systemctl", "chown", "pkill"] {
             link_test_kit::write_program(
                 &bin.join(program),
                 format!("#!/bin/sh\necho \"{program} $*\" >> '{}'\n", log.display()),
@@ -288,6 +288,15 @@ fn each_user_of_a_box_lands_in_their_own_sandbox() {
         )),
         "{host}"
     );
+    // Each folder theirs alone, whatever useradd's default.
+    use std::os::unix::fs::PermissionsExt;
+    for user in [ann, ben] {
+        let mode = std::fs::metadata(b.places().home(user))
+            .unwrap()
+            .permissions()
+            .mode();
+        assert_eq!(mode & 0o777, 0o700, "{user}: {mode:o}");
+    }
     assert!(host.contains("systemctl reload ssh"), "{host}");
     let drop_in = std::fs::read_to_string(b.places().sshd()).unwrap();
     assert!(drop_in.contains("Match Group lnk-users"), "{drop_in}");
@@ -365,15 +374,23 @@ fn each_user_of_a_box_lands_in_their_own_sandbox() {
     );
     let host = std::fs::read_to_string(b.dir.join("host.log")).unwrap();
     assert!(host.contains(&format!("userdel {ben}")), "{host}");
+    // Their sessions ended first, so userdel goes ahead.
+    let ended = host.find(&format!("pkill -KILL -u {ben}"));
+    let deleted = host.find(&format!("userdel {ben}"));
+    assert!(ended.zip(deleted).is_some_and(|(e, d)| e < d), "{host}");
     // Kept as root's alone: a user given ben's ID later owns none of it.
     let kept = b.places().home(ben);
     assert!(
         host.contains(&format!("chown -R --no-dereference 0:0 {}", kept.display())),
         "{host}"
     );
-    use std::os::unix::fs::PermissionsExt;
     let mode = std::fs::metadata(&kept).unwrap().permissions().mode();
     assert_eq!(mode & 0o777, 0o700, "{mode:o}");
+    // A remove cut short after their key went: removing them again
+    // takes the missing key as removed.
+    std::fs::remove_file(b.places().keys(ann)).unwrap();
+    let again = b.user(&["remove", ann]);
+    assert!(again.status.success(), "{}", text(&again));
 }
 
 /// Only on a box, and only once per name: a computer has no users of

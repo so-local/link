@@ -22,8 +22,8 @@ use link_format::{
 };
 
 mod environment;
-mod folders;
 mod issue;
+mod locations;
 mod outside;
 mod source;
 mod staging;
@@ -52,8 +52,15 @@ fn main() -> std::process::ExitCode {
     link_core::source!();
     // The files lnk itself writes, which an upgrade converts.
     link_core::saved::own(&[
-        || link_files::upgrade::Saved::of::<link_files::layout::map::Map>(),
+        link_files::upgrade::Saved::map,
         link_files::upgrade::Saved::journal,
+        link_files::upgrade::Saved::marker,
+        link_files::upgrade::Saved::maintenance,
+        link_core::update::saved,
+        offers::saved,
+        link_machine::installation::saved,
+        link_settings::folders::saved_machine,
+        link_settings::folders::saved_settings,
     ]);
     if let Some(link_spec::entry::Discovery::Upgrade(stage)) = link_spec::entry::discovery() {
         link_core::saved::answer(stage);
@@ -249,7 +256,7 @@ fn try_main(out: &mut Out) -> Result<Done, Report> {
                 );
             }
             if running::reads_control(group) {
-                folders::check(out)?;
+                locations::check(out)?;
             }
             return run_module(out, group, rest);
         }
@@ -264,7 +271,7 @@ fn try_main(out: &mut Out) -> Result<Done, Report> {
                     | cli::Command::ModuleShow(_)
                     | cli::Command::CoreUpgrade(_)
             ) {
-                folders::check(out)?;
+                locations::check(out)?;
             }
             return core(out, command);
         }
@@ -314,7 +321,7 @@ fn core_help(name: &str) -> String {
         .unwrap_or_default()
 }
 
-/// `lnk up`, `module`, `folder`, `upgrade` and `uninstall`, from `args`.
+/// `lnk up`, `module`, `location`, `upgrade` and `uninstall`, from `args`.
 fn core(out: &mut Out, command: cli::Command) -> Result<Done, Report> {
     match command {
         cli::Command::Program(_)
@@ -330,7 +337,7 @@ fn core(out: &mut Out, command: cli::Command) -> Result<Done, Report> {
             source::install(out, &source::with_checkout(asked))
         }
         cli::Command::CoreUp(asked) => {
-            folders::check(out)?;
+            locations::check(out)?;
             wait(up(out, &asked.uses))
         }
         cli::Command::ModuleList(_) => module_list(out),
@@ -352,9 +359,9 @@ fn core(out: &mut Out, command: cli::Command) -> Result<Done, Report> {
             remove(out, &names)
         }
         cli::Command::ModuleSetup(_) => wait(account_setup::run(out)),
-        cli::Command::FolderList(_) => folders::list(out),
-        cli::Command::FolderSet(asked) => folders::set(out, &asked.location, &asked.path),
-        cli::Command::FolderCreate(_) => folders::create(),
+        cli::Command::LocationList(_) => locations::list(out),
+        cli::Command::LocationSet(asked) => locations::set(out, &asked.location, &asked.path),
+        cli::Command::LocationCreate(_) => locations::create(),
         cli::Command::CoreUpgrade(asked) if asked.check => wait(check(out)),
         cli::Command::CoreUpgrade(asked) => {
             let version = match asked.version {
@@ -378,7 +385,7 @@ fn core(out: &mut Out, command: cli::Command) -> Result<Done, Report> {
             uninstall::uninstall(out, asked.yes, &asked.delete, asked.all)
         }
         cli::Command::IssueCreate(asked) => issue::run(out, asked.open),
-        cli::Command::FolderCheck(asked) => staging::run(out, &asked),
+        cli::Command::LocationCheck(asked) => staging::run(out, &asked),
     }
 }
 
@@ -387,7 +394,7 @@ fn core(out: &mut Out, command: cli::Command) -> Result<Done, Report> {
 fn wants_json(command: &cli::Command) -> bool {
     use cli::Command as C;
     match command {
-        C::FolderCheck(a) => a.json,
+        C::LocationCheck(a) => a.json,
         C::CoreHelp(a) => a.json,
         C::IssueCreate(a) => a.json,
         C::CoreNexts(a) => a.json,
@@ -395,9 +402,9 @@ fn wants_json(command: &cli::Command) -> bool {
         C::CoreUp(a) => a.json,
         C::CoreUpgrade(a) => a.json,
         C::CoreVersion(a) => a.json,
-        C::FolderCreate(a) => a.json,
-        C::FolderList(a) => a.json,
-        C::FolderSet(a) => a.json,
+        C::LocationCreate(a) => a.json,
+        C::LocationList(a) => a.json,
+        C::LocationSet(a) => a.json,
         C::ModuleAdd(a) => a.json,
         C::ModuleList(a) => a.json,
         C::ModuleRemove(a) => a.json,
@@ -418,7 +425,15 @@ fn json_before(arguments: &[OsString], group: &str) -> bool {
 }
 
 /// The core's own commands, for `lnk --help`.
-const CORE: &[&str] = &["up", "module", "upgrade", "uninstall", "issue", "variable"];
+const CORE: &[&str] = &[
+    "up",
+    "module",
+    "upgrade",
+    "uninstall",
+    "issue",
+    "variable",
+    "location",
+];
 
 /// `lnk --help`: one screen, the groups and the core's own commands.
 /// Each group's commands are its own help (`lnk help <group>`), and the
@@ -615,7 +630,10 @@ fn modules_json() -> anyhow::Result<Vec<link_core::modules::Listed>> {
 mod spawns;
 
 #[cfg(test)]
-mod folder_tests;
+mod location_tests;
+
+#[cfg(all(test, unix))]
+mod install_script_tests;
 
 #[cfg(test)]
 link_test_kit::program!(unit);

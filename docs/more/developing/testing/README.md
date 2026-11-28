@@ -180,7 +180,8 @@ on. Every other failure is the change's own, to fix.
 
 A failure sorted as the change's own, in a test the change didn't touch,
 may be a new flake. `cargo test-copies -p <package> <test>` runs that
-test as 300 copies at once and counts the failures. If any copy passes,
+test as 300 copies, as many at once as the suite would run it, and counts
+the failures. If any copy passes,
 the test is a flake. If every copy fails, the failure is real, and it is
 the base's when the base fails it too.
 

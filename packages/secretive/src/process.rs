@@ -45,7 +45,9 @@ mod front;
 #[cfg(target_os = "linux")]
 pub use front::pass_to_group_led_by;
 #[cfg(unix)]
-pub use front::{Terminal, stand_aside, stand_in_front, stand_in_front_group, wait_in_front};
+pub use front::{
+    Terminal, end_left, stand_aside, stand_in_front, stand_in_front_group, wait_in_front,
+};
 #[cfg(unix)]
 mod watched;
 #[cfg(unix)]
@@ -559,9 +561,11 @@ pub fn give<'a>(command: &'a mut Command, name: &str, secret: &Secret) -> &'a mu
 
 /// Whether a variable called `name` may hold a secret: a word of it
 /// says so (`…_TOKEN`, `…_KEY`, `…_SECRET`, `…_PASSWORD`, `…_PASS`,
-/// `…_AUTH`, `…_CREDENTIALS`), or it's a database's address
-/// (`…DATABASE_URL`); not when it says where one is (`…_FILE`, `…_PATH`,
-/// `…_DIR`, `…_SOCK`, Google's credentials file, git's config).
+/// `…_AUTH`, `…_CREDENTIALS`, `…_PAT`, `…_BEARER`, `…_DSN`), or ends
+/// as one does (`…_APIKEY`, `GHTOKEN`, `CLIENTSECRET`), or it's a
+/// database's address (`…DATABASE_URL`); not when it says where one is
+/// (`…_FILE`, `…_PATH`, `…_DIR`, `…_SOCK`, Google's credentials file,
+/// git's config).
 pub fn names_a_secret(name: &str) -> bool {
     const SAYS: &[&str] = &[
         "TOKEN",
@@ -572,7 +576,13 @@ pub fn names_a_secret(name: &str) -> bool {
         "AUTH",
         "CREDENTIAL",
         "CREDENTIALS",
+        "PAT",
+        "BEARER",
+        "DSN",
     ];
+    /// What a word holding a secret ends with, run together with what
+    /// it's for (`APIKEY`).
+    const ENDS: &[&str] = &["KEY", "TOKEN", "SECRET"];
     let name = name.to_ascii_uppercase();
     // Git's config, given one entry at a time (`GIT_CONFIG_KEY_0`): a
     // setting's name, not a key.
@@ -582,7 +592,11 @@ pub fn names_a_secret(name: &str) -> bool {
             .rsplit('_')
             .next()
             .is_some_and(|w| ["FILE", "PATH", "DIR", "SOCK"].contains(&w));
-    !about && (name.ends_with("DATABASE_URL") || name.split('_').any(|w| SAYS.contains(&w)))
+    !about
+        && (name.ends_with("DATABASE_URL")
+            || name
+                .split('_')
+                .any(|w| SAYS.contains(&w) || ENDS.iter().any(|end| w.ends_with(end))))
 }
 
 #[cfg(target_os = "linux")]
@@ -889,6 +903,14 @@ mod tests {
             "CLOUD_CREDENTIALS",
             "DATABASE_URL",
             "lnk_secret",
+            // A word ending as one does.
+            "OPENAI_APIKEY",
+            "GHTOKEN",
+            "AZURE_CLIENTSECRET",
+            // Words of their own.
+            "GH_PAT",
+            "HOOK_BEARER",
+            "SENTRY_DSN",
         ] {
             assert!(names_a_secret(name), "{name}");
         }
@@ -901,6 +923,11 @@ mod tests {
             "TOKENIZERS_PARALLELISM",
             "LNK_AGENT",
             "GIT_CONFIG_KEY_0",
+            "MAX_TOKENS",
+            "PATCH_LEVEL",
+            // Where one is, ending as one does.
+            "LNK_APIKEY_FILE",
+            "SENTRY_DSN_PATH",
         ] {
             assert!(!names_a_secret(name), "{name}");
         }

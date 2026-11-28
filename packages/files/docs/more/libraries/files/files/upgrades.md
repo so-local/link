@@ -50,15 +50,42 @@ path = "*.toml"
 encoding = "toml"
 ```
 
+### Inside Something Else
+
+Some state isn't a file at a map location: an object in a store, the
+manifest inside an archive, an envelope around another format's file,
+a file at a path its caller names, or a file under the system's root,
+which the map doesn't hold. An upgrade can't find it, so its
+format declares `holds = "inside"` and lists no files. Each value is
+advanced through its steps as it's read, its owner writes it back in
+the current schema, and its steps are deleted at their `until`, as
+other state's are.
+
+```toml
+# schema.toml
+schema = 1
+kind = "archive manifest"
+current = 1
+holds = "inside"
+```
+
 A TOML file keeps its comments, key order, line endings and permissions
 through a conversion, which is the same steps engine every read uses.
 The converted text is read back as its owner's type before it's
 written, and a file changed meanwhile is refused.
 
+### Modules Stopped First
+
+Before any file changes, [`lnk upgrade`](../../../../../../../docs/more/modules/guide.md#upgrade) stops what each module runs, as
+[`lnk module remove`](../../../../../../../docs/more/modules/guide.md#add-or-remove-a-module) stops it, so no program of the older release reads
+or writes a file as it changes, and says what stopped for you to start
+again. A module that can't stop stops the upgrade's changes, with
+nothing changed.
+
 ### Writer Locks
 
-Each file is read and written under the lock its writers hold, `<name>.lock` beside it
-(`link_files::saved::lock`), which `link_files::saved::write` and
+Each file is read and written under the lock its writers hold,
+`<name>.lock` beside it (`link_files::saved::lock`), which `link_files::saved::write` and
 `link_files::saved::append` take for every write, so a writer waits
 for the conversion and the conversion for the writer. A folder an upgrade can't read fails it,
 since a file it holds would otherwise outlive the upgrade unconverted.
@@ -71,10 +98,20 @@ step's instruction and goes on with the other files. The usual case is
 a record whose new owner isn't installed, so no transfer took it. The
 file is converted once its record is gone, by a later [`lnk upgrade`](../../../../../../../docs/more/modules/guide.md#upgrade).
 
+### Files It Can't Read
+
+A file this release can't read or convert is kept as it is too, as
+`unread`: one torn mid-write, one not in its kind's shape, one a stray
+file a glob found, or one a newer release wrote. The plan names each
+before the yes, with what's wrong by its line, never what the file
+holds, and the upgrade goes on with the others, so one file never stops
+it. Upgrading to an older release this way keeps every file it can't
+read, and names each.
+
 ### Specifications You Wrote
 
 A specification, which a person writes, may list its files too. An upgrade only
-offers such a file for [`lnk spec convert`](../../../../../../../modules/tooling/spec/docs/tooling/spec/README.md#convert-a-file),
+offers such a file for [`lnk spec convert`](../../../../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#convert-a-file),
 never rewriting it.
 
 ## Transfers
@@ -88,11 +125,11 @@ source is, and each dotted path it takes with the path it becomes.
 ```toml
 # schema.toml
 schema = 1
-kind = "secret preferences"
+kind = "secret settings"
 current = 1
 
 [[files]]
-location = "lnk.secret-preferences"
+location = "lnk.secret-settings"
 encoding = "toml"
 
 [[transfers]]
@@ -100,14 +137,14 @@ from = "link settings"
 schema = 1
 source = { location = "lnk.settings", encoding = "toml" }
 take = { "secret.keychain" = "keychain" }
-since = "0.2.0"
-until = "0.4.0"
+since = "0.0.2"
+until = "0.0.4"
 ```
 
 A destination that takes records lists exactly one place for its file,
 and each `*` of the source stands for one of the destination's. A
 transfer that needs more than a move names its owner's code in
-`migration`, as `secret preferences_from_link settings_1`. That code is
+`migration`, as `secret settings_from_link settings_1`. That code is
 registered in [the owner's `migrations/` folder](migrations.md) like a step's. It receives the taken records at their
 destination paths and returns what to add.
 
@@ -167,8 +204,16 @@ Each program owns its formats' files, so [`lnk upgrade`](../../../../../../../do
 new release's programs, core included, through the discovery request
 `--link-upgrade <stage>`. A program names its formats with
 `link_core::saved::own`, each as `Saved::of::<T>()`, before it
-describes itself. A format is made only when an upgrade asks, so a
-command's start pays nothing for it.
+describes itself. A format shipped beside the code that reads it, for a
+value of another crate's type, is `Saved::shipped::<T>(&FORMAT)`. A
+format is made only when an upgrade asks, so a command's start pays
+nothing for it.
+
+### Formats Several Programs Write
+
+A format several programs write is named by each of them, so the one
+installed converts it. The plan shows each change once, and the first
+program asked makes it; the others find the file already current.
 
 ### Protocol
 

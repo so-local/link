@@ -117,7 +117,7 @@ An action's table holds its help and how it's offered. Every key but
 - **`route`** and **`tool`:** [how a bridge offers it](#routes) and [how a model calls it](tools.md).
 - **`diagnoses`:** on a `show` action, the kind of thing it diagnoses,
   such as `box` or `secret`. Given one by name, its `--json` is that
-  thing's state, which [`lnk issue create`](../../../../../../../docs/more/modules/guide.md#get-help) puts in a bug report.
+  thing's state, which [`lnk issue create`](../../../../../../../core/cli/docs/tooling/issue.md#report-a-bug) puts in a bug report.
 - **`next-modules`:** `true` on an action of core's leading into every
   module, as [`lnk up`](../../../../../../../docs/more/modules/install.md#pick-your-modules) does.
 

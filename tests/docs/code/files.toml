@@ -35,8 +35,8 @@ notice = "declares this component and its requirements"
 id = "layer"
 title = "layer.toml"
 names = ["layer.toml"]
-purpose = "A group folder's layer: the group folders it is built on, and the words it introduces"
-reader = "the docs checks' `layers` rule and the repository checks' `layer_words` rule"
+purpose = "A group folder's layer: the group folders it is built on"
+reader = "the docs checks' `layers` rule"
 notice = "declares this group's repository boundaries"
 
 [[kind]]

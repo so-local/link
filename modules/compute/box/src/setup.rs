@@ -313,10 +313,9 @@ pub struct Checked {
 }
 
 /// The version `LNK_VERSION` asks for (`value`), none for the latest: one
-/// a box may install, as a spec's (`spec::FLOOR` or later), and at or
-/// above `floor`: a released `lnk` (a release's or a staging build's) makes no
-/// box behind itself, as a spec read from a file can't ask for one
-/// either.
+/// at or above `floor`: a released `lnk` (a release's or a staging
+/// build's) makes no box behind itself, as a spec read from a file can't
+/// ask for one either.
 fn asked(value: Option<String>, floor: Option<&Version>) -> anyhow::Result<Option<Version>> {
     let version: Version = match value {
         Some(v) if !v.is_empty() && v != "latest" => {
@@ -645,18 +644,18 @@ mod tests {
         let v = |t: &str| t.parse::<Version>().unwrap();
         let followed = Releases {
             source: url.parse().unwrap(),
-            version: Some(v("0.14.0-staging.202610131900")),
+            version: Some(v("0.0.4-staging.202610131900")),
             followed: true,
             signers: String::new(),
         };
         let text = "#!/bin/sh\necho 'the checked install.sh'\n";
         let checked = Checked {
-            version: v("0.14.0-staging.202610131900"),
+            version: v("0.0.4-staging.202610131900"),
             script: text.into(),
         };
         assert_eq!(
             followed.version(None),
-            Some(v("0.14.0-staging.202610131900"))
+            Some(v("0.0.4-staging.202610131900"))
         );
         let script = install_script(&machine, &followed, &checked).unwrap();
         assert!(
@@ -667,7 +666,7 @@ mod tests {
         assert!(script.find("installation.toml").unwrap() < script.find(INSTALL_END).unwrap());
         assert!(
             script.contains(&format!(
-                "LNK_RELEASES_URL='{url}' LNK_VERSION='0.14.0-staging.202610131900' sh <<'{INSTALL_END}'\n\
+                "LNK_RELEASES_URL='{url}' LNK_VERSION='0.0.4-staging.202610131900' sh <<'{INSTALL_END}'\n\
                  {text}{INSTALL_END}\n"
             )),
             "{script}"
@@ -692,13 +691,13 @@ mod tests {
             signers: String::new(),
         };
         let latest = Checked {
-            version: v("0.14.0"),
+            version: v("0.0.4"),
             script: text.into(),
         };
         let script = install_script(&machine, &own, &latest).unwrap();
         // The latest checked here, pinned: the box installs it or nothing.
         assert!(
-            script.contains(&format!("\nLNK_VERSION='0.14.0' sh <<'{INSTALL_END}'\n")),
+            script.contains(&format!("\nLNK_VERSION='0.0.4' sh <<'{INSTALL_END}'\n")),
             "{script}"
         );
         assert!(!script.contains("LNK_RELEASES_URL"), "{script}");
@@ -725,7 +724,7 @@ mod tests {
         let script = install_script(&machine, &bucket, &checked).unwrap();
         assert!(
             script.contains(&format!(
-                "{staged}LNK_VERSION='0.14.0-staging.202610131900' sh <<'{INSTALL_END}'\n"
+                "{staged}LNK_VERSION='0.0.4-staging.202610131900' sh <<'{INSTALL_END}'\n"
             )),
             "{script}"
         );
@@ -739,7 +738,7 @@ mod tests {
         assert!(none.files.is_empty());
         none.send("192.0.2.1").unwrap();
         // A spec's version wins over LNK_VERSION.
-        let pinned = v("0.12.3");
+        let pinned = v("0.0.3");
         assert_eq!(followed.version(Some(&pinned)), Some(pinned));
         assert_eq!(own.version(None), None);
         assert_eq!(quote("it's"), r"'it'\''s'");
@@ -772,22 +771,20 @@ mod tests {
     #[test]
     fn lnk_version_has_the_floor_a_spec_has() {
         let v = |t: &str| t.parse::<Version>().unwrap();
-        let floor = v("0.14.0");
+        let floor = v("0.0.2");
         for latest in [None, Some(""), Some("latest")] {
             assert_eq!(asked(latest.map(String::from), Some(&floor)).unwrap(), None);
         }
         let ask = |text: &str, floor: Option<&Version>| asked(Some(text.into()), floor);
-        assert_eq!(ask("0.15.0", Some(&floor)).unwrap(), Some(v("0.15.0")));
-        assert_eq!(ask("0.14.0", Some(&floor)).unwrap(), Some(v("0.14.0")));
-        let err = ask("0.13.0", Some(&floor)).unwrap_err().to_string();
-        assert!(err.contains("behind this lnk 0.14.0"), "{err}");
+        assert_eq!(ask("0.0.3", Some(&floor)).unwrap(), Some(v("0.0.3")));
+        assert_eq!(ask("0.0.2", Some(&floor)).unwrap(), Some(v("0.0.2")));
+        let err = ask("0.0.1", Some(&floor)).unwrap_err().to_string();
+        assert!(err.contains("behind this lnk 0.0.2"), "{err}");
         // A prerelease of this version comes before it.
-        assert!(ask("0.14.0-staging.202610131900", Some(&floor)).is_err());
-        // A build from source has no floor of its own, but a box's.
-        assert_eq!(ask("0.11.0", None).unwrap(), Some(v("0.11.0")));
-        let err = ask("0.10.0", None).unwrap_err().to_string();
-        assert!(err.contains("has no modules"), "{err}");
-        let err = ask("0.14", None).unwrap_err().to_string();
+        assert!(ask("0.0.2-staging.202610131900", Some(&floor)).is_err());
+        // A build from source has no floor: any release.
+        assert_eq!(ask("0.0.0", None).unwrap(), Some(v("0.0.0")));
+        let err = ask("0.0", None).unwrap_err().to_string();
         assert!(err.contains("LNK_VERSION"), "{err}");
     }
 
@@ -812,7 +809,7 @@ mod tests {
             let home = link_test_kit::TempDir::new("box-setup-version");
             // An install.sh that puts an lnk saying it's `installs`.
             let checked = Checked {
-                version: "0.14.0".parse().unwrap(),
+                version: "0.0.4".parse().unwrap(),
                 script: format!(
                     "mkdir -p \"$HOME/.lnk/exec/bin\"\n\
                      printf '#!/bin/sh\\necho \"%s\"\\n' 'lnk {installs}' > \"$HOME/.lnk/exec/bin/lnk\"\n\
@@ -835,11 +832,11 @@ mod tests {
                 String::from_utf8_lossy(&out.stderr).to_string(),
             )
         };
-        let (ok, kept, err) = run("0.14.0");
+        let (ok, kept, err) = run("0.0.4");
         assert!(ok && kept, "{err}");
-        let (ok, kept, err) = run("0.11.0");
+        let (ok, kept, err) = run("0.0.1");
         assert!(!ok && !kept, "{err}");
-        assert!(err.contains("says lnk 0.11.0, not lnk 0.14.0"), "{err}");
+        assert!(err.contains("says lnk 0.0.1, not lnk 0.0.4"), "{err}");
     }
 
     /// A box from an image runs this version's lnk and modules: an image's
@@ -869,8 +866,8 @@ mod tests {
             )
         };
         let checked = Checked {
-            version: "0.14.0".parse().unwrap(),
-            script: lnk("0.14.0"),
+            version: "0.0.4".parse().unwrap(),
+            script: lnk("0.0.4"),
         };
         let script = install_script(&machine, &own, &checked).unwrap();
         let run = |image: &str| {
@@ -894,19 +891,19 @@ mod tests {
             );
             std::fs::read_to_string(home.join("ran")).unwrap()
         };
-        let ran = run("0.13.0");
+        let ran = run("0.0.3");
         assert!(
             ran.lines()
                 .next()
                 .unwrap()
-                .starts_with("0.14.0 upgrade 0.14.0"),
+                .starts_with("0.0.4 upgrade 0.0.4"),
             "{ran}"
         );
-        assert!(ran.contains("0.14.0 module add"), "{ran}");
-        assert!(!ran.contains("0.13.0"), "{ran}");
-        let ran = run("0.14.0");
+        assert!(ran.contains("0.0.4 module add"), "{ran}");
+        assert!(!ran.contains("0.0.3"), "{ran}");
+        let ran = run("0.0.4");
         assert!(!ran.contains("upgrade"), "{ran}");
-        assert!(ran.contains("0.14.0 module add"), "{ran}");
+        assert!(ran.contains("0.0.4 module add"), "{ran}");
     }
 }
 #[cfg(test)]

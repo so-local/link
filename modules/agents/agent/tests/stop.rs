@@ -146,6 +146,27 @@ fn alive(pid: i32) -> bool {
     !stat.trim().is_empty() && !stat.trim().starts_with('Z')
 }
 
+/// Waits until the start in a terminal `started` runs its harness, each
+/// sandbox set up: stopped sooner, bubblewrap's own first process can
+/// outlive the stop ([`common::sandboxes_set_up`]), and with no sandbox
+/// begun yet every sandbox of none is set up, so the harness and its
+/// proxy, inside it, are waited for too.
+fn harness_running(started: &Child) {
+    let start = i32::try_from(started.id()).unwrap();
+    link_test_kit::eventually(
+        "its harness to run, set up",
+        Duration::from_secs(30),
+        || {
+            let found = descendants(start);
+            let runs = |what: &str| found.iter().any(|(_, cmdline)| cmdline.contains(what));
+            let inside = !link_test_kit::gate::sandbox_with_landlock()
+                || (runs("proxy-inside") && runs("/bin/sleep\x00300"));
+            (inside && common::sandboxes_set_up(found.into_iter().map(|(pid, _)| pid)))
+                .then_some(())
+        },
+    );
+}
+
 fn runner(bin: &Path) -> Option<i32> {
     std::fs::read_to_string(bin.join("runner.pid"))
         .ok()
@@ -166,19 +187,7 @@ fn a_stop_ends_the_scheduler_runner_of_an_agent_in_a_terminal() {
     }
     let pid = runner(&world.bin).unwrap();
     assert!(alive(pid));
-    // Stopped once its sandbox is there and set up: sooner, bubblewrap's
-    // own first process can outlive the stop ([`common::sandboxes_set_up`]),
-    // and with no sandbox begun yet there is nothing to be set up, so the
-    // harness itself, inside it, is waited for too.
-    let start = i32::try_from(started.id()).unwrap();
-    link_test_kit::eventually("its sandbox to be set up", Duration::from_secs(30), || {
-        let found = descendants(start);
-        let inside = !link_test_kit::gate::sandbox_with_landlock()
-            || found
-                .iter()
-                .any(|(_, cmdline)| cmdline.contains("proxy-inside"));
-        (inside && common::sandboxes_set_up(found.into_iter().map(|(pid, _)| pid))).then_some(())
-    });
+    harness_running(&started);
 
     let stopped = world.lnk(&["-a", "main", "stop"]);
     assert!(
@@ -235,6 +244,7 @@ fn an_agent_in_a_terminal_has_the_calendar_wake_its_scheduler() {
         panic!("{timed_out}: {}", String::from_utf8_lossy(&output.stderr));
     }
     assert_eq!(runner(&world.bin), None, "a runner ran beside it");
+    harness_running(&started);
     let stopped = world.lnk(&["-a", "main", "stop"]);
     assert!(
         stopped.status.success(),

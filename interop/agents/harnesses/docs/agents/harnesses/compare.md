@@ -4,7 +4,7 @@ Compare the harnesses Link can create and control, the existing installations it
 
 ## Start Fresh
 
-All five selections below can run a new agent through Link, with its model configuration, files, tools, and messaging connections. [Harness Adapters](adapters/README.md) introduces the three third-party adapters. [Link Harness](../../../../../../modules/agents/harnesses/link/docs/agents/link/README.md) and [Mini](../../../../../../modules/agents/harnesses/mini/docs/agents/harnesses/more/mini/README.md) are Link's own implementations.
+All five selections below can run a new agent through Link, with its model configuration, files, tools, and messaging connections. [Harness Adapters](adapters/README.md) introduces the three third-party adapters. [Link Harness](../../../../../../modules/agents/harnesses/link/docs/agents/harnesses/link/README.md) and [Mini](../../../../../../modules/agents/harnesses/mini/docs/agents/harnesses/more/mini/README.md) are Link's own implementations.
 
 | Harness | Hosted model routes | Local model interface |
 |---|---|---|
@@ -16,7 +16,7 @@ All five selections below can run a new agent through Link, with its model confi
 
 ### Create an Agent
 
-Create a separate agent when you want to try a harness without switching an existing one. [Create Another Agent](../../../../../../modules/agents/agent/docs/agents/start/create.md) explains agent selection and isolation. Provider credentials and native model requirements remain those of the chosen integration.
+Create a separate agent when you want to try a harness without switching an existing one. [Create and Delete Agents](../../../../../../modules/agents/agent/docs/agents/start/create.md) explains agent selection and isolation. Provider credentials and native model requirements remain those of the chosen integration.
 
 ```sh
 lnk agent create work --harness hermes
@@ -24,7 +24,7 @@ lnk agent create work --harness hermes
 
 ## Bring an Existing Installation
 
-[Migrate Harnesses](../../../../../../modules/agents/agent/docs/agents/harnesses/use/migrate/README.md) copies a supported installation into an agent-owned home and runs the same harness under Link. Migration is separate from selecting a harness for a fresh agent, and it does not convert every native resource into another harness's format.
+[Migrate to Local Link](../../../../../../modules/agents/agent/docs/agents/migrate/README.md) copies a supported installation into an agent-owned home and runs the same harness under Link. Migration is separate from selecting a harness for a fresh agent, and it does not convert every native resource into another harness's format.
 
 | Harness | Standalone installation migration |
 |---|---|
@@ -84,7 +84,7 @@ Start with the native behavior you want and the state you need to bring. The ind
 
 ### Link Harness
 
-Choose [Link Harness](../../../../../../modules/agents/harnesses/link/docs/agents/link/README.md) for Link's default personal agent, with its shared configuration, skills, memory, and conversation management. Its agent runtime and protocol implementation are Link's own, and it installs no third-party harness runtime.
+Choose [Link Harness](../../../../../../modules/agents/harnesses/link/docs/agents/harnesses/link/README.md) for Link's default personal agent, with its shared configuration, skills, memory, and conversation management. Its agent runtime and protocol implementation are Link's own, and it installs no third-party harness runtime.
 
 ### Mini
 

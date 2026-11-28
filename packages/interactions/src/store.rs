@@ -48,6 +48,11 @@ pub(crate) struct State {
 
 link_files::specification!(State, include_str!("store.schema.toml"));
 
+/// The approvals, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<State>()
+}
+
 impl State {
     /// Frees the response codes of the questions `gone`.
     pub(crate) fn forget_codes(&mut self, gone: &std::collections::BTreeSet<RequestId>) {

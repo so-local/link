@@ -119,11 +119,7 @@ async fn probe(client: &reqwest::Client, name: &str, base_url: &str) -> Option<R
     if !response.status().is_success() {
         return None;
     }
-    // Model lists are small; anything big isn't one.
-    let bytes = response.bytes().await.ok()?;
-    if bytes.len() > 1024 * 1024 {
-        return None;
-    }
+    let bytes = read_capped(response, MOST).await?;
     let list: serde_json::Value = serde_json::from_slice(&bytes).ok()?;
     let models = list
         .get("data")?
@@ -136,6 +132,23 @@ async fn probe(client: &reqwest::Client, name: &str, base_url: &str) -> Option<R
         base_url: base_url.to_string(),
         models,
     })
+}
+
+/// The most of a model list read: model lists are small, and anything
+/// bigger isn't one.
+const MOST: usize = 1 << 20;
+
+/// `response`'s body, read a chunk at a time, or none once it passes
+/// `most`: what's past it is never held.
+async fn read_capped(mut response: reqwest::Response, most: usize) -> Option<Vec<u8>> {
+    let mut bytes = Vec::new();
+    while let Some(chunk) = response.chunk().await.ok()? {
+        if bytes.len() + chunk.len() > most {
+            return None;
+        }
+        bytes.extend_from_slice(&chunk);
+    }
+    Some(bytes)
 }
 
 fn client() -> reqwest::Client {
@@ -229,6 +242,48 @@ mod tests {
             base_url: format!("http://{name}"),
             models: models.iter().map(|m| m.to_string()).collect(),
         }
+    }
+
+    /// A model list served at `held`, as `body`, chunked with no length
+    /// said: one connection, answered.
+    fn serve_once(held: link_test_kit::net::Held, body: Vec<u8>) -> std::thread::JoinHandle<()> {
+        use std::io::{Read, Write};
+        let listener = held.listener();
+        std::thread::spawn(move || {
+            let Ok((mut stream, _)) = listener.accept() else {
+                return;
+            };
+            let mut asked = [0u8; 1024];
+            let _ = stream.read(&mut asked);
+            let mut out = b"HTTP/1.1 200 OK\r\ncontent-type: application/json\r\n\
+                            transfer-encoding: chunked\r\nconnection: close\r\n\r\n"
+                .to_vec();
+            for chunk in body.chunks(64 * 1024) {
+                out.extend(format!("{:x}\r\n", chunk.len()).as_bytes());
+                out.extend(chunk);
+                out.extend(b"\r\n");
+            }
+            out.extend(b"0\r\n\r\n");
+            let _ = stream.write_all(&out);
+        })
+    }
+
+    /// A model list is read a chunk at a time against its cap: one past
+    /// 1 MiB, with no length said, isn't one, and a small one is.
+    #[tokio::test]
+    async fn discovery_reads_at_most_one_mib() {
+        let held = link_test_kit::net::Held::loopback();
+        let url = format!("http://{}", held.address());
+        let big = format!("{{\"data\": [{{\"id\": \"{}\"}}]}}", "x".repeat(MOST + 1));
+        let server = serve_once(held, big.into_bytes());
+        assert!(probe_one("big", &url).await.is_none());
+        server.join().unwrap();
+        let held = link_test_kit::net::Held::loopback();
+        let url = format!("http://{}", held.address());
+        let server = serve_once(held, br#"{"data": [{"id": "qwen3"}]}"#.to_vec());
+        let found = probe_one("small", &url).await.unwrap();
+        assert_eq!(found.models, ["qwen3"]);
+        server.join().unwrap();
     }
 
     /// An address added at a runtime's default port is that runtime,

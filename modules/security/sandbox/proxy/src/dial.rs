@@ -31,6 +31,7 @@ use crate::filter::Filter;
 /// address, however a URL writes it (`2130706433`, `127.1`), is no name:
 /// it's read and checked here, as any address is.
 pub async fn dial(host: &str, port: u16, rules: Filter) -> anyhow::Result<Dialed> {
+    let host = bare(host);
     let listed = rules
         .hosts
         .is_none_or(|hosts| link_sandbox_contract::net::host_allowed(host, hosts));
@@ -38,6 +39,11 @@ pub async fn dial(host: &str, port: u16, rules: Filter) -> anyhow::Result<Dialed
     let lan = crate::lan::may(host, rules.lan);
     if !internet && !lan {
         bail!("refused: {host} isn't one of the hosts this sandbox may reach");
+    }
+    // This network's own NAT64 prefix, learned once before an address
+    // of it is judged as a machine of your network.
+    if lan {
+        crate::lan::learn_nat64().await;
     }
     // A name `[lan]` lets through by its own name, or a name of no
     // internet's (`printer.local`, `nas`), is your network's: dialed from
@@ -100,6 +106,16 @@ pub async fn dial(host: &str, port: u16, rules: Filter) -> anyhow::Result<Dialed
     }
 }
 
+/// `host` without its final dots, which are no part of a name: an
+/// address written with one (`192.168.1.5.`) is read as the address,
+/// before any lookup.
+fn bare(host: &str) -> &str {
+    match host.trim_end_matches('.') {
+        "" => host,
+        trimmed => trimmed,
+    }
+}
+
 /// Where `ip`, one of `host`'s addresses, is dialed from, if it may be at
 /// all: a machine of your network (with `lan`, as [`crate::lan`] allows)
 /// from here, whatever the upstream, never through it; an internet
@@ -116,4 +132,21 @@ pub(crate) fn route(
         return Some(&Upstream::Direct);
     }
     (internet && (rules.allowed)(ip)).then_some(rules.upstream)
+}
+
+#[cfg(test)]
+mod tests {
+    /// An address written with a final dot is the address, read before
+    /// any lookup.
+    #[test]
+    fn an_address_is_read_before_its_resolved() {
+        assert_eq!(super::bare("192.168.1.5."), "192.168.1.5");
+        assert!(
+            super::bare("192.168.1.5.")
+                .parse::<std::net::IpAddr>()
+                .is_ok()
+        );
+        assert_eq!(super::bare("printer.local."), "printer.local");
+        assert_eq!(super::bare("."), ".");
+    }
 }

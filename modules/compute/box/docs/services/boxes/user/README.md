@@ -11,8 +11,10 @@ Local Link's own SSH key, which [Box Key](key/README.md) prints.
 
 ## Add a User
 
-`lnk box user add` creates the user's home and limits their SSH key to
-entering the sandbox. Shells, remote commands, and file transfers all run
+`lnk box user add` creates the user's home, closed to the box's other
+users (700), and limits their SSH key to entering the sandbox. Their
+sandbox file is read as they would read it: as them where they're a user
+of the box already, so nothing they put in their home is read as root. Shells, remote commands, and file transfers all run
 in that sandbox. Its command policy must permit `/bin/bash`. Adding the same
 user again replaces their key and sandbox.
 
@@ -32,10 +34,11 @@ lnk box user list
 
 ## Remove a User
 
-`lnk box user remove` removes the login and its SSH access. The home folder
-stays unless you pass `--delete-folder`, so copy any files you need first.
-A folder that stays becomes root's alone, because the next user you add may
-get the removed user's ID.
+`lnk box user remove` removes the login and its SSH access, ending their
+sessions and removing their secrets from the box's keeper first, and finishes a remove cut short after their key went.
+The home folder stays unless you pass `--delete-folder`, so copy any
+files you need first. A folder that stays becomes root's alone, because
+the next user you add may get the removed user's ID.
 
 ```sh
 lnk box user remove alice

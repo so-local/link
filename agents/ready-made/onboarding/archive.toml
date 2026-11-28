@@ -1,0 +1,9 @@
+schema = 1
+title = "Onboarding"
+description = "Your first agent: ask it what it can do, and it answers from Local Link's manual"
+
+[map]
+"link.agents" = "Agents"
+"link.agent-settings" = "Safe/Agents"
+
+["agent.onboarding"]

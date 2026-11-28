@@ -6,6 +6,8 @@ fn damaged_tool_restrictions_never_become_unrestricted() {
     let path = dir.path().join("tools.json");
     assert_eq!(read_tools(&path).unwrap(), None);
     std::fs::write(&path, r#"{"tools":[]}"#).unwrap();
+    assert!(read_tools(&path).is_err());
+    std::fs::write(&path, r#"{"tools":[],"schema":1}"#).unwrap();
     assert_eq!(read_tools(&path).unwrap(), Some(Vec::new()));
     std::fs::write(&path, r#"{"tools":["web"],"schema":1}"#).unwrap();
     assert_eq!(read_tools(&path).unwrap(), Some(vec!["web".to_string()]));

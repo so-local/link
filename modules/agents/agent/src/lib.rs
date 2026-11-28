@@ -12,11 +12,35 @@
 
 /// The files this library writes that an upgrade converts, each by its
 /// format.
-pub const SAVED: [fn() -> link_files::upgrade::Saved; 4] = [
+pub const SAVED: [fn() -> link_files::upgrade::Saved; 28] = [
     grants::saved,
     settings::saved,
     machine_settings::saved,
     journal::saved,
+    hosted_teams::saved,
+    hosted::saved,
+    moved::saved,
+    moved::models::saved_file,
+    settings::ports::saved,
+    settings::paths::saved,
+    settings::records::saved_identity,
+    settings::records::saved_here,
+    settings::ids::saved,
+    pushed::saved,
+    pushed::questions::saved,
+    bridges::saved,
+    bridge::saved,
+    bridge::way_in::saved,
+    bridge::way_in::saved_received,
+    bridge::saved_held,
+    bridge::outbox::saved,
+    chat::saved,
+    carried::saved,
+    transfer::landing::saved,
+    service::saved,
+    schedules::saved_record,
+    schedules::saved_handoff,
+    link_sandbox_binding::saved,
 ];
 
 pub mod adapter;
@@ -31,6 +55,7 @@ pub mod cli;
 pub mod connections;
 pub mod databases;
 pub mod deleted;
+pub mod first_agent;
 pub mod grants;
 pub mod home;
 pub mod hosted;

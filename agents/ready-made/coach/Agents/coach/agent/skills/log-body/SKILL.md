@@ -12,8 +12,8 @@ Reads: `body/measurements.csv`, `nutrition/targets.md`. Writes:
    (cm), resting heart rate (bpm) and sleep (hours, last night) they give.
 2. If a row for that date exists, replace it with the merged values.
    Otherwise append: `date,weight_kg,waist_cm,resting_hr_bpm,sleep_h,notes`
-   Example: `2027-01-12,72.4,,52,7.5,"slept well"`. Leave unknown cells
-   empty.
+   Shape: `<YYYY-MM-DD>,<kg>,<cm>,<bpm>,<hours>,"<their words>"`. Leave
+   unknown cells empty.
 3. Set `weight_kg` in `profile.toml` to the newest weight.
 4. Trends: weight is noisy, so compare the average of the last 7 rows
    with the average of the 7 before. A resting heart rate 5 bpm or more

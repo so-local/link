@@ -120,7 +120,7 @@ fn each_session_is_its_agents_alone() {
         .collect(),
     );
     let file = root.join("agents.json");
-    std::fs::write(&file, serde_json::to_vec(&agents).unwrap()).unwrap();
+    std::fs::write(&file, link_files::saved::print_json(&agents).unwrap()).unwrap();
     let socket = root.join("memory.sock");
     let mut service = Command::new(me)
         .args([
@@ -254,7 +254,7 @@ fn service(root: &Path, agents: &[(&str, &Path, &[String])]) -> (PathBuf, Child)
             .collect(),
     );
     let file = root.join("agents.json");
-    std::fs::write(&file, serde_json::to_vec(&agents).unwrap()).unwrap();
+    std::fs::write(&file, link_files::saved::print_json(&agents).unwrap()).unwrap();
     let socket = root.join("memory.sock");
     let child = Command::new(me)
         .args([

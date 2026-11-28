@@ -68,5 +68,5 @@ id = "telegram"
 kind = "capability"
 id = "unix.openssh-test"
 ["documentation"]
-"topic" = "security/sandbox"
+"topic" = "tooling/sandbox"
 "root" = "docs"

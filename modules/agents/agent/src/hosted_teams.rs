@@ -69,11 +69,23 @@ pub struct Known {
 
 link_files::specification!(Known, include_str!("hosted_teams.schema.toml"));
 
+/// The cloud teams' file, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Known>()
+}
+
 impl Known {
+    /// Its file, where its schema's `[[files]]` says, so the upgrade
+    /// that converts it finds it where it's written.
     pub fn path() -> anyhow::Result<std::path::PathBuf> {
+        use link_files::schema::Specification;
+        let name = Self::format().files[0]
+            .path
+            .clone()
+            .within("cloud teams' schema names its file")?;
         Ok(link_files::layout::Hidden::AgentPlaces
             .try_path()?
-            .join("cloud-teams.toml"))
+            .join(name))
     }
 
     /// What's kept; none when it can't be read.
@@ -152,4 +164,18 @@ pub fn listed() -> Vec<HostedTeam> {
             .filter(|team| !seen.contains(&team.id)),
     );
     teams
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The file is where its schema says, so `lnk upgrade` finds it.
+    #[test]
+    fn the_file_is_where_its_schema_says() {
+        use link_files::schema::Specification;
+        let place = &Known::format().files[0];
+        assert_eq!(place.location, "lnk.agent-places");
+        assert!(Known::path().unwrap().ends_with("cloud-teams.toml"));
+    }
 }

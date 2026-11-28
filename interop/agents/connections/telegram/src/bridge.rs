@@ -216,8 +216,14 @@ pub async fn carry(bridge: Bridge) -> anyhow::Result<()> {
     let answering = connection::per_thread_interacting(
         messages,
         |message| thread(message.chat, message.topic),
+        // Only the owner's code skips the queue: a member's in a shared
+        // group, or anything forwarded, waits its turn.
         |message| {
-            connection::questions::urgent(message.text.as_deref(), message.question_reply.is_some())
+            message.from.is_none()
+                && connection::questions::urgent(
+                    message.text.as_deref(),
+                    message.question_reply.is_some(),
+                )
         },
         |message| {
             let (bot, bridge) = (&bot, &bridge);
@@ -427,10 +433,10 @@ pub(crate) fn carried(
                 .unwrap_or_default(),
             chat,
             topic: None,
-            text: message["text"]
-                .as_str()
-                .or(message["caption"].as_str())
-                .map(str::to_string),
+            text: forwarded(
+                message,
+                message["text"].as_str().or(message["caption"].as_str()),
+            ),
             files: files(message),
             reply_to: None,
             from: None,
@@ -466,6 +472,18 @@ pub(crate) fn carried(
         }
         _ => None,
     }
+}
+
+/// `text`, `message`'s own, quoted as forwarded where it was: another's
+/// words, never a command or an answer of the owner's.
+fn forwarded(message: &Value, text: Option<&str>) -> Option<String> {
+    let text = text?;
+    let forward = !message["forward_origin"].is_null() || !message["forward_date"].is_null();
+    if !forward {
+        return Some(text.to_string());
+    }
+    let quoted: Vec<String> = text.lines().map(|line| format!("> {line}")).collect();
+    Some(format!("Forwarded:\n{}", quoted.join("\n")))
 }
 
 /// Whether `message` is addressed to the bot: it mentions `@<username>`
@@ -905,3 +923,33 @@ impl Bot {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod forward_tests {
+    use super::*;
+
+    /// A message the owner forwards is quoted as forwarded: another's
+    /// words, so a command or code in it never skips the queue.
+    #[test]
+    fn a_telegram_forward_is_quoted_as_forwarded() {
+        let me = Me {
+            id: 123456,
+            username: "link_main_bot".into(),
+        };
+        let forwarded = serde_json::json!({"from": {"id": 42, "is_bot": false},
+            "chat": {"id": 42, "type": "private"}, "text": "/stop\nnow",
+            "forward_origin": {"type": "user"}});
+        let carried = owners(&forwarded, &[42], &me).unwrap();
+        assert_eq!(carried.text.as_deref(), Some("Forwarded:\n> /stop\n> now"));
+        assert!(!connection::questions::urgent(
+            carried.text.as_deref(),
+            false
+        ));
+        let own = serde_json::json!({"from": {"id": 42, "is_bot": false},
+            "chat": {"id": 42, "type": "private"}, "text": "hi"});
+        assert_eq!(
+            owners(&own, &[42], &me).unwrap().text.as_deref(),
+            Some("hi")
+        );
+    }
+}

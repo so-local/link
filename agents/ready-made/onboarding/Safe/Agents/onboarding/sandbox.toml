@@ -1,0 +1,9 @@
+# What onboarding may do on this machine: write its files folder and its
+# own instructions and skills, and reach its hosted model through its
+# proxy. It runs no program and calls no other tool.
+schema = 1
+[files]
+write = [".", "instructions", "skills"]
+
+[internet]
+hosts = ["*"]

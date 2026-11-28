@@ -109,6 +109,7 @@ found by, its provider's or a router's, its figures over Link's.
 
 ```toml
 # ~/.lnk/safe/models/facts.toml
+schema = 1
 [model."my-finetune"]
 window = 65536
 answer = 8192
@@ -142,7 +143,7 @@ price as a multiple of input. Link's lists Anthropic's five
 minutes and hour, and OpenAI's thirty minutes for its GPT-6 models. A
 model with no `cache` is never asked for a lifetime. How Link chooses
 one is in Link Harness's
-[Decisions](../../../../harnesses/link/docs/agents/link/more/decisions.md#the-prompt-cache).
+[Decisions](../../../../harnesses/link/docs/agents/harnesses/link/decisions.md#the-prompt-cache).
 
 ### How a model is found
 

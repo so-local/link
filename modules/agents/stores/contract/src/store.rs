@@ -104,8 +104,8 @@ pub use checking::{check, check_files, check_jobs, check_narrowing};
 pub use driver::{Driver, module_for};
 pub use protocol::{
     AGENT_ENV, Agent, Appended, CALL_TIMEOUT, Contract, DIR_ENV, EVENT_MAX, FILE_COLLECTIONS,
-    FILE_MAX, FILES_MAX, JOB_ID_MAX, JOB_MAX, Job, Kept, Lease, MEMORY_FILE_MAX, Place, Reply,
-    Request, Stored, Took, VERSION, Written, check_file_path, check_file_size, check_job,
+    FILE_MAX, FILES_MAX, JOB_ID_MAX, JOB_MAX, Job, Kept, Lease, MEMORY_FILE_MAX, PROTOCOL, Place,
+    Reply, Request, Stored, Took, Written, check_file_path, check_file_size, check_job,
     check_job_id, check_name, check_tools, file_data, file_max, seq_of,
 };
 use serving::Running;

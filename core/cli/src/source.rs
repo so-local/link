@@ -190,15 +190,39 @@ impl Metadata {
 
 /// `lnk up`'s flags with the checkout a source-built `lnk` comes from
 /// first among its workspaces, unless it's named already: that checkout
-/// is always one of them, so `--source` names only the others.
+/// is always one of them, so `--source` names only the others. Only an
+/// `lnk` that is still where that checkout put it adds it: one copied
+/// elsewhere installs exactly the workspaces it's given.
 pub(super) fn with_checkout(mut asked: cli::CoreUpArgs) -> cli::CoreUpArgs {
     let same = |a: &Path, b: &Path| a.canonicalize().ok() == b.canonicalize().ok();
     if let Some(root) = link_core::CHECKOUT.map(|checkout| checkout.root())
+        && from_checkout(&root)
         && !asked.source.iter().any(|given| same(given, &root))
     {
         asked.source.insert(0, root);
     }
     asked
+}
+
+/// Whether this `lnk` is where the checkout at `root` put it: in a target
+/// folder inside that checkout, or in a Cargo installation whose record
+/// says it was installed from there.
+fn from_checkout(root: &Path) -> bool {
+    let (Ok(config), Ok(exe), Ok(root)) = (
+        toml::from_str::<Config>(include_str!("../source.toml")),
+        std::env::current_exe(),
+        root.canonicalize(),
+    ) else {
+        return false;
+    };
+    match Where::of(&config, &exe) {
+        Ok(Where::Target { dir, .. }) => dir.starts_with(&root),
+        Ok(Where::Installed { root: installed }) => {
+            std::fs::read_to_string(installed.join(&config.install_record))
+                .is_ok_and(|record| record.contains(&format!("(path+file://{}/", root.display())))
+        }
+        Err(_) => false,
+    }
 }
 
 /// The modules `--module` names and every module they need, by the

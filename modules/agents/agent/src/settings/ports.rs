@@ -15,6 +15,11 @@ struct Ports {
 
 link_files::specification!(Ports, include_str!("ports.schema.toml"));
 
+/// Each agent's ports, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Ports>()
+}
+
 /// Keeps the ports harness `harness` of agent `agent` serves, with its
 /// settings, where no harness reaches: `lnk agent show` checks its
 /// health without asking its adapter again.

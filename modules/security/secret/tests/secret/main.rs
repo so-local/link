@@ -620,12 +620,16 @@ fn a_store_that_cant_be_read_is_said_never_shown_as_none() {
     std::fs::create_dir_all(world.store().parent().unwrap()).unwrap();
     std::fs::write(
         world.store(),
-        format!("[entry.{MAIN}]\nname = \"NPM_TOKEN\"\nto = \"{VALUE}\"\n"),
+        format!("schema = 1\n[entry.{MAIN}]\nname = \"NPM_TOKEN\"\nto = \"{VALUE}\"\n"),
     )
     .unwrap();
     let out = world.run(&["list"]);
     assert!(!out.status.success());
-    assert!(text(&out.stderr).contains("line 3: not as lnk secret create writes it"));
+    let said = text(&out.stderr);
+    assert!(
+        said.contains("line 3: not as lnk secret create writes it"),
+        "{said}"
+    );
     let parts = world.run(&["uninstall", "--parts", "--json"]);
     assert!(parts.status.success(), "{}", text(&parts.stderr));
     let parts: serde_json::Value = serde_json::from_slice(&parts.stdout).unwrap();
@@ -642,7 +646,7 @@ fn a_store_of_the_shape_before_ids_is_refused() {
     std::fs::write(
         world.store(),
         format!(
-            "[NPM_TOKEN]\nvalue = \"{VALUE}\"\n\
+            "schema = 1\n[NPM_TOKEN]\nvalue = \"{VALUE}\"\n\
              to = [{{ kind = \"agent\", id = \"{MAIN}\", name = \"main\", as = \"variable\" }}]\n"
         ),
     )

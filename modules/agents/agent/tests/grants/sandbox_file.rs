@@ -155,7 +155,7 @@ fn nothing_inside_the_sandbox_changes_its_grants_spec_or_start() {
             .at(&world.home.join("Link"))
             .join("all.toml"),
         link_files::layout::Hidden::AgentPolicy.at(&lnk_config),
-        link_files::layout::Hidden::SecretPreferences.at(&lnk_config),
+        link_files::layout::Hidden::SecretSettings.at(&lnk_config),
         link_files::layout::Home::Models.at(&world.home.join("Link")),
         link_files::layout::Hidden::ModelFacts.at(&lnk_config),
         link_files::layout::Hidden::Sandboxes

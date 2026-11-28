@@ -1,0 +1,7 @@
+# The environment hand-off: an environment carried to another machine
+# (`lnk env export`, then import there), stating the version it is
+# written in, read before anything else of it.
+name = "environment hand-off"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

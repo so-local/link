@@ -5,5 +5,5 @@ command = "lnk agent team list"
 
 [[files]]
 location = "lnk.agent-places"
-path = "hosted-teams.toml"
+path = "cloud-teams.toml"
 encoding = "toml"

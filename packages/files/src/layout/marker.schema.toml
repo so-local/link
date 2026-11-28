@@ -1,7 +1,7 @@
 schema = 1
 kind = "Link folder marker"
 current = 1
-command = "lnk folder create"
+command = "lnk location create"
 
 [[files]]
 location = "link.marker"

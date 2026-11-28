@@ -42,6 +42,11 @@ pub mod tool {
 // naming its schema.
 link_files::specification!(declared::Agents, include_str!("agents.schema.toml"));
 
+/// The agents a shared memory serves, which an upgrade converts.
+pub fn saved_agents() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<declared::Agents>()
+}
+
 mod checks;
 
 /// Where a model is served comes with the model it serves: an address

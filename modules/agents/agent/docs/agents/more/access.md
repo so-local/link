@@ -20,7 +20,7 @@ made later with its name.
 
 ### In Its Identity
 
-[This machine's records](settings/files.md#this-machines-records) name it, beside the agent's ID, in
+[This machine's records](../state/files.md#this-machines-records) name it, beside the agent's ID, in
 `~/.lnk/safe/agents/main/identity.toml`, never in the agent's
 `agent.toml`, so an agent carried in an archive arrives without one and
 is given its own.
@@ -31,7 +31,7 @@ The service is minted at the agent's first save: `lnk agent create`,
 `main`'s first `lnk agent start`, a team definition that makes a member,
 or an agent brought in from another harness. This computer keeps every
 service ID it minted or took in, and each one retired, in
-[`~/.lnk/safe/agents/services.toml`](settings/files.md), beside the agents' own IDs in
+[`~/.lnk/safe/agents/services.toml`](../state/files.md), beside the agents' own IDs in
 `ids.toml`.
 
 ### Moves and deletes

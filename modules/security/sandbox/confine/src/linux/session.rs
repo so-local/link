@@ -17,12 +17,32 @@
 //! sent a stop ([`link_secretive::process::pass_to_group_led_by`]).
 //! Until it leads its group, or once the group has ended, a stop goes to
 //! bubblewrap itself, as before: nothing inside runs yet, or still.
+//!
+//! The group is named only once a process besides process 1 runs in it:
+//! process 1 alone would take the stop and ignore it, and what starts in
+//! the sandbox after would never hear it. Until then a stop ends
+//! bubblewrap, and the stage ends the process 1 it leaves
+//! ([`link_secretive::process::end_left`]).
 
 use std::io::Write;
 use std::os::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 use std::os::unix::process::CommandExt;
 
 use anyhow::{Context, ensure};
+use serde::Deserialize;
+
+/// `session.toml`, as read.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Settings {
+    poll_ms: u64,
+}
+
+/// `session.toml`, read once.
+fn settings() -> &'static Settings {
+    static READ: std::sync::OnceLock<Settings> = std::sync::OnceLock::new();
+    READ.get_or_init(|| toml::from_str(include_str!("session.toml")).expect("session.toml reads"))
+}
 
 /// Bubblewrap's report of its sandbox, asked for on a pipe of this
 /// process: started, the stage reads it and passes stops to the group
@@ -108,8 +128,9 @@ impl Asked {
             if let Some(theirs) = theirs {
                 let _ = std::fs::File::from(theirs).write_all(text.as_bytes());
             }
-            if let Some(leader) = link_sandbox_contract::bubblewrap::child_pid(&text)
-                .and_then(|pid| leader(pid, bwrap).ok())
+            if let Some((pid, leader)) = link_sandbox_contract::bubblewrap::child_pid(&text)
+                .and_then(|pid| Some((pid, leader(pid, bwrap).ok()?)))
+                && inhabited(pid, &leader)
             {
                 link_secretive::process::pass_to_group_led_by(leader);
             }
@@ -131,6 +152,23 @@ pub fn leader(pid: u32, bwrap: u32) -> anyhow::Result<OwnedFd> {
     );
     ensure!(!exited(&leader, 0)?, "process {pid} has ended");
     Ok(leader)
+}
+
+/// Whether the sandbox whose process 1 is `pid` (held by `leader`) comes
+/// to run a process besides it, which then hears a stop sent to its group:
+/// false once process 1 has ended.
+fn inhabited(pid: u32, leader: &OwnedFd) -> bool {
+    let poll = i32::try_from(settings().poll_ms).unwrap_or(i32::MAX);
+    loop {
+        let children =
+            std::fs::read_to_string(format!("/proc/{pid}/task/{pid}/children")).unwrap_or_default();
+        if !children.trim().is_empty() {
+            return true;
+        }
+        if exited(leader, poll).unwrap_or(true) {
+            return false;
+        }
+    }
 }
 
 /// Process `pid`'s parent, as `/proc` gives it.

@@ -36,6 +36,11 @@ struct Set {
 
 link_files::specification!(Set, include_str!("providers.schema.toml"));
 
+/// The providers set, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Set>()
+}
+
 /// Of `providers` without an entry now, those whose entries Link may
 /// have set before, as `record` lists them: without a record (an install
 /// configured before there was one), all of them. Until

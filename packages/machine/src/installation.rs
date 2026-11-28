@@ -22,6 +22,11 @@ pub struct Installation {
 
 link_files::specification!(Installation, include_str!("installation.schema.toml"));
 
+/// This installation's identity, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Installation>()
+}
+
 impl Installation {
     /// Its ID as output writes it, `installation:<id>`; its saved form keeps
     /// the bare `id` its file has always had.
@@ -139,10 +144,10 @@ mod tests {
             "schema = 1\nid = \"k3v9q2x7m1ab\"\nname = \"gcp-1\"\n"
         );
         // One someone broke is an error, not replaced.
-        std::fs::write(&path, "id = \"x\"\nname = \"gcp-1\"\n").unwrap();
+        std::fs::write(&path, "schema = 1\nid = \"x\"\nname = \"gcp-1\"\n").unwrap();
         assert!(read_or_make(&path, || Ok(made.clone())).is_err());
         // A name that is one of Link's words says which file and what to change.
-        std::fs::write(&path, "id = \"k3v9q2x7m1ab\"\nname = \"all\"\n").unwrap();
+        std::fs::write(&path, "schema = 1\nid = \"k3v9q2x7m1ab\"\nname = \"all\"\n").unwrap();
         let said = format!(
             "{:#}",
             read_or_make(&path, || Ok(made.clone())).unwrap_err()
@@ -155,9 +160,9 @@ mod tests {
         assert!(said.contains("change the name in that file"), "{said}");
         for incomplete in [
             "",
-            "name = 'edge'\n",
-            "id = 'k3v9q2x7m1ab'\n",
-            "id = 'k3v9q2x7m1ab'\nname = 'edge'\nunsandboxed = false\n",
+            "schema = 1\nname = 'edge'\n",
+            "schema = 1\nid = 'k3v9q2x7m1ab'\n",
+            "schema = 1\nid = 'k3v9q2x7m1ab'\nname = 'edge'\nunsandboxed = false\n",
         ] {
             std::fs::write(&path, incomplete).unwrap();
             assert!(read_or_make(&path, other).is_err());

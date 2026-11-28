@@ -24,6 +24,11 @@ struct Kept {
 
 link_files::specification!(Kept, include_str!("environment.schema.toml"));
 
+/// Each agent's environment, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
+
 fn path(name: &str) -> anyhow::Result<std::path::PathBuf> {
     link_machine::machine::check_name(name)?;
     Ok(link_files::layout::Hidden::AgentEnvironments

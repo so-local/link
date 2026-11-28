@@ -21,6 +21,14 @@ pub enum Holds {
     /// What happened (a conversation, a log, a ledger), never rewritten:
     /// its steps read each line as written, and so are never deleted.
     History,
+    /// State that isn't a file at a map location: an object in a store,
+    /// a manifest inside an archive, an envelope around another file, a
+    /// file at a path its caller names, or a file under the system's
+    /// root, which the map doesn't hold. An upgrade can't find it, so it
+    /// lists no files: each value is advanced through its steps as it's
+    /// read, its owner writes it back in the current schema, and its
+    /// steps are retired at their `until` as state's are.
+    Inside,
 }
 
 /// How a file is written.
@@ -135,20 +143,39 @@ pub(super) fn check(format: &super::Format) -> anyhow::Result<()> {
             "{kind} holds history, which an upgrade never rewrites: it lists no files and \
              takes no records"
         ),
-        Holds::State => {
-            for step in &format.steps {
-                ensure!(
-                    step.until.is_some(),
-                    "{kind} schema step {} names no until: only a format of history keeps its \
-                     steps forever (holds = \"history\")",
-                    step.from
-                );
-            }
+        Holds::Inside => {
+            ensure!(
+                format.files.is_empty() && format.transfers.is_empty(),
+                "{kind} holds state inside something else, which an upgrade can't find: it \
+                 lists no files and takes no records"
+            );
+            retired(format)?;
         }
+        Holds::State => retired(format)?,
     }
     for place in &format.files {
         place.check(kind)?;
     }
+    transfers(format)
+}
+
+/// Each of `format`'s steps names the release that deletes it.
+fn retired(format: &super::Format) -> anyhow::Result<()> {
+    for step in &format.steps {
+        ensure!(
+            step.until.is_some(),
+            "{} schema step {} names no until: only a format of history keeps its steps \
+             forever (holds = \"history\")",
+            format.kind,
+            step.from
+        );
+    }
+    Ok(())
+}
+
+/// `format`'s transfers, each from another kind's file into its one.
+fn transfers(format: &super::Format) -> anyhow::Result<()> {
+    let kind = &format.kind;
     if format.transfers.is_empty() {
         return Ok(());
     }

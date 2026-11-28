@@ -82,6 +82,11 @@ pub(crate) async fn start(
     if starting.sandbox.is_some() {
         agent.sandbox = true;
     }
+    // A sandbox this machine can't make, said before anything is asked:
+    // a model's questions and its key answered for nothing otherwise.
+    if agent.sandbox {
+        crate::confine::sandbox_can_run()?;
+    }
     let running = service::running(&agent.name);
     let model_of = |agent: &Settings| {
         agent
@@ -246,17 +251,22 @@ fn guest_inputs(
         .sandbox_file()
         .map(std::fs::read_to_string)
         .transpose()?;
+    // A folder of its own there, made new (`mktemp -d`), never one named
+    // after the agent, which anyone on the guest could make first.
+    let mut staged = None;
     for (flag, text, basename) in [
         ("--spec", spec, "agent.toml"),
         ("--sandbox", sandbox, "sandbox.toml"),
     ] {
         if let Some(text) = text {
-            let dest = format!("/tmp/lnk-agent-{name}/{basename}");
+            let dir = match &staged {
+                Some(dir) => dir,
+                None => staged.insert(staging_dir(on)?),
+            };
+            let dest = format!("{dir}/{basename}");
             let mut copy = link_core::lnk();
             copy.args(["box", "ssh", on, "--"])
-                .arg(format!(
-                    "umask 077; mkdir -p '/tmp/lnk-agent-{name}' && cat > '{dest}'"
-                ))
+                .arg(format!("umask 077; cat > '{dest}'"))
                 .stdin(std::process::Stdio::piped());
             let mut child = copy.spawn()?;
             std::io::Write::write_all(
@@ -271,6 +281,39 @@ fn guest_inputs(
         }
     }
     Ok(args)
+}
+
+/// A new folder for an agent's inputs in the guest `on`, only its user's:
+/// `mktemp -d` there, its path read back and checked.
+fn staging_dir(on: &str) -> anyhow::Result<String> {
+    let made = link_core::lnk()
+        .args(["box", "ssh", on, "--"])
+        .arg(STAGING)
+        .stdin(std::process::Stdio::null())
+        .output()?;
+    anyhow::ensure!(
+        made.status.success(),
+        "could not make a folder for the agent's inputs in the guest {on}"
+    );
+    staged_path(&String::from_utf8_lossy(&made.stdout))
+}
+
+/// What makes [`staging_dir`]'s folder in the guest, under [`STAGED`].
+const STAGING: &str = "umask 077; mktemp -d /tmp/lnk-agent.XXXXXXXXXX";
+
+/// What every folder [`STAGING`] makes starts with.
+const STAGED: &str = "/tmp/lnk-agent.";
+
+/// The folder `said`, what [`STAGING`] printed, if it's one `mktemp`
+/// makes: `/tmp/lnk-agent.` and letters and digits, nothing a shell's
+/// quotes would end at.
+fn staged_path(said: &str) -> anyhow::Result<String> {
+    let path = said.trim();
+    let plain = path
+        .strip_prefix(STAGED)
+        .is_some_and(|rest| !rest.is_empty() && rest.bytes().all(|b| b.is_ascii_alphanumeric()));
+    anyhow::ensure!(plain, "the guest made no folder for the agent's inputs");
+    Ok(path.to_string())
 }
 
 /// The spec a start supplies, and where it's from: its `--spec` file
@@ -421,7 +464,7 @@ pub(crate) async fn route_default(out: &mut Out, upstream: &str) -> anyhow::Resu
 }
 
 /// `lnk agent create --cloud <cloud>`: made by a cloud account that hosts
-/// agents, with its defaults or from ready-made agent `from`, and billed by
+/// agents, with its defaults or from the agent `from` it lists, and billed by
 /// that cloud: made once you say yes (`yes`, `--yes`).
 pub(crate) fn new_hosted(
     out: &mut Out,
@@ -555,4 +598,26 @@ pub(crate) fn new_on(
     out.hand_over();
     let status = run.status().within("running lnk box run")?;
     Ok(Done::passed(status.code().unwrap_or(1)))
+}
+
+#[cfg(test)]
+mod tests {
+    /// An agent's inputs in a guest go in a folder `mktemp -d` made new,
+    /// read back as one: never a path named after the agent, nor one
+    /// that ends a shell's quotes.
+    #[test]
+    fn an_agent_made_on_a_box_stages_in_a_folder_of_its_own() {
+        assert!(super::STAGING.contains("mktemp -d"));
+        let made = format!("{}a1B2c3D4e5", super::STAGED);
+        assert_eq!(super::staged_path(&format!("{made}\n")).unwrap(), made);
+        let named = super::STAGED.replace('.', "-");
+        for bad in [
+            String::new(),
+            format!("{named}main"),
+            format!("{}x'y", super::STAGED),
+            super::STAGED.to_string(),
+        ] {
+            assert!(super::staged_path(&bad).is_err(), "{bad:?}");
+        }
+    }
 }

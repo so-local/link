@@ -61,7 +61,8 @@ pub fn profile(common: &Common, macos: &Macos) -> String {
 (allow pseudo-tty)
 ; Hardware and OS facts only: a broad sysctl-read would also give other
 ; processes' arguments and environments (kern.procargs2). The list follows
-; Anthropic's sandbox-runtime (Apache-2.0).
+; Anthropic's sandbox-runtime (Apache-2.0), less kern.proc.all and
+; kern.bootsessionuuid, which tell what else runs and which boot this is.
 (allow sysctl-read
   (sysctl-name "hw.activecpu")
   (sysctl-name "hw.busfrequency_compat")
@@ -92,7 +93,6 @@ pub fn profile(common: &Common, macos: &Macos) -> String {
   (sysctl-name "kern.argmax")
   (sysctl-name "kern.bootargs")
   (sysctl-name "kern.boottime")
-  (sysctl-name "kern.bootsessionuuid")
   (sysctl-name "kern.hostname")
   (sysctl-name "kern.maxfiles")
   (sysctl-name "kern.maxfilesperproc")
@@ -118,7 +118,6 @@ pub fn profile(common: &Common, macos: &Macos) -> String {
   (sysctl-name-prefix "hw.optional.arm.")
   (sysctl-name-prefix "hw.optional.armv8_")
   (sysctl-name-prefix "hw.perflevel")
-  (sysctl-name-prefix "kern.proc.all")
   (sysctl-name-prefix "kern.proc.pgrp.")
   (sysctl-name-prefix "kern.proc.pid.")
   (sysctl-name-prefix "machdep.cpu.")
@@ -163,7 +162,13 @@ pub fn profile(common: &Common, macos: &Macos) -> String {
   (subpath "/usr/standalone")
   (subpath "/bin")
   (subpath "/sbin")
-  (subpath "/System")
+  ; The system's own folders, never /System/Volumes, a second path to
+  ; /Users through the Data volume: of it only the boot volume's cryptexes.
+  (subpath "/System/Library")
+  (subpath "/System/Cryptexes")
+  (subpath "/System/iOSSupport")
+  (subpath "/System/DriverKit")
+  (subpath "/System/Volumes/Preboot/Cryptexes")
   (subpath "/Library/Apple")
   ; Homebrew's programs and libraries (/opt/homebrew, and /usr/local on
   ; Intel), not its var/ (local databases, logs) nor most of its etc/
@@ -183,8 +188,10 @@ pub fn profile(common: &Common, macos: &Macos) -> String {
   (literal "/dev/stdout")
   (literal "/dev/stderr")
   (regex #"^/dev/fd/")
-  ; The user's locale and region, which Node and CoreFoundation read.
-  (regex #"/Library/Preferences/\.GlobalPreferences[^/]*\.plist$"){read}{write}{tmp})
+  ; The user's locale and region, which Node and CoreFoundation read: in
+  ; the system's Library and the user's alone.
+  (regex #"^/Library/Preferences/\.GlobalPreferences[^/]*\.plist$")
+  (regex #"^{home}/Library/Preferences/\.GlobalPreferences[^/]*\.plist$"){read}{write}{tmp})
 (allow file-write*
   (literal "/dev/null")
   (literal "/dev/dtracehelper")
@@ -197,6 +204,7 @@ pub fn profile(common: &Common, macos: &Macos) -> String {
         sockets = socket_paths,
         homebrew = homebrew(),
         listen = listen_rules(policy),
+        home = regex_text(&policy.common.home.display().to_string()),
     );
     if policy.macos.network {
         profile += r#"; network: the internet and DNS.
@@ -321,7 +329,11 @@ fn etc_rules() -> String {
     }
     rules += ")\n(deny file-read* file-map-executable";
     for name in crate::system::ETC_HIDDEN {
-        rules += &format!("\n  (regex #\"^/private/etc/(.*/)?{name}(/|$)\")");
+        let rule = match name.strip_prefix('*') {
+            Some(end) => format!("[^/]*{}$", end.replace('.', "\\.")),
+            None => format!("{name}(/|$)"),
+        };
+        rules += &format!("\n  (regex #\"^/private/etc/(.*/)?{rule}\")");
     }
     rules += ")\n";
     rules
@@ -461,7 +473,8 @@ fn homebrew() -> String {
 }
 
 /// Where it may listen. Without `network`, on localhost only, and only on
-/// its own ports: a connection it accepts from the network goes both
+/// the ports it serves (`serves`), never one it only reaches, so it can't
+/// take `[::1]:P` beside a server on `127.0.0.1:P`: a connection it accepts from the network goes both
 /// ways, so it would be a way out, and a port of another agent's, taken
 /// while that agent is stopped, would be taken for part of it. ("localhost"
 /// doesn't match a dual-stack socket's ::ffff:127.0.0.1: a program without
@@ -476,7 +489,7 @@ fn listen_rules(policy: &Rules) -> String {
         "; Listening: on localhost only, on its own ports (network opens every\n\
          ; address).\n",
     );
-    for port in &policy.macos.ports {
+    for port in &policy.macos.serves {
         rules += &format!("(allow network-bind network-inbound (local ip \"localhost:{port}\"))\n");
     }
     rules
@@ -508,13 +521,30 @@ fn localhost_rules(policy: &Rules) -> String {
     rules
 }
 
-/// The filter for `/tmp/<prefix>*` (`/private/tmp` is its real path):
-/// `regex` for files, `path-regex` for unix sockets.
+/// The filter for `/tmp/<prefix>` and what starts `<prefix>` then a
+/// separator (`-`, `.`, `_` or `/`), `/private/tmp` its real path:
+/// `regex` for files, `path-regex` for unix sockets. Another name that
+/// starts the same (`otters` beside `otter`) is another's.
 pub(crate) fn tmp_filter(prefix: Option<&str>, kind: &str) -> Option<String> {
     // Harness names are letters, digits and dashes: nothing to escape.
     let prefix = prefix
         .filter(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-'))?;
-    Some(format!("\n  ({kind} #\"^/private/tmp/\\.?{prefix}\")"))
+    Some(format!(
+        "\n  ({kind} #\"^/private/tmp/\\.?{prefix}([-._/]|$)\")"
+    ))
+}
+
+/// `text` matched as itself in an SBPL regex (`#"..."`): each character
+/// a regex reads as more escaped, and a quote, which would end it.
+fn regex_text(text: &str) -> String {
+    let mut out = String::new();
+    for c in text.chars() {
+        if "\\.^$|?*+()[]{}\"".contains(c) {
+            out.push('\\');
+        }
+        out.push(c);
+    }
+    out
 }
 
 /// An SBPL string literal.

@@ -14,7 +14,7 @@ body:
     attributes:
       label: lnk version
       description: Output of `lnk --version`.
-      placeholder: lnk 0.11.0
+      placeholder: lnk 0.0.1
     validations:
       required: true
   - type: input

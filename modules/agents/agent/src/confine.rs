@@ -230,9 +230,12 @@ pub(crate) fn connection_rules(settings: &Settings) -> anyhow::Result<settings::
             "lnk-{connection} doesn't say how its secret stays out of the sandbox \
              (rule --json): lnk upgrade"
         );
-        let rule = serde_json::from_slice::<link_connection_contract::Ruled>(&output.stdout)
-            .within(format!("reading lnk-{connection} rule --json"))?
-            .rule;
+        let rule = link_connection_contract::read::<link_connection_contract::Ruled>(
+            &format!("lnk-{connection}"),
+            &output.stdout,
+        )
+        .within(format!("reading lnk-{connection} rule --json"))?
+        .rule;
         if let Some(rule) = &rule {
             rule.wire
                 .check()

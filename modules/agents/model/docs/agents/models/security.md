@@ -79,7 +79,7 @@ with `lnk model runtime add`.
 
 ## Installing Ollama
 
-`lnk model install`, and the local model [`lnk agent start`](../../../../agent/docs/agents/README.md#create-an-agent) offers,
+`lnk model install`, and the local model [`lnk agent start`](../../../../agent/docs/agents/README.md#start-your-agent) offers,
 install Ollama when it's missing.
 
 - It asks first, unless `--yes`. `lnk agent start` passes `--yes` once

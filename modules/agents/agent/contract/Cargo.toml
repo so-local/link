@@ -24,6 +24,9 @@ toml.workspace = true
 # it; no xattrs, the same on macOS and Linux.
 tar = { version = "0.4", optional = true, default-features = false }
 
+[dependencies.link-agent-place]
+workspace = true
+
 [dependencies.link-agent-identity]
 workspace = true
 

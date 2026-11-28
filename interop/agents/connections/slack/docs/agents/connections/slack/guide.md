@@ -31,7 +31,7 @@ tokens, rather than make another app.
 
 From a script, set `LNK_SLACK_APP_TOKEN` to the app token (`xapp-...`)
 and `LNK_SLACK_BOT_TOKEN` to the bot token (`xoxb-...`) in the
-environment the script runs `lnk` in, and [`lnk agent connect slack`](../../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels) reads
+environment the script runs `lnk` in, and [`lnk agent connect slack`](../../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app) reads
 them instead of asking. Variables keep the tokens off the command line,
 which other users of this machine can see while `lnk` runs, and no flag
 takes them.

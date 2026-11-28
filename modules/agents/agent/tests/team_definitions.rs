@@ -161,7 +161,7 @@ fn a_given_team_id_the_ledger_holds_is_refused() {
     let given = DEFINITION.replacen("schema = 1\n", "schema = 1\nid = \"t1e2a3m4i5d6\"\n", 1);
     link_files::write_private(&fixture.spec, given.as_bytes()).unwrap();
     link_files::write_private(
-        &fixture.home.join(".lnk/safe/agents/team-ids.toml"),
+        &fixture.home.join(".lnk/safe/agents/group-ids.toml"),
         b"schema = 1\nlive = [\"t1e2a3m4i5d6\"]\n",
     )
     .unwrap();
@@ -174,7 +174,7 @@ fn a_given_team_id_the_ledger_holds_is_refused() {
     // identity with it: once the ledger lets it go, a retry takes the ID.
     assert_eq!(identities(&fixture.home), Vec::<PathBuf>::new());
     link_files::write_private(
-        &fixture.home.join(".lnk/safe/agents/team-ids.toml"),
+        &fixture.home.join(".lnk/safe/agents/group-ids.toml"),
         b"schema = 1\n",
     )
     .unwrap();
@@ -192,7 +192,7 @@ fn a_kept_definitions_retired_team_id_is_refused() {
     let given = DEFINITION.replacen("schema = 1\n", "schema = 1\nid = \"t1e2a3m4i5d6\"\n", 1);
     link_files::write_private(&fixture.kept(), given.as_bytes()).unwrap();
     link_files::write_private(
-        &fixture.home.join(".lnk/safe/agents/team-ids.toml"),
+        &fixture.home.join(".lnk/safe/agents/group-ids.toml"),
         b"schema = 1\nretired = [\"t1e2a3m4i5d6\"]\n",
     )
     .unwrap();

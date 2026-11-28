@@ -82,7 +82,7 @@ still reads, and the file is checked where the browser starts.
 
 ## Why do DevTools speak over a pipe?
 
-[`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) closes every descriptor but the ones it is given, so the
+[`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) closes every descriptor but the ones it is given, so the
 browser is started with `--remote-debugging-pipe` and its DevTools on
 descriptors 3 and 4, mapped to the sandbox's standard input and output.
 That leaves no port and no WebSocket for another program to reach.

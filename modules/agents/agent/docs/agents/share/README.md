@@ -1,14 +1,23 @@
-# Share Agents
+# Create a Shareable Agent
 
 > Make Any Agent and Share It
 
-Make any agent you can imagine, share it with your friends and then your community, and start the agents they share with you. One archive file carries an agent from one person to another, with [`lnk archive export`](../../../../../tooling/archive/docs/tooling/archive/README.md#export) and [`lnk archive import`](../../../../../tooling/archive/docs/tooling/archive/README.md#import).
+People share agents the way they share open-source code: start from one someone made, make it your own, and pass it on to your friends or publish it for everyone. One archive file carries an agent from one person to another, with [`lnk archive export`](../../../../../tooling/archive/docs/tooling/archive/README.md#export) and [`lnk archive import`](../../../../../tooling/archive/docs/tooling/archive/README.md#import).
 
 ```sh
 lnk archive export --select agent.main
-lnk archive import ~/Downloads/coach.tar.gz
+lnk archive import link-coach.tar.gz
 lnk agent start --agent coach
 ```
+
+## Start From a Community Agent
+
+The quickest way to a good agent is one someone already made. Local
+Link's [Ready-Made Agents](../../../../../../agents/docs/agents/ready-made/README.md), a programmer, a
+researcher, a coach, and a personal assistant, are yours to import and
+make your own. An agent a friend or your community made
+comes in the same way, and [Import an Agent](import.md) says what import
+checks and what the agent needs before it starts.
 
 ## Why Sharing Matters
 
@@ -16,15 +25,6 @@ Open-source software got good because people gave their work away and
 built on each other's. Agents can grow the same way. If you can run
 Local Link, you can make an agent and hand it to anyone else who runs
 it, and they can improve it and pass it on.
-
-## Start From an Agent Someone Made
-
-The quickest way to a good agent is one someone already made. Local Link
-provides four [Ready-Made Agents](../ready-made/README.md) to start from,
-a programmer, a researcher, a coach, and a personal assistant, and says
-plainly how far each one goes. An agent a friend or your community made
-comes in the same way, and [Import an Agent](import.md) says what import
-checks and what the agent needs before it starts.
 
 ## Make an Agent Worth Sharing
 

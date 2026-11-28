@@ -24,7 +24,7 @@ secret create`, and start your agents again for their own.
 ## An agent's keys are asked for again
 
 Told `main's keys are kept with your secrets now ...`, give each again
-as the message says, with [`lnk agent start`](../../../../../agents/agent/docs/agents/README.md#create-an-agent) or [`lnk agent connect`](../../../../../agents/agent/docs/agents/README.md#connect-your-channels).
+as the message says, with [`lnk agent start`](../../../../../agents/agent/docs/agents/README.md#start-your-agent) or [`lnk agent connect`](../../../../../agents/agent/docs/agents/connections/connect/README.md#choose-an-app).
 
 ## A copy stays behind
 

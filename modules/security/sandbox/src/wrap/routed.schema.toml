@@ -1,3 +1,4 @@
 schema = 1
 kind = "sandbox proxy routes"
 current = 1
+holds = "inside"

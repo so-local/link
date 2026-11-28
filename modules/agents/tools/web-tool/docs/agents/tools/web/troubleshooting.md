@@ -9,7 +9,7 @@ lnk agent show
 ## Your agent has no `web__search`
 
 The tool was added without a search key, so it offers only `fetch`.
-Add the tool again with a key: [`lnk agent tool add web`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills), and paste it.
+Add the tool again with a key: [`lnk agent tool add web`](../../../../../../agent/docs/agents/README.md#tools), and paste it.
 
 ## "search API refused the key"
 
@@ -44,7 +44,7 @@ server that sends it as it is, or in one of those.
 ## Each call asks you first
 
 A manually registered tool may require approval for each call. Review
-its definition with [`lnk sandbox tool list`](../../../../../../../security/sandbox/docs/security/sandbox/tools/README.md#tools-and-asking); the [manual setup](more/developing.md#by-hand)
+its definition with [`lnk sandbox tool list`](../../../../../../../security/sandbox/docs/tooling/sandbox/tools/README.md#tools-and-asking); the [manual setup](more/developing.md#by-hand)
 shows how to register the provider with `--add fetch --add search`.
-These flags belong to [`lnk sandbox tool add`](../../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside), rather than
+These flags belong to [`lnk sandbox tool add`](../../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside), rather than
 `lnk agent tool add`.

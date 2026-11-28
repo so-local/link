@@ -146,6 +146,10 @@ pub fn write_agent(home: &Path, name: &str, text: &str) {
     for field in RECORDS {
         settings.remove(*field);
     }
+    // Saved as Link saves it, naming its schema when `text` names none.
+    settings
+        .entry("schema")
+        .or_insert_with(|| toml::Value::Integer(1));
     let records = link_files::layout::Hidden::Agents.in_home(home).join(name);
     for (file, record) in [("identity.toml", identity), ("here.toml", here)] {
         if file == "here.toml" && record.is_empty() {
@@ -243,6 +247,8 @@ pub fn write_agent(home: &Path, name: &str, text: &str) {
         );
         entries.insert(secret, entry.into());
     }
+    kept.entry("schema")
+        .or_insert_with(|| toml::Value::Integer(1));
     link_files::write_private(&store, toml::to_string(&kept).unwrap().as_bytes()).unwrap();
 }
 

@@ -2,13 +2,8 @@
 
 Coach is a ready-made personal coach for running, cycling, swimming,
 lifting, team sports, and everyday eating, which keeps a plan with you
-and checks in on it. The full guide is [Coach](../../../modules/agents/agent/docs/agents/ready-made/coach.md) in
+and checks in on it. The full guide is [Coach](../../docs/agents/ready-made/coach.md) in
 Local Link's docs.
-
-## How Far Coach Goes
-
-Coach is an example we've worked with and think works. Shape its skills
-and persona to your sport, your food, and how you like to be coached.
 
 ## Who Coach Is For
 
@@ -33,13 +28,14 @@ straight.
 ## Bring Coach In
 
 Download `link-coach.tar.gz` from Local Link's
-[latest release](https://github.com/so-local/link-releases/releases/latest), then import it. Import checks the whole
+[latest release](https://github.com/so-local/link-releases/releases/latest), then import it from the folder you saved it in.
+Import checks the whole
 archive, asks whether to keep the name `coach`, and places the agent in
 `~/Link/Agents/coach/`, with its settings in `~/Link/Safe/Agents/coach/`.
 Nothing is installed, connected, or started until you say so.
 
 ```sh
-lnk archive import ~/Downloads/link-coach.tar.gz
+lnk archive import link-coach.tar.gz
 ```
 
 From a checkout of Local Link's repository, pack this folder as the
@@ -89,7 +85,7 @@ lnk agent permission add --agent coach --internet.hosts api.anthropic.com
 
 ## Make Coach Your Own
 
-An imported agent is yours. Edit its standing instructions in
+**Coach becomes your coach.** An imported agent is yours. Edit its standing instructions in
 `~/Link/Agents/coach/agent/instructions/instruction.md`, or ask the agent
 to, since its sandbox writes them. Add or remove skills and tools, and
 change one key of its specification with a field flag on
@@ -102,7 +98,7 @@ lnk agent spec show coach
 ```
 
 Coach's tone is its `persona.md`, and a new sport is a new skill, with its log added to the Home's `README.md` first.
-[Make an Agent Your Own](../../../modules/agents/agent/docs/agents/ready-made/README.md#make-an-agent-your-own)
+[Make an Agent Your Own](../../docs/agents/ready-made/README.md#make-an-agent-your-own)
 covers each change, and
 [Share an Agent](../../../modules/agents/agent/docs/agents/share/export.md#share-your-agent)
 shows how to export your version for others.

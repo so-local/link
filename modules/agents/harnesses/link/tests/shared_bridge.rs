@@ -214,7 +214,7 @@ fn two_agents(case: Case) {
     std::fs::create_dir_all(link_files::layout::Hidden::Agents.at(&config)).unwrap();
     link_files::write_private(
         &link_files::layout::Hidden::AgentPolicy.at(&config),
-        b"shared_harness = true\nshared_bridge = true\n",
+        b"schema = 1\nshared_harness = true\nshared_bridge = true\n",
     )
     .unwrap();
     let asked: Shared<Vec<String>> = Arc::default();

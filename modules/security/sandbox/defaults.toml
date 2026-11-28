@@ -2,7 +2,7 @@
 # (~/.lnk/safe/sandboxes/settings.toml, the same keys) win, key by key.
 
 ask_wait = "120s"                 # how long a question waits for your answer; silence is no
-tool_starts = 2                   # tool servers starting at once, across one proxy's tools
+tool_starts = 2                   # tool servers one sandbox starts at once; another sandbox's never wait on them
 tool_sessions = 8                 # sessions one sandbox keeps of each tool; a new one ends that tool's least recently called
 tool_idle = "5m"                  # how long a tool's session stays with no call, its server with it
 shared_idle = "10m"               # how long a shared tool's server stays up with no session open

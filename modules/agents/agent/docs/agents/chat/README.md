@@ -1,8 +1,8 @@
-# Chat
+# Talk to Your Agent
 
 > Chat Here, Keep the Conversation
 
-Talk to your running agent in a terminal, or send a message from a script. If your agent is stopped, start it first with `lnk agent start`.
+Talk to your running agent in a terminal, send a message from a script, or text your agent from your phone. If your agent is stopped, start it first with `lnk agent start`.
 
 ```sh
 lnk agent chat
@@ -85,6 +85,16 @@ DeepSeek Harness, OpenClaw, and Hermes Agent do, the last two through Local
 Link's bridge. Local Link refuses a harness that speaks only its own
 connections, and says so. Talk to that harness on a connection instead.
 
+## Text Your Agent From Your Phone
+
+Connect a messaging app, and you can text your agent from anywhere.
+[Connect Messaging Apps](../connections/connect/README.md) shows how to create
+a bot, supply its credentials, and pair the bot with your agent.
+
+```sh
+lnk agent connect telegram|slack|discord|signal
+```
+
 ## Talk Somewhere Else
 
 Ask your agent to message you elsewhere, in your own words. Say "Send me a
@@ -131,7 +141,7 @@ lnk agent chat export --format sqlite
 
 Link Harness keeps each chat in its files, as a log you can `cat`, as a
 smaller file, or in a database. The specification's `[storage] conversations` [says
-which](../../../../harnesses/link/docs/agents/link/conversations.md#keep-them-smaller-or-in-a-database), for a new chat.
+which](../../../../harnesses/link/docs/agents/harnesses/link/conversations.md#keep-them-smaller-or-in-a-database), for a new chat.
 `lnk agent chat show` prints a chat however the chat is kept. `lnk agent chat
 export --format <way>`, with the agent stopped, rewrites the old ones in
 that way. Set the specification's `[storage] conversations` to the same way, so
@@ -139,7 +149,7 @@ new ones start that way too.
 
 ## Control a Conversation
 
-Owner controls use `--chat <name>` to select a conversation, and Local Link forwards them to the harness. The harness's advertised commands determine which controls it supports. [Link Harness Commands](../../../../harnesses/link/docs/agents/link/commands/README.md) explains what Link Harness supports.
+Owner controls use `--chat <name>` to select a conversation, and Local Link forwards them to the harness. The harness's advertised commands determine which controls it supports. [Link Harness Commands](../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md) explains what Link Harness supports.
 
 ### Manage History
 
@@ -155,7 +165,7 @@ Owner controls use `--chat <name>` to select a conversation, and Local Link forw
 
 ### Fork a Conversation
 
-`lnk agent chat fork` creates a fresh thread from the history before the owner message that `--before` selects. `lnk agent chat list` identifies saved threads. A fork keeps some restrictions of its source, and sequence numbers order the history. [Link Harness Conversations](../../../../harnesses/link/docs/agents/link/conversations.md) explains both.
+`lnk agent chat fork` creates a fresh thread from the history before the owner message that `--before` selects. `lnk agent chat list` identifies saved threads. A fork keeps some restrictions of its source, and sequence numbers order the history. [Link Harness Conversations](../../../../harnesses/link/docs/agents/harnesses/link/conversations.md) explains both.
 
 ## Understand Conversation Details
 

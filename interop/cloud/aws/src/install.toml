@@ -1,0 +1,9 @@
+# The AWS CLI Link installs: AWS's version, and each installer's SHA-256,
+# checked before it runs. A new version changes all of them together,
+# each sum read from the installer itself.
+version = "2.42.4"
+
+[sha256]
+linux-x86_64 = "8998885d7fc32370c50efc2e44746c34b222a03d70015113a5554f98be79165c"
+linux-aarch64 = "d0203a83caa162118c128ad16bc6c11835e998bd23763a3b195aeb323c78d010"
+macos = "6f5a5d523f128bfa736841523fabe936a9a4c9da7fce7273c535043a53016ea5"

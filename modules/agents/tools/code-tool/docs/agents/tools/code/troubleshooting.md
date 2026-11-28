@@ -21,7 +21,7 @@ agent start`.
 
 The server is on this computer, but your agent may run only the
 programs its sandbox file names. Add the server to `[commands]`, then
-[`lnk agent start --sandbox`](../../../../../../agent/docs/agents/README.md#create-an-agent) your file.
+[`lnk agent start --sandbox`](../../../../../../agent/docs/agents/README.md#start-your-agent) your file.
 
 ## "no language server serves .zig files here"
 

@@ -135,7 +135,7 @@ harness (on one that speaks it) or move your agent.
 resource = "agent"
 role = "primary"
 output = "core.report"
-docs = "/agents#connect-your-channels"
+docs = "/agents/connections/connect#choose-an-app"
 next = ["agent.agent.disconnect", "agent.agent.show", "agent.share.add", "agent.chat.start", "agent.agent.start"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.start", "agent.harness.set"]
 
@@ -171,7 +171,7 @@ fail = ["agent.model.set", "model.runtime.add", "agent.agent.show", "core.module
 
 [actions."agent.agent.create".args]
 agent = false
-from = { type = "string", pattern = "^[a-z][a-z0-9-]*$", description = "A ready-made agent to start from, by its name, with its instructions, skills and settings: a cloud that hosts agents makes it from one it lists (`agent.ready-made.list`)" }
+from = { type = "string", pattern = "^[a-z][a-z0-9-]*$", description = "An agent to start from, by the name of its archive, with its instructions, skills and settings: a cloud that hosts agents makes it from one it lists" }
 workplace = { x-link-cli = { shared = "workplace" } }
 foreground = { type = "boolean", description = "Run it in this terminal instead of in the background" }
 let-sleep = { type = "boolean", description = "Let the machine sleep while it runs, this start alone: the next start keeps it awake again unless its specification's `[run] let_sleep` says otherwise" }
@@ -210,7 +210,7 @@ as a new agent, and a folder you chose stays where it is.
 """
 role = "secondary"
 output = "core.report"
-docs = "/agents/start/delete#delete-your-agent"
+docs = "/agents/start/create#delete-an-agent"
 next = ["agent.agent.list", "agent.agent.create"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.delete", "agent.agent.stop"]
 
@@ -263,7 +263,9 @@ output = "core.report"
 
 [actions."agent.agent.left".args]
 workplace = { x-link-cli = { shared = "workplace" } }
+agent-id = { type = "string", description = "The agent's ID, which a move names it by: refused when the agent of this name has another" }
 machine-id = { type = "string", description = "The machine's ID, so a machine renamed or made again under the name isn't taken for it" }
+move = { type = "string", description = "The move's ID: refused while another move holds the agent here, and that move's hold let go of" }
 
 [actions."agent.agent.list"]
 description = """
@@ -275,7 +277,7 @@ model cost over the last day (with the measure module), and its files.
 rest-args = []
 role = "primary"
 output = "life-agents"
-docs = "/agents/start/create#run-more-than-one-agent"
+docs = "/agents/start/show#list-your-agents"
 surfaces = ["cli", "rest", "tool"]
 next = ["agent.agent.show", "agent.agent.create", "agent.agent.move", "agent.agent.delete", "agent.agent.start"]
 fail = ["agent.agent.show", "core.module.list"]
@@ -333,7 +335,7 @@ main, else the harness's name]
 resource = "agent"
 role = "primary"
 output = "core.report"
-docs = "/agents#migrate-your-agent"
+docs = "/agents#migrate-to-local-link"
 next = ["agent.agent.show", "agent.chat.start", "agent.agent.start", "agent.agent.migrate", "agent.harness.set"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.migrate", "agent.agent.delete"]
 
@@ -394,6 +396,10 @@ resource = "agent"
 role = "plumbing"
 output = "core.report"
 
+[actions."agent.agent.pause".args]
+agent-id = { type = "string", description = "The agent's ID, which a move names it by: refused when the agent of this name has another" }
+move = { type = "string", description = "The move's ID: the agent held here for that move alone, refused while another move holds it" }
+
 [actions."agent.question.list"]
 description = "Review owner questions, edit a draft or submit an exact response"
 resource = "agent"
@@ -434,7 +440,7 @@ description = "Stop your existing agent, then start it in the background with it
 resource = "agent"
 role = "secondary"
 output = "core.report"
-docs = "/agents/start/stop#stop-and-restart"
+docs = "/agents/start#stop-and-restart"
 next = ["agent.agent.show", "agent.chat.start", "agent.log.show", "agent.agent.connect", "agent.tool.add", "agent.tool.list", "agent.harness.set", "agent.model.set", "agent.agent.stop"]
 fail = ["agent.model.set", "model.runtime.add", "agent.agent.show", "agent.log.show", "agent.agent.start", "agent.spec.show", "agent.agent.stop"]
 
@@ -477,6 +483,10 @@ failed, and starts
 resource = "agent"
 role = "plumbing"
 output = "core.report"
+
+[actions."agent.agent.resume".args]
+agent-id = { type = "string", description = "The agent's ID, which a move names it by: refused when the agent of this name has another" }
+move = { type = "string", description = "The move's ID: refused while another move holds the agent here, and that move's hold let go of" }
 
 [actions."agent.agent.route"]
 description = """
@@ -592,9 +602,9 @@ Start your agent (Link Harness by default), in the background
 
 Installs the harness the first time, gives it your settings, and keeps
 it running, sandboxed, and enables startup at login after a reboot.
-With no agent here, it
-makes the first, main, and asks for its model and which of Link's
-tools it gets. It ends with what `lnk agent show` shows, then
+With no agent here, it creates the first, Onboarding, which answers
+what Local Link can do. With several, `--agent` names one and `--all`
+starts every one. It ends with what `lnk agent show` shows, then
 `lnk agent chat` to talk to it.
 
 A hosted model's API key comes from its provider's variable,
@@ -607,11 +617,13 @@ resource = "agent"
 role = "primary"
 output = "core.report"
 spec = "agent"
-docs = "/agents#create-an-agent"
+docs = "/agents#start-your-agent"
 next = ["agent.chat.start", "agent.agent.show", "agent.tool.add", "agent.harness.set", "agent.model.set", "agent.agent.connect", "agent.log.show", "agent.agent.stop", "agent.agent.move", "agent.agent.start", "agent.tool.list"]
 fail = ["agent.model.set", "model.runtime.add", "agent.agent.show", "core.module.list", "agent.agent.start", "agent.log.show", "agent.agent.create", "agent.agent.move", "box.box.run", "agent.agent.stop", "agent.spec.show"]
 
 [actions."agent.agent.start".args]
+all = { type = "boolean", description = "Start every agent here, each as its own start would, in the background" }
+during-move = { type = "string", description = "The move this start is part of (`lnk agent move` passes it): let through while that move, which this computer's journal holds, holds the agent", x-link-cli = { hidden = true } }
 foreground = { type = "boolean", description = "Run it in this terminal instead of in the background" }
 let-sleep = { type = "boolean", description = "Let the machine sleep while it runs, this start alone: the next start keeps it awake again unless its specification's `[run] let_sleep` says otherwise" }
 no-sandbox = { type = "boolean", description = "Run with no sandbox, from now on, until a start with --sandbox: the harness can then read your whole home folder (documents, SSH keys, browser data) and write outside its own. The only way to run without one, never implied by --yes. Available on a computer or box; refused where trusted machine policy forbids it (`unsandboxed = false` in agents.toml) or policy cannot be trusted", x-link-cli = { conflicts = ["sandbox"] } }
@@ -629,9 +641,10 @@ role = "plumbing"
 output = "core.report"
 
 [actions."agent.agent.state-send".args]
+agent-id = { type = "string", description = "The agent's ID, which a move names it by: refused when the agent of this name has another" }
 harness-state = { type = "boolean", description = "With a copy: its harness's state too, so the switch sends only what changed of it" }
 held = { type = "string", description = "What the other end holds, as JSON (- for stdin): those files aren't sent again", x-link-path = true }
-move = { type = "string", description = "The move's ID, the same in its copy and its switch" }
+move = { type = "string", description = "The move's ID, the same in its copy and its switch: refused while another move holds the agent here" }
 phase = { type = "string", description = "copy (its files and memory's index, while it runs) or switch (the rest, once it's paused; the default)" }
 seal-to = { type = "string", description = "The public key the other end made for this switch (`lnk agent receive` says it): its secrets are sealed to it" }
 without-model-credentials = { type = "boolean", description = "Keep model credentials here when the receiving machine supplies its own" }
@@ -644,6 +657,9 @@ output = "core.report"
 docs = "/agents/harnesses/use#one-running-in-a-terminal"
 next = ["agent.agent.start"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
+
+[actions."agent.agent.stop".args]
+agent-id = { type = "string", description = "The agent's ID, which a move names it by: refused when the agent of this name has another", x-link-cli = { hidden = true } }
 
 [actions."agent.agent.unsandboxed"]
 description = """
@@ -782,7 +798,7 @@ docs = "/agents/chat#control-a-running-turn"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat ask", docs = "/agents/link/commands/chats#ask-on-the-side", command = true, names = ["/btw", "/side"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat ask", docs = "/agents/harnesses/link/commands/chats#ask-on-the-side", command = true, names = ["/btw", "/side"] }
 
 [actions."agent.chat.ask".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -797,7 +813,7 @@ output = "chat-turn"
 docs = "/agents/chat#manage-history"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
-route = { bridge = "harness", callers = ["owner"], path = "chat compact", docs = "/agents/link/commands/chats#compact-it-now", command = true, names = ["/compact"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat compact", docs = "/agents/harnesses/link/commands/chats#compact-it-now", command = true, names = ["/compact"] }
 
 [actions."agent.chat.compact".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -812,7 +828,7 @@ docs = "/agents/chat#manage-history"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat create", docs = "/agents/link/commands#start-a-new-conversation", command = true, names = ["/new", "/clear"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat create", docs = "/agents/harnesses/link/commands#start-a-new-conversation", command = true, names = ["/new", "/clear"] }
 
 [actions."agent.chat.create".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -833,7 +849,7 @@ output = "chat-turn"
 docs = "/agents/chat#manage-history"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
-route = { bridge = "harness", callers = ["owner"], path = "chat export", docs = "/agents/link/commands/chats#write-one-out", command = true, names = ["/export"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat export", docs = "/agents/harnesses/link/commands/chats#write-one-out", command = true, names = ["/export"] }
 
 [actions."agent.chat.export".args]
 chat = { type = "string", description = "The chat to act on", x-link-cli = { conflicts = ["format"] } }
@@ -848,7 +864,7 @@ output = "chat"
 docs = "/agents/chat#fork-a-conversation"
 next = ["agent.chat.show", "agent.chat.start"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
-route = { bridge = "harness", callers = ["owner"], path = "chat fork", docs = "/agents/link/commands/chats#fork-this-one", command = true, names = ["/fork"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat fork", docs = "/agents/harnesses/link/commands/chats#fork-this-one", command = true, names = ["/fork"] }
 
 [actions."agent.chat.fork".args]
 before = { type = "integer", description = "The sequence number of the owner's message to edit; the copy ends before it", required = true }
@@ -863,7 +879,7 @@ docs = "/agents/chat#goals-and-visibility"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat goal", docs = "/agents/link/commands#pursue-a-goal", command = true, names = ["/goal"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat goal", docs = "/agents/harnesses/link/commands#pursue-a-goal", command = true, names = ["/goal"] }
 
 [actions."agent.chat.goal".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -892,7 +908,7 @@ docs = "/agents/chat#control-a-running-turn"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat queue", docs = "/agents/link/commands/chats#queue-or-steer-your-next-message", command = true, names = ["/queue"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat queue", docs = "/agents/harnesses/link/commands/chats#queue-or-steer-your-next-message", command = true, names = ["/queue"] }
 
 [actions."agent.chat.queue".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -908,7 +924,7 @@ docs = "/agents/chat#manage-history"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat rename", docs = "/agents/link/commands/chats#name-this-one", command = true, names = ["/rename"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat rename", docs = "/agents/harnesses/link/commands/chats#name-this-one", command = true, names = ["/rename"] }
 
 [actions."agent.chat.rename".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -924,7 +940,7 @@ docs = "/agents/chat#manage-history"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat resume", docs = "/agents/link/commands/chats#resume-an-earlier-one", command = true, names = ["/resume"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat resume", docs = "/agents/harnesses/link/commands/chats#resume-an-earlier-one", command = true, names = ["/resume"] }
 
 [actions."agent.chat.resume".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -1068,7 +1084,7 @@ docs = "/agents/chat#goals-and-visibility"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat status", docs = "/agents/link/commands#inspect-its-work", command = true, names = ["/status"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat status", docs = "/agents/harnesses/link/commands#inspect-its-work", command = true, names = ["/status"] }
 
 [actions."agent.chat.status".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -1083,7 +1099,7 @@ docs = "/agents/chat#control-a-running-turn"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat steer", docs = "/agents/link/commands/chats#queue-or-steer-your-next-message", command = true, names = ["/steer"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat steer", docs = "/agents/harnesses/link/commands/chats#queue-or-steer-your-next-message", command = true, names = ["/steer"] }
 
 [actions."agent.chat.steer".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -1103,7 +1119,7 @@ output = "chat-turn"
 docs = "/agents/chat#control-a-running-turn"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start", "agent.log.show"]
-route = { bridge = "harness", callers = ["owner"], path = "chat stop", docs = "/agents/link/commands#stop-an-answer", command = true, names = ["/stop"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat stop", docs = "/agents/harnesses/link/commands#stop-an-answer", command = true, names = ["/stop"] }
 
 [actions."agent.chat.stop".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -1118,7 +1134,7 @@ docs = "/agents/chat#goals-and-visibility"
 next = ["agent.chat.start", "agent.agent.show"]
 fail = ["agent.agent.show", "agent.agent.start"]
 surfaces = []
-route = { bridge = "harness", callers = ["owner"], path = "chat verbose", docs = "/agents/link/commands/chats#show-its-tool-calls", command = true, names = ["/verbose"] }
+route = { bridge = "harness", callers = ["owner"], path = "chat verbose", docs = "/agents/harnesses/link/commands/chats#show-its-tool-calls", command = true, names = ["/verbose"] }
 
 [actions."agent.chat.verbose".args]
 chat = { type = "string", description = "The chat to act on" }
@@ -1794,7 +1810,7 @@ resource = "agent"
 role = "secondary"
 output = "core.report"
 spec = "sandbox.sandbox"
-docs = "/security/sandbox/permissions#choose-what-your-agent-can-reach"
+docs = "/tooling/sandbox/permissions#choose-what-your-agent-can-reach"
 next = ["agent.permission.remove"]
 fail = ["agent.agent.show", "core.module.list", "agent.permission.add", "agent.agent.start"]
 
@@ -1811,7 +1827,7 @@ resource = "agent"
 role = "secondary"
 output = "core.report"
 spec = "sandbox.sandbox"
-docs = "/security/sandbox/permissions#choose-what-your-agent-can-reach"
+docs = "/tooling/sandbox/permissions#choose-what-your-agent-can-reach"
 next = ["agent.permission.add"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.start", "agent.harness-permission.remove"]
 
@@ -1920,7 +1936,7 @@ output = "core.report"
 docs = "/agents/tools/use/skill#see-installed-skills"
 next = ["agent.skill.add", "agent.skill.remove"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
-route = { bridge = "harness", callers = ["owner"], path = "skill list", docs = "/agents/link/commands/skills#run-a-skill", command = true, names = ["/skills"] }
+route = { bridge = "harness", callers = ["owner"], path = "skill list", docs = "/agents/harnesses/link/commands/skills#run-a-skill", command = true, names = ["/skills"] }
 
 [actions."agent.skill.remove"]
 description = "Remove a skill from your agent's skills/, by its name"
@@ -1944,7 +1960,7 @@ says after it. Offered where the agent may write its `skills/`.
 resource = "agent"
 role = "secondary"
 output = "chat-turn"
-docs = "/agents/link/commands/skills#learn-a-skill"
+docs = "/agents/harnesses/link/commands/skills#learn-a-skill"
 surfaces = []
 route = { bridge = "harness", callers = ["owner"], path = "skill write", command = true, names = ["/learn"] }
 
@@ -1956,7 +1972,7 @@ description = "Export portable state, including retained conversation evidence w
 resource = "agent"
 role = "secondary"
 output = "state"
-docs = "/agents/harnesses/use/state#export-agent-state"
+docs = "/agents/state/export#export-agent-state"
 next = ["agent.chat.list"]
 fail = ["agent.agent.show"]
 
@@ -2253,7 +2269,7 @@ description = "List the teams, each member's purpose and what it reaches"
 resource = "agent"
 role = "secondary"
 output = "teams-listed"
-docs = "/agents#build-a-team"
+docs = "/agents#create-an-agent-team"
 next = ["agent.team.create", "agent.team.add", "agent.team.delete", "agent.team.show", "agent.team.join", "agent.team-member.add"]
 fail = ["agent.agent.show", "core.module.list"]
 
@@ -2363,7 +2379,7 @@ description = "Give your agent a tool: memory, web, browser, desktop, scheduler,
 resource = "agent"
 role = "secondary"
 output = "core.report"
-docs = "/agents#add-tools-and-skills"
+docs = "/agents#tools"
 next = ["sandbox.tool.list", "agent.tool.add", "agent.tool.list", "agent.agent.show"]
 fail = ["agent.tool.list", "sandbox.tool.add", "agent.agent.show", "core.module.list", "agent.agent.move", "agent.agent.start"]
 
@@ -2376,7 +2392,7 @@ description = "List the tools your agent has"
 resource = "agent"
 role = "secondary"
 output = "tool-namespaces"
-docs = "/agents#add-tools-and-skills"
+docs = "/agents#tools"
 default = true
 surfaces = ["cli", "tool"]
 next = ["agent.tool.add", "agent.tool.remove", "sandbox.tool.add", "agent.browser.open", "agent.desktop.screenshot", "agent.file.grep", "agent.web.search", "agent.team-memory.start"]
@@ -2392,7 +2408,7 @@ description = "Take a tool from your agent (what it kept stays)"
 resource = "agent"
 role = "secondary"
 output = "core.report"
-docs = "/agents#add-tools-and-skills"
+docs = "/agents#tools"
 next = ["agent.tool.list", "sandbox.tool.remove", "agent.memory.start"]
 fail = ["agent.agent.show", "core.module.list", "agent.agent.start"]
 

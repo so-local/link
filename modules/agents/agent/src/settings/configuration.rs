@@ -35,7 +35,9 @@ pub fn shipped_instructions(spec: &link_agent_spec::Spec) -> bool {
 fn shipped() -> &'static (link_agent_spec::Resolved, toml::Value) {
     static SHIPPED: std::sync::LazyLock<(link_agent_spec::Resolved, toml::Value)> =
         std::sync::LazyLock::new(|| {
-            let known = link_agent_spec::Known { name: MAIN.into() };
+            let known = link_agent_spec::Known {
+                name: crate::first_agent::NAME.into(),
+            };
             let links = link_agent_spec::resolve(None, &[], &known).expect("Link's spec resolves");
             let value = toml::Value::try_from(&links.spec).expect("a spec is TOML");
             (links, value)
@@ -277,11 +279,9 @@ mod tests {
     fn recreated_behavior_defaults_contain_no_extends_and_enable_only_file() {
         let spec = default_behavior().unwrap();
         assert!(spec.extends.is_none());
-        for tool in ["scheduler", "run", "code"] {
+        for tool in ["file", "scheduler", "run", "code", "mcp"] {
             assert_eq!(spec.tool(tool).enabled, Some(false), "{tool}");
         }
-        // File, so asked to, it changes its instructions and skills.
-        assert_eq!(spec.tool("file").enabled, Some(true));
     }
 
     #[test]
@@ -290,7 +290,9 @@ mod tests {
         let mut resolved = link_agent_spec::resolve(
             Some(&own),
             &[],
-            &link_agent_spec::Known { name: MAIN.into() },
+            &link_agent_spec::Known {
+                name: crate::first_agent::NAME.into(),
+            },
         )
         .unwrap();
         unclaim_defaults(&mut resolved);

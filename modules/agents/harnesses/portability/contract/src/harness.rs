@@ -338,6 +338,11 @@ link_files::specification!(
     include_str!("harness/shared_agents.schema.toml")
 );
 
+/// The agents a shared harness serves, which an upgrade converts.
+pub fn saved_shared_agents() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<SharedAgents>()
+}
+
 /// One agent of a [`SharedAgents`]: who it is, its harness's home, its
 /// Home (`files`) and its own folder (`agent`), the port
 /// its endpoint answers on, and the environment it would have had on its
@@ -415,6 +420,11 @@ struct AddedTools {
 }
 
 link_files::specification!(AddedTools, include_str!("harness/added_tools.schema.toml"));
+
+/// The tools an adapter added, which an upgrade converts.
+pub fn saved_added_tools() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<AddedTools>()
+}
 
 /// The tools an adapter added to its harness's MCP servers, as `record`
 /// lists them ([`tools_gone`]): none when it can't be read.

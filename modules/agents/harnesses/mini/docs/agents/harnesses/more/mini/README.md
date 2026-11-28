@@ -41,7 +41,7 @@ Mini also provides a small installed text agent with saved conversations and MCP
 
 ### Know When Mini Is a Poor Fit
 
-Mini is a poor fit for a personal assistant that needs skills, a composed persona, media input or automatic context management. [Link Harness](../../../../../../link/docs/agents/link/README.md) provides those capabilities. [Local Link's permissions](../../../../../../../agent/docs/security/sandbox/permissions/README.md) govern what the agent may reach. [Models](../../../../../../../model/docs/agents/models/README.md) supplies the common model interface and translates requests into provider protocols.
+Mini is a poor fit for a personal assistant that needs skills, a composed persona, media input or automatic context management. [Link Harness](../../../../../../link/docs/agents/harnesses/link/README.md) provides those capabilities. [Local Link's permissions](../../../../../../../agent/docs/tooling/sandbox/permissions/README.md) govern what the agent may reach. [Models](../../../../../../../model/docs/agents/models/README.md) supplies the common model interface and translates requests into provider protocols.
 
 ## Follow a Complete Turn
 

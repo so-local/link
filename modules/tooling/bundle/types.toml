@@ -46,7 +46,7 @@ more. It's `host` when none is given."""
 
 [bundle.properties.version]
 type = "string"
-examples = ["0.14.0"]
+examples = ["0.0.1"]
 description = """
 Its version. It's the workspace's, stamped for staging and dev, when
 none is given."""
@@ -66,6 +66,16 @@ examples = [["manifest.toml"]]
 description = """
 A file sealed beside the programs, such as a manifest its installer
 reads, repeated for more."""
+
+[bundle.properties.archives]
+type = "array"
+items = { type = "string", x-link-path = true }
+examples = [["archives"]]
+description = """
+A folder of archives, each a folder with its `archive.toml`, packed
+into `link-<name>.tar.gz` by the bundle's own `lnk archive export`,
+with every module the bundle holds beside it, and sealed with the
+programs, repeated for more. It's none when none is given."""
 
 [bundle.properties.signer]
 type = "string"

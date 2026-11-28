@@ -1,4 +1,4 @@
-//! The core's own commands, `lnk up`, `module`, `folder`, `upgrade`,
+//! The core's own commands, `lnk up`, `module`, `location`, `upgrade`,
 //! `uninstall`, `issue` and the rest, generated from its declarations
 //! (`actions.toml` and `types.toml`). Every other `lnk <group>` is a
 //! module's, forwarded unparsed (`Command::External`).
@@ -58,8 +58,8 @@ mod tests {
             Ok(Command::ModuleList(_))
         ));
         assert!(matches!(
-            read(&["lnk", "folder"]),
-            Ok(Command::FolderList(_))
+            read(&["lnk", "location"]),
+            Ok(Command::LocationList(_))
         ));
     }
 }

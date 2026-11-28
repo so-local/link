@@ -145,6 +145,11 @@ pub struct Boxes {
 
 link_files::specification!(Boxes, include_str!("boxes.schema.toml"));
 
+/// The boxes, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Boxes>()
+}
+
 impl Boxes {
     pub fn path() -> anyhow::Result<PathBuf> {
         Ok(crate::ssh::dir()?.join("boxes.toml"))

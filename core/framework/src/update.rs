@@ -4,6 +4,7 @@ use crate::{
     release::advisories::Advisory,
     upgrades::{Level, NOTES, Notes, Notice, POLICY, ReleaseNotes},
 };
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -36,6 +37,11 @@ pub struct Seen {
 
 link_files::specification!(Seen, include_str!("update.schema.toml"));
 
+/// What an upgrade converts of the update notice's file.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Seen>()
+}
+
 pub fn file() -> PathBuf {
     link_files::layout::Hidden::Update.path()
 }
@@ -44,11 +50,32 @@ fn now() -> u64 {
         .duration_since(UNIX_EPOCH)
         .map_or(0, |d| d.as_secs())
 }
-fn load() -> Seen {
-    link_files::fs::read_control(&file(), link_spec::MAX_BYTES, "an update cache's")
-        .ok()
-        .and_then(|read| link_files::saved::parse_json(read.text.as_bytes()).ok())
-        .unwrap_or_default()
+/// What this machine has seen of releases: nothing yet when its file is
+/// missing. One that can't be read is named, once, and `None`: never read
+/// as empty, so nothing overwrites it.
+fn load() -> Option<Seen> {
+    match load_from(&file()) {
+        Ok(seen) => Some(seen),
+        Err(err) => {
+            use link_format::{Note, Sentence, aside};
+            aside(Note(Sentence::adopt(&format!(
+                "lnk left the update notice out: {}",
+                link_format::clean(&format!("{err:#}"))
+            ))));
+            None
+        }
+    }
+}
+
+/// [`load`] of the file at `path`: refused by name when it can't be read.
+fn load_from(path: &std::path::Path) -> anyhow::Result<Seen> {
+    let Some(read) =
+        link_files::fs::read_control_optional(path, link_spec::MAX_BYTES, "an update cache's")?
+    else {
+        return Ok(Seen::default());
+    };
+    link_files::saved::parse_json(read.text.as_bytes())
+        .with_context(|| format!("reading {}", path.display()))
 }
 fn save(seen: &Seen) {
     if let Ok(bytes) = link_files::saved::print_json(seen) {
@@ -101,7 +128,9 @@ pub fn record_release(found: Option<(link_version::Version, Vec<Advisory>)>) {
     let Some(_lock) = locked() else {
         return;
     };
-    let mut seen = load();
+    let Some(mut seen) = load() else {
+        return;
+    };
     seen.checked = now();
     if let Some((latest, advisories)) = found {
         seen.latest = Some(latest);
@@ -120,7 +149,9 @@ pub fn upgrading_from(current: &link_version::Version) {
     let Some(_lock) = locked() else {
         return;
     };
-    let mut seen = load();
+    let Some(mut seen) = load() else {
+        return;
+    };
     if seen.noted.as_ref().is_none_or(|noted| noted > current) {
         seen.noted = Some(current.clone());
         save(&seen);
@@ -180,7 +211,9 @@ pub fn notice(json: bool) {
     let Some(lock) = locked() else {
         return;
     };
-    let mut seen = load();
+    let Some(mut seen) = load() else {
+        return;
+    };
     let now = now();
     let current = link_version::version();
     let (due_check, say) = due(&seen, now, &current);
@@ -251,6 +284,22 @@ pub fn notice(json: bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A missing cache is nothing seen yet; one that can't be read is
+    /// refused by name, never read as empty.
+    #[test]
+    fn an_unreadable_cache_is_refused_by_name_and_a_missing_one_is_empty() {
+        let dir = link_test_kit::TempDir::new("update-cache");
+        let path = dir.join("update.json");
+        assert_eq!(load_from(&path).unwrap(), Seen::default());
+        link_files::write_private(&path, b"{\"schema\": 1, \"checked\": ").unwrap();
+        let refused = load_from(&path).unwrap_err();
+        assert!(
+            format!("{refused:#}").contains("update.json"),
+            "{refused:#}"
+        );
+    }
+
     #[test]
     fn checks_and_says_at_configured_intervals() {
         let day = POLICY.notice.check.seconds();
@@ -296,30 +345,30 @@ mod tests {
     #[test]
     fn release_notes_are_shown_once_after_an_upgrade() {
         let notes = Notes::parse(
-            "[[release]]\nversion = \"0.3.0\"\nnotes = [\"Three.\"]\n\
-             [[release]]\nversion = \"0.2.0\"\nnotes = [\"Two.\"]\n",
+            "[[release]]\nversion = \"0.0.3\"\nnotes = [\"Three.\"]\n\
+             [[release]]\nversion = \"0.0.2\"\nnotes = [\"Two.\"]\n",
         )
         .unwrap();
-        let current = v("0.3.0");
+        let current = v("0.0.3");
         let versions = |shown: Vec<&ReleaseNotes>| -> Vec<String> {
             shown.iter().map(|r| r.version.to_string()).collect()
         };
-        // Upgraded from 0.1.0: both releases' notes, and 0.3.0 noted.
-        let (shown, noted) = noting(&notes, Some(&v("0.1.0")), &current, true);
-        assert_eq!(versions(shown), ["0.2.0", "0.3.0"]);
+        // Upgraded from 0.0.1: both releases' notes, and 0.0.3 noted.
+        let (shown, noted) = noting(&notes, Some(&v("0.0.1")), &current, true);
+        assert_eq!(versions(shown), ["0.0.2", "0.0.3"]);
         assert_eq!(noted, Some(current.clone()));
         // Then quiet.
         let (shown, noted) = noting(&notes, Some(&current), &current, true);
         assert!(shown.is_empty() && noted.is_none());
         // Where they can't be shown, as with --json, they wait.
-        let (shown, noted) = noting(&notes, Some(&v("0.2.0")), &current, false);
+        let (shown, noted) = noting(&notes, Some(&v("0.0.2")), &current, false);
         assert!(shown.is_empty() && noted.is_none());
         // A new install notes its release, showing nothing.
         let (shown, noted) = noting(&notes, None, &current, true);
         assert!(shown.is_empty());
         assert_eq!(noted, Some(current.clone()));
         // So does a downgrade.
-        let (shown, noted) = noting(&notes, Some(&v("0.4.0")), &current, true);
+        let (shown, noted) = noting(&notes, Some(&v("0.0.4")), &current, true);
         assert!(shown.is_empty());
         assert_eq!(noted, Some(current));
     }

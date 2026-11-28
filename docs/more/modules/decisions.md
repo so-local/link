@@ -136,7 +136,7 @@ it will install with what that needs (`Install cloud, accounts and
 box?`), after the command's arguments are read. `lnk <group>` whose own
 module is missing asks before: only that module can read its arguments.
 A command that names the
-module itself, such as [`lnk agent connect slack`](../../../modules/agents/agent/docs/agents/README.md#connect-your-channels), [`lnk agent harness set hermes`](../../../modules/agents/agent/docs/agents/harnesses/use/README.md#switch-in-one-command) or [`lnk agent tool add web`](../../../modules/agents/agent/docs/agents/README.md#add-tools-and-skills), asks nothing: naming it was the yes.
+module itself, such as [`lnk agent connect slack`](../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app), [`lnk agent harness set hermes`](../../../modules/agents/agent/docs/agents/harnesses/use/README.md#switch-in-one-command) or [`lnk agent tool add web`](../../../modules/agents/agent/docs/agents/README.md#tools), asks nothing: naming it was the yes.
 
 ### Why Doesn't the Storage Module Need the Cloud Module?
 

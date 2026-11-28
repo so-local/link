@@ -15,6 +15,11 @@ struct Identity {
 
 link_files::specification!(Identity, include_str!("identity.schema.toml"));
 
+/// Each team's identity, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Identity>()
+}
+
 pub(super) struct Applied {
     pub text: String,
     /// The members it changed, and the agents it took off the team.

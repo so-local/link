@@ -12,8 +12,10 @@ use link_format::Address;
 /// The remote command, if any, goes after this.
 ///
 /// Nothing of this machine reaches the box through it, whatever the
-/// user's `~/.ssh/config` says: no agent, no X11, no port forwarded, and
-/// no command run here.
+/// user's `~/.ssh/config` says: no forwarded keys, no X11, no port, no
+/// command run here, and no key or certificate but Link's: it reads no
+/// SSH settings (`-F none`) but for their `ProxyJump`, kept as a
+/// ProxyCommand that reaches the jump host as your settings say.
 pub fn command(ip: &str, options: &[&str]) -> anyhow::Result<Command> {
     connection(ip, options, false)
 }
@@ -57,16 +59,27 @@ fn connection(ip: &str, options: &[&str], forwards: bool) -> anyhow::Result<Comm
             Some(proxy_command(&adapter, machine)?)
         }
     };
+    // Your settings' jump host, the one thing of them a box connection
+    // keeps: reached as they say, by its own ssh.
+    let proxy = match proxy {
+        Some(proxy) => Some(proxy),
+        None => user_jump(ip)?
+            .map(|jump| jump_proxy(&ssh()?, &jump))
+            .transpose()?,
+    };
+    if let Some(alias) = &alias {
+        adopt(ip, alias)?;
+    }
+    let (known, checks) = super::hosts::checking(alias.as_deref().unwrap_or(ip))?;
     let mut command = link_secretive::process::command(ssh()?);
     command
+        .args(["-F", "none"])
         .arg("-i")
         .arg(key()?)
         .args(["-o", "IdentitiesOnly=yes"])
+        .args(["-o", "IdentityAgent=none"])
         .arg("-o")
-        .arg(format!(
-            "UserKnownHostsFile={}",
-            option_path(&known_hosts()?)?
-        ));
+        .arg(format!("UserKnownHostsFile={}", option_path(&known)?));
     // The box's certificate, signed here when it's due: a box made with
     // certificates takes nothing else.
     if let Some(cert) = machine
@@ -80,7 +93,6 @@ fn connection(ip: &str, options: &[&str], forwards: bool) -> anyhow::Result<Comm
             .arg(format!("CertificateFile={}", option_path(&cert)?));
     }
     if let Some(alias) = &alias {
-        adopt(ip, alias)?;
         command.arg("-o").arg(format!("HostKeyAlias={alias}"));
     }
     if let Some(proxy) = &proxy {
@@ -96,12 +108,72 @@ fn connection(ip: &str, options: &[&str], forwards: bool) -> anyhow::Result<Comm
         command.args(["-o", "ClearAllForwardings=yes"]);
     }
     command
-        .args(["-o", "StrictHostKeyChecking=accept-new"])
+        .arg("-o")
+        .arg(format!("StrictHostKeyChecking={checks}"))
         .args(["-o", "ConnectTimeout=10"])
         .args(["-o", "ServerAliveInterval=30"])
         .args(options)
+        // Never read as an option, whatever it holds.
+        .arg("--")
         .arg(format!("{USER}@{ip}"));
     Ok(command)
+}
+
+/// The jump host your SSH settings give the box at `ip` (`ProxyJump`),
+/// as `ssh -G` resolves them; None when they give none.
+fn user_jump(ip: &str) -> anyhow::Result<Option<String>> {
+    let output = link_secretive::process::command(ssh()?)
+        .arg("-G")
+        .arg("--")
+        .arg(format!("{USER}@{ip}"))
+        .stdin(Stdio::null())
+        .stderr(Stdio::null())
+        .output()
+        .within("running ssh -G")?;
+    Ok(jump_of(&String::from_utf8_lossy(&output.stdout)))
+}
+
+/// The `proxyjump` in `ssh -G`'s `resolved` settings, unless it's none.
+fn jump_of(resolved: &str) -> Option<String> {
+    resolved
+        .lines()
+        .filter_map(|line| line.trim().split_once(' '))
+        .find(|(name, _)| name.eq_ignore_ascii_case("proxyjump"))
+        .map(|(_, value)| value.trim().to_string())
+        .filter(|value| !value.is_empty() && !value.eq_ignore_ascii_case("none"))
+}
+
+/// ssh's ProxyCommand for `jump` (`[user@]host[:port]`, comma-separated
+/// hops): `ssh -W` through its last hop, the hops before it its `-J`,
+/// each run with your SSH settings, as a jump host needs. Every word in
+/// single quotes for the shell ssh runs it with, and `%` doubled but in
+/// ssh's own `%h` and `%p`.
+fn jump_proxy(ssh: &std::path::Path, jump: &str) -> anyhow::Result<String> {
+    let program = ssh.display().to_string();
+    ensure!(
+        !program.contains(['\'', '\\']) && !jump.contains(['\'', '\\']),
+        "a jump host or ssh's path has a quote or a backslash, which ssh's ProxyCommand can't take"
+    );
+    let quoted = |word: &str| format!("'{}'", word.replace('%', "%%"));
+    let (before, last) = match jump.rsplit_once(',') {
+        Some((before, last)) => (Some(before), last),
+        None => (None, jump),
+    };
+    ensure!(
+        !last.is_empty() && !last.starts_with('-'),
+        "{jump:?} isn't a jump host"
+    );
+    let mut words = vec![quoted(&program)];
+    if let Some(before) = before {
+        words.extend(["-J".to_string(), quoted(before)]);
+    }
+    words.extend([
+        "-W".to_string(),
+        "'[%h]:%p'".to_string(),
+        "--".to_string(),
+        quoted(last),
+    ]);
+    Ok(words.join(" "))
 }
 
 /// Waits (up to `timeout`) until the box at `ip` takes SSH.
@@ -319,8 +391,10 @@ pub fn script_output(ip: &str, script: &str) -> anyhow::Result<String> {
         .take()
         .within("no input to ssh")?
         .write_all(script.as_bytes())?;
-    let output = child.wait_with_output()?;
-    if !output.status.success() {
+    let read = capped(child.stdout.take().within("no output from ssh")?);
+    let status = child.wait()?;
+    let stdout = read.within("reading the script's output")?;
+    if !status.success() {
         return Err(said(
             Report::error(sentence!("Couldn't run the script on the box.")).next(
                 cmd!("lnk box list --refresh"),
@@ -328,23 +402,83 @@ pub fn script_output(ip: &str, script: &str) -> anyhow::Result<String> {
             ),
         ));
     }
-    Ok(String::from_utf8_lossy(&output.stdout).into_owned())
+    Ok(String::from_utf8_lossy(&stdout).into_owned())
+}
+
+/// All of `from`, a box's answer, up to [`crate::constants::MOST_OUTPUT`]:
+/// more is refused, never held.
+fn capped(from: impl std::io::Read) -> std::io::Result<Vec<u8>> {
+    capped_at(from, crate::constants::MOST_OUTPUT)
+}
+
+/// [`capped`], at `most` bytes.
+fn capped_at(from: impl std::io::Read, most: u64) -> std::io::Result<Vec<u8>> {
+    use std::io::Read;
+    let mut read = Vec::new();
+    from.take(most + 1).read_to_end(&mut read)?;
+    if read.len() as u64 > most {
+        return Err(std::io::Error::other(format!(
+            "the box answered more than {most} bytes"
+        )));
+    }
+    Ok(read)
+}
+
+/// Runs `command`, a box's, its output reaching your terminal clean
+/// ([`link_format::clean`]), line by line: a box's program never moves
+/// your cursor, retitles your window or writes what it hides. Output to
+/// anything but a terminal passes through untouched, as do the bytes of a
+/// session with a terminal of its own (`-t`).
+fn shown(mut command: Command, input: Option<&[u8]>) -> anyhow::Result<ExitStatus> {
+    use link_format::streams::{Stream, passed};
+    let out = link_format::streams::stdout_is_terminal();
+    let err = link_format::streams::stderr_is_terminal();
+    if out {
+        command.stdout(Stdio::piped());
+    }
+    if err {
+        command.stderr(Stdio::piped());
+    }
+    if input.is_some() {
+        command.stdin(Stdio::piped());
+    }
+    let mut child = command.spawn().within("running ssh")?;
+    if let (Some(input), Some(mut stdin)) = (input, child.stdin.take()) {
+        std::io::Write::write_all(&mut stdin, input)?;
+    }
+    let errors = child
+        .stderr
+        .take()
+        .map(|from| std::thread::spawn(move || cleaned(from, passed(Stream::Err))));
+    if let Some(from) = child.stdout.take() {
+        cleaned(from, passed(Stream::Out))?;
+    }
+    if let Some(errors) = errors {
+        let _ = errors.join();
+    }
+    child.wait().within("running ssh")
+}
+
+/// Each line of `from` written to `to` clean ([`link_format::clean`]).
+fn cleaned(from: impl std::io::Read, mut to: impl std::io::Write) -> std::io::Result<()> {
+    use std::io::BufRead;
+    for line in std::io::BufReader::new(from).split(b'\n') {
+        let line = line?;
+        writeln!(
+            to,
+            "{}",
+            link_format::clean(&String::from_utf8_lossy(&line))
+        )?;
+        to.flush()?;
+    }
+    Ok(())
 }
 
 /// Runs `script` on the box with `sh`, in this terminal.
 pub fn run_script(ip: &str, script: &str) -> anyhow::Result<()> {
-    use std::io::Write;
-    let mut child = command(ip, &["-o", "BatchMode=yes"])?
-        .args(["sh", "-s"])
-        .stdin(Stdio::piped())
-        .spawn()
-        .within("running ssh")?;
-    child
-        .stdin
-        .take()
-        .within("no input to ssh")?
-        .write_all(script.as_bytes())?;
-    let status = child.wait()?;
+    let mut command = command(ip, &["-o", "BatchMode=yes"])?;
+    command.args(["sh", "-s"]);
+    let status = shown(command, Some(script.as_bytes()))?;
     if !status.success() {
         return Err(said(
             Report::error(sentence!("Couldn't finish setting up the box."))
@@ -369,7 +503,10 @@ pub fn interactive(ip: &str, remote: &[String]) -> anyhow::Result<ExitStatus> {
     if !remote.is_empty() {
         command.arg(crate::setup::command_line(remote));
     }
-    command.status().within("running ssh")
+    match terminal {
+        true => command.status().within("running ssh"),
+        false => shown(command, None),
+    }
 }
 
 /// Runs `lnk` on the box with `args`, each quoted for its shell. A
@@ -411,10 +548,12 @@ pub fn run_lnk(ip: &str, staged: bool, args: &[String]) -> anyhow::Result<ExitSt
         options.extend(["-o".into(), "BatchMode=yes".into()]);
     }
     let options: Vec<&str> = options.iter().map(String::as_str).collect();
-    command(ip, &options)?
-        .arg(remote.join(" "))
-        .status()
-        .within("running ssh")
+    let mut command = command(ip, &options)?;
+    command.arg(remote.join(" "));
+    match terminal {
+        true => command.status().within("running ssh"),
+        false => shown(command, None),
+    }
 }
 
 /// `ssh -R`: the box gets a SOCKS proxy on its loopback, `port`, whose
@@ -448,18 +587,21 @@ pub fn forward(ip: &str, port: u16, to: u16) -> anyhow::Result<ExitStatus> {
 /// before left removed first, over a connection of their own.
 pub fn forward_socket(ip: &str, socket: &str, to: u16) -> anyhow::Result<ExitStatus> {
     let prepare = link_box_contract::forward::socket_forward_prepare(socket)?;
-    let home = command(ip, &["-o", "BatchMode=yes"])?
+    let mut made = command(ip, &["-o", "BatchMode=yes"])?
         .arg(prepare)
         .stdin(std::process::Stdio::null())
-        .output()
+        .stdout(Stdio::piped())
+        .spawn()
         .within("running ssh")?;
+    let home = capped(made.stdout.take().within("no output from ssh")?);
+    let status = made.wait().within("running ssh")?;
+    let home = home.within("reading the socket's folder")?;
     ensure!(
-        home.status.success(),
-        "couldn't make the socket's folder on the box ({})",
-        home.status
+        status.success(),
+        "couldn't make the socket's folder on the box ({status})"
     );
     let remote = link_box_contract::forward::socket_forward(
-        &String::from_utf8_lossy(&home.stdout),
+        &String::from_utf8_lossy(&home),
         socket,
         &to.to_string(),
     )?;
@@ -481,4 +623,55 @@ pub fn forward_socket(ip: &str, socket: &str, to: u16) -> anyhow::Result<ExitSta
     .stdin(std::process::Stdio::null())
     .status()
     .within("running ssh")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Your settings' jump host is read from `ssh -G`, and nothing else.
+    #[test]
+    fn a_jump_host_is_read_from_your_settings() {
+        let resolved = "user ubuntu\nidentityfile ~/.ssh/id_rsa\nproxyjump admin@bastion:2222\n";
+        assert_eq!(jump_of(resolved).as_deref(), Some("admin@bastion:2222"));
+        assert_eq!(jump_of("user ubuntu\nproxyjump none\n"), None);
+        assert_eq!(jump_of("user ubuntu\n"), None);
+    }
+
+    /// A jump host is reached by its own ssh, with your settings: its
+    /// hops before the last are that ssh's `-J`, and every word is
+    /// quoted for the shell, `%` doubled but in ssh's own tokens.
+    #[test]
+    fn a_box_is_offered_links_key_alone_through_its_jump_host() {
+        let ssh = std::path::Path::new("/usr/bin/ssh");
+        assert_eq!(
+            jump_proxy(ssh, "bastion").unwrap(),
+            "'/usr/bin/ssh' -W '[%h]:%p' -- 'bastion'"
+        );
+        assert_eq!(
+            jump_proxy(ssh, "a%b,me@last:22").unwrap(),
+            "'/usr/bin/ssh' -J 'a%%b' -W '[%h]:%p' -- 'me@last:22'"
+        );
+        assert!(jump_proxy(ssh, "it's").is_err());
+        assert!(jump_proxy(ssh, "a,-oProxyCommand=x").is_err());
+    }
+
+    /// A box's answer read whole is bounded: past the cap, it's refused.
+    #[test]
+    fn a_boxs_output_is_bounded() {
+        assert_eq!(
+            capped_at(&b"twelve bytes"[..], 12).unwrap(),
+            b"twelve bytes"
+        );
+        assert!(capped_at(&b"thirteen byte"[..], 12).is_err());
+    }
+
+    /// What a box prints reaches your terminal without its escapes, line
+    /// by line.
+    #[test]
+    fn a_boxs_output_is_cleaned() {
+        let mut shown = Vec::new();
+        cleaned(&b"ok\x1b]0;owned\x07\r\nnext\x1b[2J\n"[..], &mut shown).unwrap();
+        assert_eq!(String::from_utf8(shown).unwrap(), "ok]0;owned\nnext[2J\n");
+    }
 }

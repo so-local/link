@@ -391,7 +391,7 @@ sys.exit(3 if ok else 1)
     std::fs::write(&secret_file, SECRET).unwrap();
     let (routes, caller) = crate::routes_here(&dir, &[model], None);
     let routes_file = dir.join("routes.json");
-    let routed = serde_json::json!({"routes": routes, "caller": caller});
+    let routed = serde_json::json!({"routes": routes, "caller": caller, "schema": 1});
     std::fs::write(&routes_file, routed.to_string()).unwrap();
     let output = link_test_kit::env::command(env!("CARGO_BIN_EXE_lnk-sandbox"), &dir)
         .args(["proxy", "--listen", &port.to_string()])

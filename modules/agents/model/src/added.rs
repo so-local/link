@@ -41,6 +41,11 @@ pub fn load() -> Vec<Added> {
 
 link_files::specification!(File, include_str!("added.schema.toml"));
 
+/// The model runtimes added, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<File>()
+}
+
 fn load_from(path: &Path) -> anyhow::Result<Vec<Added>> {
     let text = match std::fs::read_to_string(path) {
         Ok(text) => text,
@@ -325,7 +330,7 @@ mod tests {
         let path = dir.join("models.toml");
         std::fs::write(
             &path,
-            "[[runtime]]\nname = \"far\"\nbase_url = \"http://example.com:5000\"\n\n\
+            "schema = 1\n[[runtime]]\nname = \"far\"\nbase_url = \"http://example.com:5000\"\n\n\
              [[runtime]]\nname = \"near\"\nbase_url = \"http://localhost:5000/v1\"\n",
         )
         .unwrap();

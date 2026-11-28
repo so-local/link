@@ -38,6 +38,11 @@ struct Record {
 
 link_files::specification!(Record, include_str!("schedules/record.schema.toml"));
 
+/// Each agent's schedule identities, which an upgrade converts.
+pub(crate) fn saved_record() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Record>()
+}
+
 /// The agent's record, by its schedules' names: none before its first.
 pub fn record(agent: &Settings) -> anyhow::Result<Vec<Kept>> {
     match std::fs::read(settings::config_of(&agent.name).join(RECORD)) {
@@ -114,6 +119,11 @@ struct Handoff {
 }
 
 link_files::specification!(Handoff, include_str!("schedules/handoff.schema.toml"));
+
+/// Each schedule handoff, which an upgrade converts.
+pub(crate) fn saved_handoff() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Handoff>()
+}
 
 fn pending(agent: &Settings) -> PathBuf {
     settings::config_of(&agent.name).join(PENDING)

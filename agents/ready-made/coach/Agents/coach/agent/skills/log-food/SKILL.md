@@ -33,7 +33,7 @@ foods. Never tell them they eat a food because it is in the reference.
    protein per 100 g is 248 kcal and 46.5 g protein.
 4. Append one row per food to `nutrition/log.csv`:
    `date,meal,food,grams,kcal,protein_g,carbs_g,fat_g,notes`
-   Example: `2027-01-12,lunch,Chicken breast (skinless; cooked),150,248,46.5,0,5.4,`
+   Shape: `<YYYY-MM-DD>,<meal>,<catalogue name>,<grams>,<kcal>,<g>,<g>,<g>,`
 5. Sum that date's rows for kcal and protein (and carbs and fat).
    Compare with `target_kcal` and `target_protein_g` in `targets.md`. If
    targets are still empty, run the nutrition-targets skill first.

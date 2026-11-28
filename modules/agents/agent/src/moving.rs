@@ -33,6 +33,8 @@ use serde::{Deserialize, Serialize};
 pub(crate) mod away;
 pub(crate) mod backups;
 pub(crate) mod buckets;
+pub(crate) mod claim;
+pub(crate) mod delivering;
 pub(crate) mod journal;
 pub(crate) mod machines;
 pub(crate) mod receiving;

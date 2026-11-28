@@ -9,12 +9,12 @@ lnk agent show
 
 ## "Your agent's memory isn't served" at a start
 
-Run [`lnk agent memory start`](../../../../../../agent/docs/agents/more/settings/files.md#lnksafesandboxestoolsmemory-idjson-600) again: it says what failed, and serves
+Run [`lnk agent memory start`](../../../../../../agent/docs/agents/state/files.md#lnksafesandboxestoolsmemory-idjson-600) again: it says what failed, and serves
 your agent's memory once that's fixed.
 
 ## `$LNK_MEMORY` is empty in `lnk agent harness run`
 
-[`lnk agent memory`](../../../../../../agent/docs/agents/more/settings/files.md#lnksafesandboxestoolsmemory-idjson-600) says why: your agent has no memory, or it runs with
+[`lnk agent memory`](../../../../../../agent/docs/agents/state/files.md#lnksafesandboxestoolsmemory-idjson-600) says why: your agent has no memory, or it runs with
 no proxy to reach it through.
 
 ## A file isn't found

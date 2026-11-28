@@ -96,6 +96,12 @@ impl BoxSpec {
     /// built in in one table, too many tags, and from a file (`from_file`)
     /// an `lnk` behind this computer's.
     pub fn check(&self, text: &str, from_file: bool) -> anyhow::Result<()> {
+        self.check_against(text, from_file.then(link_version::version).as_ref())
+    }
+
+    /// [`BoxSpec::check`], holding a file's `lnk` to `this`, the
+    /// computer's `lnk`, when it's given.
+    fn check_against(&self, text: &str, this: Option<&Version>) -> anyhow::Result<()> {
         let at = |table: &str, key: &str| match line_of(text, table, key) {
             Some(line) => format!("line {line}: "),
             None => String::new(),
@@ -140,10 +146,11 @@ impl BoxSpec {
                 table.tags.len()
             );
         }
-        if from_file && let Some(version) = &self.lnk_version() {
-            let this = link_version::version();
+        if let Some(this) = this
+            && let Some(version) = &self.lnk_version()
+        {
             ensure!(
-                *version >= this,
+                version >= this,
                 "{}[lnk] version {version} is behind this computer's lnk {this}: a spec \
                  can't install a lower lnk, which may have a known hole. To mean it, give \
                  --lnk.version {version} yourself",
@@ -220,6 +227,11 @@ mod tests {
         BoxSpec::parse(&format!("schema = 1\n{text}"))
     }
 
+    /// `text` read as [`parse`] reads it, before its checks.
+    fn parse_raw(text: &str) -> BoxSpec {
+        link_spec::parse_spec(&format!("schema = 1\n{text}")).unwrap()
+    }
+
     /// An empty file is refused, naming the schema line it lacks; one
     /// holding that line alone is today's box.
     #[test]
@@ -264,7 +276,6 @@ mod tests {
                 "untagged enum CountRange",
             ),
             ("[lnk]\nversion = \"latest\"\n", "is not a version"),
-            ("[lnk]\nversion = \"0.10.3\"\n", "no modules"),
             ("[lnk]\nversion = \"1.2.3; rm -rf /\"\n", "is not a version"),
             ("name = \"Web Server\"\n", "can't start a box's name"),
             (
@@ -339,24 +350,24 @@ mod tests {
 
     #[test]
     fn an_older_lnk_only_from_a_flag() {
-        let older = Version::new(0, 11, 0);
-        assert!(older < link_version::version() || link_version::version() == FLOOR);
-        if older < link_version::version() {
-            let err = parse("[lnk]\nversion = \"0.11.0\"\n").unwrap_err();
-            assert!(err.to_string().contains("--lnk.version 0.11.0"), "{err}");
-        }
-        let spec = made(None, &["--lnk.version", "0.11.0"], None).unwrap();
-        assert_eq!(spec.lnk_version(), Some(older.clone()));
-        assert!(made(None, &["--lnk.version", "0.9.0"], None).is_err());
-        // A spec printed with that flag reads back with it: the flag's
-        // version is yours, and the file's it replaces isn't held to
-        // this computer's lnk.
-        if older < link_version::version() {
-            let printed = toml::to_string(&spec).unwrap();
-            assert!(made(Some(&printed), &[], None).is_err());
-            let again = made(Some(&printed), &["--lnk.version", "0.11.0"], None).unwrap();
-            assert_eq!(again, spec);
-        }
+        let this = Version::new(0, 0, 2);
+        let older = Version::new(0, 0, 1);
+        let file = "[lnk]\nversion = \"0.0.1\"\n";
+        let err = parse_raw(file)
+            .check_against(file, Some(&this))
+            .unwrap_err();
+        assert!(err.to_string().contains("--lnk.version 0.0.1"), "{err}");
+        assert!(parse_raw(file).check_against(file, None).is_ok());
+        let spec = made(None, &["--lnk.version", "0.0.1"], None).unwrap();
+        assert_eq!(spec.lnk_version(), Some(older));
+        // A spec printed with that flag is held to this computer's lnk
+        // when read back as a file: the flag's version was yours.
+        let printed = toml::to_string(&spec).unwrap();
+        assert!(
+            parse_raw(&printed)
+                .check_against(&printed, Some(&this))
+                .is_err()
+        );
     }
 
     #[test]

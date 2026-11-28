@@ -1,0 +1,7 @@
+# The store's contract: what a caller and a store driver say. A driver
+# states the version it speaks in `lnk-<name> contract`, and the caller,
+# which states none back, reads it within the versions it accepts.
+name = "store"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

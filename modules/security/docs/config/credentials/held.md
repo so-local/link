@@ -21,21 +21,21 @@ printing its value, separately from the model keys the harness uses.
 ### A model's key
 
 The provider's variable, `LNK_FALLBACK_CREDENTIAL` for a fallback, or asked
-for by [`lnk agent start`](../../../../agents/agent/docs/agents/README.md#create-an-agent). It lives in your secrets, as the agent's own,
+for by [`lnk agent start`](../../../../agents/agent/docs/agents/README.md#start-your-agent). It lives in your secrets, as the agent's own,
 kept and granted by the agent's ID and its use, and the harness's own `.env` (DeepSeek Harness's store of
 keys). The harness reads it, or [the sandbox's proxy where it adds the
 key outside](../../../../agents/agent/docs/agents/models/agent/security.md#secrets).
 
 ### A connection's token
 
-From [`lnk agent connect`](../../../../agents/agent/docs/agents/README.md#connect-your-channels): its variable, or asked for. It lives in your
+From [`lnk agent connect`](../../../../agents/agent/docs/agents/connections/connect/README.md#choose-an-app): its variable, or asked for. It lives in your
 secrets as the agent's own, by its ID and the connection's field, as a model's key does, and
 the connection's bridge reads it, outside the sandbox.
 
 ### A tool's key and a remote tool's headers
 
 A tool's key (a search service's, as `BRAVE_API_KEY`) lives in the
-tool's settings, which [`lnk sandbox tool`](../../../sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside) writes, mode 600, and the tool sends it to
+tool's settings, which [`lnk sandbox tool`](../../../sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside) writes, mode 600, and the tool sends it to
 its service alone. A remote tool's headers (`lnk sandbox tool add
 --header-file`) live in the tool's settings, mode 600, read by the tool
 outside every sandbox.

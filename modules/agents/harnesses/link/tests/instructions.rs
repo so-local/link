@@ -203,6 +203,7 @@ fn source_none_has_no_prompt_and_link_restores_the_assembly() {
     );
     assert!(assembled.system.contains("Primary model instructions."));
     assert!(assembled.system.contains("Tool instructions."));
-    assert!(assembled.system.contains("Repository instructions."));
+    // Link's spec reads no repository's instructions until it's asked to.
+    assert!(!assembled.system.contains("Repository instructions."));
     assert_eq!(assembled, world.compose(&Config::default()));
 }

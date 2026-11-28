@@ -543,6 +543,11 @@ struct Made {
 
 link_files::specification!(Made, include_str!("remote.schema.toml"));
 
+/// Each box an environment made, which an upgrade converts.
+pub fn saved_made() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Made>()
+}
+
 fn made_path(machine: &str) -> std::path::PathBuf {
     link_files::layout::Hidden::Envs
         .path()

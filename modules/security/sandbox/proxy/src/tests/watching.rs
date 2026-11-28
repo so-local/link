@@ -80,6 +80,51 @@ async fn a_web_pages_requests_never_count_against_the_wire() {
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
+/// On a port any program of the machine reaches, a request without the
+/// URL secret is an outsider's, refused before it counts: only the
+/// sandbox's own calls pause its wire or use its calls a minute.
+#[tokio::test]
+async fn only_a_sandboxs_calls_pause_its_wire() {
+    let target = echo().await;
+    let dir = std::env::temp_dir().join(format!("lnk-proxy-outsider-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let wire = crate::wire::Wire::new("run-10", dir.clone()).limited(Some(2));
+    let secret: &'static link_secretive::Secret = Box::leak(Box::new(
+        link_secretive::Secret::from("abcdefghijklmnop1234".to_string()),
+    ));
+    let rules = Filter {
+        allowed: |_| true,
+        url_secret: Some(secret),
+        ..Filter::new(Upstream::Direct)
+    }
+    .with_tcp(vec![target.to_string()])
+    .on(wire);
+    let outsiders = [
+        "GET /_link/url/wrongwrongwrong1/mcp/gh HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n",
+        "GET /_link/mcp/gh HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n",
+        "GET / HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n",
+    ];
+    for i in 0..(crate::wire::BURST * 2) {
+        let asked = outsiders[i % outsiders.len()];
+        let (mut client, server) = tokio::io::duplex(64 * 1024);
+        client.write_all(asked.as_bytes()).await.unwrap();
+        assert!(proxy(server, rules).await.is_err());
+        let mut answer = Vec::new();
+        client.read_to_end(&mut answer).await.unwrap();
+        let answer = String::from_utf8_lossy(&answer);
+        assert!(answer.starts_with("HTTP/1.1 403"), "{asked}: {answer}");
+    }
+    let wire = rules.wire.unwrap();
+    assert_eq!(wire.why_stopped(), None, "an outsider paused the wire");
+    let connect = format!("CONNECT {target} HTTP/1.1\r\n\r\n");
+    for _ in 0..2 {
+        let answer = through(rules, &connect).await;
+        assert!(answer.starts_with("HTTP/1.1 200"), "{answer}");
+    }
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
 #[tokio::test]
 async fn each_call_is_logged_and_a_stopped_wire_ends_them_all() {
     let target = echo().await;

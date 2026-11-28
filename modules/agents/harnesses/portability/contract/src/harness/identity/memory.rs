@@ -19,6 +19,11 @@ struct Revisions {
 
 link_files::specification!(Revisions, include_str!("memory.schema.toml"));
 
+/// The native memory's revisions, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Revisions>()
+}
+
 fn path(home: &Path, adapter: &str) -> std::path::PathBuf {
     link_files::state::path(home, link_files::state::Area::Context)
         .join(format!("memory-{adapter}.json"))

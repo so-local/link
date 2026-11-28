@@ -1,6 +1,6 @@
-# Installation Identity
+# Installations
 
-> Installation Identity That Stays Stable
+> Installations Keep a Stable Identity
 
 An installation is Link under one OS user; the machine it runs on is
 hardware. This installation keeps its stable ID and name in
@@ -24,7 +24,7 @@ An existing document requires both fields and refuses unknown fields.
 ## Settings Owned by Modules
 
 [Machine-wide agent policy](../../../../modules/agents/agent/docs/agents/more/settings/README.md) lives in `~/.lnk/safe/agents/policy.toml`.
-[Keeper settings](../../../../modules/security/secret/docs/config/secrets/README.md) live in `~/.lnk/safe/secrets/preferences.toml`.
+[Keeper settings](../../../../modules/security/secret/docs/config/secrets/README.md) live in `~/.lnk/safe/secrets/settings.toml`.
 Each module reads only its own typed settings document. Installation identity
 contains no module settings, and an incomplete identity is an error.
 

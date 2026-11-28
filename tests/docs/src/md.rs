@@ -212,6 +212,12 @@ pub fn toml_blocks(text: &str) -> Vec<String> {
     blocks
 }
 
+/// An outline link's target without its quoted title, such as `"tab"`,
+/// `"include"` or a group's label, so the target resolves on disk.
+pub fn target_path(target: &str) -> &str {
+    target.split_once(" \"").map_or(target, |(path, _)| path)
+}
+
 /// Decode a Markdown URL's path before resolving it on disk. Invalid
 /// escapes stay literal, and decoding happens once (so %2520 names %20).
 pub fn link_path(path: &str) -> String {

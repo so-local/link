@@ -80,7 +80,7 @@ wherever it runs.
 
 ## Reports
 
-Each command's help and [`lnk variable list`](../../../../../../../core/cli/docs/more/architecture/files.md#list-a-commands-variables)
+Each command's help and [`lnk variable list`](../../../../../../../core/cli/docs/config/variables.md#list-a-commands-variables)
 come from every crate's file, with each variable's owner, its uses and
 the commands that read it.
 

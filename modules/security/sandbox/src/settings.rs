@@ -101,12 +101,14 @@ fn load(dir: Option<&PathBuf>) -> Settings {
         }
     });
     let read = yours.and_then(|yours| match yours {
-        Some((path, text)) => resolve(&text).within(format!("in {}", path.display())),
-        None => resolve(""),
+        Some((path, text)) => link_files::saved::parse::<Written>(&text)
+            .and_then(resolve)
+            .within(format!("in {}", path.display())),
+        None => resolve(Written::default()),
     });
     read.unwrap_or_else(|err| {
         let _ = PROBLEM.set(format!("{err:#}"));
-        resolve("").expect("Link's sandbox settings read")
+        resolve(Written::default()).expect("Link's sandbox settings read")
     })
 }
 
@@ -117,9 +119,8 @@ pub fn saved() -> link_files::upgrade::Saved {
     link_files::upgrade::Saved::of::<Written>()
 }
 
-/// `yours` (a settings file's text) over Link's.
-fn resolve(yours: &str) -> anyhow::Result<Settings> {
-    let yours: Written = link_files::saved::parse(yours)?;
+/// `yours` (a settings file's, or none) over Link's.
+fn resolve(yours: Written) -> anyhow::Result<Settings> {
     let links: Written = toml::from_str(DEFAULTS).map_err(|e| anyhow::anyhow!("{e}"))?;
     let wait = yours.ask_wait.or(links.ask_wait).within("no ask_wait")?;
     let ask_wait = Duration::from_millis(link_spec::duration_ms(&wait).within("ask_wait")?);
@@ -170,9 +171,14 @@ fn resolve(yours: &str) -> anyhow::Result<Settings> {
 mod tests {
     use super::*;
 
+    /// A settings file's text, read and resolved over Link's.
+    fn read(text: &str) -> anyhow::Result<Settings> {
+        link_files::saved::parse::<Written>(text).and_then(resolve)
+    }
+
     #[test]
     fn yours_over_links() {
-        let links = resolve("").unwrap();
+        let links = resolve(Written::default()).unwrap();
         assert_eq!(
             links,
             Settings {
@@ -184,7 +190,7 @@ mod tests {
                 tool_stop: Duration::from_secs(2),
             }
         );
-        let yours = resolve("ask_wait = \"10m\"\ntool_sessions = 20\n").unwrap();
+        let yours = read("schema = 1\nask_wait = \"10m\"\ntool_sessions = 20\n").unwrap();
         assert_eq!(yours.ask_wait, Duration::from_secs(600));
         assert_eq!((yours.tool_starts, yours.tool_sessions), (2, 20));
         for bad in [
@@ -197,7 +203,7 @@ mod tests {
             "ask_wait = 3",
             "ask_wait = \"25d\"",
         ] {
-            assert!(resolve(bad).is_err(), "{bad}");
+            assert!(read(&format!("schema = 1\n{bad}")).is_err(), "{bad}");
         }
     }
 
@@ -206,7 +212,7 @@ mod tests {
     #[test]
     fn read_from_the_folder_handed_in() {
         let dir = link_test_kit::TempDir::new("settings");
-        std::fs::write(dir.join("settings.toml"), "tool_sessions = 3\n").unwrap();
+        std::fs::write(dir.join("settings.toml"), "schema = 1\ntool_sessions = 3\n").unwrap();
         assert_eq!(load(Some(&dir.to_path_buf())).tool_sessions, 3);
     }
 }

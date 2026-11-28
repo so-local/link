@@ -84,11 +84,23 @@ pub struct RunsAgentsAnswer {
 
 link_files::specification!(RunsAgents, include_str!("runs_agents.schema.toml"));
 
+/// The agents run elsewhere, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<RunsAgents>()
+}
+
 impl RunsAgents {
+    /// Its file, where its schema's `[[files]]` says, so the upgrade
+    /// that converts it finds it where it's written.
     pub fn path() -> anyhow::Result<std::path::PathBuf> {
+        use link_files::schema::Specification;
+        let name = Self::format().files[0]
+            .path
+            .clone()
+            .within("the accounts' answers' schema names its file")?;
         Ok(link_files::layout::Hidden::AgentPlaces
             .try_path()?
-            .join("runs-agents.toml"))
+            .join(name))
     }
 
     /// What's kept; none when it can't be read, so each is asked again.
@@ -423,6 +435,15 @@ pub fn unless_refused(account: &str, reply: &Reply) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The file is where its schema says, so `lnk upgrade` finds it.
+    #[test]
+    fn the_answers_file_is_where_its_schema_says() {
+        use link_files::schema::Specification;
+        let place = &RunsAgents::format().files[0];
+        assert_eq!(place.location, "lnk.agent-places");
+        assert!(RunsAgents::path().unwrap().ends_with("runs-agents.toml"));
+    }
 
     #[test]
     fn which_accounts_run_agents_is_kept_with_its_schema() {

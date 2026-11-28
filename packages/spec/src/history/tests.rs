@@ -31,13 +31,13 @@ fn a_command_that_became_a_group_is_answered_before_a_word_alone() {
 #[test]
 fn an_entry_is_spelled_with_its_namespace_first() {
     let history = History::parse(
-        "[[gone]]\nwas = \"tool serve --zone\"\nwhy = \"x\"\nsince = \"0.1.0\"\nuntil = \"0.2.0\"\n\
-         [[gone]]\nwas = \"LNK_TOOL_ZONE\"\nwhy = \"x\"\nsince = \"0.1.0\"\nuntil = \"0.2.0\"\n",
+        "[[gone]]\nwas = \"tool serve --zone\"\nwhy = \"x\"\nsince = \"0.0.1\"\nuntil = \"0.0.2\"\n\
+         [[gone]]\nwas = \"LNK_TOOL_ZONE\"\nwhy = \"x\"\nsince = \"0.0.1\"\nuntil = \"0.0.2\"\n",
     )
     .unwrap();
     assert!(history.outside("tool").is_none());
     let bare = History::parse(
-        "[[gone]]\nwas = \"serve --zone\"\nwhy = \"x\"\nsince = \"0.1.0\"\nuntil = \"0.2.0\"\n",
+        "[[gone]]\nwas = \"serve --zone\"\nwhy = \"x\"\nsince = \"0.0.1\"\nuntil = \"0.0.2\"\n",
     )
     .unwrap();
     assert_eq!(
@@ -46,7 +46,7 @@ fn an_entry_is_spelled_with_its_namespace_first() {
     );
     // A namespace's prefix alone isn't its namespace.
     let longer = History::parse(
-        "[[gone]]\nwas = \"toolbox serve\"\nwhy = \"x\"\nsince = \"0.1.0\"\nuntil = \"0.2.0\"\n",
+        "[[gone]]\nwas = \"toolbox serve\"\nwhy = \"x\"\nsince = \"0.0.1\"\nuntil = \"0.0.2\"\n",
     )
     .unwrap();
     assert!(longer.outside("tool").is_some());
@@ -254,6 +254,31 @@ fn renames_refuse_loops_twins_and_targets_that_arent_modules() {
     assert!(
         history
             .validate(&surface, &surface, &["b"], &Version::new(0, 9, 0))
+            .is_err()
+    );
+}
+
+/// A staging build of the release that renamed a module, removed one or
+/// retired a spelling runs: it's a build of that release, though its
+/// prerelease orders before it, and a build of an earlier one still
+/// refuses the entry as future.
+#[test]
+fn a_staging_build_holds_its_own_releases_entries() {
+    let history = History::parse(
+        "[[renamed]]\nmodule = 'a'\nnow = 'b'\nsince = '0.0.2'\nuntil = '0.0.4'\n\
+         [[removed]]\nmodule = 'c'\nwhy = 'Use b.'\nsince = '0.0.2'\nuntil = '0.0.4'\n\
+         [[gone]]\nwas = 'b old'\nwhy = 'Gone.'\nsince = '0.0.2'\nuntil = '0.0.4'\n",
+    )
+    .unwrap();
+    let surface = Surface::new();
+    let staging: Version = "0.0.2-staging.202611170000.g1a2b3c4d5e6f".parse().unwrap();
+    history
+        .validate(&surface, &surface, &["b"], &staging)
+        .unwrap();
+    let earlier: Version = "0.0.1-staging.202611170000.g1a2b3c4d5e6f".parse().unwrap();
+    assert!(
+        history
+            .validate(&surface, &surface, &["b"], &earlier)
             .is_err()
     );
 }

@@ -24,7 +24,7 @@ command set, while each owning guide explains its output.
 - [`lnk measure`](../../../modules/tooling/measure/docs/tooling/measure/README.md#measure)
 - [`lnk model`](../../../modules/agents/model/docs/agents/models/README.md#models)
 - [`lnk storage`](../../../modules/storage/storage/docs/services/storage/README.md#storage)
-- [`lnk cloud`](../../../modules/cloud/cloud/docs/services/cloud/README.md#cloud-accounts)
+- [`lnk cloud`](../../../modules/cloud/cloud/docs/services/cloud/README.md#platforms)
 - [`lnk box`](../../../modules/compute/box/docs/services/boxes/README.md#boxes)
 
 ## Agent Interfaces
@@ -38,7 +38,7 @@ How an agent moves, and how an account hosts a team:
 
 How a program is confined, and the secrets it is handed:
 
-- [`lnk sandbox`](../../../modules/security/sandbox/docs/security/sandbox/README.md#sandbox)
+- [`lnk sandbox`](../../../modules/security/sandbox/docs/tooling/sandbox/README.md#sandbox)
 - [Secrets a program is handed](../../../modules/security/secret/docs/config/secrets/more/protocol.md#secrets-a-program-is-handed)
 
 ## Protocols
@@ -50,7 +50,7 @@ What each kind of module answers, by its kind:
   - [Uninstalling (`lnk-<module> uninstall`)](../../../core/framework/docs/more/modules/protocol.md#uninstalling-lnk-module-uninstall)
 - [Harness programs (`lnk-<name>`)](../../../modules/agents/harnesses/portability/contract/docs/agents/harnesses/more/protocol/README.md#harness-programs-lnk-name)
 - [Memory engines (`lnk-<engine>`)](../../../modules/agents/tools/memory-tool/contract/docs/agents/tools/memory/more/protocol.md#memory-engines-lnk-engine)
-- [Bridges (`link-sandbox-bridge`)](../../../modules/security/sandbox/bridge/docs/security/sandbox/more/bridges.md#bridges-link-sandbox-bridge)
+- [Bridges (`link-sandbox-bridge`)](../../../modules/security/sandbox/bridge/docs/tooling/sandbox/more/bridges.md#bridges-link-sandbox-bridge)
 - [Store drivers (`lnk-<name>`)](../../../modules/agents/stores/contract/docs/agents/more/stores/protocol.md#store-drivers-lnk-name)
 - [Connection modules (`lnk-<connection>`)](../../../modules/agents/connections/contract/docs/agents/connections/more/protocol/README.md#the-contract)
 - [Cloud Adapters](../../../modules/cloud/cloud/contract/docs/services/cloud/more/adapters.md)

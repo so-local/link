@@ -28,6 +28,11 @@ struct Kept {
 
 link_files::specification!(Kept, include_str!("tools.schema.toml"));
 
+/// The hub's tools, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
+
 impl Tools {
     /// What `settings` give: each of its `tools`, and `memory`.
     pub fn of(settings: &Settings) -> Self {

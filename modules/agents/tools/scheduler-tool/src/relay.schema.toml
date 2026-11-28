@@ -1,3 +1,4 @@
 schema = 1
 kind = "team relay cursors"
 current = 1
+holds = "inside"

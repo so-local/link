@@ -141,7 +141,7 @@ mod tests {
             "agent-policy",
         );
         let new = root.join(link_files::layout::Hidden::AgentPolicy.relative());
-        link_files::write_private(&new, b"unsandboxed = false\nkeep_moved = '1d'\nshared_harness = true\nshared_bridge = true\n[storage]\nconversations = ['sqlite', 'file']\n").unwrap();
+        link_files::write_private(&new, b"schema = 1\nunsandboxed = false\nkeep_moved = '1d'\nshared_harness = true\nshared_bridge = true\n[storage]\nconversations = ['sqlite', 'file']\n").unwrap();
         if !link_test_kit::gate::settings(&new) {
             return;
         }
@@ -155,7 +155,7 @@ mod tests {
             Some(vec!["sqlite".into(), "file".into()])
         );
         assert!(check_unsandboxed_on(&new).is_err());
-        link_files::write_private(&new, b"keeper = false\n").unwrap();
+        link_files::write_private(&new, b"schema = 1\nkeeper = false\n").unwrap();
         assert!(read_at(&new).is_err());
     }
 
@@ -175,17 +175,17 @@ mod tests {
             return;
         }
         check_unsandboxed_on(&path).unwrap();
-        std::fs::write(&path, "").unwrap();
+        std::fs::write(&path, "schema = 1\n").unwrap();
         check_unsandboxed_on(&path).unwrap();
-        std::fs::write(&path, "unsandboxed = true\n").unwrap();
+        std::fs::write(&path, "schema = 1\nunsandboxed = true\n").unwrap();
         check_unsandboxed_on(&path).unwrap();
-        std::fs::write(&path, "unsandboxed = false\n").unwrap();
+        std::fs::write(&path, "schema = 1\nunsandboxed = false\n").unwrap();
         let refused = format!("{:#}", check_unsandboxed_on(&path).unwrap_err());
         assert!(refused.contains("unsandboxed = false"), "{refused}");
-        std::fs::write(&path, "unsandboxed = \"no\"\n").unwrap();
+        std::fs::write(&path, "schema = 1\nunsandboxed = \"no\"\n").unwrap();
         assert!(check_unsandboxed_on(&path).is_err());
         // Others may write it: whatever it says, refused.
-        std::fs::write(&path, "unsandboxed = true\n").unwrap();
+        std::fs::write(&path, "schema = 1\nunsandboxed = true\n").unwrap();
         std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o666)).unwrap();
         assert!(check_unsandboxed_on(&path).is_err());
         // Missing from a folder others write, where anyone could have
@@ -200,10 +200,14 @@ mod tests {
         // regardless of the target's value or permissions.
         let kept = temp.join("dotfiles");
         std::fs::create_dir_all(&kept).unwrap();
-        std::fs::write(kept.join("agents.toml"), "unsandboxed = false\n").unwrap();
+        std::fs::write(
+            kept.join("agents.toml"),
+            "schema = 1\nunsandboxed = false\n",
+        )
+        .unwrap();
         std::os::unix::fs::symlink(kept.join("agents.toml"), &path).unwrap();
         assert!(check_unsandboxed_on(&path).is_err());
-        std::fs::write(kept.join("agents.toml"), "unsandboxed = true\n").unwrap();
+        std::fs::write(kept.join("agents.toml"), "schema = 1\nunsandboxed = true\n").unwrap();
         assert!(check_unsandboxed_on(&path).is_err());
         std::fs::set_permissions(&kept, std::fs::Permissions::from_mode(0o777)).unwrap();
         assert!(check_unsandboxed_on(&path).is_err());
@@ -228,13 +232,13 @@ mod tests {
             return;
         }
         assert!(!shared_harness_at(&path).unwrap());
-        std::fs::write(&path, "").unwrap();
+        std::fs::write(&path, "schema = 1\n").unwrap();
         assert!(!shared_harness_at(&path).unwrap());
-        std::fs::write(&path, "shared_harness = false\n").unwrap();
+        std::fs::write(&path, "schema = 1\nshared_harness = false\n").unwrap();
         assert!(!shared_harness_at(&path).unwrap());
-        std::fs::write(&path, "shared_harness = true\n").unwrap();
+        std::fs::write(&path, "schema = 1\nshared_harness = true\n").unwrap();
         assert_eq!(shared_harness_at(&path).unwrap(), cfg!(target_os = "linux"));
-        std::fs::write(&path, "shared_harness = \"yes\"\n").unwrap();
+        std::fs::write(&path, "schema = 1\nshared_harness = \"yes\"\n").unwrap();
         assert!(shared_harness_at(&path).is_err());
     }
 
@@ -251,12 +255,12 @@ mod tests {
             return;
         }
         assert_eq!(ports_from_at(&path).unwrap(), crate::settings::FIRST_PORT);
-        std::fs::write(&path, "ports_from = 24000\n").unwrap();
+        std::fs::write(&path, "schema = 1\nports_from = 24000\n").unwrap();
         assert_eq!(ports_from_at(&path).unwrap(), 24000);
         for refused in [
-            "ports_from = 80\n",
-            "ports_from = 32000\n",
-            "ports_from = 70000\n",
+            "schema = 1\nports_from = 80\n",
+            "schema = 1\nports_from = 32000\n",
+            "schema = 1\nports_from = 70000\n",
         ] {
             std::fs::write(&path, refused).unwrap();
             assert!(ports_from_at(&path).is_err(), "{refused}");
@@ -274,13 +278,13 @@ mod tests {
             return;
         }
         assert!(!shared_bridge_at(&path).unwrap());
-        std::fs::write(&path, "shared_harness = true\n").unwrap();
+        std::fs::write(&path, "schema = 1\nshared_harness = true\n").unwrap();
         assert!(!shared_bridge_at(&path).unwrap());
-        std::fs::write(&path, "shared_bridge = false\n").unwrap();
+        std::fs::write(&path, "schema = 1\nshared_bridge = false\n").unwrap();
         assert!(!shared_bridge_at(&path).unwrap());
-        std::fs::write(&path, "shared_bridge = true\n").unwrap();
+        std::fs::write(&path, "schema = 1\nshared_bridge = true\n").unwrap();
         assert!(shared_bridge_at(&path).unwrap());
-        std::fs::write(&path, "shared_bridge = 1\n").unwrap();
+        std::fs::write(&path, "schema = 1\nshared_bridge = 1\n").unwrap();
         assert!(shared_bridge_at(&path).is_err());
     }
 }

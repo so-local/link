@@ -179,7 +179,9 @@ pub fn run(plan: &Path, parents: &[i32], argv: &[String]) -> anyhow::Result<i32>
             child.id(),
             link_secretive::process::Terminal::Reaches,
         );
-        return Ok(child.wait()?.code().unwrap_or(1));
+        let status = child.wait()?;
+        link_secretive::process::end_left(link_sandbox_contract::constants::BUBBLEWRAP);
+        return Ok(status.code().unwrap_or(1));
     }
     root()?;
     ensure!(
@@ -414,6 +416,7 @@ pub fn run(plan: &Path, parents: &[i32], argv: &[String]) -> anyhow::Result<i32>
     // PID is still reserved. Cleanup cannot signal an unrelated reused PID.
     link_secretive::process::stand_aside();
     let status = child.wait()?;
+    link_secretive::process::end_left(link_sandbox_contract::constants::BUBBLEWRAP);
     views.clean()?;
     account.clean()?;
     account.cleanup = false;

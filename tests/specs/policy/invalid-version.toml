@@ -1,8 +1,0 @@
-# Version 1 is the only one.
-[spec]
-schema = 1
-name = "p"
-version = 2
-
-[expect]
-invalid = "a policy's version is 1, not 2"

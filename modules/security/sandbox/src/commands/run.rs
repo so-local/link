@@ -139,6 +139,9 @@ pub(crate) fn run(
     }
     let mut child = start(&argv[0]);
     child.args(&argv[1..]);
+    // macOS: a session of its own where it doesn't own the terminal, so
+    // it never types into it.
+    link_sandbox_proxy::run::own_session(&mut child);
     link_secretive::process::hand_to(
         &mut child,
         handed.iter().map(|(name, secret)| (name.as_str(), secret)),
@@ -153,7 +156,9 @@ pub(crate) fn run(
                 child.id(),
                 link_secretive::process::Terminal::Reaches,
             );
-            child.wait()
+            let status = child.wait();
+            link_secretive::process::end_left(link_sandbox_contract::constants::BUBBLEWRAP);
+            status
         })
         .within(format!("running {}", argv[0]));
     clean_up(policy);

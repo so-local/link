@@ -27,7 +27,7 @@ pub use fields::{
 };
 pub use io::{
     Converted, MAX_BYTES, Read, SECRET_WORDS, Seen, check_name, check_variable, convert,
-    named_like_a_secret, parse_current, parse_spec, read, read_spec,
+    named_like_a_secret, parse_current, parse_spec, read, read_spec, saved_seen,
 };
 pub use shape::{Declared, Exported, Kind, check_shape, declared, kind_doc, schema};
 mod format;

@@ -121,9 +121,9 @@ create` copies it the checked release over SSH, as
 Before [`lnk agent move`](../../../../../../agents/agent/docs/agents/move/README.md#move-your-agent-to-the-cloud) or [`lnk agent create --on`](../../../../../../agents/agent/docs/agents/start/create.md#create-on-a-hosting-account), the harness module
 adds itself, the sandbox, the secret module and the model module, which
 serves every model call, there (with the storage module for an agent's
-backups), and [`lnk sandbox check --ready --yes`](../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) installs bubblewrap
+backups), and [`lnk sandbox check --ready --yes`](../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) installs bubblewrap
 with apt if it's missing and adds the AppArmor profile letting it make
-user namespaces, as [`lnk agent start`](../../../../../../agents/agent/docs/agents/README.md#create-an-agent) offers on Ubuntu, through the
+user namespaces, as [`lnk agent start`](../../../../../../agents/agent/docs/agents/README.md#start-your-agent) offers on Ubuntu, through the
 box's `sudo`, which asks nothing.
 
 ## Working users
@@ -210,7 +210,7 @@ so callers use the inspected `openat`.
 
 Setup installs `/etc/lnk/workers.json` and root's
 `/usr/local/lib/lnk/lnk-sandbox`. After upgrading the sandbox module,
-refresh it through [Worker Controller Maintenance](../../../../../../security/sandbox/docs/security/sandbox/more/workers.md)
+refresh it through [Worker Controller Maintenance](../../../../../../security/sandbox/docs/tooling/sandbox/more/workers.md)
 as the box controller.
 A sudo command default preserves the launcher's explicit descriptors
 and PATH; it grants workers no sudo authorization.
@@ -233,8 +233,8 @@ account: nothing runs from it.
 
 ### Every value is typed
 
-`[lnk] version` is a version (`0.14.0`, or a prerelease as
-`0.14.0-staging.202610131900`), 0.11.0 or later; a region and a machine type
+`[lnk] version` is a version (`0.0.1`, or a prerelease as
+`0.0.1-staging.202610131900`); a region and a machine type
 are lowercase letters, digits, dashes and dots; the OS, a GPU model and
 a disk type are words from Link's lists; `name` has a box name's
 characters.
@@ -285,11 +285,11 @@ none of it. A script someone else wrote: read it first.
 ### Stages
 
 Stages are what your script makes them. Each runs in its own sandbox
-specification, started by [`lnk sandbox run --spec`](../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide)
+specification, started by [`lnk sandbox run --spec`](../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide)
 on the box, and reaches only what its specification opens,
 so a stage installing dependencies can't reach your repository's host,
 and one building reaches no network, as the
-[sandbox's security](../../../../../../security/sandbox/docs/security/sandbox/security.md) guarantees.
+[sandbox's security](../../../../../../security/sandbox/docs/tooling/sandbox/security.md) guarantees.
 A stage outside any sandbox, as installing system packages with `sudo`
 must be, runs as root there.
 
@@ -338,7 +338,7 @@ on the line. A file there that anyone but root could write is refused.
 ### Their sessions
 
 A shell, a command, `scp` or `sftp` all run in their sandbox, as
-[Sessions over SSH](../../../../../../security/sandbox/docs/security/sandbox/security.md#sessions-over-ssh) explains.
+[Sessions over SSH](../../../../../../security/sandbox/docs/tooling/sandbox/security.md#sessions-over-ssh) explains.
 The programs their sessions run are root's copies of `lnk` and
 `lnk-sandbox` in `/usr/local/lib/lnk`, since the box's own user's home
 is closed to the rest; each `add` brings them up to the `lnk` that ran

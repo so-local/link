@@ -81,7 +81,9 @@ spaces its letters apart.
 
 ### Names
 
-The wordmark is `local.link`, lowercase, only in the header. Prose names the
+The wordmark is `local.link`, lowercase, only in the header. On every
+website, the wordmark links to the home page,
+`https://www.local.link`, the look's `brand.home`. Prose names the
 company and product Local Link, in title case. A product is Link and its name,
 such as Link Harness or Link Models, never Local Link Harness.
 

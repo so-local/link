@@ -42,8 +42,8 @@ A release is a pull request into `main` that bumps the version.
    their Release notes.
 2. Pick the version from the largest change, against the current
    `version` in the workspace's `Cargo.toml`. Before 1.0, **Breaking** or
-   **Added** bumps the minor version (0.11.0 -> 0.12.0) and **Fixed**
-   bumps the patch (0.11.0 -> 0.11.1). From 1.0, Breaking is major, Added
+   **Added** bumps the minor version (0.1.0 -> 0.2.0) and **Fixed**
+   bumps the patch (0.1.0 -> 0.1.1). From 1.0, Breaking is major, Added
    minor and Fixed patch. If nothing is user-visible, merge without a
    bump, and nothing is published.
 3. [Commit the bump](#the-bump) on a branch of its own. That
@@ -254,7 +254,7 @@ that the staging signer isn't Link's, and that a staging build installs with its
 
 Its own: the release's it comes before, then `-staging.` and its
 commit's build ID, the commit's time in UTC to the minute, then `g` and
-the start of its hash (`0.15.0-staging.202610131900.g1a2b3c4d5e6f`).
+the start of its hash (`0.0.1-staging.202610131900.g1a2b3c4d5e6f`).
 So the version names its commit, every machine that builds one commit gives it one version, a later
 commit's is newer than an earlier one's, and the release is newer than
 both, as `lnk upgrade` and a move's upgrade on a box order them.
@@ -333,7 +333,7 @@ release and of a staging build.
 ### Its version
 
 A staging build's, with `-dev.`: the release's it comes before, then its
-commit's build ID (`0.15.0-dev.202610131900.g1a2b3c4d5e6f`), ordered as a staging build's is.
+commit's build ID (`0.0.1-dev.202610131900.g1a2b3c4d5e6f`), ordered as a staging build's is.
 
 ## Make a dev build
 

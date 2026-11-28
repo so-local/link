@@ -15,7 +15,7 @@ each carrying `secret`. Runs outside every sandbox, where the token is.
 ### Each connection's secret
 
 Telegram's secret is its `secret_token`. Slack signs with its own
-signing secret, in `settings`, which [`lnk agent connect slack`](../../../../../../../agent/docs/agents/README.md#connect-your-channels) doesn't
+signing secret, in `settings`, which [`lnk agent connect slack`](../../../../../../../agent/docs/agents/connections/connect/README.md#choose-an-app) doesn't
 keep: the caller adds `signing_secret`, and `config_token` to switch the
 app itself, used and never kept. Without the signing secret, Slack's
 `hook` fails and switches nothing.

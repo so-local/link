@@ -39,6 +39,11 @@ pub use crate::cli::SandboxMcpNamespaceArgsBy as By;
 pub use route::{Tools, question, serve, unanswered};
 pub use session::{Session, calls};
 
+/// The variable a tool's server is started with naming the sandbox whose
+/// session it serves, set by the bridge after the tool's own environment,
+/// so a namespace asks and pauses as its caller.
+pub const CALLER: &str = "LNK_SANDBOX_CALLER";
+
 /// The largest message passed on, each way.
 const MAX_MESSAGE: usize = link_sandbox_client::routes::TOOL_MESSAGE_MAX;
 
@@ -112,6 +117,11 @@ pub struct Tool {
 }
 
 link_files::specification!(Tool, include_str!("tools/tool.schema.toml"));
+
+/// Each sandbox tool, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Tool>()
+}
 
 impl Tool {
     /// Tool `name`, running `argv` here, with this environment and `extra`

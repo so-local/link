@@ -10,7 +10,7 @@ lnk agent tool add desktop
 
 It installs `desktop` if it's missing, picks a display number no
 X server here uses and no other agent's desktop keeps, makes the
-display's cookie, and restarts your agent with the tool. [`lnk agent tool remove desktop`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) takes it away.
+display's cookie, and restarts your agent with the tool. [`lnk agent tool remove desktop`](../../../../../../agent/docs/agents/README.md#tools) takes it away.
 
 ### Its display number
 
@@ -31,7 +31,7 @@ started first keeps it.
 
 ### In its specification
 
-[`lnk agent tool add desktop`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) also writes `enabled = true` under
+[`lnk agent tool add desktop`](../../../../../../agent/docs/agents/README.md#tools) also writes `enabled = true` under
 `[tool.desktop]` in the agent's specification, and `remove` writes `false`. An
 agent whose specification says it gets its desktop at its next start on a Linux
 machine, [its module installed if it's missing](../../../../../../agent/docs/agents/tools/use/decisions.md#why-can-a-specification-turn-a-browser-or-desktop-on).

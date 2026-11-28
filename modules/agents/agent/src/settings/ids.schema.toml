@@ -12,6 +12,5 @@ location = "lnk.agent-services"
 encoding = "toml"
 
 [[files]]
-location = "lnk.agents"
-path = "team-ids.toml"
+location = "lnk.group-ids"
 encoding = "toml"

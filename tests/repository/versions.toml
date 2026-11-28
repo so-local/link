@@ -1,0 +1,9 @@
+# The tracked files outside test code that name a version the way Link's
+# is named past the workspace's line (`link_repository_check::versions`),
+# with how many such lines. Each is another's version said the same way.
+# A file here may shrink, never grow, and no file joins it: lower its
+# number as it shrinks, and take it out once it says none.
+
+[lines]
+# bubblewrap 0.8.0, the first that can take a user namespace away.
+"modules/security/sandbox/confine/src/linux/bwrap.rs" = 1

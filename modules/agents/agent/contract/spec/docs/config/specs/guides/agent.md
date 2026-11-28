@@ -77,7 +77,7 @@ says](../../../../../../../../../docs/config/README.md#where-an-agents-things-ar
 `rounds`, `calls` and the scheduler's caps take any number from 1 to
 65,535. Within that range, counts above the warning thresholds of 64
 rounds, 128 calls, or 64 subagents or hops are allowed, and
-[`lnk agent start`](../../../../../../docs/agents/README.md#create-an-agent) says so.
+[`lnk agent start`](../../../../../../docs/agents/README.md#start-your-agent) says so.
 The scheduler’s daily-message cap still cannot exceed 65,535.
 
 ## Storage
@@ -184,8 +184,8 @@ shown, not written back.
 
 ### Never a grant of what it reaches
 
-What the agent may reach is its sandbox file beside it, `sandbox.toml`, written by `lnk agent start --sandbox` or [`lnk agent permission add`](../../../../../../docs/security/sandbox/permissions/README.md#choose-what-your-agent-can-reach): [a specification repeats
-nothing of it](../../../../../../docs/security/sandbox/permissions/README.md#choose-what-your-agent-can-reach).
+What the agent may reach is its sandbox file beside it, `sandbox.toml`, written by `lnk agent start --sandbox` or [`lnk agent permission add`](../../../../../../docs/tooling/sandbox/permissions/README.md#choose-what-your-agent-can-reach): [a specification repeats
+nothing of it](../../../../../../docs/tooling/sandbox/permissions/README.md#choose-what-your-agent-can-reach).
 A specification's `[access]` says only [who may ask it](../../../../../identity/docs/config/specs/access.md), and
 whoever may can make it do all its sandbox file allows.
 

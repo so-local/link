@@ -84,6 +84,7 @@ or `own`, a service's own, which has no name:
 
 ```toml
 # ~/.lnk/safe/secrets/secrets.toml
+schema = 1
 retired = ["r7s8t9u0v1w2"]
 
 [entry.m5n6p7q8r9s0]
@@ -233,6 +234,7 @@ Each grant is kept as a principal, an action and the secret it gives:
 
 ```toml
 # ~/.lnk/safe/secrets/secrets.toml
+schema = 1
 [entry.k3m4n5p6q7r8]
 kind = "named"
 name = "STRIPE_KEY"
@@ -257,7 +259,7 @@ service under `principal`.
 #### Grant a Secret to an Agent
 
 An agent acts as its service from its first save, so [`lnk agent create`](../../../../../agents/agent/docs/agents/start/create.md#create-on-a-hosting-account)
-or the first [`lnk agent start`](../../../../../agents/agent/docs/agents/README.md#create-an-agent) of `main` comes before a grant. An agent is given a secret sealed only, for its host
+or the first [`lnk agent start`](../../../../../agents/agent/docs/agents/README.md#start-your-agent) of `main` comes before a grant. An agent is given a secret sealed only, for its host
 (`--internet-host`), and is told a placeholder, never the value. An agent made later with the name
 gets none of it. An agent on a box is granted its secrets there (`lnk
 box ssh <box>`).
@@ -273,7 +275,7 @@ file moved, is another environment or job, given nothing.
 ### Your agents' own credentials
 
 An agent's model credential, its fallback's and its connections' tokens are kept
-here too, granted to it: `lnk agent start` and [`lnk agent connect`](../../../../../agents/agent/docs/agents/README.md#connect-your-channels) add
+here too, granted to it: `lnk agent start` and [`lnk agent connect`](../../../../../agents/agent/docs/agents/connections/connect/README.md#choose-an-app) add
 them. Each has an ID of its own and no name: it is found by the agent's
 service and its use, so `lnk secret list` shows it as `service:<id>'s
 own, its model's key`, and a rename of the agent changes none of it. Such a
@@ -300,7 +302,7 @@ where the agent runs.
 ### Look at one secret
 
 `lnk secret show STRIPE_KEY` says how one secret is given and where it is
-granted, never its value. [`lnk issue create`](../../../../../../docs/more/modules/guide.md#get-help) asks it for the state of a secret
+granted, never its value. [`lnk issue create`](../../../../../../core/cli/docs/tooling/issue.md#report-a-bug) asks it for the state of a secret
 named in a failure, so a bug report holds it scrubbed.
 
 ### Take a secret back
@@ -436,7 +438,7 @@ the program that started them holds, [on a pipe](more/protocol.md#secrets-a-prog
 A program that reads a secret from its environment and nowhere else
 gets it there, each a reviewed place in Link's code, with why. A
 cloud's command line (`aws`, `gcloud`, `rclone`) gets its sign-in. A
-tool's server, added with [`lnk sandbox tool`](../../../../sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside),
+tool's server, added with [`lnk sandbox tool`](../../../../sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside),
 gets its environment as you gave it. The sandbox's own stages give the
 program the environment their caller gave it.
 

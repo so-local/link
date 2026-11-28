@@ -55,7 +55,11 @@ fn runs_on_a_box_share_one_connection() {
         assert_eq!(mode & 0o777, 0o700);
     }
     world.lnk_box(&["box", "delete", "b1", "--yes"]);
-    assert!(world.read("ssh.log").contains("-O exit ubuntu@192.0.2.10"));
+    assert!(
+        world
+            .read("ssh.log")
+            .contains("-O exit -- ubuntu@192.0.2.10")
+    );
     assert!(!world.dir.join("master").exists());
 }
 
@@ -84,7 +88,7 @@ fn a_box_is_reached_through_its_clouds_tunnel() {
     // The last connection that ran `true` there: `box ssh`'s.
     let ran = |ssh: &str| {
         ssh.lines()
-            .rfind(|l| l.ends_with("ubuntu@192.0.2.10 true"))
+            .rfind(|l| l.ends_with("-- ubuntu@192.0.2.10 true"))
             .unwrap()
             .to_string()
     };
@@ -221,7 +225,7 @@ fn a_box_from_before_certificates_is_given_them_then_the_key_goes() {
     std::fs::create_dir_all(boxes.parent().unwrap()).unwrap();
     std::fs::write(
         &boxes,
-        "[[box]]\nname = \"old-1\"\nmachine_id = \"k3v9q2x7m1ab\"\naccount = \"acct\"\n\
+        "schema = 1\n[[box]]\nname = \"old-1\"\nmachine_id = \"k3v9q2x7m1ab\"\naccount = \"acct\"\n\
          kind = \"fake\"\nplace = \"moon-1\"\nid = \"m-1\"\nsize = \"tiny\"\n\
          ip = \"192.0.2.10\"\nstate = \"running\"\ncreated = 1\ntagged = true\n\
          [[box]]\nname = \"older-1\"\naccount = \"acct\"\nkind = \"fake\"\nplace = \"moon-1\"\n\

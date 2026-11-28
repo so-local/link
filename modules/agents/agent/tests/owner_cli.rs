@@ -187,7 +187,7 @@ fn restart_without_an_existing_agent_does_not_create_one() {
         .unwrap();
     assert!(!output.status.success(), "{output:?}");
     assert!(
-        String::from_utf8_lossy(&output.stderr).contains("There is no agent yet"),
+        String::from_utf8_lossy(&output.stderr).contains("no agent here yet"),
         "{output:?}"
     );
     assert!(!home.join("Link/Safe/Agents/main/agent.toml").exists());
@@ -208,12 +208,11 @@ fn tool_states_are_on_or_off_and_only_file_starts_on() {
         !said.contains("comes with") && !said.contains("not on"),
         "{said}"
     );
-    // File starts on, so asked to, it changes its files, instructions
-    // and skills; every other tool is off until added.
+    // Every tool is off until added.
     for (name, state) in [
         ("scheduler", "off"),
         ("run", "off"),
-        ("file", "on"),
+        ("file", "off"),
         ("code", "off"),
         ("browser", "off"),
     ] {
@@ -236,8 +235,7 @@ fn built_in_tools_are_enabled_and_removed_explicitly_without_changing_file_grant
     let mut behavior = link_agent_spec::link();
     behavior.extends = Some(link_agent_spec::Extends::None);
     behavior.command_response = Some("Harness".into());
-    // File starts on in Link's spec: switched off here, so adding it is
-    // seen.
+    // File starts off in Link's spec, so adding it is seen.
     behavior.tool.get_mut("file").unwrap().enabled = Some(false);
     behavior.tool.get_mut("file").unwrap().find = Some(false);
     let configured = link_agent_spec::parse(&format!("schema = 1\n[tool.code.servers.test]\ncommand = [{server_name}]\nfiles = [\"txt\"]\nroots = [\"project.toml\"]\n")).unwrap();

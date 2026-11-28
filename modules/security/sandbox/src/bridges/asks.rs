@@ -295,11 +295,14 @@ pub fn ask_with(
         Some(review),
         now(),
     )?;
+    // Read after the question is out: the owner may already have answered
+    // it from another surface, a refusal (Denied) as well as a yes. Only an
+    // operation already claimed or closed is a replay.
     let snapshot = store.snapshot(&request, now())?;
     anyhow::ensure!(
         matches!(
             snapshot.effect,
-            EffectState::Awaiting | EffectState::Authorized
+            EffectState::Awaiting | EffectState::Authorized | EffectState::Denied
         ),
         "this exact source call is already settled or claimed; its outcome must never be replayed"
     );

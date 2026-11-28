@@ -27,7 +27,7 @@ description = "Answer a question waiting: allow a call once, or refuse it"
 role = "secondary"
 output = "ended"
 next = ["sandbox.question.list"]
-docs = "/security/sandbox/tools/questions#answer-what-a-sandbox-asks"
+docs = "/tooling/sandbox/tools/questions#answer-what-a-sandbox-asks"
 
 [actions."sandbox.sandbox.answer".args]
 id = { type = "string", description = "The question's id", required = true, x-link-cli = { position = 1 } }
@@ -45,7 +45,7 @@ for two minutes, then it's no: `lnk sandbox answer` answers.
 role = "secondary"
 output = "asked"
 next = ["sandbox.sandbox.answer"]
-docs = "/security/sandbox/tools/questions#answer-what-a-sandbox-asks"
+docs = "/tooling/sandbox/tools/questions#answer-what-a-sandbox-asks"
 
 [actions."sandbox.question.list".args]
 json = { x-link-cli = { shared = "json" } }
@@ -84,7 +84,7 @@ there, trying nothing from inside.
 role = "secondary"
 output = "ended"
 next = ["sandbox.sandbox.run", "sandbox.sandbox.list", "sandbox.log.show", "sandbox.question.list", "sandbox.permission.list"]
-docs = "/security/sandbox/guide#sandbox-guide"
+docs = "/tooling/sandbox/guide#sandbox-guide"
 spec = "sandbox"
 
 [actions."sandbox.sandbox.check".args]
@@ -191,7 +191,7 @@ takes an admin user. `lnk sandbox learn --spec app.toml -- npm test`
 role = "secondary"
 output = "ended"
 next = ["sandbox.sandbox.run"]
-docs = "/security/sandbox/wall#naming-a-refused-program"
+docs = "/tooling/sandbox/wall#naming-a-refused-program"
 spec = "sandbox"
 
 [actions."sandbox.sandbox.learn".args]
@@ -218,7 +218,7 @@ settings, which no sandbox reaches.
 role = "secondary"
 output = "log"
 next = ["sandbox.sandbox.list", "sandbox.sandbox.show"]
-docs = "/security/sandbox/security/log#see-every-call-on-the-wire"
+docs = "/tooling/sandbox/security/log#see-every-call-on-the-wire"
 
 [actions."sandbox.log.show".args]
 json = { x-link-cli = { shared = "json" } }
@@ -239,7 +239,7 @@ whether every wire is stopped (`lnk sandbox stop`).
 role = "secondary"
 output = "sandboxes"
 next = ["sandbox.sandbox.show", "sandbox.sandbox.start"]
-docs = "/security/sandbox/guide#stop-a-sandbox"
+docs = "/tooling/sandbox/guide#stop-a-sandbox"
 
 [actions."sandbox.sandbox.list".args]
 json = { x-link-cli = { shared = "json" } }
@@ -320,7 +320,7 @@ role = "secondary"
 output = "ended"
 next = ["sandbox.sandbox.run"]
 fail = ["sandbox.sandbox.check"]
-docs = "/security/sandbox/security/permission#list-the-permissions"
+docs = "/tooling/sandbox/security/permission#list-the-permissions"
 
 [actions."sandbox.sandbox.placeholders"]
 description = "Hold project dot-file placeholders while the wrapped program runs, and sweep what it made in Link's data folders."
@@ -457,7 +457,7 @@ nothing on this machine or its networks. A run grants no program until
 role = "secondary"
 output = "ended"
 fail = ["sandbox.sandbox.learn", "sandbox.sandbox.check"]
-docs = "/security/sandbox/guide#sandbox-guide"
+docs = "/tooling/sandbox/guide#sandbox-guide"
 spec = "sandbox"
 
 [actions."sandbox.sandbox.run".args]
@@ -486,7 +486,7 @@ With a name, that sandbox alone.
 role = "secondary"
 output = "carried"
 next = ["sandbox.sandbox.list", "sandbox.log.show"]
-docs = "/security/sandbox/guide#see-what-each-sandbox-sent"
+docs = "/tooling/sandbox/guide#see-what-each-sandbox-sent"
 
 [actions."sandbox.sandbox.show".args]
 json = { x-link-cli = { shared = "json" } }
@@ -505,7 +505,7 @@ why).
 role = "secondary"
 output = "ended"
 next = ["sandbox.sandbox.list"]
-docs = "/security/sandbox/guide#stop-a-sandbox"
+docs = "/tooling/sandbox/guide#stop-a-sandbox"
 
 [actions."sandbox.sandbox.start".args]
 name = { type = "string", description = "Only this sandbox (`main-link`, `alice`; `lnk sandbox list` names them)", x-link-cli = { position = 1 } }
@@ -529,7 +529,7 @@ hosts or ports tried in turn, a cloud's metadata service asked for.
 role = "secondary"
 output = "ended"
 next = ["sandbox.sandbox.start", "sandbox.sandbox.list"]
-docs = "/security/sandbox/guide#stop-a-sandbox"
+docs = "/tooling/sandbox/guide#stop-a-sandbox"
 
 [actions."sandbox.sandbox.stop".args]
 name = { type = "string", description = "Only this sandbox (`main-link`, `alice`; `lnk sandbox list` names them)", x-link-cli = { position = 1 } }
@@ -551,7 +551,7 @@ output = "ended"
 checks = ["one_server"]
 next = ["sandbox.sandbox.run", "sandbox.tool-call.list"]
 fail = ["sandbox.tool.list"]
-docs = "/security/sandbox/reach#call-a-tool-that-runs-outside"
+docs = "/tooling/sandbox/reach#call-a-tool-that-runs-outside"
 
 [actions."sandbox.tool.add".args]
 name = { type = "string", description = "Its name: lowercase letters, digits and dashes (`gh`)", required = true, x-link-cli = { position = 1 } }
@@ -594,7 +594,7 @@ this machine
 description = "List a tool's calls, from its server, started here"
 role = "secondary"
 output = "ended"
-docs = "/security/sandbox/tools/tool-calls#list-a-tools-calls"
+docs = "/tooling/sandbox/tools/tool-calls#list-a-tools-calls"
 
 [actions."sandbox.tool-call.list".args]
 name = { type = "string", description = "The tool", required = true, x-link-cli = { position = 1 } }
@@ -605,7 +605,7 @@ role = "secondary"
 output = "tools-listed"
 next = ["sandbox.tool.add"]
 fail = ["sandbox.sandbox.check"]
-docs = "/security/sandbox/tools#tools-and-asking"
+docs = "/tooling/sandbox/tools#tools-and-asking"
 
 [actions."sandbox.tool.list".args]
 json = { x-link-cli = { shared = "json" } }
@@ -616,7 +616,7 @@ role = "secondary"
 output = "ended"
 next = ["sandbox.tool.list"]
 fail = ["sandbox.tool.list"]
-docs = "/security/sandbox/reach#call-a-tool-that-runs-outside"
+docs = "/tooling/sandbox/reach#call-a-tool-that-runs-outside"
 
 [actions."sandbox.tool.remove".args]
 name = { type = "string", description = "The tool", required = true, x-link-cli = { position = 1 } }

@@ -62,7 +62,7 @@ it gave no description.
 A release build from source also says, in `source`, the commit of the
 checkout it was built from, which its build script asks Git for and
 gives the compiler in `LNK_BUILT_FROM`. Two programs built at different
-commits both report the same version, such as `0.14.0`, so the version
+commits both report the same version, such as `0.0.1`, so the version
 alone can't show that they were built apart. A release build, whose
 version is exact, a build outside a Git checkout and a debug build say
 none. A debug build's programs are built together by

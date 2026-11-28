@@ -69,7 +69,7 @@ async fn link_harness_searches_memory_through_the_tool_bridge() {
     let (port, asked) = fake_model().await;
     std::fs::write(
         harness_home.join("config.json"),
-        json!({"endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
+        json!({"schema": 1, "endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
             "base_url": format!("http://127.0.0.1:{port}")}})
         .to_string(),
     )

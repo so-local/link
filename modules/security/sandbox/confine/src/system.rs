@@ -19,6 +19,13 @@ pub use link_sandbox_client::LINUX_READS as SYSTEM;
 /// sandbox, with the network for a build whose output is fixed.
 pub const LINUX_SYSTEM_SOCKETS: &[&str] = &["/nix/var/nix/daemon-socket"];
 
+/// Folders of `/sys` that only root reads or acts by reading, each
+/// covered by an empty one where it's there, so a sandbox run as root
+/// reads none: the kernel's own settings and secrets (`/sys/kernel`),
+/// the firmware's tables (`/sys/firmware`), and zram's control, where
+/// reading `hot_add` makes a device (`/sys/class/zram-control`).
+pub const LINUX_ROOT_ONLY: &[&str] = &["/sys/kernel", "/sys/firmware", "/sys/class/zram-control"];
+
 /// The machine's `/etc`, shown read only. bubblewrap gives a program
 /// [`ETC`] of it at `/etc` (a tmpfs made read-only once every mount in it
 /// is made), and Landlock's file wall allows reading `/etc`; both name it
@@ -140,5 +147,17 @@ pub const ETC: &[&str] = &[
 
 /// The names never shown in [`ETC`], at any depth, a link so named
 /// too: private keys kept beside the certificates (`ssl/private`,
-/// `pki/tls/private`, ...).
-pub const ETC_HIDDEN: &[&str] = &["private"];
+/// `pki/tls/private`, ...), and a key's file, whatever its folder
+/// (`*key.pem`: a `*` first matches any start).
+pub const ETC_HIDDEN: &[&str] = &["private", "*key.pem"];
+
+/// Whether `name`, an entry's own name in `/etc`, is one
+/// [`ETC_HIDDEN`] never shows.
+pub fn etc_hidden(name: &str) -> bool {
+    ETC_HIDDEN
+        .iter()
+        .any(|hidden| match hidden.strip_prefix('*') {
+            Some(end) => name.ends_with(end),
+            None => name == *hidden,
+        })
+}

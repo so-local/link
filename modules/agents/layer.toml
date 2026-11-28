@@ -13,5 +13,3 @@ depends_on = [
     "modules/storage",
     "modules/compute",
 ]
-# The concepts this layer introduces: no layer it is built on says them.
-words = ["agent", "team", "harness"]

@@ -163,7 +163,7 @@ fn a_document_reads_its_names_as_they_are_today() {
         link_files::schema::Format::parse("schema = 1\nkind = 'example'\ncurrent = 1\n").unwrap();
     let read = format
         .read_following::<toml::Table>(
-            "[tools]\nnames = ['memory', 'gh']\n[tool.memory]\nafter = 'memory-tool search'\n",
+            "schema = 1\n[tools]\nnames = ['memory', 'gh']\n[tool.memory]\nafter = 'memory-tool search'\n",
             &sites(&shape()),
             &release(),
         )
@@ -177,7 +177,7 @@ fn a_document_reads_its_names_as_they_are_today() {
         Some("notes-tool find")
     );
     let refused = format.read_following::<toml::Table>(
-        "[tools]\nnames = ['pager']\n",
+        "schema = 1\n[tools]\nnames = ['pager']\n",
         &sites(&shape()),
         &release(),
     );

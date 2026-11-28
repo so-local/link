@@ -740,7 +740,7 @@ mod tests {
             "use Link's own harness",
         );
         let footer = Footer {
-            version: "lnk 0.9.2".into(),
+            version: "lnk 0.0.2".into(),
             platform: "linux x86_64".into(),
             command: "lnk agent start".into(),
             record: None,
@@ -750,7 +750,7 @@ mod tests {
             shown.starts_with("\u{2717} Couldn't install the hermes harness.\n  Its installer")
         );
         assert!(shown.contains("\n    error: externally-managed-environment\n"));
-        assert!(shown.contains("lnk 0.9.2 \u{b7} linux x86_64 \u{b7} lnk agent start \u{b7} "));
+        assert!(shown.contains("lnk 0.0.2 \u{b7} linux x86_64 \u{b7} lnk agent start \u{b7} "));
         assert!(shown.ends_with("Report it: lnk issue create\n"));
     }
 

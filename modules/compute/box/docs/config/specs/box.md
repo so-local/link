@@ -33,7 +33,7 @@ sandbox = "box-sandbox.toml"
 
 [lnk]
 login = true
-version = "1.0.0"
+version = "0.0.1"
 
 [machine]
 arch = "x86_64"
@@ -177,8 +177,8 @@ made for a service turns off with `false`.
 
 > **Type** text · **Flag** `--lnk.version`
 
-The `lnk` release to install with its modules, such as `0.14.0` or
-a prerelease, 0.11.0 or later. From a file it can't be behind this
+The `lnk` release to install with its modules, such as `0.0.1` or
+a prerelease. From a file it can't be behind this
 computer's `lnk`, so a specification someone hands you can't install a
 release with a known hole; `--lnk.version` given yourself can.
 Left out, the latest.

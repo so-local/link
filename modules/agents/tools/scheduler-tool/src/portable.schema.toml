@@ -1,3 +1,4 @@
 schema = 1
 kind = "schedule activation"
 current = 1
+holds = "inside"

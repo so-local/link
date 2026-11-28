@@ -24,7 +24,7 @@ has none until it's connected again.
 
 A connection that doesn't answer `owner`, or names no chat, is asked on
 by none: the owner answers its agent's questions another way, such as a
-dialog or [`lnk sandbox answer`](../../../../../../../../security/sandbox/docs/security/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks).
+dialog or [`lnk sandbox answer`](../../../../../../../../security/sandbox/docs/tooling/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks).
 
 ## A reply that answers
 

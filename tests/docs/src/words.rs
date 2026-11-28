@@ -289,6 +289,21 @@ mod tests {
         }
     }
 
+    /// Presale is one word: "pre-sale" is refused in any case.
+    #[test]
+    fn prose_says_presale() {
+        for said in [
+            "Buy the pre-sale.",
+            "## Buy\n\nThe Pre-Sale opens.",
+            "Two pre-sales sold.",
+        ] {
+            assert!(!said_of(listed(), said).is_empty(), "{said}");
+        }
+        for kept in ["Buy the presale.", "## The Presale"] {
+            assert!(said_of(listed(), kept).is_empty(), "{kept}");
+        }
+    }
+
     #[test]
     fn a_phrase_is_said_as_whole_words_in_its_case() {
         assert!(says("Each signing key is kept.", "signing key"));

@@ -534,7 +534,7 @@ fn a_deleted_teams_id_is_never_given_again() {
         let file: toml::Table = toml::from_str(&world.config("solo.toml")).unwrap();
         file["id"].as_str().unwrap().to_string()
     };
-    let ledger = |world: &World| read(&world.home.join(".lnk/safe/agents/team-ids.toml"));
+    let ledger = |world: &World| read(&world.home.join(".lnk/safe/agents/group-ids.toml"));
     ok(&world.lnk(&["team", "create", "solo", "--no-folder"]));
     let first = id(&world);
     assert!(ledger(&world).contains(&first), "{}", ledger(&world));

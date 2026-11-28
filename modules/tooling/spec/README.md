@@ -10,7 +10,7 @@ each kind.
 
 ### Pages
 
-- [Specification](docs/tooling/spec/README.md): `lnk spec` lists every specification kind, shows one's fields and rewrites a file in its current schema
+- [Specification Kinds](docs/config/specs/guides/kinds/README.md): `lnk spec` lists every specification kind, shows one's fields and rewrites a file in its current schema
 
 ### References
 

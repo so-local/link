@@ -17,7 +17,7 @@ fn main() -> std::process::ExitCode {
     // Safe to hold a secret before anything else: no core dump, no other
     // process of this user reading it.
     link_secretive::process::guard();
-    link_core::saved::own(&[link_secret_contract::saved, link_secret::preferences::saved]);
+    link_core::saved::own(&[link_secret_contract::saved, link_secret::settings::saved]);
     link_core::describe_component!();
     link_settings::output::run(try_main)
 }
@@ -39,7 +39,7 @@ fn try_main(out: &mut Out) -> Result<Done, Report> {
                 parts: vec![u::Part {
                     name: "secrets".into(),
                     about: "the secrets lnk secret keeps, and where each is granted".into(),
-                    paths: vec![secrets::path(), link_secret::preferences::path()?],
+                    paths: vec![secrets::path(), link_secret::settings::path()?],
                     secrets: Some(vec![secrets::path()]),
                     keys: vec![secrets::KEYCHAIN.into()],
                     credentials: secrets::held(),
@@ -63,7 +63,7 @@ fn try_main(out: &mut Out) -> Result<Done, Report> {
             unreachable!("no command reads a REST action")
         }
         Command::SecretKeep(args) => {
-            keeper::keep(args.socket, args.store)?;
+            keeper::keep(args.socket, args.store, args.sealed)?;
             Ok(Done::shown())
         }
         Command::SecretBootstrap(args) => {

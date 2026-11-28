@@ -24,7 +24,7 @@ The next check or message starts it again.
 ## Something else uses port 18820
 
 Stop it, because `main`'s port is fixed. Another agent's is in its own
-block, which [`lnk agent list --json`](../../../../../../../../modules/agents/agent/docs/agents/start/create.md#run-more-than-one-agent) shows.
+block, which [`lnk agent list --json`](../../../../../../../../modules/agents/agent/docs/agents/start/show.md#list-your-agents) shows.
 
 ## It answers without web search
 

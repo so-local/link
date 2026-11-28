@@ -12,7 +12,7 @@ Reads: `team/schedule.csv`, `team/notes.md`. Writes: `team/log.csv`,
    focus, RPE, and for a game the minutes played and the result.
 2. Append one row to `team/log.csv`:
    `date,kind,opponent_or_focus,minutes_played,result,rpe,highlights,notes`
-   Example: `2027-02-06,game,City FC,70,W 3-1,8,"assist, won most duels",left calf tight late`
+   Shape: `<YYYY-MM-DD>,<practice|game>,<their words>,<minutes>,<result>,<rpe>,"<their words>","<their words>"`
    Leave `minutes_played` and `result` blank for practice.
 3. Remove the matching row from `team/schedule.csv` (same date and kind)
    by replacing the file without that row.

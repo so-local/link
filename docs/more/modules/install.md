@@ -20,8 +20,17 @@ free, and installing needs no account.
 
 The installer puts `lnk` in `~/.lnk/exec/bin` after checking the release's
 signature with `ssh-keygen`. It leaves your shell's settings alone and
-prints the line to add if that folder isn't on your `PATH`. To choose
-another folder or a version, with the install line `curl -fsSL https://local.link/install.sh | LNK_INSTALL_DIR=/usr/local/bin LNK_VERSION=0.14.0 sh`.
+prints the line for your shell to add if that folder isn't on your
+`PATH`. To choose a version, set `LNK_VERSION` on the install line:
+`curl -fsSL https://local.link/install.sh | LNK_VERSION=0.0.1 sh`.
+
+### Another Folder
+
+`LNK_INSTALL_DIR` chooses another folder, one you can write, since `lnk`
+installs its modules beside itself; the installer says so before it
+downloads anything if you can't. Installed over an older `lnk`, it says
+which modules are the older release's, and `lnk upgrade` brings them
+and your files up to date.
 [Files and Variables](../../../core/cli/docs/more/architecture/files.md#installsh) lists every
 variable, and [Install `lnk`](../developing/setup/install.md) covers
 installing from source, or switching between a release and a source

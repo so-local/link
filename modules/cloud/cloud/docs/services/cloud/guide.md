@@ -1,4 +1,4 @@
-# Cloud Accounts Guide
+# Platforms Guide
 
 Connect named cloud accounts, inspect their identities, and disconnect them
 without deleting their resources. Choose a saved profile or a service account
@@ -30,6 +30,20 @@ to gcloud first if you aren't. It signs you in once more for buckets,
 because Google's libraries can't use gcloud's own login. A service
 account connects by its key instead, which you get from the Google Cloud
 console under IAM, Service accounts, Keys.
+
+### This Machine's Own Account
+
+On a cloud's own machine, `--machine` connects the account the machine
+itself runs as, and Link keeps no credential for it. `connect` hands the
+flag to the cloud's adapter, and Google Cloud's is the one that takes
+it: it connects the service account attached to a Compute Engine
+machine, and refuses a machine with none, as [its
+page](../../../../../../interop/cloud/gcp/docs/services/cloud/gcp.md#this-machines-service-account)
+says. `lnk cloud list --json` marks such an account `machine`.
+
+```sh
+lnk cloud connect gcp --machine
+```
 
 ### Without the Cloud's CLI
 

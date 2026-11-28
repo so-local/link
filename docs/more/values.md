@@ -1,8 +1,8 @@
 # Our Values
 
-**Our values say how we build Local Link.**
+Our values say how we build.
 
-## Focus on Freedom
+## Freedom First
 
 **Code you can read, write, and run.** Free as in free speech. Local Link's
 code is available under either [MIT](../../LICENSE-MIT)
@@ -18,7 +18,7 @@ and [share your own agents](../../modules/tooling/archive/docs/tooling/archive/R
 Local Link handles the machinery. Support the [presale](https://cloud.local.link)
 to help us make that experience even easier.
 
-## Elegant by Design
+## Elegant Design
 
 **A small core, clear boundaries, and a logical home for everything.** The
 [core](../../core/README.md) and [modular architecture](architecture/README.md)
@@ -26,13 +26,11 @@ give the software its structure. [Repository Organization](architecture/organiza
 explains where code belongs, so developers can find, understand, and improve
 the part they need.
 
-## Built for Trust
+## Build for Trust
 
-**Trust what runs on your machine.** Every agent runs in Local Link's
-[sandbox](../../modules/security/sandbox/docs/security/sandbox/README.md),
-which lets it reach only the folders and hosts you allow. Your settings and
-credentials live in [Safe folders](reference/locations.md#safe-exec-and-data)
-that no agent can read or change. You can check that those limits hold, and
-you always know what Local Link installs, [where it keeps things](reference/locations.md),
-and [how to remove it](modules/guide.md#uninstall). Powerful intelligence
-stays safe in your hands.
+**Trust what runs on your machine.** Every agent runs in a
+[sandbox](../../modules/security/sandbox/docs/tooling/sandbox/README.md)
+that reaches only the folders and hosts you allow. No agent can touch your
+[settings and credentials](reference/locations.md#safe-exec-and-data).
+You always know [where Local Link keeps things](reference/locations.md)
+and [how to remove Local Link](modules/guide.md#uninstall). 

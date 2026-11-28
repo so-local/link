@@ -73,9 +73,14 @@ names without the `lnk-` prefix, such as `agent` or `manual`, rather than
 Cargo package names. Each named module brings every module its `module.toml`
 lists as a module dependency, and theirs in turn. Unknown names and explicitly
 selected unsupported modules are refused before any installation changes.
+
+#### Its Own Checkout Comes Too
+
 A `lnk` built from source always installs from its own checkout as well, so
 `lnk up --module agent` needs no `--source`, and `--source` names only the
-other workspaces.
+other workspaces. That holds while it's where the checkout put it, in the
+checkout's target folder or a Cargo installation made from the checkout. A
+copy moved anywhere else installs only the workspaces `--source` names.
 
 ```sh
 lnk up --source . --module agent,man,model

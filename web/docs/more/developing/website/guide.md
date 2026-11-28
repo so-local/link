@@ -389,15 +389,30 @@ Every page shows the animated sunflower field from the
 [Flowers package](../../../../packages/flowers/docs/more/developing/website/flowers/README.md),
 which the shared layout mounts unless a site passes another background.
 
+### Share Card
+
+A link to a site, posted on X, in Messages or anywhere else that reads
+Open Graph, shows the site's share card. The card is the header's
+wordmark, large, on white: "local.link" in the header's type (`brand` in
+`look.ts`), the tagline "Own Your Intelligence" under it at exactly its width, and
+the sunflower beside both lines. The tagline is the catalog's `Tagline`,
+translated with the other labels. Nothing else is on the card, so it still
+reads as a thumbnail. Next draws it at build time in Geist.
+
+#### Share Titles
+
+The home page is shared as the site's name and its headline, and every
+other page as its own title. A page with a [primary image](markdown.md#primary-images)
+is shared with that image instead. `@link-web/site/share` makes each
+website's card, and `@link-web/site/share-card` draws it for any app.
+
 ### Photos
 
-The photos in the bucket give each link card its image. A site may also
-show the day's photo as its background (`@link-web/site/background`),
+A site may show the day's photo as its background (`@link-web/site/background`),
 the same on every website that does: the list's day-th in turn,
 counting days in UTC. Each photo is a folder,
-`backgrounds/<name>/`, with responsive JPEGs named `<width>.jpg`,
-`blur.jpg`, a tiny copy shown blurred until the photo arrives, and
-`share.jpg` for link cards (the list's first, at build time). The browser
+`backgrounds/<name>/`, with responsive JPEGs named `<width>.jpg`, and
+`blur.jpg`, a tiny copy shown blurred until the photo arrives. The browser
 chooses a size for the screen and pixel density, accounting for the
 photo's proportions and the height of the scrolling background.
 
@@ -449,3 +464,11 @@ The shared root layout accepts an optional `background` React node, with the flo
 ### Site Header Slot
 
 The shared root layout accepts an optional `header` React node before the main content and its page navigation. A host supplies semantic branding or other site-wide content once at this boundary. It persists during navigation independently of each page's heading, while sites that omit the slot keep their existing layout.
+
+### Visit Counts
+
+Plausible Analytics counts a site's visits without cookies or personal data, in production alone. Each site has a Plausible script of its own and the hostnames it's served at in production, and the shared root layout accepts them as an optional `analytics` React node. The docs site passes its script and `docs.local.link` from `apps/docs/src/constants.ts`, and a site that omits the slot counts nothing.
+
+#### Production Hostnames
+
+The package's `Analytics` component (`@link-web/site/analytics`) writes one inline script. On a production hostname that script loads Plausible without blocking the page and starts its queue. On any other hostname, such as a preview or a machine running the site, it does nothing.

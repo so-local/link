@@ -106,7 +106,7 @@ map = { path = "safe/map.toml", kind = "control", owner = "link" }
 installation = { path = "safe/installation.toml", kind = "control", owner = "link" }
 maintenance = { path = "safe/maintenance.toml", kind = "control", owner = "link" }
 agent-policy = { path = "safe/agents/policy.toml", kind = "control", owner = "agents" }
-secret-preferences = { path = "safe/secrets/preferences.toml", kind = "control", owner = "secrets" }
+secret-settings = { path = "safe/secrets/settings.toml", kind = "control", owner = "secrets" }
 migration-journal = { path = "safe/agents/journal", kind = "control", owner = "agents" }
 stopped-services = { path = "safe/agents/stopped-services", kind = "control", owner = "agents" }
 agent-places = { path = "safe/agents/places", kind = "control", owner = "agents" }
@@ -115,12 +115,13 @@ agent-machines = { path = "safe/agents/machines", kind = "control", owner = "age
 agent-environments = { path = "safe/agents/environments", kind = "control", owner = "agents" }
 agent-ids = { path = "safe/agents/ids.toml", kind = "control", owner = "agents" }
 agent-services = { path = "safe/agents/services.toml", kind = "control", owner = "agents" }
+group-ids = { path = "safe/agents/group-ids.toml", kind = "control", owner = "agents" }
 agent-data = { path = "data/agents", kind = "data", owner = "agents" }
 context = { path = "data/agents/context", kind = "data", owner = "agents" }
 model-context = { path = "data/models/context", kind = "data", owner = "models" }
 shims = { path = "exec/agents/shims", kind = "exec", owner = "agents" }
 mktemp = { path = "exec/agents/shims/mktemp", kind = "exec", owner = "agents" }
-configured = { path = "data/harnesses/configured", kind = "data", owner = "harnesses" }
+harness-configured = { path = "data/harnesses/configured", kind = "data", owner = "harnesses" }
 shared-memory = { path = "data/agents/memory", kind = "data", owner = "agents" }
 shared-harnesses = { path = "data/agents/shared-harnesses", kind = "data", owner = "agents" }
 team-memory = { path = "data/teams", kind = "data", owner = "teams" }

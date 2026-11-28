@@ -39,6 +39,7 @@ key-id = { type = "string", description = "aws: The access ID of an AWS credenti
 project = { type = "string", description = "gcp: the project new things go in [default: --credential-file's, else gcloud's]" }
 zone = { type = "string", description = "gcp: the zone new machines go in [default: gcloud's, else us-central1-a]" }
 credential-file = { type = "string", x-link-path = true, description = "gcp: A service account's credential file, instead of your gcloud login" }
+machine = { type = "boolean", description = "gcp: this machine's own service account, from Google's metadata server, with no credential file", x-link-cli = { conflicts = ["credential-file"] } }
 setting = { type = "array", items = { type = "string" }, description = "Another adapter's own setting, KEY=VALUE, given to it as it is: never a secret, which it asks for" }
 quiet = { x-link-cli = { shared = "quiet" } }
 

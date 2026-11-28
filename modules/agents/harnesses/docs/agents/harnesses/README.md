@@ -25,8 +25,9 @@ lnk agent harness list
 
 ## Choose Link Harness or Mini Harness
 
-Link Harness is the default personal harness. It has instructions,
-skills, and richer conversation management. [Mini Harness](../../../mini/docs/agents/harnesses/more/mini/README.md)
+[Link Harness](../../../link/docs/agents/harnesses/link/README.md) is the
+default personal harness. It has instructions, skills, and richer
+conversation management. [Mini Harness](../../../mini/docs/agents/harnesses/more/mini/README.md)
 is Local Link's smallest harness. You use Mini Harness to study the model-and-tools
 loop, to check how a harness connects to Local Link, and to measure
 benchmark baselines.
@@ -55,7 +56,7 @@ lnk agent create work --harness hermes
 You can change an existing agent's harness and keep its state, as
 [Switch Harnesses](../../../../agent/docs/agents/harnesses/use/README.md)
 explains. To bring a native installation under Local Link first, follow
-[Migration](../../../../agent/docs/agents/harnesses/use/migrate/README.md).
+[Migration](../../../../agent/docs/agents/migrate/README.md).
 
 ## Add a Harness
 

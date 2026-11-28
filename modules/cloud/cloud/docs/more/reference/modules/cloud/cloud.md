@@ -8,12 +8,13 @@ Every command the `cloud` module offers, from its declarations, in order of the 
 Connect an AWS or Google Cloud account, for buckets and boxes
 
 ```usage
-lnk cloud connect <kind> [--credential-file <credential-file>] [--key-id <key-id>] [--name <name>] [--profile <profile>] [--project <project>] [--quiet] [--region <region>] [--setting <setting>] [--zone <zone>]
+lnk cloud connect <kind> [--credential-file <credential-file>] [--key-id <key-id>] [--machine] [--name <name>] [--profile <profile>] [--project <project>] [--quiet] [--region <region>] [--setting <setting>] [--zone <zone>]
 ```
 
 - `--credential-file`, path: gcp: A service account's credential file, instead of your gcloud login
 - `--key-id`, string: aws: The access ID of an AWS credential from the AWS console; its secret is asked for
 - `kind`, position 1, string, required: A kind of cloud: aws or gcp
+- `--machine`, boolean: gcp: this machine's own service account, from Google's metadata server, with no credential file
 - `--name`, string: What to call it [default: its kind]; lets you connect two accounts of one kind
 - `--profile`, string: aws: the profile of your aws login to use [default: `AWS_PROFILE`, else default]
 - `--project`, string: gcp: the project new things go in [default: --credential-file's, else gcloud's]

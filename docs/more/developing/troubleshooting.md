@@ -46,5 +46,5 @@ installs don't mix versions on one PATH.
 
 ## Agents fail to start after switching
 
-Run [`lnk agent start`](../../../modules/agents/agent/docs/agents/README.md#create-an-agent) again, from the new install: a running agent's
+Run [`lnk agent start`](../../../modules/agents/agent/docs/agents/README.md#start-your-agent) again, from the new install: a running agent's
 service points at the old install's programs.

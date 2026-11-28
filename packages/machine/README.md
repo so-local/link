@@ -8,7 +8,7 @@
 
 ### Pages
 
-- [Installation Identity](docs/config/installation.md): An installation is Link under one OS user; the machine it runs on is hardware
+- [Installations](docs/config/installation.md): An installation is Link under one OS user; the machine it runs on is hardware
 
 ### More
 

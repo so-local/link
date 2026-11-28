@@ -37,7 +37,7 @@ them. The agent's shared files stay available on this machine.
 
 ### Inspect Portable State
 
-[Export Agent State](state/README.md) captures portable state for inspection, including native execution evidence when the harness supplies it, without switching harnesses.
+[Export Agent State](../../state/export/README.md) captures portable state for inspection, including native execution evidence when the harness supplies it, without switching harnesses.
 
 ## What Comes Along
 
@@ -69,7 +69,7 @@ Switching compares full Agent Client Protocol (ACP) updates, including tools, th
 Link Harness and Hermes keep imported updates exactly for export, with separate
 native records for text, completed tool calls and supported media. Neither
 executes a historical tool call. Native thinking and stored media are
-included in their exports. [Link Harness's import](../../../../../harnesses/link/docs/agents/link/more/acp/README.md#imported-conversations) describes the endpoint behavior.
+included in their exports. [Link Harness's import](../../../../../harnesses/link/docs/agents/harnesses/link/more/acp/README.md#imported-conversations) describes the endpoint behavior.
 
 #### Agree to Named Omissions
 
@@ -170,7 +170,7 @@ example, and it says what and why. Answer no and nothing changes.
 
 ## Bring an Agent You Already Have
 
-[Migrate Harnesses](migrate/README.md) brings an existing OpenClaw, Hermes, or DeepSeek
+[Migrate to Local Link](../../migrate/README.md) brings an existing OpenClaw, Hermes, or DeepSeek
 agent under Local Link, with a plan to review before the agent's files and secrets are copied.
 
 ## Use Another Harness
@@ -267,8 +267,6 @@ Inspect installed harnesses, change shared grants, run a sandbox diagnostic, and
 ### Pages
 
 - [Manage a Harness](harness/README.md): `lnk agent harness` inspects a harness's installation, permissions, and sandbox for the selected agent
-- [Migrate Harnesses](migrate/README.md): Bring an agent you already run with OpenClaw, Hermes, or DeepSeek under Local Link
-- [Export Agent State](state/README.md): Capture your agent's portable state for inspection without starting a model request
 - [Harness Permissions](harness-permissions/README.md): A harness holds what it needs beyond your agent's grants for itself
 
 ### More

@@ -74,6 +74,15 @@ pub fn own_machine(home: &Path) {
     .unwrap();
 }
 
+/// `lines` added to the agent policy of the machine whose home is `home`,
+/// a new file naming its schema as every file Link saves does.
+pub fn add_policy(home: &Path, lines: &str) {
+    let path = link_files::layout::Hidden::AgentPolicy.in_home(home);
+    let kept = std::fs::read_to_string(&path).unwrap_or_else(|_| "schema = 1\n".into());
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    std::fs::write(&path, format!("{kept}{lines}")).unwrap();
+}
+
 /// The interaction store of the machine whose home is `home`.
 pub fn interactions(home: &Path) -> link_interactions::Store {
     link_interactions::Store::at(link_files::layout::Hidden::Approvals.in_home(home))

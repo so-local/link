@@ -17,6 +17,11 @@ struct Kept(link_id::Table);
 
 link_files::specification!(Kept, include_str!("ids.schema.toml"));
 
+/// The bucket ID ledger, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
+
 /// Where the ledger is: beside `clouds.toml`.
 fn path() -> anyhow::Result<PathBuf> {
     Ok(crate::files::config_dir()?.join("ids.toml"))

@@ -5,5 +5,5 @@ command = "lnk agent list"
 
 [[files]]
 location = "lnk.agent-places"
-path = "hosts.toml"
+path = "runs-agents.toml"
 encoding = "toml"

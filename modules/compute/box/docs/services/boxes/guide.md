@@ -43,7 +43,7 @@ Isolation is a separate choice, made with the same flags as
 
 #### Sandboxed or direct
 
-A sandbox here is [`lnk sandbox run`](../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) with the [sandbox specification](../../../../../security/sandbox/docs/config/specs/sandbox.md)
+A sandbox here is [`lnk sandbox run`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) with the [sandbox specification](../../../../../security/sandbox/docs/config/specs/sandbox.md)
 given, read once when the box is made, or Link's own, and
 [Security](security.md#boxes-here) says what each choice lets in.
 
@@ -71,7 +71,7 @@ Link adds no charge for them.
 ## Connect a cloud account
 
 A box is made in a cloud account you connect once, which keeps your
-buckets too: [Cloud Accounts](../../../../../cloud/cloud/docs/services/cloud/README.md) has connecting and
+buckets too: [Platforms](../../../../../cloud/cloud/docs/services/cloud/README.md) has connecting and
 disconnecting one.
 
 ## Create a box
@@ -107,7 +107,7 @@ lnk box create gcp --name gcp-2 --bundle ~/builds/devbox
 
 The box keeps the copy of the bundle it was given, and installs every
 later module from it. A module that `lnk box run`, [`lnk agent move`](../../../../../agents/agent/docs/agents/move/README.md#move-your-agent-to-the-cloud),
-or a command typed on the box itself, such as [`lnk agent tool add`](../../../../../agents/agent/docs/agents/README.md#add-tools-and-skills), adds
+or a command typed on the box itself, such as [`lnk agent tool add`](../../../../../agents/agent/docs/agents/README.md#tools), adds
 there comes from your bundle, never Link's public releases, which hold
 no build of your checkout.
 
@@ -221,7 +221,7 @@ allow = ["git", "/usr/lib/git-core/"]
 `deps.toml` is the same with no `write_dot_files`, reaching only
 `pypi.org` and `files.pythonhosted.org`, and allowing only `python3`. A
 sandbox specification's sections are in the
-[sandbox](../../../../../security/sandbox/docs/security/sandbox/README.md) docs.
+[sandbox](../../../../../security/sandbox/docs/tooling/sandbox/README.md) docs.
 
 #### A stage that fails
 

@@ -267,17 +267,20 @@ pub(crate) async fn try_main(
                     out, cloud, name, from, harness, &starting, args.yes,
                 );
             }
-            // A ready-made agent here is its archive, imported.
+            // An agent to start from is, here, its archive, imported.
             if let Some(from) = &args.from {
                 return Err(Report::error(sentence!(
-                    "Only a cloud that hosts agents makes one from a ready-made agent."
+                    "Only a cloud that hosts agents makes an agent from another."
                 ))
                 .why(prose!(
                     "Here, import {}'s archive, then start it.",
                     Name::new("agent", from)
                 ))
                 .exit(Exit::Usage)
-                .next(cmd!("lnk archive import"), "bring a ready-made agent in"));
+                .next(
+                    cmd!("lnk archive import"),
+                    "bring an agent in from its archive",
+                ));
             }
             let on = match &target {
                 Some(link_workplace::Target::On(machine)) => Some(machine.as_str()),
@@ -416,6 +419,51 @@ pub(crate) async fn try_main(
         {
             return crate::following::send(out, name, chat).await;
         }
+        // `--all`: every agent here, each started as its own start would.
+        Command::AgentStart(args) if args.all => {
+            if named.is_some() {
+                return Err(Report::error(sentence!(
+                    "--all starts every agent, so it names none."
+                ))
+                .exit(Exit::Usage));
+            }
+            let mut done = Done::default();
+            for name in settings::names()? {
+                let mut each = Settings::resolve(Some(&name))?;
+                if let Some(id) = each.agent_id() {
+                    moving::journal::check_start(id, &each.name, args.during_move.as_deref())?;
+                }
+                done = start(out, &mut each, &Starting::start(args, &fields)).await?;
+            }
+            return Ok(done);
+        }
+        // Several agents and none named: which one, or all of them.
+        Command::AgentStart(_) if named.is_none() && settings::names()?.len() > 1 => {
+            let names = settings::names()?;
+            return Err(Report::error(sentence!(
+                "This machine has {} agents: {}.",
+                names.len(),
+                names.join(", ")
+            ))
+            .exit(Exit::Usage)
+            .next(cmd!("lnk agent start --agent <name>"), "start one of them")
+            .next(cmd!("lnk agent start --all"), "start every one"));
+        }
+        // The first start on a machine with no agent creates Onboarding
+        // from the archive carried in, then starts it.
+        Command::AgentStart(_)
+            if named.is_none() && settings::names()?.is_empty() && settings::away()?.is_empty() =>
+        {
+            let first = link_agent::first_agent::create()?;
+            out.block(Note(sentence!(
+                "{} is your first agent: ask it what Local Link can do.",
+                Name::new("agent", &first.name)
+            )));
+            // Its archive chose its tools: none are offered on top.
+            let mut agent = Settings::resolve(Some(&first.name))?;
+            agent.tools_offered = true;
+            agent
+        }
         // Show and the log read no key: no Keychain read on a Mac. They
         // never save, so the keys they lack are never written back.
         Command::AgentShow(_) | Command::LogShow(_) | Command::StateExport(_) => {
@@ -547,12 +595,19 @@ pub(crate) async fn try_main(
     }
     match command {
         Command::AgentStart(args) => {
+            // Never while another move of it here has it paused midway.
+            if let Some(id) = agent.agent_id() {
+                moving::journal::check_start(id, &agent.name, args.during_move.as_deref())?;
+            }
             return start(out, &mut agent, &Starting::start(&args, &fields)).await;
         }
         Command::HarnessSet(args) => {
             return using::switch(out, &mut agent, args.harness, args.foreground).await;
         }
-        Command::AgentStop(_) => return stopping::stop(&agent),
+        Command::AgentStop(args) => {
+            moving::sending::check_agent_id(&agent, args.agent_id.as_deref())?;
+            return stopping::stop(&agent);
+        }
         Command::StateExport(_) => return crate::state_export::run(out, &agent).await,
         Command::AgentRestart(_) => return stopping::restart(out, &mut agent).await,
         Command::LogShow(args) if args.live => return live::run(out, &agent),
@@ -682,6 +737,10 @@ pub(crate) async fn try_main(
             if let Some(move_id) = &args.r#move {
                 link_agent_contract::moving::check_move_id(move_id)?;
             }
+            moving::sending::check_agent_id(&agent, args.agent_id.as_deref())?;
+            if let Some(id) = agent.agent_id() {
+                moving::claim::check(id, &agent.name, args.r#move.as_deref())?;
+            }
             let seal_to = args
                 .seal_to
                 .as_deref()
@@ -696,6 +755,9 @@ pub(crate) async fn try_main(
             } else if phase == Phase::Switch
                 && let Some(id) = agent.agent_id()
             {
+                // Released to go with the switch only once nothing refuses
+                // it: a refused one keeps it here.
+                moving::sending::check_send(&agent, phase, seal_to.as_ref())?;
                 moved::models::release(id)?;
             }
             moving::sending::send(
@@ -707,9 +769,21 @@ pub(crate) async fn try_main(
                 args.harness_state,
             )?
         }
-        Command::AgentPause(_) => moving::sending::pause(&agent)?,
-        Command::AgentResume(_) => moving::sending::resume(out, &agent),
-        Command::AgentDeliver(_) => moving::sending::deliver(out, &agent).await?,
+        Command::AgentPause(args) => {
+            moving::sending::check_agent_id(&agent, args.agent_id.as_deref())?;
+            if let Some(id) = agent.agent_id() {
+                moving::claim::take(id, &agent.name, args.r#move.as_deref())?;
+            }
+            moving::sending::pause(&agent)?
+        }
+        Command::AgentResume(args) => {
+            moving::sending::check_agent_id(&agent, args.agent_id.as_deref())?;
+            if let Some(id) = agent.agent_id() {
+                moving::claim::release(id, &agent.name, args.r#move.as_deref())?;
+            }
+            moving::sending::resume_during(out, &agent, args.r#move.as_deref())
+        }
+        Command::AgentDeliver(_) => moving::delivering::deliver(out, &agent).await?,
         Command::AgentNeeds(args) => {
             let allow = &args.add;
             let harness = agent.harness().to_string();
@@ -759,6 +833,11 @@ pub(crate) async fn try_main(
             if let Some(id) = &args.machine_id {
                 link_machine::machine::check_id(id)?;
             }
+            moving::sending::check_agent_id(&agent, args.agent_id.as_deref())?;
+            let id = agent.agent_id().map(str::to_string);
+            if let Some(id) = &id {
+                moving::claim::check(id, &agent.name, args.r#move.as_deref())?;
+            }
             let slots = cli::slots(&args.on, &args.cloud, &args.zone, args.here, &args.place);
             crate::slots::no_zone(&slots)?;
             let (name, runs_agents) = match slots.target().map_err(crate::slots::refused)? {
@@ -771,7 +850,7 @@ pub(crate) async fn try_main(
                     .exit(Exit::Usage));
                 }
             };
-            return Ok(moving::sending::left(
+            let done = moving::sending::left(
                 out,
                 &agent,
                 moved::Place {
@@ -780,7 +859,12 @@ pub(crate) async fn try_main(
                     cloud: runs_agents,
                     owner: None,
                 },
-            )?);
+            )?;
+            // Gone from here: no move holds it here any more.
+            if let Some(id) = &id {
+                moving::claim::end(id);
+            }
+            return Ok(done);
         }
         Command::AgentRoute(given) => {
             let upstream = cli::upstream(&given)?;

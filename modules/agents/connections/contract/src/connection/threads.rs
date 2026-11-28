@@ -8,6 +8,11 @@ pub use link_model_contract::chat::lines::SseLines;
 /// limits.
 pub const MAX_ANSWERING: usize = 4;
 
+/// The most urgent replies (an answer to a question, a command) answered
+/// at once beside the queue: past it, one waits its thread's turn, so a
+/// flood of them never runs unbounded.
+pub const MAX_URGENT: usize = 8;
+
 /// Answers `messages` one at a time per thread, and threads side by side
 /// ([`MAX_ANSWERING`] at once, the rest in turn): each thread's in the
 /// order they came, while a long answer in one chat holds up no other.
@@ -104,7 +109,7 @@ pub async fn per_thread_interacting<M, F, Fut>(
         tokio::select! {
             message = messages.recv() => {
                 let Some(message) = message else { break };
-                if urgent(&message) {
+                if replies.len() < MAX_URGENT && urgent(&message) {
                     replies.push(reply(message));
                     continue;
                 }
@@ -216,6 +221,53 @@ mod tests {
         }
         assert_eq!(got, vec!["x".repeat(5000), "y".to_string()]);
         assert_eq!(lines.push(b"\n"), vec!["z".to_string()]);
+    }
+
+    /// Only so many urgent replies run beside the queue at once: past
+    /// [`MAX_URGENT`], one waits its thread's turn, and every one is
+    /// answered.
+    #[tokio::test]
+    async fn urgent_replies_are_capped() {
+        use std::sync::Arc;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        let (queue, messages) = tokio::sync::mpsc::unbounded_channel::<u32>();
+        for n in 0..(MAX_URGENT as u32 * 3) {
+            queue.send(n).unwrap();
+        }
+        drop(queue);
+        let (now, most, answered) = (
+            Arc::new(AtomicUsize::new(0)),
+            Arc::new(AtomicUsize::new(0)),
+            Arc::new(AtomicUsize::new(0)),
+        );
+        let release = Arc::new(tokio::sync::Notify::new());
+        let releasing = release.clone();
+        let opener = tokio::spawn(async move {
+            loop {
+                releasing.notify_waiters();
+                tokio::task::yield_now().await;
+            }
+        });
+        per_thread_interacting(
+            messages,
+            |_| "one".to_string(),
+            |_| true,
+            |_| {
+                let (now, most, answered, release) =
+                    (now.clone(), most.clone(), answered.clone(), release.clone());
+                async move {
+                    let at = now.fetch_add(1, Ordering::SeqCst) + 1;
+                    most.fetch_max(at, Ordering::SeqCst);
+                    release.notified().await;
+                    now.fetch_sub(1, Ordering::SeqCst);
+                    answered.fetch_add(1, Ordering::SeqCst);
+                }
+            },
+        )
+        .await;
+        opener.abort();
+        assert_eq!(answered.load(Ordering::SeqCst), MAX_URGENT * 3);
+        assert!(most.load(Ordering::SeqCst) <= MAX_URGENT + 1);
     }
 
     /// No more than [`MAX_ANSWERING`] threads are answered at once, and

@@ -79,12 +79,9 @@ impl Driver {
         );
         let contract: Contract = serde_json::from_slice(&out.stdout)
             .with_context(|| format!("reading lnk-{}'s contract", module_for(&self.name)))?;
-        anyhow::ensure!(
-            contract.version == VERSION,
-            "lnk-{} speaks the store's contract version {}, not {VERSION}",
-            module_for(&self.name),
-            contract.version
-        );
+        // It hears no version back, so a newer one is refused as an older
+        // one is, each naming the upgrade.
+        PROTOCOL.read(&format!("lnk-{}", module_for(&self.name)), contract.version)?;
         Ok(contract)
     }
 
@@ -196,6 +193,32 @@ mod tests {
         }
     }
 
+    /// A driver speaking a version this caller reads, within its oldest
+    /// and current, is taken; one older or newer is refused by name,
+    /// naming the upgrade.
+    #[cfg(unix)]
+    #[test]
+    fn a_driver_is_read_within_the_contracts_versions() {
+        let dir = link_test_kit::TempDir::new("store-driver-versions");
+        let driver = |version: u32| {
+            let program = dir.join(format!("lnk-v{version}"));
+            link_test_kit::write_program(
+                &program,
+                format!("#!/bin/sh\necho '{{\"version\":{version}}}'\n"),
+            )
+            .unwrap();
+            Driver::at(&format!("v{version}"), program, &dir).contract()
+        };
+        assert_eq!(driver(PROTOCOL.current).unwrap().version, PROTOCOL.current);
+        for version in [PROTOCOL.oldest - 1, PROTOCOL.current + 1] {
+            let refused = driver(version).unwrap_err();
+            assert!(
+                format!("{refused:#}").contains("lnk upgrade"),
+                "{refused:#}"
+            );
+        }
+    }
+
     /// What a driver answers is checked: a list of more paths than the
     /// contract allows, a narrowing that widened, or none at all, and a
     /// tool that's no tool's name are each an error, never taken.
@@ -291,7 +314,7 @@ echo \"{\\\"reply\\\":\\\"files\\\",\\\"files\\\":[\\\"$LNK_ENV_SETTINGS\\\"]}\"
                 "#!/bin/sh\n\
                  echo \"$1\" >> '{}'\n\
                  case \"$1\" in\n\
-                 contract) echo '{{\"version\":{VERSION},\"serve\":true}}' ;;\n\
+                 contract) echo '{{\"version\":{},\"serve\":true}}' ;;\n\
                  serve) n=0\n\
                    while read -r line; do\n\
                      n=$((n+1))\n\
@@ -299,7 +322,8 @@ echo \"{\\\"reply\\\":\\\"files\\\",\\\"files\\\":[\\\"$LNK_ENV_SETTINGS\\\"]}\"
                    done ;;\n\
                  *) exit 2 ;;\n\
                  esac\n",
-                started.display()
+                started.display(),
+                PROTOCOL.current
             ),
         )
         .unwrap();

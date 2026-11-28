@@ -225,7 +225,9 @@ fn a_member_of_a_team_whose_cloud_doesnt_answer_stays() {
         &link_files::layout::Hidden::AgentPlaces
             .at(&world.here.join(".lnk"))
             .join("cloud-teams.toml"),
-        &format!("[teams.{DESIGN}]\nid = \"{DESIGN}\"\nname = \"design\"\nmembers = [\"{ID}\"]\n"),
+        &format!(
+            "schema = 1\n[teams.{DESIGN}]\nid = \"{DESIGN}\"\nname = \"design\"\nmembers = [\"{ID}\"]\n"
+        ),
     );
     let refused = world.lnk_agent(&["move", "--agent", "main", "--no-start", "--on", "b1"]);
     assert!(!refused.status.success(), "{}", text(&refused));

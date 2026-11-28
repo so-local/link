@@ -77,10 +77,17 @@ pub(super) fn plan(programs: &[PathBuf]) -> anyhow::Result<(Vec<Change>, Spoken)
                 .filter(|change| matches!(change, Change::Transfer { .. })),
         );
     }
-    let mut changes = Vec::new();
+    // A format several programs write, each owning it, plans its change
+    // in each: it's shown and agreed once, and the first program asked to
+    // make it does, the others finding it made.
+    let mut changes: Vec<Change> = Vec::new();
     for (program, &version) in programs.iter().zip(&spoken) {
         let request = Request::stating(transfers.clone(), version);
-        changes.extend(ask(program, Stage::Plan, Some(request))?.changes);
+        for change in ask(program, Stage::Plan, Some(request))?.changes {
+            if !changes.contains(&change) {
+                changes.push(change);
+            }
+        }
     }
     Ok((changes, Spoken(spoken)))
 }
@@ -131,6 +138,13 @@ pub(super) fn agreed(
                 Value::from(format!("Kept at {kind} schema {from}: {why}")),
                 Value::from(Shown::new(file)),
                 Value::from(format!("schema {from}")),
+            ]),
+            Change::Unread { file, kind, why } => table.row([
+                Value::from(format!(
+                    "Kept as it is, this release can't read its {kind}: {why}"
+                )),
+                Value::from(Shown::new(file)),
+                Value::from("as it is"),
             ]),
             Change::Offer { .. } => {}
         }
@@ -188,6 +202,7 @@ pub(super) fn apply(
         programs.len() == spoken.0.len(),
         "the programs to change files aren't the ones that planned it"
     );
+    let stopped = stop_readers(programs, agreed)?;
     let mut made = Vec::new();
     for stage in [Stage::Transfer, Stage::Convert] {
         for (program, &version) in programs.iter().zip(&spoken.0) {
@@ -206,7 +221,7 @@ pub(super) fn apply(
         )));
     }
     for change in &made {
-        if let Change::Kept { file, why, .. } = change {
+        if let Change::Kept { file, why, .. } | Change::Unread { file, why, .. } = change {
             out.block(Note(sentence!(
                 "Kept {} as it was: {}.",
                 Shown::new(file),
@@ -214,7 +229,41 @@ pub(super) fn apply(
             )));
         }
     }
+    // What ran on the old shapes stopped first, and starts again on the new.
+    for stops in &stopped {
+        out.block(Note(format::Sentence::adopt(&link_format::clean(stops))));
+    }
+    if !stopped.is_empty() {
+        out.block(Note(sentence!(
+            "They stopped so no older program read the files as they changed: start them again."
+        )));
+    }
     Ok(made)
+}
+
+/// Stops what each module of `programs` runs (its services, as `lnk
+/// module remove` stops them), before files of `agreed` are converted
+/// under it: nothing still running reads or writes an older shape once
+/// they change. What each said it stopped, for the person to start again;
+/// none when `agreed` changes no file. The core, first, runs nothing.
+fn stop_readers(programs: &[PathBuf], agreed: &[Change]) -> anyhow::Result<Vec<String>> {
+    let writes = agreed
+        .iter()
+        .any(|change| matches!(change, Change::Convert { .. } | Change::Transfer { .. }));
+    if !writes {
+        return Ok(Vec::new());
+    }
+    let mut stopped = Vec::new();
+    for program in programs.iter().skip(1) {
+        let said = crate::installing::stop_outside(program).with_context(|| {
+            format!(
+                "stopping what {} runs before its files change; nothing was changed",
+                program.display()
+            )
+        })?;
+        stopped.extend(Some(said.stops).filter(|stops| !stops.is_empty()));
+    }
+    Ok(stopped)
 }
 
 /// The next steps a plan leaves: converting each spec of yours.
@@ -225,4 +274,49 @@ pub(super) fn next(done: Done, plan: &[Change]) -> Done {
             phrase!("convert your spec to this release's schema"),
         )
     })
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+
+    /// Before files change, each module stops what it runs, as `lnk module
+    /// remove` stops it, and what it said it stopped is kept to say; a
+    /// plan changing no file stops nothing, and one that can't stop
+    /// stops the change.
+    #[test]
+    fn what_runs_stops_before_its_files_change() {
+        let dir = link_test_kit::TempDir::new("upgrade-stop-readers");
+        let stopped = dir.join("stopped");
+        let module = |name: &str, stops: &str, stop: &str| {
+            let script = format!(
+                "#!/bin/sh\ncase \"$*\" in\n\
+                 'uninstall --parts --json') echo '{{\"parts\": [], \"stops\": \"{stops}\"}}' ;;\n\
+                 uninstall) {stop} ;;\nesac\n"
+            );
+            link_test_kit::write_program(&dir.join(name), script).unwrap();
+        };
+        let log = |name: &str| format!("echo {name} >> '{}'", stopped.display());
+        module("lnk-busy", "Your workers stop: main.", &log("busy"));
+        module("lnk-quiet", "", &log("quiet"));
+        let programs = [dir.join("lnk"), dir.join("lnk-busy"), dir.join("lnk-quiet")];
+        let convert = Change::Convert {
+            file: dir.join("settings.toml"),
+            kind: "settings".into(),
+            from: 1,
+            to: 2,
+        };
+        assert!(stop_readers(&programs, &[]).unwrap().is_empty());
+        assert!(!stopped.exists(), "a plan changing no file stops nothing");
+        let said = stop_readers(&programs, std::slice::from_ref(&convert)).unwrap();
+        assert_eq!(said, ["Your workers stop: main."]);
+        assert_eq!(std::fs::read_to_string(&stopped).unwrap(), "busy\nquiet\n");
+        module("lnk-stuck", "", "exit 1");
+        let refused =
+            stop_readers(&[dir.join("lnk"), dir.join("lnk-stuck")], &[convert]).unwrap_err();
+        assert!(
+            format!("{refused:#}").contains("nothing was changed"),
+            "{refused:#}"
+        );
+    }
 }

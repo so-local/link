@@ -139,7 +139,7 @@ bound agent's key, and a parser is where a crafted file would get in.
 
 ### Where does the converter run?
 
-The service that serves many agents runs it in [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide), with
+The service that serves many agents runs it in [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide), with
 nothing granted but its own program, so it reaches no network and no
 one's files. Extraction runs after the indexing that found a document,
 on a thread of its own, each document's text written in its own short

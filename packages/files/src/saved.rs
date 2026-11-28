@@ -3,7 +3,7 @@
 //! beside its type ([`crate::specification!`]), so a later release
 //! advances an older file through the owner's steps and never invalidates
 //! it, and one written by a newer release is refused, naming the upgrade.
-//! A file with no `schema` is read as the current one.
+//! A file with no `schema` is refused: Link wrote none of those.
 
 use std::path::{Path, PathBuf};
 

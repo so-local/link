@@ -31,6 +31,11 @@ struct Kept {
 
 link_files::specification!(Kept, include_str!("carried.schema.toml"));
 
+/// Each agent's carried harness state, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
+
 fn folder(own: &Path) -> PathBuf {
     own.join(layout::HARNESSES)
 }

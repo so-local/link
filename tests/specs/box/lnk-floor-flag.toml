@@ -1,0 +1,6 @@
+# Link's first release, typed as --lnk.version: taken.
+[run]
+flags = ["--lnk.version", "0.0.1"]
+
+[expect]
+size = "t3.small"

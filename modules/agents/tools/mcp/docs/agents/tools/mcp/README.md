@@ -12,8 +12,8 @@ as a server.
 ## Give a Link Agent Link MCP
 
 A Link agent has Link MCP only once you add it. The tool is off by
-default, and the personal ready-made agent comes with it on. The agent
-module starts `lnk mcp` for the agent and binds it to that agent, so its
+default, and the Onboarding and Programmer ready-made agents come with it
+on. The agent module starts `lnk mcp` for the agent and binds it to that agent, so its
 reads show only its own capabilities. Declared reads run without asking,
 and every change asks you first through the agent's sandbox.
 

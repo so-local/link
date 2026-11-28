@@ -331,6 +331,13 @@ pub trait Keys: Send + Sync {
     fn key_of_peer(&self, identity: &Identity, _peer: u32) -> Option<Secret> {
         self.key_of(identity)
     }
+
+    /// The service the binding that answers for `identity` holds, which
+    /// a call naming none acts as: none where it holds none, or where
+    /// this place keeps no bindings of its own.
+    fn service_of(&self, _identity: &Identity) -> Option<String> {
+        None
+    }
 }
 
 struct PeerKeys {
@@ -341,6 +348,10 @@ impl Keys for PeerKeys {
     fn key_of(&self, identity: &Identity) -> Option<Secret> {
         self.keys.key_of_peer(identity, self.peer)
     }
+
+    fn service_of(&self, identity: &Identity) -> Option<String> {
+        self.keys.service_of(identity)
+    }
 }
 
 /// A bridge for one agent alone (a connection's, handed the agent's key as
@@ -348,6 +359,12 @@ impl Keys for PeerKeys {
 impl Keys for Binding {
     fn key_of(&self, identity: &Identity) -> Option<Secret> {
         same_agent(&self.identity, identity).then(|| self.key.duplicate())
+    }
+
+    fn service_of(&self, identity: &Identity) -> Option<String> {
+        self.key_of(identity)
+            .map(|_| self.identity.service.clone())
+            .filter(|service| !service.is_empty())
     }
 }
 
@@ -371,6 +388,12 @@ impl<A: Keys, B: Keys> Keys for Both<A, B> {
         let other = self.1.key_of_peer(identity, peer)?;
         (key == other).then_some(key)
     }
+
+    fn service_of(&self, identity: &Identity) -> Option<String> {
+        self.0
+            .service_of(identity)
+            .or_else(|| self.1.service_of(identity))
+    }
 }
 
 impl<K: Keys + ?Sized> Keys for std::sync::Arc<K> {
@@ -381,16 +404,22 @@ impl<K: Keys + ?Sized> Keys for std::sync::Arc<K> {
     fn key_of_peer(&self, identity: &Identity, peer: u32) -> Option<Secret> {
         self.as_ref().key_of_peer(identity, peer)
     }
+
+    fn service_of(&self, identity: &Identity) -> Option<String> {
+        self.as_ref().service_of(identity)
+    }
 }
 
-/// Whether `a` and `b` are one agent: its ID and its owner, and its
-/// service where both name one. A call naming no service acts as none,
-/// so it's never one that names another's.
+/// Whether `b`, a call's identity, is the one `a` binds: its ID and its
+/// owner, and its service where the call names one, the binding's own. A
+/// call naming no service acts as the binding's ([`Keys::service_of`]);
+/// one naming a service the binding doesn't hold, a binding without a
+/// service among them, is never its.
 pub fn same_agent(a: &Identity, b: &Identity) -> bool {
     !a.agent.is_empty()
         && a.agent == b.agent
         && a.owner == b.owner
-        && (a.service.is_empty() || b.service.is_empty() || a.service == b.service)
+        && (b.service.is_empty() || a.service == b.service)
 }
 
 pub use link_format::clean;
@@ -440,8 +469,14 @@ fn checked(challenge: &str, call: &Proven, keys: &dyn Keys) -> Result<Identity, 
             who.agent
         )));
     }
+    // The binding's service, which a call naming none acts as.
+    let service = match who.service.is_empty() {
+        true => keys.service_of(who).unwrap_or_default(),
+        false => who.service.clone(),
+    };
     Ok(Identity {
         teams: Vec::new(),
+        service,
         ..who.clone()
     })
 }
@@ -619,6 +654,34 @@ mod tests {
         .unwrap_err();
         assert_eq!(refused.why, Why::Refused);
         assert!(!refused.error.contains('\u{1b}'), "{}", refused.error);
+    }
+
+    /// A binding's service is the one it holds: a call naming one a
+    /// binding without a service lacks is refused, and a call naming none
+    /// is answered as the binding's.
+    #[test]
+    fn a_bindings_service_is_the_one_it_holds() {
+        let plain = Binding {
+            identity: me(),
+            key: KEY.to_string().into(),
+        };
+        let claimed = Identity {
+            service: "telegram".into(),
+            ..me()
+        };
+        let mut call = Binding {
+            identity: claimed.clone(),
+            key: KEY.to_string().into(),
+        }
+        .prove("c");
+        assert_eq!(checked("c", &call, &plain).unwrap_err().why, Why::Refused);
+        let service = Binding {
+            identity: claimed.clone(),
+            key: KEY.to_string().into(),
+        };
+        assert_eq!(checked("c", &call, &service).unwrap(), claimed);
+        call = plain.prove("c");
+        assert_eq!(checked("c", &call, &service).unwrap(), claimed);
     }
 
     /// A caller speaking a bridge protocol below the oldest accepted

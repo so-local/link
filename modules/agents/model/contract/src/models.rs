@@ -181,6 +181,11 @@ pub struct Known {
 
 link_files::specification!(File, include_str!("models.schema.toml"));
 
+/// The model facts, which an upgrade converts.
+pub fn facts_saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<File>()
+}
+
 /// Parses `text` as a models file, strictly, its values checked.
 pub fn parse(text: &str) -> anyhow::Result<File> {
     let file: File = link_files::saved::parse(text)?;
@@ -410,7 +415,7 @@ mod tests {
     #[test]
     fn a_model_by_any_of_its_names() {
         let link = parse(
-            "[model.\"claude-sonnet-5-5\"]\nwindow = 1000000\n\
+            "schema = 1\n[model.\"claude-sonnet-5-5\"]\nwindow = 1000000\n\
              [model.\"claude-sonnet-4-6\"]\nwindow = 900000\n\
              [model.\"claude-haiku-4-5\"]\nwindow = 200000\n\
              [model.\"gpt-4o\"]\nwindow = 128000\n\
@@ -482,11 +487,11 @@ mod tests {
     #[test]
     fn yours_wins_field_by_field() {
         let link = parse(
-            "[model.m]\nwindow = 200000\nanswer = 8000\nthinking = \"effort\"\n\
+            "schema = 1\n[model.m]\nwindow = 200000\nanswer = 8000\nthinking = \"effort\"\n\
              price = { input = 1.0, output = 2.0 }\n",
         )
         .unwrap();
-        let yours = parse("[model.\"router/M\"]\nwindow = 300000\n").unwrap();
+        let yours = parse("schema = 1\n[model.\"router/M\"]\nwindow = 300000\n").unwrap();
         let known = facts("m", &link, &yours).unwrap();
         assert_eq!(known.facts.window, Some(300_000));
         assert_eq!(known.facts.answer, Some(8_000));
@@ -502,12 +507,12 @@ mod tests {
     #[test]
     fn a_wrong_figure_is_refused() {
         for bad in [
-            "[model.m]\nwindow = 10\n",
-            "[model.m]\nanswer = 1\n",
-            "[model.m]\nprice = { input = -1.0, output = 1.0 }\n",
-            "[model.m]\nwindows = 100000\n",
-            "[model.\"\"]\nwindow = 100000\n",
-            "[model.m]\nthinking = \"lots\"\n",
+            "schema = 1\n[model.m]\nwindow = 10\n",
+            "schema = 1\n[model.m]\nanswer = 1\n",
+            "schema = 1\n[model.m]\nprice = { input = -1.0, output = 1.0 }\n",
+            "schema = 1\n[model.m]\nwindows = 100000\n",
+            "schema = 1\n[model.\"\"]\nwindow = 100000\n",
+            "schema = 1\n[model.m]\nthinking = \"lots\"\n",
         ] {
             assert!(parse(bad).is_err(), "{bad}");
         }
@@ -516,7 +521,7 @@ mod tests {
     #[test]
     fn a_release_refreshes_the_figures_and_keeps_the_rest() {
         let current = parse(
-            "[model.\"claude-sonnet-5-5\"]\nwindow = 200000\nanswer = 64000\n\
+            "schema = 1\n[model.\"claude-sonnet-5-5\"]\nwindow = 200000\nanswer = 64000\n\
              thinking = \"adaptive\"\n\
              [model.\"gpt-6.1-sol\"]\nwindow = 1050000\nthinking = \"effort\"\n",
         )
@@ -607,7 +612,7 @@ mod tests {
     #[test]
     fn a_refresh_is_bound_by_the_reviewed_file() {
         let current = parse(
-            "[model.a]\nwindow = 200000\nprice = { input = 3.0, output = 15.0, cached = 0.3 }\n\
+            "schema = 1\n[model.a]\nwindow = 200000\nprice = { input = 3.0, output = 15.0, cached = 0.3 }\n\
              [model.b]\nwindow = 200000\nprice = { input = 3.0, output = 15.0 }\n\
              [model.c]\nwindow = 200000\nprice = { input = 3.0, output = 15.0 }\n\
              [model.d]\nwindow = 200000\nprice = { input = 3.0, output = 15.0 }\n",
@@ -649,7 +654,7 @@ mod tests {
     #[test]
     fn aliases_cant_chain_a_refresh_past_its_bound() {
         let current = parse(
-            "[model.claude-x]\nwindow = 1000000\nanswer = 64000\n\
+            "schema = 1\n[model.claude-x]\nwindow = 1000000\nanswer = 64000\n\
              [model.claude-y]\nwindow = 200000\n\
              [model.claude-z]\nwindow = 200000\nanswer = 64000\n",
         )
@@ -686,7 +691,7 @@ mod tests {
     #[test]
     fn a_long_prompt_costs_its_jumps_price() {
         let file = parse(
-            "[model.m]\nwindow = 1000000\n\
+            "schema = 1\n[model.m]\nwindow = 1000000\n\
              price = { input = 0.1, output = 0.5, cached = 0.01 }\n\
              above = [{ tokens = 100000, price = { input = 0.5, output = 2.5, cached = 0.05 } }]\n",
         )
@@ -704,12 +709,12 @@ mod tests {
         );
         // Jumps lowest first, within the window, from a price.
         for wrong in [
-            "[model.m]\nprice = { input = 1.0, output = 1.0 }\n\
+            "schema = 1\n[model.m]\nprice = { input = 1.0, output = 1.0 }\n\
              above = [{ tokens = 200, price = { input = 2.0, output = 2.0 } }, \
              { tokens = 100, price = { input = 3.0, output = 3.0 } }]\n",
-            "[model.m]\nwindow = 100000\nprice = { input = 1.0, output = 1.0 }\n\
+            "schema = 1\n[model.m]\nwindow = 100000\nprice = { input = 1.0, output = 1.0 }\n\
              above = [{ tokens = 100000, price = { input = 2.0, output = 2.0 } }]\n",
-            "[model.m]\nabove = [{ tokens = 100, price = { input = 2.0, output = 2.0 } }]\n",
+            "schema = 1\n[model.m]\nabove = [{ tokens = 100, price = { input = 2.0, output = 2.0 } }]\n",
         ] {
             assert!(parse(wrong).is_err(), "{wrong}");
         }

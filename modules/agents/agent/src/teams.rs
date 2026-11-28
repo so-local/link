@@ -11,11 +11,11 @@
 //! run, so nothing changes inside a turn.
 
 mod constants;
-mod defining;
+pub(crate) mod defining;
 mod grants;
 mod lifecycle;
 mod memory;
-mod moving;
+pub(crate) mod moving;
 mod remote;
 mod specifying;
 mod talking;

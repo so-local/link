@@ -1,11 +1,21 @@
 //! Every format Link saves says where its files are, so `lnk upgrade`
-//! finds and converts them: its `schema.toml` lists its `[[files]]`, or
+//! finds and converts them: its `schema.toml` lists its `[[files]]`,
 //! declares `holds = "history"` for a ledger of what happened, which an
-//! upgrade never rewrites. A format is a `link_files::specification!`
+//! upgrade never rewrites, or `holds = "inside"` for state that isn't a
+//! file at a map location (an object in a store, a manifest in an
+//! archive, an envelope around another file, a file at a path its
+//! caller names, or one under the system's root), which its owner advances as it reads it. A format is a `link_files::specification!`
 //! (`crate::specification!` in `link-files` itself) or a
 //! `Format::shipped` naming its `schema.toml` with `include_str!`, outside
 //! test code. `placed.toml` names the formats still unplaced, each with
 //! why, a list that only shrinks.
+//!
+//! A format of state at a map location (its `[[files]]`, holding neither
+//! history nor state inside something else) is converted only by a
+//! program that owns it, so its crate makes it a
+//! `link_files::upgrade::Saved` for a program's `main` to name with
+//! `link_core::saved::own`: `Saved::of::<T>` for a declared type `T`, or
+//! `Saved::shipped::<T>` beside a `Format::shipped`.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -25,7 +35,7 @@ pub struct Rules {
 
 /// The part of a `schema.toml` this check reads.
 #[derive(Deserialize)]
-struct Declared {
+struct Placement {
     #[serde(default)]
     holds: Option<String>,
     #[serde(default)]
@@ -38,6 +48,25 @@ struct Declared {
 /// itself, or `Format::shipped`, each naming its file with `include_str!`.
 /// A test module is left out.
 pub fn declared(file: &str, text: &str) -> Vec<String> {
+    formats(file, text)
+        .into_iter()
+        .map(|format| format.schema)
+        .collect()
+}
+
+/// A saved format a Rust file declares.
+#[derive(Debug, PartialEq, Eq)]
+pub struct Declared {
+    /// Its type, as `specification!` names it; none for a
+    /// `Format::shipped`.
+    pub ty: Option<String>,
+    /// Its `schema.toml`, relative to the Rust file's folder.
+    pub schema: String,
+}
+
+/// The saved formats the Rust source `text` of `file` declares, as
+/// [`declared`] finds them, each with its type.
+pub fn formats(file: &str, text: &str) -> Vec<Declared> {
     let code: String = crate::saved::outside_tests(text)
         .into_iter()
         .map(|(_, line)| format!("{line}\n"))
@@ -65,10 +94,18 @@ pub fn declared(file: &str, text: &str) -> Vec<String> {
                 .and_then(|(_, path)| path.split_once('"'))
                 .map(|(path, _)| path.to_string())
             {
-                found.push(path);
+                let ty = (opens != "Format::shipped(").then(|| {
+                    call.split(',')
+                        .next()
+                        .unwrap_or_default()
+                        .trim()
+                        .to_string()
+                });
+                found.push(Declared { ty, schema: path });
             }
         }
     }
+    found.sort_by_key(|format| format.schema.clone());
     found
 }
 
@@ -87,11 +124,49 @@ fn joined(folder: &Path, path: &str) -> String {
     parts.join("/")
 }
 
-/// Whether a `schema.toml`'s text places its format: lists its files or
-/// declares history.
+/// Whether a `schema.toml`'s text places its format: lists its files, or
+/// declares history or state inside something else.
 pub fn placed(text: &str) -> Result<bool, String> {
-    let declared: Declared = toml::from_str(text).map_err(|err| err.to_string())?;
-    Ok(declared.holds.as_deref() == Some("history") || !declared.files.is_empty())
+    let declared: Placement = toml::from_str(text).map_err(|err| err.to_string())?;
+    Ok(
+        matches!(declared.holds.as_deref(), Some("history" | "inside"))
+            || !declared.files.is_empty(),
+    )
+}
+
+/// Whether a `schema.toml`'s text is state at a map location: it lists
+/// its files and holds neither history nor state inside something else.
+pub fn at_a_location(text: &str) -> Result<bool, String> {
+    let declared: Placement = toml::from_str(text).map_err(|err| err.to_string())?;
+    Ok(declared.holds.is_none() && !declared.files.is_empty())
+}
+
+/// Whether `code`, a crate's Rust outside its tests, makes `format` a
+/// `Saved`: `Saved::of::<T>` naming its type by any path, or, for a
+/// shipped format, `Saved::shipped::<`.
+pub fn made(format: &Declared, code: &str) -> bool {
+    let Some(ty) = &format.ty else {
+        return code.contains("Saved::shipped::<");
+    };
+    let name = ty.rsplit("::").next().unwrap_or(ty);
+    code.match_indices("Saved::of::<").any(|(at, opens)| {
+        let given = &code[at + opens.len()..];
+        let given = &given[..given.find('>').unwrap_or(given.len())];
+        given.rsplit("::").next() == Some(name)
+    })
+}
+
+/// The folder of the crate `file` is in: the nearest above it holding a
+/// `Cargo.toml`, under `root`.
+fn crate_of(root: &Path, file: &str) -> String {
+    let mut folder = Path::new(file).parent();
+    while let Some(at) = folder {
+        if root.join(at).join("Cargo.toml").is_file() {
+            return at.to_string_lossy().into();
+        }
+        folder = at.parent();
+    }
+    String::new()
 }
 
 /// Each problem with the formats under `root`, by the rules in `rules` (a
@@ -107,6 +182,8 @@ pub fn problems(root: &Path, rules: &Path) -> Vec<String> {
     };
     let mut found = Vec::new();
     let mut unplaced = BTreeSet::new();
+    let mut code: BTreeMap<String, String> = BTreeMap::new();
+    let mut located = Vec::new();
     for file in crate::shapes::sources(root) {
         if crate::shapes::test_code(&file) {
             continue;
@@ -114,24 +191,40 @@ pub fn problems(root: &Path, rules: &Path) -> Vec<String> {
         let Ok(text) = std::fs::read_to_string(root.join(&file)) else {
             continue;
         };
+        code.entry(crate_of(root, &file)).or_default().extend(
+            crate::saved::outside_tests(&text)
+                .into_iter()
+                .map(|(_, line)| format!("{line}\n")),
+        );
         let folder = Path::new(&file).parent().unwrap_or(Path::new(""));
-        for schema in declared(&file, &text) {
-            let schema = joined(folder, &schema);
-            match std::fs::read_to_string(root.join(&schema))
-                .map_err(|err| err.to_string())
-                .and_then(|text| placed(&text))
+        for format in formats(&file, &text) {
+            let schema = joined(folder, &format.schema);
+            let read = std::fs::read_to_string(root.join(&schema)).map_err(|err| err.to_string());
+            if read
+                .as_deref()
+                .is_ok_and(|text| at_a_location(text) == Ok(true))
             {
+                located.push((crate_of(root, &file), schema.clone(), format));
+            }
+            match read.and_then(|text| placed(&text)) {
                 Ok(true) => {}
                 Ok(false) => {
                     if !rules.unplaced.contains_key(&schema) {
                         found.push(format!(
-                            "{schema}: a saved format with no place: list its [[files]] or declare holds = \"history\""
+                            "{schema}: a saved format with no place: list its [[files]], or declare holds = \"history\" or holds = \"inside\""
                         ));
                     }
                     unplaced.insert(schema);
                 }
                 Err(err) => found.push(format!("{schema} isn't read: {err}")),
             }
+        }
+    }
+    for (owner, schema, format) in &located {
+        if !code.get(owner).is_some_and(|code| made(format, code)) {
+            found.push(format!(
+                "{schema}: no program can own it: make it a link_files::upgrade::Saved in its crate (Saved::of or Saved::shipped) and name it in its program's link_core::saved::own"
+            ));
         }
     }
     for schema in rules.unplaced.keys().filter(|s| !unplaced.contains(*s)) {

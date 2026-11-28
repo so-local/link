@@ -51,7 +51,7 @@ key and sent only on this machine's Unix sockets.
 
 A random path segment in the URLs a sandboxed program reaches its
 proxy with (`/_link/url/<secret>/...`), so another program on the
-machine [can't use the proxy as the agent](../../../sandbox/docs/security/sandbox/security.md). Made at each start, held by
+machine [can't use the proxy as the agent](../../../sandbox/docs/tooling/sandbox/security.md). Made at each start, held by
 the proxy and the program it serves, and never leaves the machine.
 
 ### How an adapter hands them on

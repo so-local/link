@@ -586,7 +586,8 @@ impl Agent {
         // Proved as the agent, with its key for this start, as its way in
         // hands it.
         let binding = binding(&self.home, "main");
-        let sending = json!({"bridge": {"agent": "main", "endpoint": "", "model": "bare",
+        let sending = json!({"protocol": link_connection_contract::PROTOCOL.current,
+            "bridge": {"agent": "main", "endpoint": "",
             "identity": binding.identity, "key": binding.key.expose(),
             "settings": settings,
             "state": self.home.join(".lnk/safe/agents/main/connections").join(connection)},

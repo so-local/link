@@ -20,7 +20,7 @@ mod store;
 mod validation;
 pub use constants::STORE_VAR;
 pub use host::Host;
-pub use store::{Snapshot, Store, SubmitDisposition};
+pub use store::{Snapshot, Store, SubmitDisposition, saved as saved_approvals};
 
 #[cfg(test)]
 mod tests;

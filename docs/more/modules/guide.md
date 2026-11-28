@@ -43,7 +43,7 @@ The rest come when you need them:
   start`).
 - `web-tool` with [`lnk mod add web-tool`](#add-or-remove-a-module), for
   [Link Web](../../../modules/agents/tools/web-tool/docs/agents/tools/web/README.md).
-- `browser-tool` with [`lnk agent tool add browser`](../../../modules/agents/agent/docs/agents/README.md#add-tools-and-skills), for
+- `browser-tool` with [`lnk agent tool add browser`](../../../modules/agents/agent/docs/agents/README.md#tools), for
   [Link Browser](../../../modules/agents/tools/browser-tool/docs/agents/tools/browser/README.md).
 - `desktop-tool` with `lnk agent tool add desktop`, for
   [Link Desktop](../../../modules/agents/tools/desktop-tool/docs/agents/tools/desktop/README.md).
@@ -114,7 +114,7 @@ backup` and `restore` the storage module, `lnk agent move <cloud>` the box
 and cloud modules, a bucket in a cloud account (not a folder's) the
 cloud module. In a terminal it asks first, naming everything it will
 install; a command
-naming the module itself, such as [`lnk agent connect slack`](../../../modules/agents/agent/docs/agents/README.md#connect-your-channels), `lnk agent harness set hermes` or `lnk agent tool add web`, doesn't ask. A module's own call to
+naming the module itself, such as [`lnk agent connect slack`](../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app), `lnk agent harness set hermes` or `lnk agent tool add web`, doesn't ask. A module's own call to
 `lnk` underneath installs nothing: a missing module there is named, with
 the command that installs it.
 
@@ -155,7 +155,7 @@ release whose signature it checked.
 
 ```sh
 lnk upgrade
-lnk upgrade 0.14.0
+lnk upgrade 0.0.1
 lnk upgrade --check
 ```
 
@@ -182,7 +182,7 @@ is installed. It shows what it installs, each file it converts to the
 new release's shape and each setting that moves to its new owner, and
 asks once. A no installs nothing. History, such as conversations and
 logs, is never rewritten, and a specification you wrote is only offered for
-[`lnk spec convert`](../../../modules/tooling/spec/docs/tooling/spec/README.md#convert-a-file).
+[`lnk spec convert`](../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#convert-a-file).
 With no terminal to ask on, the upgrade is refused unless `--yes` agrees
 ahead.
 
@@ -297,15 +297,16 @@ lnk help storage push
 lnk mod list
 ```
 
-When a command fails, `lnk issue create` turns the failure into a bug report
-with what's private scrubbed out, ready to paste, and `lnk issue create --open`
-fills in the bug form in your browser.
+When a command fails, [`lnk issue create`](../../../core/cli/docs/tooling/issue.md#report-a-bug)
+turns the failure into a bug report with what's private scrubbed out.
 
 ## Where Things Live
 
 Local Link keeps what's yours in the Link folder, `~/Link`, and what this
-machine needs in `~/.lnk`. `lnk folder` lists each location on this
-machine and moves one, the Link folder included.
+machine needs in `~/.lnk`. [`lnk location list`](../../../core/cli/docs/config/locations.md#list-the-locations)
+lists each location on this machine, and
+[`lnk location set`](../../../core/cli/docs/config/locations.md#set-a-location)
+moves one, the Link folder included.
 [Where Link Keeps Things](../reference/locations.md) explains both
 folders, every location in them, and how to move one.
 

@@ -25,6 +25,11 @@ struct Kept(Binding);
 
 link_files::specification!(Kept, include_str!("binding.schema.toml"));
 
+/// Each binding's key, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
+
 pub use link_core::*;
 pub use link_sandbox_bridge::serve::serve_streams_from;
 
@@ -393,11 +398,23 @@ fn write_shared(path: &Path, contents: &[u8], gid: u32) -> std::io::Result<()> {
     written
 }
 
-impl Keys for Keyring {
-    fn key_of(&self, identity: &Identity) -> Option<Secret> {
+impl Keyring {
+    /// The binding a call with `identity` is one of, if any.
+    fn binding_of(&self, identity: &Identity) -> Option<Binding> {
         self.bound(&identity.agent)
             .filter(|binding| link_sandbox_bridge::same_agent(&binding.identity, identity))
-            .map(|binding| binding.key)
+    }
+}
+
+impl Keys for Keyring {
+    fn key_of(&self, identity: &Identity) -> Option<Secret> {
+        self.binding_of(identity).map(|binding| binding.key)
+    }
+
+    fn service_of(&self, identity: &Identity) -> Option<String> {
+        self.binding_of(identity)
+            .map(|binding| binding.identity.service)
+            .filter(|service| !service.is_empty())
     }
 }
 

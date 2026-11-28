@@ -28,9 +28,14 @@ not = ["home machine", "local machine", "host machine"]
 why = "The machine you're typing on is here, and \"host\" names no Link concept"
 
 [[word]]
-say = "comes with, includes, provides or built-in, and ready-made only for the four agents"
+say = "comes with, includes, provides or built-in, and ready-made only for the six agents"
 not = ["Link ships", "Local Link ships", "ships with", "shipped with", "the shipped", "a shipped", "shipped bundle", "shipped agents", "shipped harnesses"]
 why = "Ship names only the act of releasing (\"the release ships Friday\"), never what Link offers or contains"
+
+[[word]]
+say = "presale"
+not = ["pre-sale", "pre-sales"]
+why = "Presale is one word, always"
 
 [[word]]
 say = "specification"

@@ -117,8 +117,12 @@ bridge asks it once a program.
 
 ### `version` and `serve`
 
-`version` is the version of this contract it speaks, 1, and `serve` is
-true when it answers `lnk-<name> serve`.
+`version` is the version of this contract it speaks, and `serve` is
+true when it answers `lnk-<name> serve`. The contract's `protocol.toml`
+declares the version this release speaks, 1, and the oldest a caller
+still reads. A caller states no version back, so it reads a driver's
+within that window and refuses an older or a newer one by name, naming
+[`lnk upgrade`](../../../../../../../../docs/more/modules/guide.md#upgrade).
 
 ### `jobs` and `files`
 

@@ -186,8 +186,12 @@ pub(crate) async fn launch_after(
     if let Some(id) = settings.agent_id() {
         crate::moving::journal::recover_before_start(out, id)?;
     }
-    // A start takes messages again: a pause for a move is over.
+    // A start takes messages again: a pause for a move is over, and the
+    // move's hold on it here with it.
     link_agent::bridge::unpause(&settings.name);
+    if let Some(id) = settings.agent_id() {
+        crate::moving::claim::end(id);
+    }
     // Its teams, which every part of a start asks for, read once.
     let _teams = settings::RememberTeams::begin();
     // One place runs the agent at a time: two would answer the same bot.
@@ -702,6 +706,14 @@ pub(crate) async fn launch_after(
     if foreground {
         service::stop(&settings.name)?;
         let _running = service::foreground_lock(&settings.name)?;
+        // A plain SIGTERM or SIGHUP stops it as Ctrl-C does: passed on,
+        // and waited for, so nothing it started keeps the agent's ports.
+        // Caught from the moment this terminal holds the agent, before
+        // anything a stop must undo (its calendar entry, its bridge): one
+        // sent meanwhile is passed on once the harness starts, and this
+        // start then undoes it all as it ends, never killed halfway.
+        #[cfg(unix)]
+        let stopped = stops::catch();
         // Beside the harness, until it ends, then stopped, its scheduler's
         // runner ended with it; or this machine's one bridge carries it
         // meanwhile, and lets it go as it ends. None where the calendar
@@ -731,12 +743,6 @@ pub(crate) async fn launch_after(
             phrase!("Running {} here. Ctrl-C stops it", &harness),
         );
         out.hand_over();
-        // A plain SIGTERM or SIGHUP stops it as Ctrl-C does: passed on,
-        // and waited for, so nothing it started keeps the agent's ports.
-        // Caught before it starts: one sent as it starts is passed on
-        // once it has.
-        #[cfg(unix)]
-        let stopped = stops::catch();
         // Timed as a service's start is, until its health check answers,
         // beside it: nothing here waits for that.
         let health = adapter.health(&boxed)?;

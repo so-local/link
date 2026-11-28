@@ -7,4 +7,4 @@ holds = "history"
 [[steps]]
 from = 1
 rename = { said = "text" }
-since = "0.2.0"
+since = "0.0.2"

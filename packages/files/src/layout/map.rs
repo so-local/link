@@ -33,7 +33,7 @@ pub enum Entry {
 }
 
 impl Entry {
-    /// Every entry the map holds, in the order `lnk folder list` shows them.
+    /// Every entry the map holds, in the order `lnk location list` shows them.
     pub fn all() -> impl Iterator<Item = Entry> {
         std::iter::once(Entry::Link)
             .chain(Home::ALL.iter().map(|home| Entry::Home(*home)))
@@ -62,7 +62,7 @@ impl Entry {
         if found.is_none() && name == Entry::Hidden(Hidden::Map).name() {
             bail!("{name} is the map itself, which is never mapped");
         }
-        found.with_context(|| format!("{name:?} isn't a location: lnk folder list shows them"))
+        found.with_context(|| format!("{name:?} isn't a location: lnk location list shows them"))
     }
 
     pub fn kind(self) -> Kind {

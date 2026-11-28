@@ -94,8 +94,28 @@ fn main() -> std::process::ExitCode {
     link_secretive::process::guard();
     let saved: Vec<fn() -> link_files::upgrade::Saved> = link_agent::SAVED
         .into_iter()
-        .chain([moving::journal::saved as fn() -> _])
+        .chain([
+            moving::journal::saved as fn() -> _,
+            teams::defining::saved,
+            teams::moving::saved,
+            environment::saved,
+            machine::saved,
+            shares::saved,
+            defined::saved,
+            shared::saved,
+            memory::defining::saved,
+            memory::recording::saved_record,
+            memory::recording::saved_seen,
+            link_interactions::saved_approvals,
+            link_interactions::chains::saved,
+            link_memory_tool_contract::saved_agents,
+            link_scheduler_tool_contract::listed::saved,
+            link_harness_contract::harness::saved_shared_agents,
+        ])
         .collect();
+    // The guest service, which this program runs, keeps its state on Linux.
+    #[cfg(target_os = "linux")]
+    let saved = [saved, vec![link_service::saved_guest_state as fn() -> _]].concat();
     link_core::saved::own(&saved);
     link_core::describe_component!(link_agent_spec::Spec, link_agent_spec::TeamFile);
     // `permission add` and `remove` take the sandbox spec's field flags.

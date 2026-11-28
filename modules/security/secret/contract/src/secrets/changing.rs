@@ -681,7 +681,7 @@ mod tests {
         assert_eq!(copies(&secrets, &model), Some((false, vec![aws.clone()])));
         assert_eq!(copies(&secrets, &npm), None);
         // Written and read back.
-        let text = toml::to_string(&secrets).unwrap();
+        let text = link_files::saved::print(&secrets).unwrap();
         assert!(text.contains(&format!("[left.{model}]")), "{text}");
         assert!(
             text.contains(&format!("principal = \"service:{id}\"")),
@@ -706,7 +706,7 @@ mod tests {
         secrets.copies_of(&id, &[], &|c| c.remove(&cloud)).unwrap();
         assert!(secrets.list().is_empty());
         // A copy's place is a name, as Link's are, and its service an ID.
-        let left = |rest: &str| parse(&format!("[left.{model}]\n{rest}\n"));
+        let left = |rest: &str| parse(&format!("schema = 1\n[left.{model}]\n{rest}\n"));
         let owner =
             format!("principal = \"service:{id}\"\nas = {{ kind = \"own\", purpose = \"model\" }}");
         assert!(left(&format!("{owner}\ncopies = [{{ name = \"a\" }}]")).is_ok());

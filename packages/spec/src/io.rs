@@ -229,12 +229,25 @@ struct Hashes(std::collections::BTreeMap<String, String>);
 
 link_files::specification!(Hashes, include_str!("io/seen.schema.toml"));
 
+/// The specifications seen, which an upgrade converts.
+pub fn saved_seen() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Hashes>()
+}
+
 impl Seen {
     /// The specs its owner `kind` (`sandboxes`, `boxes`) has seen before.
     pub fn load(kind: &str) -> anyhow::Result<Self> {
-        let file = link_files::layout::seen_specs(kind)?;
+        Self::load_at(link_files::layout::seen_specs(kind)?)
+    }
+
+    /// [`Seen::load`] of the file at `file`.
+    fn load_at(file: PathBuf) -> anyhow::Result<Self> {
         let hashes = match std::fs::read_to_string(&file) {
-            Ok(text) => link_files::saved::parse(&text).unwrap_or_default(),
+            // Refused by name, never read as empty: the next save would
+            // forget every spec it knew.
+            Ok(text) => {
+                link_files::saved::parse(&text).within(format!("reading {}", file.display()))?
+            }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Hashes::default(),
             Err(e) => return Err(e).within(format!("reading {}", file.display())),
         };
@@ -336,6 +349,18 @@ pub fn named_like_a_secret(name: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A missing list of the specs seen is empty; one that can't be read
+    /// is refused by name, never read as empty.
+    #[test]
+    fn an_unreadable_seen_list_is_refused_by_name() {
+        let dir = link_test_kit::TempDir::new("seen-specs");
+        let file = dir.join("seen.toml");
+        assert!(Seen::load_at(file.clone()).unwrap().hashes.0.is_empty());
+        std::fs::write(&file, "schema = 1\n\"/a\" = \n").unwrap();
+        let refused = Seen::load_at(file).err().unwrap();
+        assert!(format!("{refused:#}").contains("seen.toml"), "{refused:#}");
+    }
 
     #[derive(serde::Deserialize, serde::Serialize, Debug, PartialEq)]
     #[serde(deny_unknown_fields)]

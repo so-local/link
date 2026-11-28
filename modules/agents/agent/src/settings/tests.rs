@@ -25,6 +25,14 @@ pub(crate) fn example_models() -> &'static link_model_contract::providers::Decla
     declared("link").expect("the example provider is declared")
 }
 
+/// A blank agent `name`, its ID reserved here as `lnk agent create`
+/// reserves one: every agent saved has an ID.
+pub(crate) fn blank(name: &str) -> Settings {
+    let mut agent = Settings::new(name);
+    agent.id = Some(ids::workload(&ids::reserve().unwrap()).unwrap());
+    agent
+}
+
 /// Run each settings scenario in a dedicated process with a kit-owned home.
 /// No test changes the process home or removes another scenario's settings.
 pub(crate) fn own_config() -> bool {
@@ -98,7 +106,7 @@ fn its_spec_parses_its_own_once() {
     if !own_config() {
         return;
     }
-    let mut agent = Settings::new("main");
+    let mut agent = blank("main");
     agent.save().unwrap();
     let parses = || configuration::PARSES.with(std::cell::Cell::get);
     let before = parses();

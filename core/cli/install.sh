@@ -8,7 +8,7 @@
 #
 # Environment:
 #   LNK_INSTALL_DIR   where to put lnk (default: ~/.lnk/exec/bin)
-#   LNK_VERSION       a specific version such as 0.14.0 (default: latest)
+#   LNK_VERSION       a specific version such as 0.0.1 (default: latest)
 #   LNK_INSECURE=1    install even without ssh-keygen (no signature check)
 #
 # Releases are signed: this script checks SHA256SUMS.sig with ssh-keygen
@@ -31,7 +31,7 @@ listed() {
 }
 
 # Whether version $1 comes before version $2, as lnk orders them: by
-# major.minor.patch, then a prerelease (0.15.0-staging.202610131900) before its
+# major.minor.patch, then a prerelease (0.0.1-staging.202610131900) before its
 # release, and prereleases part by part, numbers as numbers before words.
 older() {
     LC_ALL=C awk -v a="$1" -v b="$2" 'BEGIN {
@@ -61,10 +61,29 @@ older() {
     }'
 }
 
+# Downloads $1 from the release into $tmp. Returns curl's status: 22 when
+# the server answered an error, or 37 when a file:// release's folder
+# holds no such file (the release has none), another when the network
+# didn't answer.
+download() {
+    status=0
+    curl -fsSL --retry 3 "$base/$1" -o "$tmp/$1" 2>"$tmp/curl.err" || status=$?
+    return "$status"
+}
+
+# Says why downloading $1 failed with curl's status $2, then stops.
+failed() {
+    case "$2" in
+        22 | 37) echo "lnk: the release at $base has no $1 ($(tail -n 1 "$tmp/curl.err"))" >&2 ;;
+        *) echo "lnk: couldn't download $1 from $base: $(tail -n 1 "$tmp/curl.err") (curl exit $2); check your connection and try again" >&2 ;;
+    esac
+    exit 1
+}
+
 # Downloads $1 from the release into $tmp, and checks it against the signed
 # SHA256SUMS.
 fetch() {
-    curl -fsSL --retry 3 "$base/$1" -o "$tmp/$1"
+    download "$1" || failed "$1" "$?"
     expected=$(awk -v asset="$1" '$2 == asset { print $1 }' "$tmp/SHA256SUMS")
     if command -v sha256sum >/dev/null 2>&1; then
         actual=$(sha256sum "$tmp/$1" | awk '{ print $1 }')
@@ -75,6 +94,25 @@ fetch() {
         echo "lnk: checksum mismatch for $1; not installing" >&2
         exit 1
     fi
+}
+
+# The line that puts $1 on the PATH of the shell this user logs in with,
+# in that shell's own file: fish's own command, bash's login file on macOS
+# (Terminal starts a login shell) and .bashrc elsewhere, zsh's .zshrc, and
+# .profile for any other shell.
+path_hint() {
+    case "${SHELL:-}" in
+        */fish) echo "  fish_add_path $1" ;;
+        */bash)
+            case "$(uname -s)" in
+                Darwin) rc=.bash_profile ;;
+                *) rc=.bashrc ;;
+            esac
+            echo "  echo 'export PATH=\"$1:\$PATH\"' >> ~/$rc && exec bash"
+            ;;
+        */zsh) echo "  echo 'export PATH=\"$1:\$PATH\"' >> ~/.zshrc && exec zsh" ;;
+        *) echo "  echo 'export PATH=\"$1:\$PATH\"' >> ~/.profile, then log in again" ;;
+    esac
 }
 
 main() {
@@ -98,15 +136,32 @@ main() {
             ;;
     esac
     dir="${LNK_INSTALL_DIR:-$HOME/.lnk/exec/bin}"
-
-    tmp=$(mktemp -d)
-    trap 'rm -rf "$tmp"' EXIT INT TERM
-    echo "Downloading lnk ($version, $target)"
-    curl -fsSL --retry 3 "$base/SHA256SUMS" -o "$tmp/SHA256SUMS"
-    if ! curl -fsSL --retry 3 "$base/SHA256SUMS.sig" -o "$tmp/SHA256SUMS.sig"; then
-        echo "lnk: this release is not signed; not installing" >&2
+    # lnk installs its modules beside itself, so its folder is one this
+    # user writes: said before anything is downloaded.
+    if ! mkdir -p "$dir" 2>/dev/null || ! [ -w "$dir" ]; then
+        echo "lnk: you can't write to $dir, where lnk would install itself and its modules" >&2
+        echo "     set LNK_INSTALL_DIR to a folder you own, or leave it out for ~/.lnk/exec/bin" >&2
         exit 1
     fi
+
+    tmp=$(mktemp -d)
+    # The downloaded lnk runs from a folder beside where it goes, which can
+    # run programs, as a /tmp mounted noexec can't.
+    unpacked=$(mktemp -d "$dir/.lnk-install.XXXXXX")
+    trap 'rm -rf "$tmp" "$unpacked"' EXIT
+    # Interrupted, it stops, and the EXIT trap removes what it downloaded.
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    echo "Downloading lnk ($version, $target)"
+    download SHA256SUMS || failed SHA256SUMS "$?"
+    download SHA256SUMS.sig || {
+        status=$?
+        if [ "$status" = 22 ] || [ "$status" = 37 ]; then
+            echo "lnk: this release is not signed (it has no SHA256SUMS.sig); not installing" >&2
+            exit 1
+        fi
+        failed SHA256SUMS.sig "$status"
+    }
     if command -v ssh-keygen >/dev/null 2>&1; then
         echo "$RELEASE_SIGNERS" > "$tmp/signers"
         if ! ssh-keygen -Y verify -f "$tmp/signers" -I link-release -n link-release \
@@ -155,25 +210,29 @@ main() {
     fi
     fetch "$asset"
 
-    mkdir "$tmp/unpacked"
-    tar -xzf "$tmp/$asset" -C "$tmp/unpacked"
+    tar -xzf "$tmp/$asset" -C "$unpacked"
+    chmod 755 "$unpacked/lnk"
     # The lnk inside is signed, so the version it reports is the one it is.
-    found_version=$("$tmp/unpacked/lnk" --version 2>/dev/null | awk 'NR == 1 { print $2 }')
+    if ! said=$("$unpacked/lnk" --version 2>"$tmp/version.err"); then
+        echo "lnk: the downloaded lnk didn't run in $dir ($(tail -n 1 "$tmp/version.err")); not installing it" >&2
+        exit 1
+    fi
+    found_version=$(echo "$said" | awk 'NR == 1 { print $2 }')
     if [ "$found_version" != "$expected_version" ]; then
         echo "lnk: the release is lnk $expected_version but holds lnk ${found_version:-(no version)}; not installing it" >&2
         exit 1
     fi
-    mkdir -p "$dir"
-    # lnk (and, from an older release, its modules), which run from the
-    # same folder. Replace via rename so a running lnk is safe.
-    for path in "$tmp"/unpacked/lnk "$tmp"/unpacked/lnk-*; do
-        [ -f "$path" ] || continue
-        name=$(basename "$path")
-        cp "$path" "$dir/.$name.new"
-        chmod 755 "$dir/.$name.new"
-        mv -f "$dir/.$name.new" "$dir/$name"
-    done
+    # lnk, which runs its modules from the same folder. Replaced by rename,
+    # so a running lnk is safe.
+    mv -f "$unpacked/lnk" "$dir/lnk"
     echo "Installed $("$dir/lnk" --version | head -n 1) to $dir/lnk"
+    # Modules an older install left are its release's until upgraded.
+    other_modules=''
+    for path in "$dir"/lnk-*; do
+        [ -f "$path" ] || continue
+        module_version=$("$path" --version 2>/dev/null | awk 'NR == 1 { print $2 }')
+        [ "$module_version" = "$expected_version" ] || other_modules="$other_modules $(basename "$path")"
+    done
 
     # The same directory written with a literal ~ (e.g. PATH="~/.lnk/exec/bin:..."
     # in a profile): shells don't expand ~ inside quotes, so it never matches.
@@ -188,15 +247,9 @@ main() {
             echo "instead of ~${dir#"$HOME"}, then open a new terminal."
             ;;
         *)
-            # The shell this user logs in with: its own file, and itself
-            # started again.
-            case "${SHELL:-}" in
-                */bash) rc=.bashrc shell=bash ;;
-                *) rc=.zshrc shell=zsh ;;
-            esac
             echo
-            echo "$dir is not on your PATH. Add it, for $shell:"
-            echo "  echo 'export PATH=\"$dir:\$PATH\"' >> ~/$rc && exec $shell"
+            echo "$dir is not on your PATH. Add it, for your shell:"
+            path_hint "$dir"
             ;;
     esac
     found=$(command -v lnk 2>/dev/null || true)
@@ -206,7 +259,12 @@ main() {
         echo "Remove the other one or put $dir first on your PATH."
     fi
     echo
-    echo "Next: lnk up (choose what you want Link for)"
+    if [ -n "$other_modules" ]; then
+        echo "Your modules are another release's:$other_modules."
+        echo "Next: lnk upgrade (brings them, and your files, to lnk $expected_version)"
+    else
+        echo "Next: lnk up (choose what you want Link for)"
+    fi
 }
 
 case "${1:-}" in

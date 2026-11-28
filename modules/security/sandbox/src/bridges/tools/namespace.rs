@@ -25,6 +25,8 @@ struct Peer {
 
 struct Server {
     namespace: Namespace,
+    /// Its providers' tools, as the sandbox that calls the namespace has
+    /// them: its pause stops a call, and its questions are its own.
     tools: route::Tools,
     /// The providers open now, by name.
     peers: tokio::sync::RwLock<BTreeMap<String, Arc<Peer>>>,
@@ -32,17 +34,45 @@ struct Server {
 }
 
 impl Server {
+    /// The namespace `namespace`, serving calls `by` its caller: the
+    /// sandbox named `caller` (the bridge's [`super::CALLER`]), or, with
+    /// none, the owner's command line alone.
+    fn new(namespace: Namespace, by: super::By, caller: Option<String>) -> anyhow::Result<Self> {
+        let caller = match (caller, by) {
+            (Some(caller), _) => {
+                link_sandbox_client::check_name(&caller)?;
+                caller
+            }
+            (None, super::By::Owner) => namespace.name.clone(),
+            (None, _) => anyhow::bail!(
+                "a namespace serves a sandbox only as its bridge starts it, \
+                 told which sandbox calls (a shared namespace can't be told)"
+            ),
+        };
+        let named = namespace
+            .actions
+            .values()
+            .flat_map(|a| a.targets.values().map(|t| t.server.clone()))
+            .collect();
+        let mut tools = route::Tools::new(&caller, namespace.dir.clone(), named);
+        tools.runtime = link_files::layout::Root::Runtime.try_path()?;
+        tools.asking = namespace.asking.clone();
+        tools.by = by;
+        tools.desktop = link_sandbox_route::desktop::desktop();
+        Ok(Self {
+            namespace,
+            tools,
+            peers: Default::default(),
+            opening: Default::default(),
+        })
+    }
+
     async fn peer(&self, name: &str) -> anyhow::Result<Peer> {
         let tool = load(&self.namespace.dir, name)?;
         let initialize = json!({"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"link-namespace","version":env!("CARGO_PKG_VERSION")}}});
-        let (session, answer) = route::start(
-            &link_files::layout::Root::Runtime.try_path()?,
-            &self.namespace.dir,
-            &tool,
-            &initialize,
-        )
-        .await
-        .map_err(|(_, why)| anyhow::anyhow!(why))?;
+        let (session, answer) = route::start(&self.tools, &tool, &initialize)
+            .await
+            .map_err(|(_, why)| anyhow::anyhow!(why))?;
         ensure!(
             answer.get("error").is_none(),
             "provider refused initialization"
@@ -66,7 +96,7 @@ impl Server {
             }
             let listed = session.request(&message).await?;
             ensure!(listed.get("error").is_none(), "provider refused discovery");
-            session.keep_hints(&listed);
+            session.keep_hints(&listed, page == 0);
             for tool in listed
                 .pointer("/result/tools")
                 .and_then(Value::as_array)
@@ -431,21 +461,8 @@ pub async fn serve(file: &Path, by: super::By) -> anyhow::Result<()> {
     let namespace: Namespace = link_files::saved::parse_json(&bytes)?;
     namespace.check()?;
     crate::settings::read_from(&namespace.dir);
-    let named = namespace
-        .actions
-        .values()
-        .flat_map(|a| a.targets.values().map(|t| t.server.clone()))
-        .collect();
-    let mut tools = route::Tools::new(&namespace.name, namespace.dir.clone(), named);
-    tools.asking = namespace.asking.clone();
-    tools.by = by;
-    tools.desktop = link_sandbox_route::desktop::desktop();
-    let server = Arc::new(Server {
-        namespace,
-        tools,
-        peers: Default::default(),
-        opening: Default::default(),
-    });
+    let caller = std::env::var(super::CALLER).ok();
+    let server = Arc::new(Server::new(namespace, by, caller)?);
     let mut lines = tokio::io::BufReader::new(tokio::io::stdin()).lines();
     let output = Arc::new(tokio::sync::Mutex::new(tokio::fs::File::from_std(
         link_format::streams::Protocol::file()?,
@@ -705,21 +722,48 @@ done
             ]
             .into(),
         };
-        let tools = route::Tools::new(
-            "task",
-            dir.clone(),
-            vec!["run-one".into(), "schedule-one".into()],
+        let server = Server::new(namespace, super::super::By::Model, Some(CALLER.into())).unwrap();
+        (root, dir, server)
+    }
+
+    /// The sandbox the fixture's namespace is called by.
+    const CALLER: &str = "caller-sandbox";
+
+    /// A namespace's call is its caller's: pausing the sandbox that calls
+    /// stops it before it reaches a provider, and its question is asked
+    /// as that sandbox, under that sandbox's own lock.
+    #[tokio::test]
+    async fn a_namespace_call_is_its_callers() {
+        let (_root, dir, server) = fixture();
+        assert_eq!(server.tools.sandbox, CALLER);
+        let call = json!({"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"stop","arguments":{"kind":"schedule","id":"one"}}});
+        // The namespace's own name pauses nothing of the caller's.
+        link_sandbox_proxy::wire::pause(&dir, "task", "test").unwrap();
+        server.called(&call).await.unwrap();
+        assert_eq!(
+            std::fs::read_to_string(dir.join("schedule-one")).unwrap(),
+            "called\n"
         );
-        (
-            root,
-            dir,
-            Server {
-                namespace,
-                tools,
-                peers: Default::default(),
-                opening: Default::default(),
-            },
-        )
+        link_sandbox_proxy::wire::pause(&dir, CALLER, "test").unwrap();
+        let refused = format!("{:#}", server.called(&call).await.unwrap_err());
+        assert!(refused.contains("paused"), "{refused}");
+        assert_eq!(
+            std::fs::read_to_string(dir.join("schedule-one")).unwrap(),
+            "called\n"
+        );
+    }
+
+    /// Started by a bridge, a namespace is told its caller; with none,
+    /// only the owner's own command line is served.
+    #[test]
+    fn a_namespace_without_its_caller_serves_only_the_owner() {
+        let (_root, _dir, server) = fixture();
+        let namespace = server.namespace;
+        let by = super::super::By::Model;
+        assert!(Server::new(namespace.clone(), by, None).is_err());
+        assert!(Server::new(namespace.clone(), by, Some("../other".into())).is_err());
+        let owner = Server::new(namespace, super::super::By::Owner, None).unwrap();
+        assert_eq!(owner.tools.sandbox, "task");
     }
 
     /// What each provider tells a model reaches it through the

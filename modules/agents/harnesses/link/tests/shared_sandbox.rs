@@ -184,7 +184,7 @@ fn two_agents_share_one_harness_each_behind_its_own_proxy() {
     std::fs::create_dir_all(link_files::layout::Hidden::Agents.at(&config)).unwrap();
     link_files::write_private(
         &link_files::layout::Hidden::AgentPolicy.at(&config),
-        b"shared_harness = true\n",
+        b"schema = 1\nshared_harness = true\n",
     )
     .unwrap();
     let model = stand_in();

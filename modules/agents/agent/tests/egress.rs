@@ -224,8 +224,8 @@ fn only_the_served_ports_are_reachable_from_outside() {
             files.display()
         ),
     );
-    // The harness listens on both its ports, answering "gateway" and
-    // "daemon", until the test is done.
+    // The harness listens on both its ports, answering what it's asked
+    // with "gateway" and "daemon", until the test is done.
     std::fs::write(
         files.join("serve.py"),
         format!(
@@ -234,7 +234,7 @@ def serve(port, word):
     s = socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(("127.0.0.1", port)); s.listen()
     while True:
-        c, _ = s.accept(); c.sendall(word.encode()); c.close()
+        c, _ = s.accept(); c.recv(64); c.sendall(word.encode()); c.close()
 for port, word in [({served}, "gateway"), ({inside}, "daemon")]:
     threading.Thread(target=serve, args=(port, word), daemon=True).start()
 files = os.environ["LNK_FILES"]
@@ -289,11 +289,16 @@ for _ in range(300):
             std::fs::read_to_string(&log).unwrap()
         );
     }
+    // A served port passes a connection in once it says something, so
+    // each says a line before it reads the answer.
     let answer = |port: u16| {
-        use std::io::Read;
+        use std::io::{Read, Write};
         let mut text = String::new();
         std::net::TcpStream::connect(("127.0.0.1", port))
-            .and_then(|mut s| s.read_to_string(&mut text))
+            .and_then(|mut s| {
+                s.write_all(b"hello\n")
+                    .and_then(|()| s.read_to_string(&mut text))
+            })
             .map(|_| text)
             .ok()
     };

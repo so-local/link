@@ -20,13 +20,27 @@ fn no_sandbox(headline: link_format::Sentence) -> Report {
     Report::error(headline).next(cmd!("lnk box create"), "make a Linux box to run it on")
 }
 
+/// Bubblewrap isn't installed: installed with the system's package, where
+/// sudo asks your password, never only where it needs none.
+fn missing() -> Report {
+    Report::error(sentence!(
+        "The sandbox needs bubblewrap, which isn't installed."
+    ))
+    .why(prose!("Install your system's package for it (bubblewrap)."))
+    .next(cmd!("sudo apt install bubblewrap"), "install it")
+    .next(
+        cmd!("lnk sandbox check --ready"),
+        "check again once you have",
+    )
+}
+
 /// Bubblewrap can't make the sandbox, and what it said.
 fn blocked(why: &str) -> Report {
     Report::error(sentence!("Bubblewrap can't make the sandbox here."))
         .why(prose!("It said: {}.", Foreign::new(why)))
         .next(
-            cmd!("lnk sandbox check --ready --yes"),
-            "install and allow it, where sudo needs no password",
+            cmd!("lnk sandbox check --ready"),
+            "allow it, in a terminal, where sudo asks your password",
         )
 }
 
@@ -46,12 +60,7 @@ pub(crate) fn ready(out: &mut Out, ask: bool) -> Result<(), Report> {
     if !cfg!(target_os = "linux") {
         return Err(no_sandbox(sentence!("Link has no sandbox for this OS.")));
     }
-    let bwrap = link_sandbox_confine::linux::bwrap::bwrap().map_err(|err| {
-        Report::from(err).next(
-            cmd!("lnk sandbox check --ready --yes"),
-            "install it, where sudo needs no password",
-        )
-    })?;
+    let bwrap = link_sandbox_confine::linux::bwrap::bwrap().map_err(|_| missing())?;
     // Asked once per boot, kernel and bubblewrap: each sandbox started
     // after reads that it worked.
     match link_sandbox_confine::linux::bwrap::worked(bwrap) {
@@ -133,4 +142,22 @@ pub(crate) fn ready_unasked(out: &mut Out) -> Result<(), Report> {
 fn allow_unasked(bwrap: &str) -> Result<(), Report> {
     link_sandbox_confine::linux::bwrap::allow_bwrap_unasked(bwrap).within("allowing bubblewrap")?;
     link_sandbox_confine::linux::bwrap::works(bwrap).map_err(still_blocked)
+}
+
+#[cfg(test)]
+mod tests {
+    use link_format::render;
+
+    /// What a missing or blocked bubblewrap says to do works where sudo
+    /// asks a password: never only `--yes`, which needs one that doesn't.
+    #[test]
+    fn a_missing_bubblewrap_is_installed_where_sudo_asks() {
+        for report in [super::missing(), super::blocked("denied")] {
+            let said = render::report(&report, None, &render::Ctx::plain());
+            assert!(!said.contains("--yes"), "{said}");
+            assert!(said.contains("lnk sandbox check --ready"), "{said}");
+        }
+        let said = render::report(&super::missing(), None, &render::Ctx::plain());
+        assert!(said.contains("sudo apt install bubblewrap"), "{said}");
+    }
 }

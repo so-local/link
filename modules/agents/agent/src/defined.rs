@@ -39,6 +39,11 @@ pub struct Tool {
 
 link_files::specification!(Tool, include_str!("defined/tool.schema.toml"));
 
+/// Each agent tool's record, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Tool>()
+}
+
 impl Tool {
     /// A tool served as `argv`, whose program is `program`.
     pub fn new(argv: Vec<String>, program: &Path) -> Tool {

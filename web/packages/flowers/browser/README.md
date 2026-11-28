@@ -8,6 +8,7 @@ Browser SVG Components holds the React artwork and animation for browser hosts.
 
 ## Code
 
+- [`art.tsx`](art.tsx): Scene artwork at rest, and a head a server draws
 - [`controller.ts`](controller.ts): Animation lifecycle and SVG attribute updates
 - [`index.tsx`](index.tsx): Public component exports
 - [`scene.tsx`](scene.tsx): Shared vector scene

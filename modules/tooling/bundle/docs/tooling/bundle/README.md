@@ -148,14 +148,14 @@ second build using the same worktree is refused while the first holds
 #### Build the `dev` Stage
 
 The bundled `lnk` trusts the bundle's own signer and Local Link's, at a
-version such as `0.14.0-dev.202611090720.g1a2b3c4d5e6f`. A signer of
+version such as `0.0.1-dev.202611090720.g1a2b3c4d5e6f`. A signer of
 your own signs it, never Link's nor the staging signer, so no released
 or staging `lnk` installs it.
 
 #### Build the `staging` Stage
 
 The bundled `lnk` trusts Local Link's signer and the staging signer, at
-a version such as `0.14.0-staging.202611090720.g1a2b3c4d5e6f`. Only the staging
+a version such as `0.0.1-staging.202611090720.g1a2b3c4d5e6f`. Only the staging
 signer signs it. That signer is the one the source's
 `scripts/release/staging-signers` names, which the bundled `lnk` is
 compiled to trust. A source of your own may
@@ -167,7 +167,7 @@ secrets.
 
 The bundled `lnk` trusts exactly the signer it's compiled with, the
 bundle's own, and the bundle has the workspace's version, such as
-`0.14.0`. Local Link's release is the production build signed by Local
+`0.0.1`. Local Link's release is the production build signed by Local
 Link's signer. A production bundle of your own, signed by a signer of
 yours, makes boxes that install nothing else. The staging signer never
 signs a production bundle.
@@ -251,7 +251,7 @@ lnk bundle create devbox
 lnk box create aws|gcp --name gcp-1 --bundle devbox
 ```
 
-Connect your cloud account first, as [Cloud Accounts](../../../../../cloud/cloud/docs/services/cloud/README.md)
+Connect your cloud account first, as [Platforms](../../../../../cloud/cloud/docs/services/cloud/README.md)
 describes. To try a later commit, build its bundle again and make a new box
 from the bundle the same way.
 

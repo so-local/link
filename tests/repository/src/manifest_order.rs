@@ -267,7 +267,7 @@ pub fn workspace_version(root: &Path) -> String {
 /// out of order, or carries a version other than `version`.
 pub fn npm(root: &Path, skip: &[&str], version: &str) -> Vec<String> {
     let order = order();
-    crate::layer_words::tracked(root)
+    crate::tracked::tracked(root)
         .into_iter()
         .filter(|file| file == "package.json" || file.ends_with("/package.json"))
         .filter(|file| {

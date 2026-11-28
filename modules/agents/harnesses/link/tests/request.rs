@@ -59,8 +59,12 @@ async fn every_section_and_note_reaches_the_model_by_content() {
     let mut agents = Agents::default();
     agents.add(agent.clone(), home, common::flat(&files));
     let store = Arc::new(Files::new(agents.clone()));
+    // Link's spec, with the repository's instructions, which it leaves
+    // off, read: every section has content.
+    let own =
+        link_agent_spec::parse("schema = 1\n[instructions]\nrepository = \"link\"\n").unwrap();
     let resolved = link_agent_spec::resolve(
-        None,
+        Some(&own),
         &[],
         &link_agent_spec::Known {
             name: "main".into(),

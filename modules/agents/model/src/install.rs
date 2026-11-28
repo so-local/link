@@ -486,6 +486,76 @@ pub async fn delete(base: &str, model: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// The part of [`kept`] that is Ollama's models.
+pub const MODELS_PART: &str = "models";
+
+/// The part of [`kept`] that is the Ollama app.
+pub const OLLAMA_PART: &str = "ollama";
+
+/// What `lnk uninstall` may delete of what this module installed, for a
+/// person whose home is `home`: the models Ollama runs and the runtimes
+/// they added (`models`), and on a Mac the Ollama app (`ollama`). Ollama
+/// on Linux is a system service its own installer set up as root, which
+/// stays.
+pub fn kept(home: &Path) -> link_core::uninstall::Kept {
+    use link_core::uninstall::{Kept, Part};
+    let apps: Vec<PathBuf> = [
+        PathBuf::from("/Applications/Ollama.app"),
+        home.join("Applications/Ollama.app"),
+    ]
+    .into_iter()
+    .filter(|app| cfg!(target_os = "macos") && app.is_dir())
+    .collect();
+    let mut parts = vec![Part {
+        name: MODELS_PART.into(),
+        about: "every model Ollama runs here, each a few GB, and the runtimes you added".into(),
+        paths: vec![crate::added::path()],
+        secrets: Some(Vec::new()),
+        ..Part::default()
+    }];
+    if !apps.is_empty() {
+        parts.push(Part {
+            name: OLLAMA_PART.into(),
+            about: "the Ollama app, which runs local models".into(),
+            paths: apps,
+            secrets: Some(Vec::new()),
+            ..Part::default()
+        });
+    }
+    Kept {
+        parts,
+        stays: match cfg!(target_os = "linux") && ollama_installed().is_some() {
+            true => "Ollama, which its installer set up as a system service: remove it as Ollama's documentation says".into(),
+            false => String::new(),
+        },
+        ..Kept::default()
+    }
+}
+
+/// Deletes what of `picked` isn't a file: for [`MODELS_PART`], every model
+/// the Ollama here runs, started first if it's installed and stopped.
+pub async fn delete_parts(picked: &[String]) -> anyhow::Result<()> {
+    if !picked.iter().any(|part| part == MODELS_PART) {
+        return Ok(());
+    }
+    if !ollama_running().await {
+        match ollama_installed() {
+            None => return Ok(()),
+            Some(installed) => ensure!(
+                start_ollama(&installed).await,
+                "Ollama didn't start, so its models weren't deleted: start it (ollama serve) and delete them again"
+            ),
+        }
+    }
+    let runtime = discover::probe_one("Ollama", OLLAMA)
+        .await
+        .within("Ollama stopped before its models were deleted")?;
+    for model in &runtime.models {
+        delete(OLLAMA, model).await?;
+    }
+    Ok(())
+}
+
 fn run(command: &mut std::process::Command) -> anyhow::Result<()> {
     let output = command.output().within(format!("running {command:?}"))?;
     ensure!(
@@ -499,6 +569,26 @@ fn run(command: &mut std::process::Command) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// What `lnk uninstall` may delete names the models, which keep no
+    /// secret, and the runtimes added; the app is a part only where it is,
+    /// on a Mac.
+    #[test]
+    fn its_removal_names_the_models_and_the_app_where_it_is() {
+        let home = link_test_kit::TempDir::new("model-removal");
+        let kept = kept(&home);
+        let names: Vec<&str> = kept.parts.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, [MODELS_PART]);
+        let models = &kept.parts[0];
+        assert!(models.about.contains("every model Ollama runs"));
+        assert_eq!(models.paths, [crate::added::path()]);
+        assert_eq!(models.secrets, Some(Vec::new()));
+        if cfg!(target_os = "macos") {
+            std::fs::create_dir_all(home.join("Applications/Ollama.app")).unwrap();
+            let kept = super::kept(&home);
+            assert_eq!(kept.parts[1].name, OLLAMA_PART);
+        }
+    }
 
     #[cfg(target_os = "linux")]
     #[tokio::test]

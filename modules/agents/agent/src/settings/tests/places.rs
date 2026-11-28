@@ -146,7 +146,7 @@ fn no_sandbox_lasts_until_sandbox_is_turned_back_on() {
     }
     let path = Settings::path_of("main");
     std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-    let mut agent = Settings::new("main");
+    let mut agent = blank("main");
     agent.harness = Some("my-harness".into());
     agent.sandbox = false;
     agent.save().unwrap();

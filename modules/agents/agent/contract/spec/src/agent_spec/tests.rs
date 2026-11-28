@@ -229,24 +229,17 @@ fn extending_link_is_leaving_extends_out() {
     assert_eq!(link, resolve(Some(&own), &[], &known("main")).unwrap());
 }
 
-/// Link's scheduler, run and code tools start off, and the owner's own
-/// switch turns each on. File starts on, so the agent changes its
-/// instructions and skills when asked, and the owner's switch turns it
-/// off.
+/// Every one of Link's tools starts off, and the owner's own switch
+/// turns each on.
 #[test]
 fn links_built_in_tools_stay_off_until_enabled() {
-    for tool in ["scheduler", "run", "code"] {
+    for tool in ["file", "scheduler", "run", "code", "mcp"] {
         let off = resolve(None, &[], &known("main")).unwrap();
         assert_eq!(off.tool(tool).enabled, Some(false), "{tool}");
         let own = parse(&super::with_tool_enabled(&named(""), tool, true).unwrap()).unwrap();
         let on = resolve(Some(&own), &[], &known("main")).unwrap();
         assert_eq!(on.tool(tool).enabled, Some(true), "{tool}");
     }
-    let link = resolve(None, &[], &known("main")).unwrap();
-    assert_eq!(link.tool("file").enabled, Some(true));
-    let own = parse(&super::with_tool_enabled(&named(""), "file", false).unwrap()).unwrap();
-    let off = resolve(Some(&own), &[], &known("main")).unwrap();
-    assert_eq!(off.tool("file").enabled, Some(false));
 }
 
 #[test]
@@ -684,8 +677,7 @@ fn each_switch_is_its_tables_own() {
         .unwrap();
     let link = resolve(None, &[], &known("main")).unwrap();
     for table in SWITCHED {
-        let on = *table == "file";
-        assert_eq!(link.tool(table).enabled, Some(on), "{table}");
+        assert_eq!(link.tool(table).enabled, Some(false), "{table}");
     }
     let file = link.tool("file");
     assert_eq!((file.find, file.diffs), (Some(true), Some(true)));
@@ -694,10 +686,10 @@ fn each_switch_is_its_tables_own() {
     assert_eq!(link.spec.model.as_ref().unwrap().fallback, Some(true));
     assert_eq!(link.spec.commands.as_ref().unwrap().create, Some(true));
     let instructions = link.spec.instructions.as_ref().unwrap();
-    assert_eq!(instructions.repository.as_deref(), Some("link"));
+    assert_eq!(instructions.repository.as_deref(), Some("none"));
     assert_eq!(
         instructions.section("repository"),
-        (Some(Source::Link), Some(16 << 10))
+        (Some(Source::None), Some(16 << 10))
     );
 }
 

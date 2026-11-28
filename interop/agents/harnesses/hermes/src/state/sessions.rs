@@ -73,6 +73,11 @@ pub(super) struct Imports {
 
 link_files::specification!(Imports, include_str!("imports.schema.toml"));
 
+/// The sessions imported, which an upgrade converts.
+pub fn saved_imports() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Imports>()
+}
+
 impl Native {
     fn message(role: &str, content: Value) -> Self {
         Self {

@@ -3,7 +3,7 @@
 //! the agent or the team is made, and never given again. An agent's service has an ID of its own, never the
 //! agent's, since a service is who acts and the agent what runs. Each
 //! has its ledger (`~/.lnk/safe/agents/ids.toml`, `services.toml`,
-//! `team-ids.toml`), which keeps every ID minted or brought here and every
+//! `group-ids.toml`), which keeps every ID minted or brought here and every
 //! ID retired by `lnk agent delete` or `lnk agent team delete`, under its
 //! lock; an ID another agent or team here has is live too, read from its
 //! settings or its team file. A name is a label: no lookup tells a
@@ -52,25 +52,8 @@ pub struct Book {
     kind: &'static str,
     what: &'static str,
     present: Present,
-    file: File,
-}
-
-/// Where a ledger's file is.
-#[derive(Clone, Copy)]
-enum File {
-    /// A location of the layout's own.
-    Hidden(link_files::layout::Hidden),
-    /// A file of this name in the agents' folder (`~/.lnk/safe/agents`).
-    InAgents(&'static str),
-}
-
-impl File {
-    fn path(self) -> anyhow::Result<std::path::PathBuf> {
-        Ok(match self {
-            File::Hidden(hidden) => hidden.try_path()?,
-            File::InAgents(name) => link_files::layout::Hidden::Agents.try_path()?.join(name),
-        })
-    }
+    /// The location of its file.
+    file: link_files::layout::Hidden,
 }
 
 /// Agents' IDs.
@@ -78,7 +61,7 @@ pub const AGENTS: Book = Book {
     kind: KIND,
     what: "an agent's ID",
     present: Present::Identity("id"),
-    file: File::Hidden(link_files::layout::Hidden::AgentIds),
+    file: link_files::layout::Hidden::AgentIds,
 };
 
 /// The services agents here act as.
@@ -86,18 +69,16 @@ pub const SERVICES: Book = Book {
     kind: SERVICE,
     what: "an agent's service",
     present: Present::Identity("service"),
-    file: File::Hidden(link_files::layout::Hidden::AgentServices),
+    file: link_files::layout::Hidden::AgentServices,
 };
 
-/// The file of teams' IDs in the agents' folder.
-pub const TEAM_IDS: &str = "team-ids.toml";
-
-/// Teams' IDs, each a group's, `group:<id>`.
+/// Teams' IDs, each a group's, `group:<id>`, at the location
+/// `lnk.group-ids`.
 pub const TEAMS: Book = Book {
     kind: link_agent_team::KIND,
     what: "a team's ID",
     present: Present::Teams,
-    file: File::InAgents(TEAM_IDS),
+    file: link_files::layout::Hidden::GroupIds,
 };
 
 /// A ledger as its file keeps it, naming its schema.
@@ -106,6 +87,11 @@ pub const TEAMS: Book = Book {
 struct Kept(link_id::Table);
 
 link_files::specification!(Kept, include_str!("ids.schema.toml"));
+
+/// The ID ledgers, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
 
 /// The ledger here: what's kept, and the IDs of the agents here now.
 struct Here {
@@ -173,7 +159,7 @@ impl Book {
     /// `change` on the ledger here, under its lock, kept when it
     /// succeeds.
     fn with<T>(&self, change: impl FnOnce(&mut Here) -> anyhow::Result<T>) -> anyhow::Result<T> {
-        let path = self.file.path()?;
+        let path = self.file.try_path()?;
         with_at(&path, || self.present(), change)
     }
 

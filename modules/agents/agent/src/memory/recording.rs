@@ -40,6 +40,11 @@ pub(crate) struct Record {
 
 link_files::specification!(Record, include_str!("recording/record.schema.toml"));
 
+/// Each memory service's record, which an upgrade converts.
+pub(crate) fn saved_record() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Record>()
+}
+
 /// An agent whose memory a service serves: its owner, and its name.
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub(crate) struct Whose {
@@ -156,6 +161,11 @@ struct Seen {
 
 link_files::specification!(Seen, include_str!("recording/seen.schema.toml"));
 
+/// Each memory service's generation, which an upgrade converts.
+pub(crate) fn saved_seen() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Seen>()
+}
+
 /// The socket of service `generation`, in its working folder ([`working`]:
 /// the service and its sessions both work there, as a Unix socket's path
 /// is short).
@@ -200,7 +210,7 @@ mod tests {
         for key in ["0a1b2c3d4e5f", "a1b2c3d4e5f6", "main", "Not A Key"] {
             std::fs::write(
                 dir.join("agents").join(format!("{key}.json")),
-                serde_json::to_vec(&record).unwrap(),
+                link_files::saved::print_json(&record).unwrap(),
             )
             .unwrap();
         }
@@ -233,7 +243,7 @@ mod tests {
         let write = |key: &str, record: &Record| {
             link_files::write_private(
                 &dir.join("agents").join(format!("{key}.json")),
-                &serde_json::to_vec(record).unwrap(),
+                &link_files::saved::print_json(record).unwrap(),
             )
             .unwrap()
         };
@@ -248,7 +258,7 @@ mod tests {
             let mut seen: Seen =
                 serde_json::from_slice(&std::fs::read(dir.join(GENERATION)).unwrap()).unwrap();
             seen.generation = "kept".into();
-            serde_json::to_vec(&seen).unwrap()
+            link_files::saved::print_json(&seen).unwrap()
         })
         .unwrap();
         assert_eq!(now(), "kept");

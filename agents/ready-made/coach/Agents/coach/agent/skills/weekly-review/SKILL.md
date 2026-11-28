@@ -27,7 +27,7 @@ Reads: `plan/week.md`, `endurance/sessions.csv`, `strength/sets.csv`,
    more than one session had RPE 9 or higher, make next week lighter.
 7. Append one row to `plan/reviews.csv`:
    `week_start,sessions_planned,sessions_done,training_load_note,wins,problems,next_focus`
-   Example: `2027-01-11,5,4,"42 km, up 8%","long run 24 km","missed Thursday, sleep 6 h","protect sleep"`
+   Shape: `<YYYY-MM-DD>,<count>,<count>,"<note>","<wins>","<problems>","<focus>"`
 8. Do not rewrite `plan/week.md` here; plan-week replaces it.
 
 Reply: a short message on the week with the 3 numbers that matter, one

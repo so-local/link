@@ -7,8 +7,8 @@ versions share this parser rather than interpreting a version string themselves.
 
 ## What a version is
 
-Three numbers (`0.14.0`), then perhaps a prerelease
-(`0.14.0-staging.202610131900`), read by semantic versioning's rules: at
+Three numbers (`0.0.1`), then perhaps a prerelease
+(`0.0.1-staging.202610131900`), read by semantic versioning's rules: at
 most one `v` before it, no build metadata (`+...`), and each number
 digits alone, no leading zero, within a `u64`. Why a text isn't one is
 `NotAVersion`.
@@ -19,6 +19,14 @@ By their numbers, then a prerelease before the release of the same
 numbers, and prereleases part by part, numbers by value before words.
 So a staging build comes before the release it precedes, and a later staging
 build after an earlier one.
+
+### The release a build is of
+
+`Version::release` is a version's numbers alone, the release it's a
+build of: a staging build of 0.0.2 is of release 0.0.2, though it orders
+before it. A command history holds its entries to that release, so a
+staging build of the release that retired a command runs, as the
+release will.
 
 ## Protocol versions
 

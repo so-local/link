@@ -209,7 +209,7 @@ mod tests {
 
     fn unsigned_part() -> link_test_kit::temp::TempDir {
         let part = link_test_kit::temp::TempDir::new("bundle-inspection");
-        std::fs::write(part.join("VERSION"), "0.14.0\n").unwrap();
+        std::fs::write(part.join("VERSION"), "0.0.4\n").unwrap();
         part
     }
 
@@ -296,9 +296,9 @@ mod tests {
     #[test]
     fn a_bundle_by_its_path_is_shown_from_anywhere() {
         let dir = link_test_kit::temp::TempDir::new("bundle-path");
-        let dist = dir.path().join("mine/download/v0.14.0-dev.1");
+        let dist = dir.path().join("mine/download/v0.0.4-dev.1");
         std::fs::create_dir_all(&dist).unwrap();
-        std::fs::write(dist.join("VERSION"), "0.14.0-dev.1\n").unwrap();
+        std::fs::write(dist.join("VERSION"), "0.0.4-dev.1\n").unwrap();
         // A program's archive, which tar reads from a folder of its own.
         let inside = dir.path().join("lnk-core");
         std::fs::create_dir_all(&inside).unwrap();
@@ -337,7 +337,7 @@ mod tests {
 
     #[test]
     fn a_word_is_a_kept_name_and_a_path_a_folder() {
-        for name in ["devbox", "prodbox", "0.14.0-dev.1"] {
+        for name in ["devbox", "prodbox", "0.0.4-dev.1"] {
             assert!(is_a_name(Path::new(name)), "{name}");
         }
         for folder in ["./devbox", "bundles/devbox", "/srv/qa/devbox", ".", ".."] {

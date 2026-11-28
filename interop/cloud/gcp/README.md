@@ -14,7 +14,7 @@ the adapter for you, so you never type `lnk-gcp` yourself.
 
 ### More
 
-- [Google Cloud Credential Isolation](docs/services/cloud/gcp/security.md): Every account operation uses that account's saved credential file
+- [Google Cloud Credential Isolation](docs/services/cloud/gcp/security.md): Every account operation uses that account's saved credential file, or the machine's own service account for an account connected with `--machine`
 
 <!-- docs-tree:end -->
 

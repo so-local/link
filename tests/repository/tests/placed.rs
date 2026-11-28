@@ -3,7 +3,9 @@
 
 use std::path::Path;
 
-use link_repository_check::placed::{declared, placed, problems};
+use link_repository_check::placed::{
+    Declared, at_a_location, declared, formats, made, placed, problems,
+};
 
 #[test]
 fn every_saved_format_is_placed_but_the_listed() {
@@ -51,14 +53,44 @@ mod tests {
 }
 
 #[test]
-fn a_format_is_placed_by_its_files_or_as_history() {
+fn a_format_is_placed_by_its_files_as_history_or_inside() {
     let files = "schema = 1\nkind = \"k\"\ncurrent = 1\n[[files]]\nlocation = \"lnk.env\"\nencoding = \"toml\"\n";
     assert_eq!(placed(files), Ok(true));
     let history = "schema = 1\nkind = \"k\"\ncurrent = 1\nholds = \"history\"\n";
     assert_eq!(placed(history), Ok(true));
+    let inside = "schema = 1\nkind = \"k\"\ncurrent = 1\nholds = \"inside\"\n";
+    assert_eq!(placed(inside), Ok(true));
     assert_eq!(placed("schema = 1\nkind = \"k\"\ncurrent = 1\n"), Ok(false));
     assert_eq!(
         placed("schema = 1\nkind = \"k\"\ncurrent = 1\nholds = \"state\"\n"),
         Ok(false)
     );
+}
+
+#[test]
+fn a_format_at_a_location_is_made_a_saved_in_its_crate() {
+    let files = "schema = 1\nkind = \"k\"\ncurrent = 1\n[[files]]\nlocation = \"lnk.env\"\nencoding = \"toml\"\n";
+    assert_eq!(at_a_location(files), Ok(true));
+    let inside = "schema = 1\nkind = \"k\"\ncurrent = 1\nholds = \"inside\"\n";
+    assert_eq!(at_a_location(inside), Ok(false));
+    let history = files.replace("[[files]]", "holds = \"history\"\n[[files]]");
+    assert_eq!(at_a_location(&history), Ok(false));
+    let kept = formats(
+        "modules/x/src/lib.rs",
+        "link_files::specification!(store::Kept, include_str!(\"kept.schema.toml\"));\n",
+    );
+    let kept = &kept[0];
+    assert!(made(kept, "Saved::of::<Kept>()"));
+    assert!(made(
+        kept,
+        "link_files::upgrade::Saved::of::<crate::store::Kept>()"
+    ));
+    assert!(!made(kept, "Saved::of::<Other>()"));
+    assert!(!made(kept, "fn saved() {}"));
+    let shipped = Declared {
+        ty: None,
+        schema: "held.schema.toml".into(),
+    };
+    assert!(made(&shipped, "Saved::shipped::<Held>(&HELD)"));
+    assert!(!made(&shipped, "Saved::of::<Held>()"));
 }

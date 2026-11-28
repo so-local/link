@@ -211,7 +211,7 @@ pub async fn run(bin: &Path, harness: &str, mode: Mode, count: usize) -> Value {
     roots.dedup();
     link_files::write_private(
         &home.join(".lnk/safe/measures/settings.toml"),
-        b"every = \"1s\"\n",
+        b"schema = 1\nevery = \"1s\"\n",
     )
     .unwrap();
     // Ordinary observation and controlled timing are separate. This is

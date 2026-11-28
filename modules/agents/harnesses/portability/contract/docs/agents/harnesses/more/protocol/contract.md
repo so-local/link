@@ -17,7 +17,7 @@ unless it says otherwise.
 
 What contract it speaks, how it reaches its model, and how many ports
 it takes. The `version` is the version of this contract it speaks, the
-harness protocol's (`harness/protocol.toml`): 2. [`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#create-an-agent)
+harness protocol's (`harness/protocol.toml`): 2. [`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#start-your-agent)
 refuses an adapter stating one below the protocol's `oldest`, by name,
 naming [`lnk upgrade`](../../../../../../../../../../docs/more/modules/guide.md#upgrade).
 

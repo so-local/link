@@ -2,3 +2,9 @@ schema = 1
 kind = "agent binding"
 current = 1
 command = "lnk agent start"
+
+# Each binding's key, a JSON file named by its ID in the keyring's folder.
+[[files]]
+location = "lnk.agent-credentials"
+path = "*.json"
+encoding = "json"

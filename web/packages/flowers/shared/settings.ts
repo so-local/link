@@ -123,4 +123,6 @@ export const motionConstants = {
   // A background comes to rest over settleTime ms once the page scrolls
   // past scrollRest pixels, and starts again as gently back at the top.
   settleTime: 1200, scrollRest: 0,
+  // A field fades in over revealTime ms once it has its real size.
+  revealTime: 500,
 } as const;

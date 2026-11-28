@@ -1,7 +1,7 @@
 schema = 1
 kind = "machine settings"
 current = 1
-command = "lnk folder"
+command = "lnk location"
 
 [[files]]
 location = "lnk.settings"

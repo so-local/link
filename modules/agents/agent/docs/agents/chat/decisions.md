@@ -26,7 +26,8 @@ runs a process of its own, [unless the machine shares one](../start/decisions.md
 
 #### `Link-Agent-Id`
 
-Beside it, `Link-Agent-Id: <id>`: every owner has a `main`, so a process
+Beside it, `Link-Agent-Id: <id>`: many owners have an agent of the same
+name, such as `onboarding`, so a process
 answering for more than one owner's agents needs the ID. It's a header
 of its own, not the ID in `Link-Agent`, which keeps the name every
 adapter already reads and which an ID could be taken for. Link Harness

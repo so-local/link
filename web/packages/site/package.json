@@ -5,6 +5,8 @@
   "license": "MIT OR Apache-2.0",
   "exports": {
     "./styles": "./src/globals.css",
+    "./analytics": "./src/analytics.tsx",
+    "./analytics-script": "./src/analytics-script.ts",
     "./background": "./src/background.tsx",
     "./brand": "./src/brand.tsx",
     "./card": "./src/card.ts",
@@ -14,6 +16,7 @@
     "./layout": "./src/layout.tsx",
     "./page": "./src/page.tsx",
     "./share": "./src/share.tsx",
+    "./share-card": "./src/share-card.tsx",
     "./bucket": "./src/bucket.ts",
     "./markdown": "./src/markdown.tsx",
     "./format": "./src/format.ts",

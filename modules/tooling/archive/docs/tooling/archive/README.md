@@ -154,7 +154,7 @@ cloud connect aws|gcp`, which you run yourself.
 
 ### Identity Stays Here
 
-An agent's ID, service identity, and owner are [machine-managed records](../../../../../agents/agent/docs/agents/more/settings/files.md) in
+An agent's ID, service identity, and owner are [machine-managed records](../../../../../agents/agent/docs/agents/state/files.md) in
 `~/.lnk/safe/agents/<name>/`, along with its ports and disabled services.
 Its `agent.toml` carries its setup and specification. These installation identity records
 are not part of the archive, and an import creates a new agent.

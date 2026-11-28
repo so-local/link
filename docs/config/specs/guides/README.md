@@ -10,6 +10,12 @@ explains the behaviors an agent can enable, and
 explains when an agent runs. The [Team Specification Guide](../../../../modules/agents/agent/contract/team/docs/agents/more/interface/contract/team.md)
 connects a team's definitions to its roster.
 
+## Every Kind
+
+[Specification Kinds](../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md)
+shows how [`lnk spec`](../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#specification-kinds) lists every kind the installed modules export,
+prints one kind's fields and converts a file to its current schema.
+
 ## Services and Permissions
 
 The [Box Specification Guide](../../../../modules/compute/box/docs/config/specs/guides/box.md)

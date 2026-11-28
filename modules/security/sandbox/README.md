@@ -11,11 +11,11 @@ proxy are libraries beside it.
 
 ### Pages
 
-- [Sandbox](docs/security/sandbox/README.md): The sandbox runs any program so that it changes only the folders you give it, reaches only what you allow, and never reads Local Link's settings
-  - [Sandbox Guide](docs/security/sandbox/guide.md): Run any program so it changes only the folders you give it, reaches only what you allow, and never reads Link's settings
-  - [Choose What the Sandbox Can Reach](docs/security/sandbox/reach.md): The programs a sandboxed program runs, the hosts, machines and models it reaches, the tools it calls and the pages it opens, each a flag of `lnk sandbox run` and a key of a specification
-  - [Tools and Asking](docs/security/sandbox/tools/README.md): Tools run outside every sandbox, and the sandbox asks you before a tool's call or a page goes through
-  - [Files](docs/security/sandbox/files.md): The files `lnk sandbox` keeps, and what each one holds
+- [Sandbox](docs/tooling/sandbox/README.md): The sandbox runs any program so that it changes only the folders you give it, reaches only what you allow, and never reads Local Link's settings
+  - [Sandbox Guide](docs/tooling/sandbox/guide.md): Run any program so it changes only the folders you give it, reaches only what you allow, and never reads Link's settings
+  - [Choose What the Sandbox Can Reach](docs/tooling/sandbox/reach.md): The programs a sandboxed program runs, the hosts, machines and models it reaches, the tools it calls and the pages it opens, each a flag of `lnk sandbox run` and a key of a specification
+  - [Tools and Asking](docs/tooling/sandbox/tools/README.md): Tools run outside every sandbox, and the sandbox asks you before a tool's call or a page goes through
+  - [Files](docs/tooling/sandbox/files.md): The files `lnk sandbox` keeps, and what each one holds
 - [Sandbox Specification Guide](docs/config/specs/guides/sandbox.md): How Link reads a sandbox specification: what each section opens and refuses, how one OS's table and field flags change it, and what a file may never grant
 
 ### References
@@ -32,14 +32,14 @@ proxy are libraries beside it.
 
 ### More
 
-- [More](docs/security/sandbox/more/README.md): Every side that builds or calls a sandbox shares three boundaries
-- [Decisions](docs/security/sandbox/decisions.md): Why the sandbox works the way it does
-- [Security](docs/security/sandbox/security.md): What every sandbox guarantees, what can cross it, and how a specification is checked
-  - [Features](docs/security/sandbox/security/features.md): Every feature of the sandbox, one row each, grouped by what it opens or closes
-  - [Gaps and Limits](docs/security/sandbox/security/gaps.md): What the sandbox leaves open, what `check` reports as `open`, and where it can't run
-  - [Sandbox Log](docs/security/sandbox/security/log/README.md): Every call a sandbox makes past its walls goes through its proxy, on a wire
-  - [Sandbox Permissions](docs/security/sandbox/security/permission/README.md): A sandbox opens nothing of this machine until its specification or a flag asks: no files, no network, and no program beyond the system's own
-- [Troubleshooting](docs/security/sandbox/troubleshooting.md): What to do when the sandbox can't start here, a program in it can't write, run or reach what it needs, or your agent's grants don't hold
+- [More](docs/tooling/sandbox/more/README.md): Every side that builds or calls a sandbox shares three boundaries
+- [Decisions](docs/tooling/sandbox/decisions.md): Why the sandbox works the way it does
+- [Security](docs/tooling/sandbox/security.md): What every sandbox guarantees, what can cross it, and how a specification is checked
+  - [Features](docs/tooling/sandbox/security/features.md): Every feature of the sandbox, one row each, grouped by what it opens or closes
+  - [Gaps and Limits](docs/tooling/sandbox/security/gaps.md): What the sandbox leaves open, what `check` reports as `open`, and where it can't run
+  - [Sandbox Log](docs/tooling/sandbox/security/log/README.md): Every call a sandbox makes past its walls goes through its proxy, on a wire
+  - [Sandbox Permissions](docs/tooling/sandbox/security/permission/README.md): A sandbox opens nothing of this machine until its specification or a flag asks: no files, no network, and no program beyond the system's own
+- [Troubleshooting](docs/tooling/sandbox/troubleshooting.md): What to do when the sandbox can't start here, a program in it can't write, run or reach what it needs, or your agent's grants don't hold
 
 <!-- docs-tree:end -->
 

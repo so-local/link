@@ -1,11 +1,13 @@
-//! `lnk-gcp connect`: a Google Cloud account, as one credential file that
-//! gcloud, rclone and Google's libraries all act as: a service account's
-//! key (`--credential-file`), or your own login's application default
-//! credentials (`gcloud auth application-default login`, once). The file
-//! is kept in Link's settings (`gcp/credentials/<name>.json`, only yours),
-//! so every part of Link using the account is the same identity.
-//! Questions and gcloud's own output go to stderr: stdout is the account,
-//! as JSON.
+//! `lnk-gcp connect`: a Google Cloud account that gcloud, rclone and
+//! Google's libraries all act as. It is one credential file, a service
+//! account's key (`--credential-file`) or your own login's application
+//! default credentials (`gcloud auth application-default login`, once),
+//! kept in Link's settings (`gcp/credentials/<name>.json`, only yours), so
+//! every part of Link using the account is the same identity. Or it is
+//! this Compute Engine machine's own service account (`--machine`), which
+//! each of them gets from the machine's metadata server, and no file at
+//! all. Questions and gcloud's own output go to stderr: stdout is the
+//! account, as JSON.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -20,6 +22,8 @@ use link_gcp::flags::GcpConnectArgs as Connect;
 use link_secretive::Duplicate;
 use link_secretive::Secret;
 
+use crate::metadata::{self, Metadata, Reading};
+
 /// The variable naming an account's credential file, for rclone and
 /// Google's libraries.
 pub const CREDENTIALS: &str = "GOOGLE_APPLICATION_CREDENTIALS";
@@ -28,16 +32,48 @@ pub const CREDENTIALS: &str = "GOOGLE_APPLICATION_CREDENTIALS";
 /// its independently configured login, for service and personal accounts.
 pub(crate) const OVERRIDE: &str = "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE";
 
-/// Who a credential file acts as.
+/// Who an account acts as, and where its credentials are.
 enum Who {
-    /// A service account, by its email, with its key's project.
+    /// A service account, by its email, with its key's project and the
+    /// key itself.
     Service {
         email: String,
         project: Option<String>,
+        key: Secret,
     },
     /// A person's login (application default credentials), by gcloud's
     /// account when it's known.
-    Person(Option<String>),
+    Person {
+        account: Option<String>,
+        credentials: Secret,
+    },
+    /// This machine's attached service account, by its email, with the
+    /// machine's project and zone where the flags don't name them. Its
+    /// credentials stay with the metadata server.
+    Machine {
+        email: String,
+        project: Option<String>,
+        zone: Option<String>,
+    },
+}
+
+/// Where a connected account's credentials come from, as its settings
+/// name it: a credential file ([`CREDENTIALS`]), or this machine's
+/// metadata server (`GCE_METADATA_HOST`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Credential {
+    File,
+    Machine,
+}
+
+/// The kind of credential settings name, where `has` says which settings
+/// there are; none when they name neither, or both.
+pub(crate) fn credential(has: impl Fn(&str) -> bool) -> Option<Credential> {
+    match (has(CREDENTIALS), has(&metadata::settings().host_variable)) {
+        (true, false) => Some(Credential::File),
+        (false, true) => Some(Credential::Machine),
+        _ => None,
+    }
 }
 
 pub fn connect(out: &mut Out, options: Connect) -> Result<Account, Report> {
@@ -67,20 +103,26 @@ pub fn connect(out: &mut Out, options: Connect) -> Result<Account, Report> {
         },
     };
     let get = |key: &str| gcloud.as_deref().and_then(|g| config_value(g, key));
-    let (text, who) = match &options.credential_file {
-        Some(file) => credential_file(file)?,
-        None => your_login(out, gcloud.as_deref(), &get)?,
+    let who = match (&options.credential_file, options.machine) {
+        (Some(_), true) => {
+            return Err(Report::error(sentence!(
+                "An account is a credential file or this machine's service account, never both."
+            ))
+            .next(
+                cmd!("lnk cloud connect gcp --machine"),
+                "act as this machine",
+            )
+            .exit(Exit::Usage));
+        }
+        (Some(file), false) => credential_file(file)?,
+        (None, true) => this_machine(&metadata::Server::new()?, &options)?,
+        (None, false) => your_login(out, gcloud.as_deref(), &get)?,
     };
-    let mut project = options.project.clone();
-    if project.is_none()
-        && let Who::Service {
-            project: Some(of_key),
-            ..
-        } = &who
-    {
-        project = Some(of_key.clone());
-    }
-    let project = match project.or_else(|| get("project")) {
+    let found = match &who {
+        Who::Service { project, .. } | Who::Machine { project, .. } => project.clone(),
+        Who::Person { .. } => None,
+    };
+    let project = match options.project.clone().or(found).or_else(|| get("project")) {
         Some(project) => project,
         None => out
             .ask(
@@ -95,35 +137,60 @@ pub fn connect(out: &mut Out, options: Connect) -> Result<Account, Report> {
             .next(cmd!("lnk cloud connect gcp --project <id>"), "name its ID")
             .exit(Exit::Usage));
     }
+    let found = match &who {
+        Who::Machine { zone, .. } => zone.clone(),
+        Who::Service { .. } | Who::Person { .. } => None,
+    };
     let zone = options
         .zone
         .clone()
+        .or(found)
         .or_else(|| get("compute/zone"))
         .unwrap_or_else(|| "us-central1-a".into());
-    let file = save(&name, &text)?;
-    let path = file.display().to_string();
     let mut env = BTreeMap::from([
-        (CREDENTIALS.to_string(), path.clone()),
-        (OVERRIDE.to_string(), path.clone()),
         ("CLOUDSDK_CORE_PROJECT".to_string(), project.clone()),
         ("CLOUDSDK_COMPUTE_ZONE".to_string(), zone.clone()),
     ]);
     let (identity, login) = match &who {
-        Who::Service { email, .. } => (
-            format!("Google Cloud as {email}"),
-            format!("the service account {email} (its key)"),
-        ),
-        Who::Person(Some(email)) => {
+        Who::Service { email, key, .. } => {
+            saved(&mut env, save(&name, key)?);
+            (
+                format!("Google Cloud as {email}"),
+                format!("the service account {email} (its key)"),
+            )
+        }
+        Who::Person {
+            account: Some(email),
+            credentials,
+        } => {
+            saved(&mut env, save(&name, credentials)?);
             env.insert("CLOUDSDK_CORE_ACCOUNT".into(), email.clone());
             (
                 format!("Google Cloud as {email}"),
                 format!("gcloud as {email}"),
             )
         }
-        Who::Person(None) => (
-            "Google Cloud (a login's credential file)".to_string(),
-            "the credential file you gave".to_string(),
-        ),
+        Who::Person {
+            account: None,
+            credentials,
+        } => {
+            saved(&mut env, save(&name, credentials)?);
+            (
+                "Google Cloud (a login's credential file)".to_string(),
+                "the credential file you gave".to_string(),
+            )
+        }
+        Who::Machine { email, .. } => {
+            // A file this name kept before, as another kind, goes.
+            remove_kept(&credentials_dir()?.join(format!("{name}.json")))?;
+            let settings = metadata::settings();
+            env.insert(settings.host_variable.clone(), settings.host.clone());
+            env.insert("CLOUDSDK_CORE_ACCOUNT".into(), email.clone());
+            (
+                format!("Google Cloud as {email}"),
+                format!("this machine's service account {email}"),
+            )
+        }
     };
     // Held as secrets from here: the credentials' path among them.
     let env: BTreeMap<String, Secret> = env.into_iter().map(|(k, v)| (k, v.into())).collect();
@@ -157,9 +224,66 @@ pub fn connect(out: &mut Out, options: Connect) -> Result<Account, Report> {
     })
 }
 
+/// The settings naming a saved credential file, for Google's libraries
+/// and for gcloud.
+fn saved(env: &mut BTreeMap<String, String>, file: PathBuf) {
+    let path = file.display().to_string();
+    env.insert(CREDENTIALS.to_string(), path.clone());
+    env.insert(OVERRIDE.to_string(), path);
+}
+
+/// This machine's attached service account, and its project and zone
+/// where the flags don't name them, as its metadata server says.
+fn this_machine(metadata: &dyn Metadata, options: &Connect) -> Result<Who, Report> {
+    let read = |path: &str| -> Result<Option<String>, Report> {
+        match metadata.read(path)? {
+            Reading::Found(value) if !value.is_empty() => Ok(Some(value)),
+            Reading::Found(_) | Reading::Missing => Ok(None),
+            Reading::NoServer => Err(Report::error(sentence!(
+                "This machine has no Google metadata server, so it isn't a Compute Engine machine."
+            ))
+            .why(prose!(
+                "Only a Compute Engine machine has its own service account. \
+                 Elsewhere, connect with a service account's key or your gcloud login."
+            ))
+            .next(
+                cmd!("lnk cloud connect gcp --credential-file key.json"),
+                "act as a service account",
+            )
+            .exit(Exit::Usage)),
+        }
+    };
+    let settings = metadata::settings();
+    let Some(email) = read(&settings.email)? else {
+        return Err(
+            Report::error(sentence!("This machine has no service account attached."))
+                .why(prose!(
+                    "Attach one to the machine in Google Cloud, then connect again."
+                ))
+                .exit(Exit::Usage),
+        );
+    };
+    let project = match &options.project {
+        Some(_) => None,
+        None => read(&settings.project)?,
+    };
+    // `projects/<number>/zones/<zone>`: its last part.
+    let zone = match &options.zone {
+        Some(_) => None,
+        None => read(&settings.zone)?
+            .and_then(|zone| zone.rsplit('/').next().map(str::to_string))
+            .filter(|zone| !zone.is_empty()),
+    };
+    Ok(Who::Machine {
+        email,
+        project,
+        zone,
+    })
+}
+
 /// A credential file you gave: a service account's key, or a login's
 /// application default credentials.
-fn credential_file(file: &Path) -> anyhow::Result<(String, Who)> {
+fn credential_file(file: &Path) -> anyhow::Result<Who> {
     let text = std::fs::read_to_string(file).within(format!("reading {}", file.display()))?;
     let key: serde_json::Value = serde_json::from_str(&text)
         .within(format!("{} isn't a Google credential file", file.display()))?;
@@ -170,15 +294,19 @@ fn credential_file(file: &Path) -> anyhow::Result<(String, Who)> {
                 .within("the key has no client_email")?
                 .to_string(),
             project: key["project_id"].as_str().map(str::to_string),
+            key: Secret::new(text),
         },
-        Some("authorized_user") => Who::Person(None),
+        Some("authorized_user") => Who::Person {
+            account: None,
+            credentials: Secret::new(text),
+        },
         _ => bail!(
             "{} isn't a service account's key (a JSON file from the Google Cloud console, \
              IAM, Service accounts, Keys)",
             file.display()
         ),
     };
-    Ok((text, who))
+    Ok(who)
 }
 
 /// Your own login: gcloud's (signing in if there's none), and its
@@ -188,7 +316,7 @@ fn your_login(
     out: &mut Out,
     gcloud: Option<&Path>,
     get: &dyn Fn(&str) -> Option<String>,
-) -> anyhow::Result<(String, Who)> {
+) -> anyhow::Result<Who> {
     let Some(gcloud) = gcloud else {
         bail!(
             "signing in to Google Cloud needs gcloud (https://cloud.google.com/sdk/docs/install), \
@@ -220,7 +348,10 @@ fn your_login(
     let adc = Path::new(&dir).join("application_default_credentials.json");
     let text = std::fs::read_to_string(&adc)
         .within(format!("reading what gcloud saved ({})", adc.display()))?;
-    Ok((text, Who::Person(Some(who))))
+    Ok(Who::Person {
+        account: Some(who),
+        credentials: Secret::new(text),
+    })
 }
 
 /// `gcloud config get-value <key>`, or with `info`, gcloud's settings
@@ -266,11 +397,11 @@ fn credentials_dir() -> anyhow::Result<PathBuf> {
 }
 
 /// Keeps account `name`'s credential file, replacing one it had.
-fn save(name: &str, text: &str) -> anyhow::Result<PathBuf> {
+fn save(name: &str, text: &Secret) -> anyhow::Result<PathBuf> {
     let dir = credentials_dir()?;
     link_files::create_private_dir(&dir)?;
     let file = dir.join(format!("{name}.json"));
-    link_files::write_private(&file, text.as_bytes())
+    link_files::write_private(&file, text.expose().as_bytes())
         .within(format!("writing {}", file.display()))?;
     Ok(file)
 }
@@ -278,7 +409,8 @@ fn save(name: &str, text: &str) -> anyhow::Result<PathBuf> {
 /// `storage`: the account's own sign-in for its buckets, as rclone's
 /// settings (never saved), and what rclone runs with. A service account's
 /// key is the bucket's own setting; a person's login goes by the variable,
-/// which is one per rclone run.
+/// which is one per rclone run; this machine's service account is the
+/// one rclone finds itself, at the metadata server.
 pub fn storage(account: &Account) -> anyhow::Result<Reply> {
     let reconnect = || {
         format!(
@@ -288,13 +420,24 @@ pub fn storage(account: &Account) -> anyhow::Result<Reply> {
             link_format::clean(&account.name)
         )
     };
-    let file = account.setting(CREDENTIALS).with_context(reconnect)?;
-    let text = std::fs::read_to_string(file).with_context(reconnect)?;
-    let key: serde_json::Value = serde_json::from_str(&text).with_context(reconnect)?;
     let mut settings: BTreeMap<String, Secret> = BTreeMap::from([(
         "type".to_string(),
         "google cloud storage".to_string().into(),
     )]);
+    match credential(|name| account.setting(name).is_some()) {
+        Some(Credential::Machine) => {
+            settings.insert("env_auth".into(), "true".to_string().into());
+            return Ok(Reply {
+                credential: settings,
+                ..Reply::default()
+            });
+        }
+        Some(Credential::File) => {}
+        None => anyhow::bail!(reconnect()),
+    }
+    let file = account.setting(CREDENTIALS).with_context(reconnect)?;
+    let text = std::fs::read_to_string(file).with_context(reconnect)?;
+    let key: serde_json::Value = serde_json::from_str(&text).with_context(reconnect)?;
     let mut env = BTreeMap::new();
     match key["type"].as_str() {
         Some("service_account") => {
@@ -312,13 +455,21 @@ pub fn storage(account: &Account) -> anyhow::Result<Reply> {
     })
 }
 
-/// `disconnect`: the account's credential file, gone (`lnk cloud disconnect`).
+/// `disconnect`: the account's credential file, gone (`lnk cloud
+/// disconnect`). This machine's service account has none to remove.
 pub fn forget(account: &Account) -> anyhow::Result<()> {
-    let Some(file) = account.setting(CREDENTIALS) else {
-        return Ok(());
-    };
-    let file = Path::new(file);
-    // Only Link's own copy: never a file it was pointed at elsewhere.
+    match (
+        credential(|name| account.setting(name).is_some()),
+        account.setting(CREDENTIALS),
+    ) {
+        (Some(Credential::File), Some(file)) => remove_kept(Path::new(file)),
+        _ => Ok(()),
+    }
+}
+
+/// Removes `file` when it's Link's own copy of a credential file, never
+/// a file it was pointed at elsewhere; nothing when it's gone already.
+fn remove_kept(file: &Path) -> anyhow::Result<()> {
     if file.parent() == Some(credentials_dir()?.as_path()) {
         match std::fs::remove_file(file) {
             Err(err) if err.kind() != std::io::ErrorKind::NotFound => return Err(err.into()),
@@ -336,3 +487,6 @@ fn no_browser() -> bool {
         || var("SSH_TTY")
         || (cfg!(target_os = "linux") && !var("DISPLAY") && !var("WAYLAND_DISPLAY"))
 }
+
+#[cfg(test)]
+mod tests;

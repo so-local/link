@@ -180,6 +180,11 @@ struct KeptDays {
 
 link_files::specification!(KeptDays, include_str!("daily/day.schema.toml"));
 
+/// The days kept, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<KeptDays>()
+}
+
 #[derive(Default, Serialize, Deserialize)]
 struct KeptSums {
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]

@@ -4,6 +4,10 @@ schema = 1
 type = "string"
 description = "Into the sandbox, for its first program, which removes it: the descriptor it writes each program started to. A program inside that sets it only records what it runs itself."
 
+[defines.LNK_SANDBOX_CALLER]
+type = "string"
+description = "The sandbox a tool's server serves, which the bridge sets as it starts the server for that sandbox's session: a namespace asks and pauses as its caller, and serves no sandbox without it."
+
 [defines.LNK_TEST_CA]
 type = "string"
 description = "A certificate authority's PEM file the sandbox's proxy trusts beside this machine's, for a test's own host over TLS. A debug build reads it; a release build doesn't."

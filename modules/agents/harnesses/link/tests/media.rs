@@ -35,11 +35,17 @@ struct World {
 
 /// An agent on `provider`'s fake model, which answers "Seen".
 async fn world(name: &str, provider: &str) -> World {
-    world_with(name, provider, axum::Router::new()).await
+    world_with(name, provider, axum::Router::new(), None).await
 }
 
-/// [`world`], its provider serving `routes` too.
-async fn world_with(name: &str, provider: &str, routes: axum::Router) -> World {
+/// [`world`], its provider serving `routes` too, its agent run by `spec`
+/// in place of Link's.
+async fn world_with(
+    name: &str,
+    provider: &str,
+    routes: axum::Router,
+    spec: Option<link_agent_spec::Spec>,
+) -> World {
     let root = TempDir::new(&format!("media-{name}"));
     let (port, asked) = common::fake_model_with(routes, std::time::Duration::ZERO, |_, _| {
         vec![
@@ -72,6 +78,7 @@ async fn world_with(name: &str, provider: &str, routes: axum::Router) -> World {
                 ..Model::default()
             },
             endpoint_key: Some("the-key".to_string().into()),
+            spec,
             ..Config::default()
         },
     )
@@ -275,6 +282,17 @@ async fn a_connections_photo_reaches_the_model() {
 /// The start of an Ogg file, in base64 (`OggS`, then a page's header).
 const OGG: &str = "T2dnUwACAAAAAAAAAAA=";
 
+/// Link's spec with voice notes on, which it leaves off.
+fn hears_voice() -> link_agent_spec::Spec {
+    let own = link_agent_spec::parse("schema = 1\n[connections]\nvoice = true\n").unwrap();
+    let known = link_agent_spec::Known {
+        name: "main".into(),
+    };
+    link_agent_spec::resolve(Some(&own), &[], &known)
+        .unwrap()
+        .spec
+}
+
 /// A voice note is heard by its provider's transcription before its
 /// turn: its words are the message's text, its audio a part kept and
 /// never sent to the model.
@@ -295,7 +313,7 @@ async fn a_voice_note_is_heard_and_its_words_reach_the_model() {
             }
         }),
     );
-    let world = world_with("voice", "openai", routes).await;
+    let world = world_with("voice", "openai", routes, Some(hears_voice())).await;
     let voice = ContentBlock::Audio(AudioContent::new(OGG, "audio/ogg"));
     assert_eq!(
         send(&world, vec![text("and eggs"), voice]).await.unwrap(),
@@ -325,7 +343,7 @@ async fn a_voice_note_is_heard_and_its_words_reach_the_model() {
 /// left out, and the model told so.
 #[tokio::test]
 async fn a_voice_note_nothing_hears_is_left_out() {
-    let world = world("unheard", "local").await;
+    let world = world_with("unheard", "local", axum::Router::new(), Some(hears_voice())).await;
     let voice = ContentBlock::Audio(AudioContent::new(OGG, "audio/ogg"));
     assert_eq!(send(&world, vec![voice]).await.unwrap(), "Seen");
     let events = common::events(&folder(&world));

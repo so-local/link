@@ -525,8 +525,9 @@ impl Embedder for Swapping {
 }
 
 /// A vector is kept only for the passage it was made from: one whose id
-/// now holds other bytes is left to embed again, and embedded once its
-/// file holds what the index says it does.
+/// now holds other bytes is left to embed again, however many batches
+/// run. That it's embedded once its file is written again is
+/// `only_what_changed_is_embedded_again_and_everything_for_a_new_model`'s.
 #[test]
 fn a_vector_lands_only_on_the_passage_it_was_made_from() {
     let root = folder("swapped");
@@ -554,16 +555,6 @@ fn a_vector_lands_only_on_the_passage_it_was_made_from() {
     // Its file doesn't hold those bytes: never embedded from another's.
     while index.embed_pending(16).unwrap() > 0 {}
     assert_eq!(beds(&db), (7, false));
-    // Written again, it's embedded with what it holds.
-    std::fs::write(root.join("memory/notes/beds.md"), "The accountant.\n").unwrap();
-    index.refresh().unwrap();
-    while index.embed_pending(16).unwrap() > 0 {}
-    assert!(beds(&db).1);
-    let texts = swapping.texts.lock().unwrap();
-    assert!(
-        texts.last().is_some_and(|t| t.ends_with("The accountant.")),
-        "{texts:?}"
-    );
 }
 
 /// The rows SQLite steps through to pick a batch of 16 from an index with

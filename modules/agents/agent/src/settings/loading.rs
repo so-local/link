@@ -87,18 +87,28 @@ impl Settings {
         Ok(note.name)
     }
 
-    /// This machine's only agent, else a new `main` (saved when something
-    /// is saved in it).
+    /// This machine's only agent: none here, `lnk agent start` creates the
+    /// first; several, `--agent` names one.
     pub fn here() -> anyhow::Result<Self> {
         Self::here_with(true)
     }
 
     fn here_with(keys: bool) -> anyhow::Result<Self> {
         match names()?.as_slice() {
-            [] => Ok(Self::new(MAIN)),
+            // None here: one that moved away is still the agent meant,
+            // and its moved note, read next, says where it went.
+            [] => match away()?.as_slice() {
+                [] => bail!("no agent here yet: lnk agent start creates your first"),
+                [one] => Ok(Self::new(one)),
+                many => bail!(
+                    "this machine's {} agents moved away ({}): name one with --agent <name>",
+                    many.len(),
+                    many.join(", ")
+                ),
+            },
             [one] => Self::load_with(one, keys),
             many => bail!(
-                "this machine has {} agents ({}): name one with -a <name>",
+                "this machine has {} agents ({}): name one with --agent <name>",
                 many.len(),
                 many.join(", ")
             ),
@@ -338,17 +348,14 @@ impl Settings {
             crate::sandbox_file::initialize(&self.name)?;
         }
         if !known {
-            // Its ID was reserved when it was created (`lnk agent create`);
-            // `main` alone is created by its first save, which reserves it.
-            if self.id.is_none() {
-                ensure!(
-                    self.name == MAIN,
-                    "agent {} has no ID: lnk agent create {} makes it",
-                    self.name,
-                    self.name
-                );
-                self.id = Some(super::ids::workload(&super::ids::reserve()?)?);
-            }
+            // Its ID was reserved when it was created (`lnk agent create`),
+            // imported or migrated.
+            ensure!(
+                self.id.is_some(),
+                "agent {} has no ID: lnk agent create {} makes it",
+                self.name,
+                self.name
+            );
             // Every first save holds its ID in the ledger, however it came
             // (created, defined in a team, migrated, moved, restored):
             // refused when it's retired here or another agent's.
@@ -528,6 +535,20 @@ pub fn peek(name: &str) -> anyhow::Result<Peek> {
 
 /// The names of this machine's agents (each folder in the Link folder's
 /// `Agents` holding settings), sorted.
+/// The agents that moved away from this machine, by name, none of them
+/// here again: each one's latest moved note says where it went.
+pub fn away() -> anyhow::Result<Vec<String>> {
+    let here = names()?;
+    let mut away: Vec<String> = crate::moved::notes()?
+        .into_iter()
+        .map(|note| note.name)
+        .filter(|name| !here.contains(name))
+        .collect();
+    away.sort();
+    away.dedup();
+    Ok(away)
+}
+
 pub fn names() -> anyhow::Result<Vec<String>> {
     let mut names = Vec::new();
     for dir in [agents(), link_files::layout::Home::AgentSettings.path()] {

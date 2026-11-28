@@ -38,7 +38,7 @@ cancelled start.
 ### Its scheduled jobs
 
 Link's scheduler runs them once you add it with
-[`lnk agent tool add scheduler`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#add-tools-and-skills): each reaches DeepSeek Harness as a message
+[`lnk agent tool add scheduler`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#tools): each reaches DeepSeek Harness as a message
 from the schedule, and its answer goes to the chat the schedule names.
 
 ### One message at a time

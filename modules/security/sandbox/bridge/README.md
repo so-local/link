@@ -8,7 +8,7 @@ The package `link-sandbox-bridge` defines what every bridge out of an agent's sa
 
 ### Pages
 
-- [Bridges](docs/security/sandbox/more/bridges.md): What every bridge out of an agent's sandbox speaks, through `link-sandbox-bridge`
+- [Bridges](docs/tooling/sandbox/more/bridges.md): What every bridge out of an agent's sandbox speaks, through `link-sandbox-bridge`
 
 ### Packages
 

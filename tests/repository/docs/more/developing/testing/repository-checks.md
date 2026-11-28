@@ -15,24 +15,12 @@ the repository broke a rule when it came in, a list beside the check
 names the files that still do. Each such list only shrinks: a file that
 keeps the rule must leave it, and no file joins.
 
-## Layers and Words
+## Layers
 
 Each crate depends only on its own group or the groups its `layer.toml`
 lists, as the [layout](../../../../../../docs/more/architecture/guide.md#layout) says,
 read from every `Cargo.toml` and `layer.toml` by the docs checks
 (`cargo test -p link-docs-check`).
-
-### Layer Words
-
-A lower layer never names a higher layer's concepts. A `layer.toml`
-declares the words its layer introduces (`words = ["agent", "team",
-"harness"]` for the agents' layer), and no file in a layer below says
-one, in an identifier, a file's name, a key, an error or its docs. A
-word matches as a whole part of a name, singular or plural, in any
-case, so `for_agent`, `AgentAt` and `agent.toml` all say `agent`. What
-lower layers said when the rule came in is counted in
-`layer-words.toml` (`layer_words::`). A part that needs a higher layer's
-knowledge [asks a question in its own types](../../../../../../docs/more/architecture/organization.md#layers).
 
 ## Dependencies
 
@@ -84,7 +72,7 @@ and every declared component appears in the registry (`released::`).
 Link-owned hidden state belongs under `~/.lnk`. `~/Link` holds no
 hidden file Link made, and atomic writes use visible temporary
 siblings from the shared path API (`state_roots::`). The sandbox
-check's [temporary native probes](../../../../../../modules/security/sandbox/docs/security/sandbox/security.md#temporary-native-names)
+check's [temporary native probes](../../../../../../modules/security/sandbox/docs/tooling/sandbox/security.md#temporary-native-names)
 are the one exception.
 
 ### Saved Files
@@ -94,18 +82,26 @@ names its schema version, written through `link_files::saved`. Outside
 test code, a function that writes a file and serializes a bare
 `toml::to_string` or `serde_json::to_vec` fails, as does a bare line
 appended to a ledger (`saved::`). `saved.toml` allows another program's
-format, a runtime file, a build's output or a fixture. Every saved
+format, a runtime file, a build's output or a fixture.
+
+#### Where Saved Files Are
+
+Every saved
 format's `schema.toml` lists its files, so [an upgrade finds
 them](../../../../../../packages/files/docs/more/libraries/files/files/upgrades.md),
-and `placed.toml` lists the formats still unplaced (`placed::`).
+or declares that it holds history or [state inside something
+else](../../../../../../packages/files/docs/more/libraries/files/files/upgrades.md#inside-something-else),
+and `placed.toml` lists the formats still unplaced (`placed::`). A
+format of state at a map location is made a `Saved` in its own crate
+(`Saved::of::<T>` or `Saved::shipped::<T>`), for its program to own.
 
 ### Ready-Made Agents
 
 Each ready-made agent's Home [holds only headings, table headers and
-empty fields](../../../../../../modules/agents/agent/docs/agents/ready-made/README.md#blank-until-you-speak),
+empty fields](../../../../../../agents/docs/agents/ready-made/README.md#blank-until-you-speak),
 so the agent never takes an example for its owner's data, and its tools
 are pinned in `ready-mades.toml`, so [what it comes with changes only
-on purpose](../../../../../../modules/agents/agent/docs/agents/ready-made/README.md#choose-an-agent)
+on purpose](../../../../../../agents/docs/agents/ready-made/README.md#choose-an-agent)
 (`ready_mades::`).
 
 ## Declarations
@@ -146,6 +142,31 @@ source file whose lines say what such support says of itself, such as
 "backward compatibility", an alias, an old-path fallback or a sniffed
 format, is listed in `legacy.toml`, which only shrinks (`legacy::`).
 Outside a `migrations/` folder, no line names a migration.
+
+### Versions Past the Workspace's
+
+The workspace's `Cargo.toml` holds Link's version, and every other
+place follows it. Outside test code, no tracked file names a release of
+Link past the line that version is on, its major and minor numbers
+(`versions::`). Such a version would be a floor, a minimum, a step's
+`since` or an example no release has reached, so a reset or a new line
+can't leave one behind.
+
+#### What Counts as Link's Version
+
+A version is Link's where its words say so: `lnk` or a module saying
+its version, Link and a release, the install's version flag or
+variable, a release's minimum, a build's stamp, a step's `since`, a
+harness's or the relay's image, a `Version::new` and a named release. A
+step's `until` names a later release by design, so it's never counted.
+
+#### Tests and the List
+
+Test code is left out: a test's versions are its own inputs, and a test
+that leans on the workspace's version fails by itself. A file that
+names one anyway, such as another program's version written the same
+way, is listed in `versions.toml` with how many lines, and the list
+only shrinks.
 
 ### No Credential Shapes
 

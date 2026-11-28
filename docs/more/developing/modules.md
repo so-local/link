@@ -60,7 +60,7 @@ shapes they take in `types.toml` beside it. Cargo supplies the short
 package summary, `module.toml` declares installation and operational
 requirements, and Markdown owns full explanations. The program's
 parser, its specification kinds and its dispatch are generated from these
-declarations, so help and [`lnk variable list`](../../../core/cli/docs/more/architecture/files.md#list-a-commands-variables)
+declarations, so help and [`lnk variable list`](../../../core/cli/docs/config/variables.md#list-a-commands-variables)
 read what the program parses. Environment inputs are listed apart from
 command arguments and flags.
 

@@ -41,6 +41,11 @@ pub fn ids_of(kind: &str) -> anyhow::Result<PathBuf> {
 
 link_files::specification!(Kept, include_str!("workloads.schema.toml"));
 
+/// The workload ledger, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
+
 /// The workload of `kind` whose spec is `spec`, minted and kept now when
 /// it has none: as [`of_at`], in the state of the module that keeps it.
 pub fn of(kind: &str, spec: &Path) -> anyhow::Result<Workload> {

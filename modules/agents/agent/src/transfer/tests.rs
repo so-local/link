@@ -5,7 +5,10 @@ mod switches;
 use super::archiving::{add, add_paths};
 use super::indexes::index_from;
 use super::landing::seed_files;
-use super::receiving::{described_here, merge, put_connections, read_manifest, receive_in};
+use super::receiving::{
+    described_here, merge, put_connections, read_manifest, receive_in, remove_staging,
+    service_after,
+};
 use super::restoring::{move_paths, remove_stale_restores};
 use streams::signal;
 

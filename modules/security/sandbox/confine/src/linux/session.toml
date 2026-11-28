@@ -1,0 +1,8 @@
+# Where the stage in front of bubblewrap sends a stop. Read once by
+# `session.rs`.
+
+# How often, in milliseconds, the stage looks for a process in its
+# sandbox besides process 1 before it sends stops to the sandbox's group
+# rather than to bubblewrap: process 1 ignores a stop from outside, so a
+# group of it alone would hear none.
+poll_ms = 20

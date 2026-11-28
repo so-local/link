@@ -5,7 +5,8 @@
   "license": "MIT OR Apache-2.0",
   "type": "module",
   "exports": {
-    ".": "./index.tsx"
+    ".": "./index.tsx",
+    "./art": "./art.tsx"
   },
   "scripts": {
     "lint": "tsc --noEmit",

@@ -214,7 +214,7 @@ including a list, replaces the file's.
 ### Refused Input
 
 What `read_with`, `read_spec`, `over` and `show` refuse is marked `link_format::Refused`, so its report
-is a usage error, exit code 2, with no [`lnk issue create`](../../../../../../docs/more/modules/guide.md#get-help) footer: the person
+is a usage error, exit code 2, with no [`lnk issue create`](../../../../../../core/cli/docs/tooling/issue.md#report-a-bug) footer: the person
 fixes their file or flag, and Link has nothing to report.
 
 ### Help and Inspection
@@ -360,17 +360,17 @@ shape and its format for this. At the [one entry](#one-entry), such a
 flag is refused as a report with the flag that replaced it as the next
 step.
 
-### Shapes before 0.1
+### Shapes Before 0.0.1
 
-Link 0.1 starts every schema again at 1, and no specification kind Link includes
-lists anything under `[before]`. Since 0.1 keeps no install made
+Link 0.0.1 starts every schema again at 1, and no specification kind Link includes
+lists anything under `[before]`. Since 0.0.1 keeps no install made
 earlier, a file an earlier release wrote is read by its schema number
 like any other: a number above the current one is refused as newer, and
 a key the shape lacks as unknown.
 
 #### Listing `[before]`
 
-The table stays for an owner that must name what came before 0.1.
+The table stays for an owner that must name what came before 0.0.1.
 Under `[before]`, `schemas` maps each old number to what to write
 instead, and `keys` maps each dotted path to what replaced it, a `*`
 matching any one key or list entry but never first. A file naming a
@@ -389,7 +389,7 @@ shape declares.
 `Exported` is a kind as the module owning it exports it in its
 description: its name, current schema, print command, steps and shape.
 A program names the kinds it owns in `describe_component!`, each
-exported only when first asked for. Every installed module's kinds are what [`lnk spec`](../../../../../../modules/tooling/spec/docs/tooling/spec/README.md#specification)
+exported only when first asked for. Every installed module's kinds are what [`lnk spec`](../../../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#specification-kinds)
 lists, shows and converts.
 
 ### Converting a file
@@ -411,8 +411,8 @@ owns. Each `[[gone]]` entry names the old spelling in `was`, what
 replaces it in `now` or why in `why`, the release it's gone `since` and
 the release that deletes the entry, `until`. The core's history also
 keeps `[[renamed]]` modules and `[[removed]]` ones, each removal with
-its `why`. Link 0.1 starts every history empty, so an
-entry records only what a release after 0.1 retired, as in this
+its `why`. Link 0.0.1 starts every history empty, so an
+entry records only what a release after 0.0.1 retired, as in this
 example.
 
 ```toml
@@ -420,8 +420,8 @@ example.
 [[gone]]
 was = "agent show --settings"
 now = "lnk agent spec show"
-since = "0.3.0"
-until = "0.6.0"
+since = "0.0.3"
+until = "0.0.6"
 ```
 
 ### Spelling an Entry
@@ -445,7 +445,11 @@ the core's history.
 command, tool call or flag of its own module. Its `now` may name any
 command of the release's whole surface, every module's and the core's,
 so a command moved to another module names its new home. The docs
-checks hold every module's history to that whole surface.
+checks hold every module's history to that whole surface. No entry's
+`since` may be after the release, held as the [release the build is
+of](../../../../../version/docs/more/libraries/types/version.md#the-release-a-build-is-of),
+so a staging build of 0.0.2 runs with entries since 0.0.2, as the core
+checks its own history each time it starts.
 
 ### Answering an Old Spelling
 

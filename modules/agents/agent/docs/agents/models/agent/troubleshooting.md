@@ -47,12 +47,12 @@ OpenRouter key.
 
 ## "the model answered 400 ... does not support tools"
 
-[The model takes no tools](../../../../../harnesses/link/docs/agents/link/troubleshooting.md), and memory is a tool. Pick a model that takes tools, or stop
+[The model takes no tools](../../../../../harnesses/link/docs/agents/harnesses/link/troubleshooting.md), and memory is a tool. Pick a model that takes tools, or stop
 memory.
 
 ## A model on your computer is slow, or ignores its notes and tools
 
-[A small model does this](../../../../../harnesses/link/docs/agents/link/troubleshooting.md) when memory is on. Use a larger model, or a hosted one, instead.
+[A small model does this](../../../../../harnesses/link/docs/agents/harnesses/link/troubleshooting.md) when memory is on. Use a larger model, or a hosted one, instead.
 
 ## It forgets what was said earlier
 

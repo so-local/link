@@ -115,7 +115,7 @@ its model, the provider's counts and its parts' paths and sizes. Never a
 word of the prompt or the answer is kept. A chat's file keeps at most
 4 MB, its oldest half dropped past it, and an agent's at most 64 chats,
 the one least recently used dropped for a new one. An agent's records
-go when it's removed, with [`lnk agent delete`](../../../../agent/docs/agents/start/delete.md#delete-your-agent).
+go when it's removed, with [`lnk agent delete`](../../../../agent/docs/agents/start/create.md#delete-an-agent).
 
 ## Limits
 

@@ -14,3 +14,8 @@ pub struct Listed {
 }
 
 link_files::specification!(Listed, include_str!("listed.schema.toml"));
+
+/// The agents a runner fires, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Listed>()
+}

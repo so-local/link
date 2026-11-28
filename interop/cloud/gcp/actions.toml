@@ -49,9 +49,10 @@ output = "cloud-contract.account"
 
 [actions."gcp.gcp.connect".args]
 name = { type = "string", default = "gcp", description = "What to call the account" }
-project = { type = "string", description = "The project new things go in [default: --credential-file's, else gcloud's]" }
-zone = { type = "string", description = "The zone new machines go in [default: gcloud's, else us-central1-a]" }
+project = { type = "string", description = "The project new things go in [default: --credential-file's or --machine's, else gcloud's]" }
+zone = { type = "string", description = "The zone new machines go in [default: --machine's, else gcloud's, else us-central1-a]" }
 credential-file = { type = "string", x-link-path = true, description = "A service account's credential file, instead of your gcloud login" }
+machine = { type = "boolean", description = "This machine's own service account, from Google's metadata server, with no credential file", x-link-cli = { conflicts = ["credential-file"] } }
 
 [actions."gcp.gcp.resource-journal-schema"]
 description = "Print the resource journal protocol schema."

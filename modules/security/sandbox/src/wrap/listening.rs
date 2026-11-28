@@ -50,7 +50,8 @@ pub(super) fn on_loopback(
 /// macOS: the rules of a proxied sandbox (no network of its own), able
 /// to connect to its proxy's `port` on this machine's loopback, besides
 /// its own `ports`; not to a model runtime's (`models`), which it
-/// reaches on its proxy, for inference only.
+/// reaches on its proxy, for inference only. It listens on the ports it
+/// serves alone, never its proxy's or a model's.
 pub fn seatbelted(
     rules: link_sandbox_confine::Rules,
     ports: &BTreeSet<u16>,
@@ -63,6 +64,13 @@ pub fn seatbelted(
     rules.macos.network = false;
     rules.macos.localhost = false;
     rules.macos.ports = ports;
+    rules.macos.serves = rules
+        .macos
+        .serves
+        .iter()
+        .copied()
+        .filter(|p| *p != port && !models.contains(p))
+        .collect();
     rules
 }
 

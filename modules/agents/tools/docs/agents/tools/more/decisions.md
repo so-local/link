@@ -73,7 +73,7 @@ How a team's tool runs once for the team.
 
 ### How does a team's tool run once for the team?
 
-As a shared tool, added with [`lnk sandbox tool add --shared`](../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside): one server for every
+As a shared tool, added with [`lnk sandbox tool add --shared`](../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside): one server for every
 session of every sandbox that names it, where any other tool starts a
 server for each. The first member's proxy to need it starts its hub,
 outside every sandbox, which runs the server once, answers each session

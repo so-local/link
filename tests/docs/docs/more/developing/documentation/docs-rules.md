@@ -85,7 +85,7 @@ first: openings, sections, lists, tables, code and links.
   task section introduced by `<!-- quickstart -->`, of the commands that
   get it working. It ends at the first thing that works.
 - A quickstart assumes only `lnk` installed and [`lnk up`](../../../../../../docs/more/modules/install.md#pick-your-modules) run, so
-  everything else it needs comes first, in order, such as [`lnk agent start`](../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent) before [`lnk agent connect slack`](../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels), and a command installs its own
+  everything else it needs comes first, in order, such as [`lnk agent start`](../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent) before [`lnk agent connect slack`](../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app), and a command installs its own
   module. One only Link runs says `quickstart = false` in its
   `module.toml`'s `[documentation]`.
 - A quickstart sets no environment variable (`quickstart-env`): each
@@ -151,9 +151,9 @@ first: openings, sections, lists, tables, code and links.
   "a", "an", "the", "it", "its", "it's", "this", "that", "these" or "they".
 - At most 10 pages under a page (`pages`) in `navigation.md`'s `## Pages`,
   and one page at each URL. `[limit.pages]`'s `except` list gives a page,
-  by its address, a higher number and a `why`. Agents, `/agents`, and its
-  Tools, `/agents/tools`, hold 12 as the product's center with more
-  first-class pages, and no other section has an exception.
+  by its address, a higher number and a `why`. Agents, `/agents`, holds 16,
+  its guides and its parts in one menu, and its Tools, `/agents/tools`,
+  holds 12, each tool a first-class page. No other section has an exception.
 - A page with pages under it holds at least 3 (`group-pages`): fold one
   or two into it, or move them beside it, so no level opens for a page or two.
 - A page's children are read by their kind, `tests/docs/kinds.toml`'s

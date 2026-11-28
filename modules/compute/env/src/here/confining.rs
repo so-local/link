@@ -277,7 +277,7 @@ mod tests {
         std::fs::create_dir_all(user.parent().unwrap()).unwrap();
         std::fs::write(
             &user,
-            "folder = \"/home/ann\"\nkey = \"ssh-ed25519 AAAA\"\n",
+            "schema = 1\nfolder = \"/home/ann\"\nkey = \"ssh-ed25519 AAAA\"\n",
         )
         .unwrap();
         std::fs::set_permissions(&user, std::fs::Permissions::from_mode(0o644)).unwrap();

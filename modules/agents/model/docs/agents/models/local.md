@@ -65,9 +65,15 @@ It deletes the model from Ollama and frees its disk space.
 lnk model delete qwen3
 ```
 
+[`lnk uninstall`](../../../../../../docs/more/modules/guide.md#uninstall) offers the models module's two parts: `models`, every
+model Ollama runs here and the runtimes you added, and on a Mac
+`ollama`, the Ollama app. Ollama on Linux is a system service its own
+installer set up as root, which stays: remove it as Ollama's
+documentation says.
+
 ## Use it from your agent
 
-[`lnk agent start`](../../../../agent/docs/agents/README.md#create-an-agent) [offers the models running here](../../../../agent/docs/agents/models/agent/README.md), or the recommended one
+[`lnk agent start`](../../../../agent/docs/agents/README.md#start-your-agent) [offers the models running here](../../../../agent/docs/agents/models/agent/README.md), or the recommended one
 to install, so your agent needs no credential. An embedding model lets your
 agent's [memory](../../../../tools/memory-tool/docs/agents/tools/memory/guide.md#search-by-meaning)
 find a note by what it means, not only its words.

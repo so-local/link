@@ -12,8 +12,10 @@ pub const DIR_ENV: &str = "LNK_STORE_DIR";
 /// keeps there, in its environment (`<id>`): it refuses any other's.
 pub const AGENT_ENV: &str = "LNK_STORE_AGENT";
 
-/// The version of this contract.
-pub const VERSION: u32 = 1;
+/// This contract, as `protocol.toml` declares it: the version a caller
+/// and its drivers speak, and the oldest a caller still reads.
+pub static PROTOCOL: std::sync::LazyLock<link_version::Protocol> =
+    std::sync::LazyLock::new(|| link_version::Protocol::shipped(include_str!("protocol.toml")));
 
 /// The most an event is, as JSON: a message is at most 2 MiB (a connection's
 /// endpoint's limit), and an answer less.
@@ -25,7 +27,7 @@ pub const CALL_TIMEOUT: Duration = Duration::from_secs(30);
 /// What `lnk-<name> contract` prints.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Contract {
-    /// The version of this contract it speaks ([`VERSION`]).
+    /// The version of this contract it speaks ([`PROTOCOL`]).
     pub version: u32,
     /// Whether it answers `lnk-<name> serve`, calls one a line for as
     /// long as its caller keeps it running.
@@ -46,7 +48,7 @@ impl Contract {
     /// that keeps more says so (`Contract { jobs: true, ..Contract::serving() }`).
     pub fn serving() -> Self {
         Self {
-            version: VERSION,
+            version: PROTOCOL.current,
             serve: true,
             jobs: false,
             files: false,

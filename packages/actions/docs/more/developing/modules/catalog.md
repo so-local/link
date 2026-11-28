@@ -71,7 +71,7 @@ the values a description's `{name}` or an argument's `x-link-fill`
 stands for, and the conditions. An argument marked `x-link-summary` is
 one its call's title shows, in order. A boolean argument marked
 `x-link-asks` makes its call ask you first unless it's given false, and
-the program's sandbox learns it from the template's `asks`, as [`lnk sandbox tool add --ask-if`](../../../../../../modules/security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside) sets it. A call's arguments are [held to
+the program's sandbox learns it from the template's `asks`, as [`lnk sandbox tool add --ask-if`](../../../../../../modules/security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside) sets it. A call's arguments are [held to
 their declaration before its handler](../../../../build/docs/more/developing/modules/catalog/generation.md#tool-call-checks), as a flag is.
 
 ### Shapes
@@ -165,7 +165,7 @@ touches it. The [Variables File](catalog/variables.md) gives every key.
 variable two crates define and a use of one no crate defines. The docs'
 source audit holds each crate's production reads to its own file, and a
 module's build gives its program its definitions as its inputs, which
-[`lnk variable list`](../../../../../../core/cli/docs/more/architecture/files.md#list-a-commands-variables) shows.
+[`lnk variable list`](../../../../../../core/cli/docs/config/variables.md#list-a-commands-variables) shows.
 
 ### Commands
 

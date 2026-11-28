@@ -3,3 +3,4 @@ schema = 1
 # module from the agent's spec: `portable.json` in its schedule state.
 kind = "portable schedules"
 current = 1
+holds = "inside"

@@ -124,6 +124,16 @@ fn a_switch_refused_leaves_the_agent_where_it_was() {
         "{said}"
     );
     assert!(said.contains("answers on this computer again"), "{said}");
+    // Its take-back's start is the move's own, let through, and lets go
+    // of the move's hold.
+    assert!(!said.contains("being moved"), "{said}");
+    assert!(said.contains("Setting up picky"), "{said}");
+    assert!(
+        !world
+            .here
+            .join(format!(".lnk/safe/agents/transfers/moving/{ID}.claim"))
+            .exists()
+    );
     // Here, as it was: its settings, its files, and no longer paused.
     assert!(world.here.join("Link/Safe/Agents/main/agent.toml").exists());
     assert!(!world.here.join(".lnk/safe/agents/main/paused").exists());

@@ -24,16 +24,22 @@ commands = []
 named = []
 
 [tools.programmer]
-enabled = ["code", "file", "run"]
+enabled = ["code", "file", "mcp", "run", "scheduler"]
 commands = []
 named = []
 
 [tools.personal]
-enabled = ["browser", "file", "mcp", "run", "scheduler"]
-commands = ["sh"]
+enabled = ["browser", "file", "scheduler"]
+commands = []
 named = ["web"]
 
 [tools.researcher]
-enabled = ["file"]
+enabled = ["file", "scheduler"]
 commands = []
 named = ["web"]
+
+[tools.onboarding]
+enabled = ["file", "mcp", "scheduler"]
+commands = []
+named = []
+

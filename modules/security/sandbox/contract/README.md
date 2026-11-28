@@ -19,7 +19,7 @@ line and a caller that writes one share one declaration.
 
 ### More
 
-- [Sandbox Contract](docs/security/sandbox/more/contract.md): `link-sandbox-contract`: the sandbox's policy, independent of its implementation
+- [Sandbox Contract](docs/tooling/sandbox/more/contract.md): `link-sandbox-contract`: the sandbox's policy, independent of its implementation
 
 <!-- docs-tree:end -->
 

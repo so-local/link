@@ -77,7 +77,7 @@ is a plain name, so a file's path as an id is left out.
 ## The runtimes' own routes
 
 A program in a sandbox can't ask any of the runtimes' detail routes
-itself: [the local model route](../../../../../../security/sandbox/contract/route/docs/security/sandbox/more/contract/models-and-secrets.md#a-local-models-port) refuses each, and passes only inference,
+itself: [the local model route](../../../../../../security/sandbox/contract/route/docs/tooling/sandbox/more/contract/models-and-secrets.md#a-local-models-port) refuses each, and passes only inference,
 minimal native lists, health and version compatibility answers.
 
 ## Metadata words

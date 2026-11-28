@@ -483,7 +483,7 @@ or more than it said.
 
 ##### A specification
 
-A need is a sandbox's specification, as [`lnk sandbox run --spec`](../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) takes it, with
+A need is a sandbox's specification, as [`lnk sandbox run --spec`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) takes it, with
 no name, version or relative path, so it's shown and taken back as the
 flags `lnk agent permission add` takes.
 

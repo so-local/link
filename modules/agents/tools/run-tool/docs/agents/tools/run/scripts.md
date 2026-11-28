@@ -14,7 +14,7 @@ x", and it computes the answer rather than guessing it.
 
 ### What scripts need
 
-You need Link Run, which [`lnk agent tool add run`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills)
+You need Link Run, which [`lnk agent tool add run`](../../../../../../agent/docs/agents/README.md#tools)
 installs and turns on, and Python or Node.js on the machine your agent
 runs on. Run finds a program on the `PATH` your agent was started with,
 and a language this machine lacks is never offered.

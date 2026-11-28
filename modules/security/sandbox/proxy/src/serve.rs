@@ -145,6 +145,24 @@ where
         }
         None => target,
     };
+    // On a port any program of the machine reaches (one with a URL
+    // secret: macOS's loopback), a request in origin-form that no route
+    // takes without the secret is an outsider's, refused before it counts
+    // toward a pause or the calls a minute: the sandbox sends its own
+    // through its routes, the secret in their URLs where they need it.
+    let url_secret = rules.url_secret.map(|s| s.expose().as_str());
+    if origin_form
+        && own.is_none()
+        && let Some(secret) = url_secret
+        && !matches!(
+            behind_secret(&head, &target, rules.routes, Some(secret)),
+            Ok((_, _, Some(_)))
+        )
+    {
+        call.outsider = true;
+        reply(&mut client, "403 Forbidden").await;
+        bail!("refused: from outside the sandbox, without its URL secret");
+    }
     if let Some(why) = rules.wire.and_then(|w| w.why_stopped()) {
         reply(&mut client, "403 Forbidden").await;
         bail!("refused: {why}");
@@ -207,7 +225,7 @@ where
     // Its routes, those that need it behind the proxy's URL secret: on
     // macOS any program of the machine reaches this port, and only the
     // sandboxed program was given the secret.
-    let secret = rules.url_secret.map(|s| s.expose().as_str());
+    let secret = url_secret;
     let asked = own.as_ref().map_or(&head[..], |(head, _)| &head[..]);
     let (head, target, mount) = match behind_secret(asked, &target, rules.routes, secret) {
         Ok(unlocked) => unlocked,

@@ -265,7 +265,7 @@ fn every_sandbox_spec_in_the_docs_is_read() {
             .filter(|p| p.extension().is_some_and(|e| e == "md"))
             .collect()
     };
-    let pages: Vec<(PathBuf, bool)> = pages("modules/security/sandbox/docs/security/sandbox")
+    let pages: Vec<(PathBuf, bool)> = pages("modules/security/sandbox/docs/tooling/sandbox")
         .into_iter()
         .chain([root().join("modules/security/sandbox/docs/config/specs/sandbox.md")])
         .map(|p| (p, false))

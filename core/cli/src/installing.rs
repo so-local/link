@@ -110,11 +110,16 @@ pub(super) async fn up(out: &mut Out, names: &[String]) -> Result<Done, Report> 
             answer => picks(&[answer])?,
         }
     } else {
-        return Err(Report::error(sentence!("Say what to set up."))
-            .why(prose!("The uses are {}.", uses()))
-            .next(cmd!("lnk up <use>"), phrase!("set one of the uses up"))
-            .next(cmd!("lnk module list"), phrase!("see the modules"))
-            .exit(Exit::Usage));
+        return Err(Report::error(sentence!(
+            "There's no terminal to ask in, so say what to set up."
+        ))
+        .why(prose!(
+            "Name one or more uses after lnk up: the uses are {}.",
+            uses()
+        ))
+        .next(cmd!("lnk up <use>"), phrase!("set one of the uses up"))
+        .next(cmd!("lnk module list"), phrase!("see the modules"))
+        .exit(Exit::Usage));
     };
     let wanted: Vec<&str> = chosen
         .iter()
@@ -275,14 +280,43 @@ pub(super) fn add_options(
 }
 
 /// `names` and what they need, each a module Link knows, that aren't
-/// installed in `lnk`'s own folder: what `lnk module add` installs. A
-/// program of the same name elsewhere on the PATH, such as a build from
-/// source, isn't installed ([`link_core::installed_module`]).
+/// installed in `lnk`'s own folder as this `lnk`'s release: what `lnk
+/// module add` installs. A program of the same name elsewhere on the PATH,
+/// such as a build from source, isn't installed
+/// ([`link_core::installed_module`]), and one of another release, as
+/// installing a newer `lnk` over an older install leaves, is installed
+/// again. A `lnk` built from source compares sources, not versions.
 pub(super) fn missing<'a>(names: &[&'a str]) -> anyhow::Result<Vec<&'a str>> {
-    Ok(with_needs(names)?
+    let current = link_version::version();
+    let released = link_core::CHECKOUT.is_none();
+    Ok(stale(
+        with_needs(names)?,
+        link_core::installed_module,
+        |path| released.then(|| version_of(path).ok()),
+        &current,
+    ))
+}
+
+/// Of `modules`, each not `installed`, or installed as a release other
+/// than `current`, as `version` says of its program: one whose version
+/// can't be read is installed again. `version` answers `None` only where
+/// versions aren't compared (a build from source).
+fn stale<'a>(
+    modules: Vec<&'a str>,
+    installed: impl Fn(&str) -> Option<std::path::PathBuf>,
+    version: impl Fn(&Path) -> Option<Option<link_version::Version>>,
+    current: &link_version::Version,
+) -> Vec<&'a str> {
+    modules
         .into_iter()
-        .filter(|p| link_core::installed_module(p).is_none())
-        .collect())
+        .filter(|module| match installed(module) {
+            None => true,
+            Some(path) => match version(&path) {
+                None => false,
+                Some(found) => found.as_ref() != Some(current),
+            },
+        })
+        .collect()
 }
 
 /// `lnk module add`: the modules not installed yet, and what they need,
@@ -619,6 +653,45 @@ fn stop(program: &std::path::Path, kept: link_core::uninstall::Kept) -> anyhow::
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A module installed as another release, as installing a newer `lnk`
+    /// over an older install leaves it, is installed again, as is one
+    /// whose version can't be read; a build from source, whose versions
+    /// aren't compared, keeps what it has.
+    #[test]
+    fn a_module_of_another_release_is_installed_again() {
+        let current: link_version::Version = "0.0.2".parse().unwrap();
+        let installed = |module: &str| {
+            (module != "absent").then(|| std::path::PathBuf::from(format!("lnk-{module}")))
+        };
+        let versions = |path: &Path| {
+            Some(match path.to_str() {
+                Some("lnk-older") => Some("0.0.1".parse().unwrap()),
+                Some("lnk-current") => Some("0.0.2".parse().unwrap()),
+                _ => None,
+            })
+        };
+        let modules = vec!["absent", "older", "current", "unreadable"];
+        assert_eq!(
+            stale(modules.clone(), installed, versions, &current),
+            ["absent", "older", "unreadable"]
+        );
+        assert_eq!(stale(modules, installed, |_| None, &current), ["absent"]);
+    }
+
+    /// With no terminal to ask in, `lnk up` naming nothing says so, and
+    /// what to name: each use, and the command that takes one.
+    #[test]
+    fn up_with_no_terminal_says_what_to_name() {
+        let (mut out, _) = Out::capture(false, &["lnk", "up"]);
+        let refused = format!("{:?}", wait(up(&mut out, &[])).err().unwrap());
+        assert!(refused.contains("no terminal"), "{refused}");
+        assert!(refused.contains("say what to set up"), "{refused}");
+        assert!(refused.contains("uses after lnk up"), "{refused}");
+        for (name, ..) in USES.iter() {
+            assert!(refused.contains(&format!("{name:?}")), "{name}: {refused}");
+        }
+    }
 
     #[test]
     fn a_use_takes_what_goes_with_its_modules() {

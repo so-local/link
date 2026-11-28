@@ -46,7 +46,7 @@ explains what another harness receives.
 ### Know How the Harness Reads a Skill
 
 A harness decides how skills enter its prompt and how their full
-instructions are read. [Link Harness](../../../../../../harnesses/link/docs/agents/link/guide.md#give-it-skills)
+instructions are read. [Link Harness](../../../../../../harnesses/link/docs/agents/harnesses/link/guide.md#give-it-skills)
 lists metadata from the next message and reads the selected skill
 through memory. An adapter may translate skills into the harness's own
 files, so read that harness's documentation for its behavior.
@@ -76,7 +76,7 @@ lnk agent skill remove pdf
 A skill may include scripts or instructions to run programs. Installing
 a skill grants no extra permission. Its scripts run only when the agent
 executes them through a tool, within the sandbox and program permissions
-you allowed. [Permissions](../../../../security/sandbox/permissions/README.md)
+you allowed. [Permissions](../../../../tooling/sandbox/permissions/README.md)
 explains how to control that access.
 
 ## Understand Skill Design

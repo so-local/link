@@ -67,7 +67,7 @@ lnk storage push photos/2019
 
 ## Run Your Agent in the Cloud
 
-Your agent starts on this computer with [`lnk agent start`](../../modules/agents/agent/docs/agents/README.md#create-an-agent) and keeps
+Your agent starts on this computer with [`lnk agent start`](../../modules/agents/agent/docs/agents/README.md#start-your-agent) and keeps
 running in the background,
 but it answers only while this computer is on. On a Linux server it
 keeps running after you log out. Move your agent to a box in your cloud,
@@ -85,7 +85,7 @@ lnk agent move here
 
 Create a new agent straight on a box you made, rather than moving one
 there. The agent runs on the box from its first start, and
-[Create Another Agent](../../modules/agents/agent/docs/agents/start/create.md)
+[Create and Delete Agents](../../modules/agents/agent/docs/agents/start/create.md)
 covers where else an agent can start.
 
 ```sh

@@ -67,7 +67,8 @@ pub fn hook(blocks: &[Block]) -> Option<&str> {
 }
 
 /// The pages each website's `## Pages` has pages under, its sections,
-/// each with its name there: none for a site's first tab, Get Started.
+/// each with its name there: none for a site's first tab, Get Started,
+/// or for a tab with a short label.
 fn sections(tree: &Tree) -> std::collections::BTreeMap<std::path::PathBuf, Option<String>> {
     let mut found = std::collections::BTreeMap::new();
     for web in tree.web() {
@@ -82,8 +83,13 @@ fn sections(tree: &Tree) -> std::collections::BTreeMap<std::path::PathBuf, Optio
             for (i, node) in nodes.iter().enumerate() {
                 if !node.children.is_empty() && !node.target.contains("://") {
                     found.insert(
-                        crate::site::normal(&dir.join(crate::md::link_path(&node.target))),
-                        (!(first && i == 0)).then(|| node.label.clone()),
+                        crate::site::normal(
+                            &dir.join(crate::md::link_path(crate::md::target_path(&node.target))),
+                        ),
+                        // A site's first tab, and a tab with a short label, keep
+                        // a name of their own.
+                        (!(first && (i == 0 || node.target.ends_with(" \"tab\""))))
+                            .then(|| node.label.clone()),
                     );
                 }
                 sections(&node.children, dir, false, found);

@@ -3,4 +3,5 @@ schema = 1
 # protected folder it chooses outside every runtime mount.
 kind = "session authority"
 current = 1
+holds = "inside"
 command = "lnk agent start"

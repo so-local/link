@@ -66,6 +66,11 @@ struct HeldAnswer {
 
 link_files::specification!(HeldAnswer, include_str!("chat/held.schema.toml"));
 
+/// Each held answer, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<HeldAnswer>()
+}
+
 /// The answers in `link` threads to messages from others, which nobody
 /// waited for, held for the next chat on each thread: one JSON line each,
 /// in the agent's own folder for the connection, which only its user reads

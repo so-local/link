@@ -21,13 +21,13 @@ current = 3
 command = "lnk example spec --spec"
 [[steps]]
 from = 1
-since = '0.1.0'
-until = '0.2.0'
+since = '0.0.1'
+until = '0.0.2'
 rename = { "machine.disk" = "disk.size" }
 [[steps]]
 from = 2
-since = '0.1.0'
-until = '0.2.0'
+since = '0.0.1'
+until = '0.0.2'
 remove = { "unused" = "This field no longer has an effect." }
 refuse = { "internet.any" = "Choose internet hosts explicitly." }
 "#,
@@ -36,13 +36,12 @@ refuse = { "internet.any" = "Choose internet hosts explicitly." }
 }
 
 #[test]
-fn reads_current_absent_and_all_published_schemas() {
+fn reads_current_and_all_published_schemas() {
     let format = format();
     for (text, old) in [
         ("schema = 1\n[machine]\ndisk = 20\n", true),
         ("schema = 2\nunused = true\n[disk]\nsize = 20\n", true),
         ("schema = 3\n[disk]\nsize = 20\n", false),
-        ("[disk]\nsize = 20\n", false),
     ] {
         let read = format.read::<Spec>(text).unwrap();
         assert_eq!(read.spec.disk.unwrap().size, 20);
@@ -106,7 +105,7 @@ fn refuses_unsafe_ambiguous_future_and_malformed_documents() {
             .read::<Spec>("[machine]\ndisk = 20")
             .unwrap_err()
             .to_string()
-            .contains("add schema = 1")
+            .contains("names no schema")
     );
 }
 
@@ -137,7 +136,7 @@ fn moving_the_last_key_keeps_its_table_header_comments() {
         assert_eq!(read.spec.disk.unwrap().size, 20);
     }
     let table_move = Format::parse(
-        "schema = 1\nkind = 'example'\ncommand = 'lnk example spec --spec'\ncurrent = 2\n[[steps]]\nfrom = 1\nsince = '0.1.0'\nuntil = '0.2.0'\nrename = { 'machine.disk' = 'disk' }\n",
+        "schema = 1\nkind = 'example'\ncommand = 'lnk example spec --spec'\ncurrent = 2\n[[steps]]\nfrom = 1\nsince = '0.0.1'\nuntil = '0.0.2'\nrename = { 'machine.disk' = 'disk' }\n",
     )
     .unwrap();
     let text = "schema = 1\n# Storage choices\n[machine] # machine settings\n[machine.disk] # disk settings\nsize = 20\n";
@@ -152,8 +151,8 @@ fn moving_the_last_key_keeps_its_table_header_comments() {
 fn declarations_refuse_gaps_duplicates_and_unexplained_removals() {
     for steps in [
         "",
-        "[[steps]]\nfrom = 1\nsince = '0.1.0'\nuntil = '0.2.0'",
-        "[[steps]]\nfrom = 1\nsince = '0.1.0'\nuntil = '0.2.0'\nremove = { x = '' }\n[[steps]]\nfrom = 2\nsince = '0.1.0'\nuntil = '0.2.0'",
+        "[[steps]]\nfrom = 1\nsince = '0.0.1'\nuntil = '0.0.2'",
+        "[[steps]]\nfrom = 1\nsince = '0.0.1'\nuntil = '0.0.2'\nremove = { x = '' }\n[[steps]]\nfrom = 2\nsince = '0.0.1'\nuntil = '0.0.2'",
     ] {
         assert!(
             Format::parse(&format!(
@@ -166,7 +165,7 @@ fn declarations_refuse_gaps_duplicates_and_unexplained_removals() {
 
 #[test]
 fn a_step_that_rewrites_a_value_by_code_is_refused() {
-    let text = "schema = 1\nkind = 'named'\ncurrent = 2\ncommand = 'lnk named spec --spec'\n[[steps]]\nfrom = 1\nsince = '0.1.0'\nuntil = '0.2.0'\nrewrite = { model = 'prefixed' }\n";
+    let text = "schema = 1\nkind = 'named'\ncurrent = 2\ncommand = 'lnk named spec --spec'\n[[steps]]\nfrom = 1\nsince = '0.0.1'\nuntil = '0.0.2'\nrewrite = { model = 'prefixed' }\n";
     let refused = Format::parse(text).unwrap_err().to_string();
     assert!(refused.contains("rewrite"), "{refused}");
 }
@@ -178,8 +177,8 @@ fn a_step_names_the_releases_that_bring_and_delete_it() {
             "schema = 1\nkind = 'k'\ncurrent = 2\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 1\nsince = '{since}'\nuntil = '{until}'\n"
         ))
     };
-    assert!(step("0.1.0", "0.2.0").is_ok());
-    assert!(step("0.2.0", "0.2.0").is_err());
+    assert!(step("0.0.1", "0.0.2").is_ok());
+    assert!(step("0.0.2", "0.0.2").is_err());
     assert!(
         Format::parse(
             "schema = 1\nkind = 'k'\ncurrent = 2\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 1\n"
@@ -223,8 +222,14 @@ fn a_named_kinds_files_say_their_kind_and_refuse_another() {
             .read_json::<Spec>(br#"{"kind":"example"}"#)
             .is_err()
     );
-    // A saved file's format reads one naming none as its current schema.
-    assert!(format().read::<Spec>("[disk]\nsize = 20\n").is_ok());
+    // A saved file naming none is refused too, as none Link wrote.
+    let unnamed = format().read::<Spec>("[disk]\nsize = 20\n").unwrap_err();
+    assert!(unnamed.to_string().contains("names no schema"), "{unnamed}");
+    assert!(
+        format()
+            .read_json::<Spec>(br#"{"disk":{"size":20}}"#)
+            .is_err()
+    );
     let other = kinded()
         .read::<Spec>("kind = \"box\"\nschema = 3\n[disk]\nsize = 20\n")
         .unwrap_err();
@@ -268,7 +273,7 @@ fn a_named_kinds_files_say_their_kind_and_refuse_another() {
 #[test]
 fn a_step_deleted_at_its_until_leaves_its_schema_refused_as_unknown() {
     let format = Format::parse(
-        "schema = 1\nkind = 'k'\ncurrent = 3\noldest = 2\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 2\nsince = '0.1.0'\nuntil = '0.2.0'\nrename = { title = 'name' }\n",
+        "schema = 1\nkind = 'k'\ncurrent = 3\noldest = 2\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 2\nsince = '0.0.1'\nuntil = '0.0.2'\nrename = { title = 'name' }\n",
     )
     .unwrap();
     assert!(format.read::<Spec>("schema = 2\ntitle = 'a'\n").is_ok());
@@ -276,7 +281,7 @@ fn a_step_deleted_at_its_until_leaves_its_schema_refused_as_unknown() {
     assert!(old.to_string().contains("no longer read"), "{old}");
     // Every schema from the oldest is still stepped from.
     assert!(
-        Format::parse("schema = 1\nkind = 'k'\ncurrent = 3\noldest = 1\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 2\nsince = '0.1.0'\nuntil = '0.2.0'\n")
+        Format::parse("schema = 1\nkind = 'k'\ncurrent = 3\noldest = 1\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 2\nsince = '0.0.1'\nuntil = '0.0.2'\n")
             .is_err()
     );
 }
@@ -284,7 +289,7 @@ fn a_step_deleted_at_its_until_leaves_its_schema_refused_as_unknown() {
 #[test]
 fn a_key_renamed_in_its_table_keeps_its_place() {
     let format = Format::parse(
-        "schema = 1\nkind = 'k'\ncurrent = 2\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 1\nsince = '0.1.0'\nuntil = '0.2.0'\nrename = { title = 'name' }\n",
+        "schema = 1\nkind = 'k'\ncurrent = 2\ncommand = 'lnk k spec show --spec'\n[[steps]]\nfrom = 1\nsince = '0.0.1'\nuntil = '0.0.2'\nrename = { title = 'name' }\n",
     )
     .unwrap();
     let (doc, _) = format
@@ -311,7 +316,7 @@ fn a_declaration_names_its_own_format_first() {
         .to_string();
     assert!(newer.contains("format 2"), "{newer}");
     let step =
-        "current = 2\ncommand = 'lnk k spec show'\nfrom = 1\nsince = '0.1.0'\nuntil = '0.2.0'\n";
+        "current = 2\ncommand = 'lnk k spec show'\nfrom = 1\nsince = '0.0.1'\nuntil = '0.0.2'\n";
     let step = |table: &str| {
         let (head, tail) = step.split_at(step.find("from").unwrap());
         format!("schema = 1\nkind = 'k'\n{head}[[{table}]]\n{tail}")

@@ -463,7 +463,7 @@ fn a_shared_tool_runs_once_for_every_sandbox() {
     std::fs::create_dir_all(root.join(".lnk/safe/sandboxes")).unwrap();
     std::fs::write(
         root.join(".lnk/safe/sandboxes/settings.toml"),
-        "shared_idle = \"3s\"\ntool_idle = \"1s\"\n",
+        "schema = 1\nshared_idle = \"3s\"\ntool_idle = \"1s\"\n",
     )
     .unwrap();
     let server = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/mcp-server.sh");
@@ -561,7 +561,7 @@ fn a_shared_tool_keeps_to_links_settings_whatever_its_proxys_home() {
     std::fs::create_dir_all(&real).unwrap();
     std::fs::write(
         real.join("settings.toml"),
-        "shared_idle = \"2s\"\ntool_idle = \"1s\"\n",
+        "schema = 1\nshared_idle = \"2s\"\ntool_idle = \"1s\"\n",
     )
     .unwrap();
     let server = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/mcp-server.sh");
@@ -582,7 +582,11 @@ fn a_shared_tool_keeps_to_links_settings_whatever_its_proxys_home() {
         planted.join("tools/fake.json"),
     )
     .unwrap();
-    std::fs::write(planted.join("settings.toml"), "shared_idle = \"1h\"\n").unwrap();
+    std::fs::write(
+        planted.join("settings.toml"),
+        "schema = 1\nshared_idle = \"1h\"\n",
+    )
+    .unwrap();
     let client = r#"
 u=$LNK_TOOL_FAKE
 post() { curl -s --noproxy '*' -D - -H 'Content-Type: application/json' "$@" "$u"; }
@@ -683,7 +687,7 @@ fn a_shared_server_ends_with_its_hub() {
     std::fs::create_dir_all(root.join(".lnk/safe/sandboxes")).unwrap();
     std::fs::write(
         root.join(".lnk/safe/sandboxes/settings.toml"),
-        "shared_idle = \"2s\"\ntool_idle = \"1s\"\n",
+        "schema = 1\nshared_idle = \"2s\"\ntool_idle = \"1s\"\n",
     )
     .unwrap();
     let server = concat!(

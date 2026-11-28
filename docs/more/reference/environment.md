@@ -14,7 +14,7 @@ Each crate declares its variables in a `variables.toml` beside its
 `Cargo.toml`: each variable it owns, defined once with its description,
 and each one it uses. A module's definitions are its program's inputs,
 and a flag may name one as its fallback. The index links each
-definition, including dynamic namespaces. For command variable names and descriptions, use [`lnk variable list`](../../../core/cli/docs/more/architecture/files.md#list-a-commands-variables), or
+definition, including dynamic namespaces. For command variable names and descriptions, use [`lnk variable list`](../../../core/cli/docs/config/variables.md#list-a-commands-variables), or
 `lnk variable list agent start` to narrow the list. Current values are never read.
 
 ## Declared variables

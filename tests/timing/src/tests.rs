@@ -674,6 +674,7 @@ fn a_flakes_list_is_read_for_its_tests() {
         }]
     );
     assert!(check::flakes("[[flake]]\npackage = 1\n").is_err());
-    let read = include_str!("../../repository/flakes.toml");
-    assert!(!check::flakes(read).unwrap().is_empty());
+    // The workspace's own list reads, however few it lists: none, once
+    // every flake is fixed.
+    check::flakes(include_str!("../../repository/flakes.toml")).unwrap();
 }

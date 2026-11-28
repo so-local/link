@@ -174,6 +174,14 @@ in deterministic order. Run it after generating documentation so every
 new page has a persisted reading position, then review the placement.
 Missing or duplicate entries and stale indexes fail the checks.
 
+### Group labels
+
+A navigation link titled with a label starts a group in the website's tree.
+Agents' link to State has the title `"Parts of an Agent"`, which draws that
+label above State, so the pages from State on read as one group. The label is a
+key of the site's interface catalog, translated with the other interface
+words, and the page keeps its own title and address.
+
 ### Short tab labels
 
 A top-level navigation link titled "tab" keeps its authored label while

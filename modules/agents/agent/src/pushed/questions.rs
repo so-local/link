@@ -168,6 +168,11 @@ struct Counts(BTreeMap<u64, u32>);
 
 link_files::specification!(Counts, include_str!("counts.schema.toml"));
 
+/// The hook question counts, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Counts>()
+}
+
 /// Whether a `GET`'s `headers` are signed with `hook`'s secret, as Link's
 /// scheme signs an empty body. A webhook GitHub signs takes none: GitHub
 /// only posts.

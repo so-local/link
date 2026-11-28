@@ -128,7 +128,8 @@ esac"#,
         script(
             &bin.join("ssh"),
             &format!(
-                r#"echo "$*" >> {ssh}
+                r#"[ "$1" = -G ] && exit 0
+echo "$*" >> {ssh}
 destination=''
 for argument do
   case "$argument" in ubuntu@*) destination=$argument; break ;; esac
@@ -147,13 +148,13 @@ case "$*" in
 esac
 case "$*" in *192.0.2.20\ true) [ -f {dir}/let-in ] || exit 255 ;; esac
 if [ ! -t 0 ]; then input=$(cat); printf '%s
-' "$input" >> {ssh}; case "$input" in *"auth key"*) echo '{{"public_key": "ssh-ed25519 PUB"}}' ;; *installation.toml*) echo 'lnk-installation abcdefabcdef' ;; *user-cas.pub*) touch {dir}/trusted ;; esac; fi
+' "$input" >> {ssh}; case "$input" in *"getent group lnk-users"*) [ -f {dir}/users ] && echo alice ;; *"auth key"*) echo '{{"public_key": "ssh-ed25519 PUB"}}' ;; *installation.toml*) echo 'lnk-installation abcdefabcdef' ;; *user-cas.pub*) touch {dir}/trusted ;; esac; fi
 exit 0"#,
                 ssh = log("ssh.log"),
                 dir = dir.display(),
             ),
         );
-        let releases = release::serve(&temp.file_name().unwrap().to_string_lossy(), &["0.11.0"])?;
+        let releases = release::serve(&temp.file_name().unwrap().to_string_lossy(), &["0.0.0"])?;
         Some(World {
             dir,
             home,

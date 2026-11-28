@@ -47,6 +47,16 @@ inherited descriptor past the standard three close-on-exec, so no
 program a test starts holds the pipe, or anything else the run
 inherited, for as long as it lives.
 
+### Inherited Signals
+
+A shell without job control, such as a script's, starts each job it puts
+in the background with Ctrl-C (SIGINT) and SIGQUIT ignored, and every
+program a test starts would inherit that and never end on the Ctrl-C a
+test sends. `env::command` gives each child both back at their default
+action, as it gives the child nothing else of how the run was started,
+so a test behaves the same whoever started the run. A test that wants a
+child started ignoring Ctrl-C sets that after it.
+
 ### System Programs
 
 In a system program, `program!` runs each test in a process of its own
@@ -64,6 +74,15 @@ runner doesn't run as libtest would, such as `--format json`, is
 refused by name. A run of one test by its whole name, `--exact` and one
 name, is that test alone in its process already, so libtest runs it
 directly, as when a test runs its own program again as a fixture.
+
+#### How Many at Once
+
+A system program runs one test per CPU (`per_cpu` in `program.toml`),
+never the workspace's `RUST_TEST_THREADS`. A system test starts programs,
+servers and sandboxes, and they run on a processor, so 16 at once on a
+4-CPU machine left each test a quarter of a CPU and its waits ran out.
+Unit programs keep libtest's 16, since their tests mostly wait.
+`--test-threads`, given to the program, wins.
 
 #### Its Deadline and Cleanup
 
@@ -262,9 +281,12 @@ a test that interrupts a stream only once its output is shown.
 
 #### `LNK_TEST_TIME_SCALE`
 
-Every deadline is multiplied by `LNK_TEST_TIME_SCALE`, a positive number,
-1 when unset. A machine slower than most sets it once, such as `3`,
-rather than each test adding slack of its own. It never hides a race.
+Every deadline is multiplied by `LNK_TEST_TIME_SCALE`, a positive number.
+Unset, a machine scales itself: `scale_cpus` (12, in `program.toml`)
+over its CPUs, never below 1, so a 4-CPU machine waits three times as
+long and a 12-CPU one as long as the test says. A machine slower than its
+CPUs say sets it once, rather than each test adding slack of its own. It
+never hides a race.
 ## Gates
 
 A gate answers whether a test can run on this machine, and the test

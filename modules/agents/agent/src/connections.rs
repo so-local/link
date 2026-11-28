@@ -101,7 +101,8 @@ pub fn describe(name: &str) -> anyhow::Result<Describe> {
         "lnk-{name} doesn't describe itself (describe --json): lnk upgrade, or it isn't a \
          connection's module"
     );
-    serde_json::from_slice(&output.stdout).within(format!("reading lnk-{name} describe --json"))
+    link_connection_contract::read(&format!("lnk-{name}"), &output.stdout)
+        .within(format!("reading lnk-{name} describe --json"))
 }
 
 /// The Keychain's name for secret `field` of connection `connection`, after

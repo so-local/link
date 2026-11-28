@@ -380,16 +380,20 @@ where
             })
             .map_err(report)??;
             // Its settings hold the bot's token: only to another program.
-            let connected: crate::declared::Connected = link_actions::answer::output(&connected)?;
+            let connected: crate::declared::Connected =
+                link_actions::answer::output(&super::Stated::new(&connected))?;
             out.reply_private(&connected)?;
             Ok(Done::shown())
         }
         Operation::Rule => {
-            document::<crate::declared::Ruled>(out, &Ruled { rule: rule.clone() })?;
+            document::<crate::declared::Ruled>(
+                out,
+                &super::Stated::new(&Ruled { rule: rule.clone() }),
+            )?;
             Ok(Done::shown())
         }
         Operation::Describe => {
-            document::<crate::declared::Described>(out, &describe)?;
+            document::<crate::declared::Described>(out, &super::Stated::new(&describe))?;
             Ok(Done::shown())
         }
         Operation::Bridge => {
@@ -430,7 +434,8 @@ where
                 &mut line,
             )
             .within("reading what to send")?;
-            let sending: Sending = serde_json::from_str(&line).within("reading what to send")?;
+            let sending: Sending =
+                super::read(CALLER, line.as_bytes()).within("reading what to send")?;
             let receipt = block_on(send(sending.bridge, sending.chat, sending.text))?;
             out.data(&link_actions::answer::json_line::<crate::declared::Sent>(
                 &receipt,
@@ -451,7 +456,8 @@ where
                 &mut line,
             )
             .within("reading the bridge")?;
-            let bridge: Bridge = serde_json::from_str(&line).within("reading the bridge")?;
+            let bridge: Bridge =
+                super::read(CALLER, line.as_bytes()).within("reading the bridge")?;
             document::<crate::declared::Owners>(out, &owner(&bridge).map_err(report)?)?;
             Ok(Done::shown())
         }
@@ -551,6 +557,13 @@ fn run_pushed(
     pushed: pushed::Pushed,
 ) -> Result<Done, Report> {
     fn line<T: serde::de::DeserializeOwned>(what: &'static str) -> Result<T, Report> {
+        let line = raw_line(what)?;
+        // Said by where, never by what's in it.
+        serde_json::from_str(&line)
+            .within(what)
+            .map_err(Report::from)
+    }
+    fn raw_line(what: &'static str) -> Result<String, Report> {
         let mut line = String::new();
         std::io::BufRead::read_line(
             &mut std::io::Read::take(
@@ -560,10 +573,7 @@ fn run_pushed(
             &mut line,
         )
         .within(what)?;
-        // Said by where, never by what's in it.
-        serde_json::from_str(&line)
-            .within(what)
-            .map_err(Report::from)
+        Ok(line)
     }
     let missing = || {
         usage(
@@ -595,7 +605,10 @@ fn run_pushed(
             block_on(unhook(unhooking))?;
         }
         "receive" => {
-            let taking: pushed::Taking = line("reading what to take on stdin")?;
+            let what = "reading what to take on stdin";
+            let taking: pushed::Taking = super::read(CALLER, raw_line(what)?.as_bytes())
+                .within(what)
+                .map_err(Report::from)?;
             block_on((pushed.take)(taking))?;
         }
         _ => {
@@ -645,8 +658,12 @@ fn run_pushed(
 fn read_bridge(input: &mut impl std::io::BufRead) -> anyhow::Result<Bridge> {
     let mut line = String::new();
     input.read_line(&mut line)?;
-    serde_json::from_str(&line).map_err(|err| anyhow::anyhow!("reading the bridge on stdin: {err}"))
+    super::read(CALLER, line.as_bytes()).within("reading the bridge on stdin")
 }
+
+/// Who writes what a connection module reads on stdin, as its refusals
+/// name it.
+const CALLER: &str = "the program that ran it";
 
 #[cfg(test)]
 mod tests {
@@ -814,8 +831,13 @@ mod tests {
             }),
             shared: Vec::new(),
         };
-        let line = format!("{}\n", serde_json::to_string(&bridge).unwrap());
+        let line = super::super::stated(&bridge).unwrap();
         assert_eq!(read_bridge(&mut line.as_bytes()).unwrap(), bridge);
+        // Unstated, or with a key it doesn't know, it's refused.
+        let bare = format!("{}\n", serde_json::to_string(&bridge).unwrap());
+        assert!(read_bridge(&mut bare.as_bytes()).is_err());
+        let odd = line.replacen('{', r#"{"colour":"blue","#, 1);
+        assert!(read_bridge(&mut odd.as_bytes()).is_err());
         assert!(!format!("{bridge:?}").contains("secret"));
         assert!(read_bridge(&mut "".as_bytes()).is_err());
     }

@@ -108,6 +108,7 @@ fn rooted(spec: &mut Bundle, dir: &Path) {
         &mut spec.outside,
         &mut spec.file,
         &mut spec.from,
+        &mut spec.archives,
     ] {
         for path in list.iter_mut().flatten() {
             *path = absolute(path, dir);

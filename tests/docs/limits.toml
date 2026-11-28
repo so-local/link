@@ -64,13 +64,13 @@ of = "Pages under a page in the site's tree"
 why = "Group a longer list in a folder."
 
 # The pages held to a number of their own, by address. The agents
-# section is the product's center and holds more first-class pages, so
-# Agents and its Tools, where each tool is a sibling, have more room. No
-# other section is excepted.
+# section is the product's center: Agents lists its guides and its parts
+# in one menu, and its Tools, where each tool is a sibling, has more
+# room. No other section is excepted.
 [[limit.pages.except]]
 address = "/agents"
-at_most = 12
-why = "Agents, the product's center, holds more first-class pages."
+at_most = 16
+why = "Agents lists its guides and its parts in one menu."
 
 [[limit.pages.except]]
 address = "/agents/tools"

@@ -360,7 +360,7 @@ mod tests {
             link_id::candidate().unwrap(),
         );
         let text = format!(
-            "[entry.{kept}]\nkind = \"named\"\nname = \"KEPT\"\nvalue = \"the-kept-value\"\n\
+            "schema = 1\n[entry.{kept}]\nkind = \"named\"\nname = \"KEPT\"\nvalue = \"the-kept-value\"\n\
              to = [{{ principal = \"service:{service}\", action = \"secret.secret.read\", resource = \"secret:{kept}\", workload = \"run:{workload}\", name = \"main\", as = {{ kind = \"variable\" }} }}]\n\n\
              [left.{gone}]\nprincipal = \"service:{service}\"\nas = {{ kind = \"own\", purpose = \"model\" }}\n\
              copies = [{{ name = \"gcp-1\" }}]\n"
@@ -386,7 +386,7 @@ mod tests {
         let store = Store::at(dir.join("secrets.toml"));
         let kept = link_id::candidate().unwrap();
         let text = format!(
-            "[entry.{kept}]\nkind = \"named\"\nname = \"IDLE\"\nvalue = \"the-idle-value\"\nto = []\n"
+            "schema = 1\n[entry.{kept}]\nkind = \"named\"\nname = \"IDLE\"\nvalue = \"the-idle-value\"\nto = []\n"
         );
         std::fs::write(store.file(), text).unwrap();
         let held = held_in(&store, "the file");

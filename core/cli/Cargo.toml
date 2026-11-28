@@ -82,6 +82,9 @@ workspace = true
 [dependencies.link-settings]
 workspace = true
 
+[dependencies.link-machine]
+workspace = true
+
 [dependencies.link-version]
 workspace = true
 

@@ -80,15 +80,38 @@ macro_rules! program {
 /// as usual, running that test.
 pub const ONE: &str = "LNK_TEST_ONE";
 
+/// The variable asking a test program its kind: set, the program prints
+/// `unit` or `system` and exits, as `cargo test-copies` asks.
+pub const KIND: &str = "LNK_TEST_KIND";
+
+/// The variable asking a system program to run its one selected test as
+/// this many copies at once, through its runner, as `cargo test-copies`
+/// does: the copies run as wide as the suite's tests, each in a process
+/// of its own.
+pub const COPIES: &str = "LNK_TEST_COPIES";
+
 /// Gives the program its home and keeps its inherited descriptors from
 /// its children; a system program not started for one test then runs
 /// each test in a process of its own and exits. Called once, by
 /// [`program!`](crate::program!), before `main`.
 pub fn start(kind: Kind) {
+    if std::env::var_os(KIND).is_some() {
+        println!(
+            "{}",
+            match kind {
+                Kind::Unit => "unit",
+                Kind::System => "system",
+            }
+        );
+        std::process::exit(0);
+    }
     crate::home::own();
     keep_inherited();
     #[cfg(unix)]
-    if kind == Kind::System && std::env::var_os(ONE).is_none() && !run::one_named() {
+    if kind == Kind::System
+        && std::env::var_os(ONE).is_none()
+        && (std::env::var_os(COPIES).is_some() || !run::one_named())
+    {
         std::process::exit(run::run());
     }
     #[cfg(not(unix))]
@@ -107,6 +130,15 @@ pub struct Settings {
     pub slow: u64,
     /// How long a finished test's output is read past its end, in seconds.
     pub drain: u64,
+    /// How many system tests run at once for each CPU.
+    pub per_cpu: usize,
+    /// Below this many CPUs, waits scale by it over the machine's CPUs.
+    pub scale_cpus: usize,
+}
+
+/// The machine's CPUs, as the system gives them to this process.
+pub fn cpus() -> usize {
+    std::thread::available_parallelism().map_or(1, |n| n.get())
 }
 
 /// [`Settings`], read once.
@@ -154,6 +186,49 @@ mod tests {
     fn the_settings_read() {
         let settings = super::settings();
         assert!(settings.slow < settings.deadline, "{settings:?}");
+    }
+
+    /// A program a test starts ends on the Ctrl-C it's sent, though this
+    /// program was started with Ctrl-C ignored, as a shell without job
+    /// control starts a job in the background: the child's environment
+    /// gives it back its default ([`crate::env::command`]).
+    #[test]
+    fn an_ignored_ctrl_c_reaches_no_child() {
+        const NAME: &str = "program::tests::an_ignored_ctrl_c_reaches_no_child";
+        let home = crate::TempDir::new("ignored-ctrl-c");
+        if std::env::var_os("LNK_TEST_IGNORED").is_some() {
+            let child =
+                crate::ChildGroup::spawn(crate::env::command("/bin/sleep", &home).arg("30"))
+                    .unwrap();
+            child.interrupt();
+            let status = crate::wait::eventually(
+                "the interrupted sleep to end",
+                std::time::Duration::from_secs(5),
+                || child.try_status().unwrap(),
+            );
+            use std::os::unix::process::ExitStatusExt;
+            assert_eq!(status.signal(), Some(libc::SIGINT));
+            return;
+        }
+        let mut command = crate::env::command(std::env::current_exe().unwrap(), &home);
+        command
+            .args(["--exact", NAME, "--nocapture"])
+            .env("LNK_TEST_IGNORED", "1");
+        // SAFETY: only signal between fork and exec, as a shell's
+        // background job is started.
+        unsafe {
+            std::os::unix::process::CommandExt::pre_exec(&mut command, || {
+                libc::signal(libc::SIGINT, libc::SIG_IGN);
+                Ok(())
+            });
+        }
+        let output = command.output().unwrap();
+        assert!(
+            output.status.success(),
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
     }
 
     /// A descriptor this program inherited without close-on-exec reaches

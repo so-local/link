@@ -52,6 +52,11 @@ struct Allowed {
 
 link_files::specification!(Allowed, include_str!("threads.schema.toml"));
 
+/// Each thread's tools, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Allowed>()
+}
+
 fn read_tools(path: &std::path::Path) -> anyhow::Result<Option<Vec<String>>> {
     match std::fs::read(path) {
         Ok(bytes) => Ok(Some(

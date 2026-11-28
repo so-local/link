@@ -21,7 +21,7 @@ start.
 Link gives it everything at a start: the specification's `[tool.code.servers]`
 as JSON, each language whose server the sandbox file's `[commands]`
 doesn't allow or this machine doesn't have with why, the call's timeout
-a tenth less (2 s at least), and the sandbox, [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) with the flags the
+a tenth less (2 s at least), and the sandbox, [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) with the flags the
 sandbox file makes, no network, `[commands]`' programs and, on a Mac,
 the developer tools when `[commands.macos] developer_tools` grants them.
 

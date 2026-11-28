@@ -16,6 +16,7 @@
 #             unasked first: how long each `lasts`, and what a token
 #             written to it costs (`write`, a multiple of the input price)
 
+schema = 1
 version = 1
 
 # Anthropic.

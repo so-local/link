@@ -3,8 +3,10 @@
 //! value seen.
 //!
 //! Every deadline is scaled by one setting, `LNK_TEST_TIME_SCALE` (a
-//! positive number, 1 when unset), so a loaded machine gives every wait
-//! more time at once and no test picks its own slack.
+//! positive number), so a loaded machine gives every wait more time at
+//! once and no test picks its own slack. Unset, a small machine scales
+//! itself: `scale_cpus` over its CPUs ([`program.toml`](crate::program)),
+//! never below 1.
 
 use std::fmt::Debug;
 use std::future::Future;
@@ -82,12 +84,19 @@ pub fn scaled(deadline: Duration) -> Duration {
 
 fn scale() -> f64 {
     static SCALE: OnceLock<f64> = OnceLock::new();
-    *SCALE.get_or_init(|| parse_scale(std::env::var(TIME_SCALE).ok().as_deref()))
+    *SCALE.get_or_init(|| {
+        parse_scale(
+            std::env::var(TIME_SCALE).ok().as_deref(),
+            crate::program::cpus(),
+        )
+    })
 }
 
-fn parse_scale(value: Option<&str>) -> f64 {
+/// The scale `value` sets, or a machine of `cpus` CPUs's own when unset.
+fn parse_scale(value: Option<&str>, cpus: usize) -> f64 {
     let Some(value) = value.filter(|v| !v.is_empty()) else {
-        return 1.0;
+        let wanted = crate::program::settings().scale_cpus as f64;
+        return (wanted / cpus.max(1) as f64).max(1.0);
     };
     match value.parse::<f64>() {
         Ok(scale) if scale.is_finite() && scale > 0.0 => scale,
@@ -331,13 +340,17 @@ mod tests {
     }
 
     #[test]
-    fn the_scale_is_a_positive_number_or_one() {
-        assert_eq!(parse_scale(None), 1.0);
-        assert_eq!(parse_scale(Some("")), 1.0);
-        assert_eq!(parse_scale(Some("2.5")), 2.5);
+    fn the_scale_is_a_positive_number_or_the_machines_own() {
+        // Unset, a 4-CPU machine waits three times as long, a big one as
+        // long as the test says, and a set scale wins whatever the CPUs.
+        assert_eq!(parse_scale(None, 4), 3.0);
+        assert_eq!(parse_scale(Some(""), 6), 2.0);
+        assert_eq!(parse_scale(None, 64), 1.0);
+        assert_eq!(parse_scale(Some("2.5"), 4), 2.5);
+        assert_eq!(parse_scale(Some("1"), 1), 1.0);
         for bad in ["0", "-1", "inf", "NaN", "slow"] {
             assert!(
-                std::panic::catch_unwind(|| parse_scale(Some(bad))).is_err(),
+                std::panic::catch_unwind(|| parse_scale(Some(bad), 4)).is_err(),
                 "{bad}"
             );
         }

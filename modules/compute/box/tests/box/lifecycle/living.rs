@@ -56,7 +56,7 @@ fn signed_out_boxes_use_the_local_owner_for_creation_and_discovery() {
     std::fs::remove_file(config.join("safe/accounts/accounts.toml")).unwrap();
     link_files::write_private(
         &link_files::layout::Hidden::Installation.at(&config),
-        b"id = \"abcdefabcdef\"\nname = \"qa-host\"\n",
+        b"schema = 1\nid = \"abcdefabcdef\"\nname = \"qa-host\"\n",
     )
     .unwrap();
     let lnk = world.bin.join("lnk");
@@ -180,14 +180,16 @@ fn a_box_is_made_set_up_stopped_started_and_removed() {
     // Link's own key and known hosts; the install from the same relay.
     let ssh = world.read("ssh.log");
     assert!(ssh.contains("ubuntu@192.0.2.10"), "{ssh}");
-    assert!(ssh.contains("StrictHostKeyChecking=accept-new"), "{ssh}");
+    // Its keys pinned from its console: checked strictly, never trusted anew.
+    assert!(ssh.contains("StrictHostKeyChecking=yes"), "{ssh}");
+    assert!(!ssh.contains("StrictHostKeyChecking=accept-new"), "{ssh}");
     // ssh's options come before the host: after it, they'd run on the box.
     assert!(
-        ssh.contains("-o BatchMode=yes ubuntu@192.0.2.10 true"),
+        ssh.contains("-o BatchMode=yes -- ubuntu@192.0.2.10 true"),
         "{ssh}"
     );
     assert!(
-        ssh.contains("-o BatchMode=yes ubuntu@192.0.2.10 sh -s"),
+        ssh.contains("-o BatchMode=yes -- ubuntu@192.0.2.10 sh -s"),
         "{ssh}"
     );
     assert!(ssh.contains(".lnk/safe/boxes/id_ed25519"), "{ssh}");
@@ -285,6 +287,25 @@ fn a_box_is_made_set_up_stopped_started_and_removed() {
         String::from_utf8_lossy(&refused.stderr)
     );
     assert_eq!(world.read("ssh.log"), before, "no ssh without --to");
+    // A box with users of its own: a port on its loopback would be
+    // theirs too, so only a socket is forwarded.
+    std::fs::write(world.dir.join("users"), "").unwrap();
+    let shared = world.lnk_box_fails(&[
+        "box",
+        "forward",
+        "b1",
+        "--port",
+        "40780",
+        "--proxy-port",
+        "5555",
+    ]);
+    let said = String::from_utf8_lossy(&shared.stderr);
+    assert!(said.contains("has users of its own"), "{said}");
+    assert!(
+        !world.read("ssh.log").contains("-R 127.0.0.1:40780"),
+        "no port forwarded"
+    );
+    std::fs::remove_file(world.dir.join("users")).unwrap();
     world.lnk_box(&[
         "box",
         "forward",
@@ -296,7 +317,7 @@ fn a_box_is_made_set_up_stopped_started_and_removed() {
     ]);
     assert!(
         world.read("ssh.log").lines().any(|l| l.contains("-N")
-            && l.ends_with("-R 127.0.0.1:40780:127.0.0.1:5555 ubuntu@192.0.2.10")),
+            && l.ends_with("-R 127.0.0.1:40780:127.0.0.1:5555 -- ubuntu@192.0.2.10")),
         "{}",
         world.read("ssh.log")
     );
@@ -380,7 +401,7 @@ fn boxes_are_found_in_the_cloud_and_untagged_ones_tagged() {
     std::fs::create_dir_all(boxes.parent().unwrap()).unwrap();
     std::fs::write(
         &boxes,
-        "[[box]]\nname = \"acct-1\"\naccount = \"acct\"\nkind = \"fake\"\nplace = \"moon-1\"\n\
+        "schema = 1\n[[box]]\nname = \"acct-1\"\naccount = \"acct\"\nkind = \"fake\"\nplace = \"moon-1\"\n\
          id = \"m-1\"\nsize = \"tiny\"\nip = \"192.0.2.10\"\nstate = \"running\"\ncreated = 1\n",
     )
     .unwrap();

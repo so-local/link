@@ -404,7 +404,7 @@ impl Release {
         release.get_raw(name, MAX_SMALL_FILE).await
     }
 
-    /// The version in the release's signed `VERSION` file (`0.12.0`), so a
+    /// The version in the release's signed `VERSION` file (`0.0.1`), so a
     /// release can't be passed off under another version's tag
     /// ([`check_installable`]). `None` for a release without one.
     pub async fn version(&self) -> anyhow::Result<Option<link_version::Version>> {
@@ -725,46 +725,41 @@ yMBPHfVbN3oJI4DCn0jxwsJt7ik8IX9gNdvQ4=
         let ok = |said: Option<&str>, asked: Option<&str>, floor: Option<&str>| {
             check_installable(said.map(v), asked.map(v).as_ref(), floor.map(v).as_ref())
         };
-        assert_eq!(
-            ok(Some("0.14.0"), Some("0.14.0"), None).unwrap(),
-            v("0.14.0")
-        );
+        assert_eq!(ok(Some("0.0.4"), Some("0.0.4"), None).unwrap(), v("0.0.4"));
         assert!(
             ok(
-                Some("0.14.0-staging.1"),
-                Some("0.14.0-staging.1"),
-                Some("0.15.0")
+                Some("0.0.4-staging.1"),
+                Some("0.0.4-staging.1"),
+                Some("0.0.5")
             )
             .is_ok()
         );
-        assert!(ok(Some("0.13.0"), Some("0.14.0"), None).is_err());
+        assert!(ok(Some("0.0.3"), Some("0.0.4"), None).is_err());
         // One that doesn't say, asked for by version or not.
-        for asked in [Some("0.14.0"), None] {
+        for asked in [Some("0.0.4"), None] {
             let err = ok(None, asked, None).unwrap_err();
             assert!(err.to_string().contains("no VERSION"), "{err}");
         }
-        assert!(ok(Some("0.14.0"), None, Some("0.14.0")).is_ok());
-        assert!(ok(Some("0.15.0-staging.1"), None, Some("0.14.0")).is_ok());
-        let err = ok(Some("0.13.9"), None, Some("0.14.0")).unwrap_err();
+        assert!(ok(Some("0.0.4"), None, Some("0.0.4")).is_ok());
+        assert!(ok(Some("0.0.5-staging.1"), None, Some("0.0.4")).is_ok());
+        let err = ok(Some("0.0.3"), None, Some("0.0.4")).unwrap_err();
         assert!(err.to_string().contains("behind this lnk"), "{err}");
-        assert!(ok(Some("0.14.0-staging.1"), None, Some("0.14.0")).is_err());
+        assert!(ok(Some("0.0.4-staging.1"), None, Some("0.0.4")).is_err());
         // A source build's lnk names no floor: any release it says.
-        assert!(ok(Some("0.13.0"), None, None).is_ok());
+        assert!(ok(Some("0.0.3"), None, None).is_ok());
         let url = "https://builds.example/staging".parse().unwrap();
         assert_eq!(
             base(&url, None).unwrap().to_string(),
             "https://builds.example/staging/latest/download"
         );
         assert_eq!(
-            base(&url, Some(&v("0.14.0-staging.1")))
-                .unwrap()
-                .to_string(),
-            "https://builds.example/staging/download/v0.14.0-staging.1"
+            base(&url, Some(&v("0.0.4-staging.1"))).unwrap().to_string(),
+            "https://builds.example/staging/download/v0.0.4-staging.1"
         );
         let bucket = "s3://my-builds/dev/0123".parse().unwrap();
         assert_eq!(
-            base(&bucket, Some(&v("0.14.0-dev.1"))).unwrap().to_string(),
-            "s3://my-builds/dev/0123/download/v0.14.0-dev.1"
+            base(&bucket, Some(&v("0.0.4-dev.1"))).unwrap().to_string(),
+            "s3://my-builds/dev/0123/download/v0.0.4-dev.1"
         );
     }
 

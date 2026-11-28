@@ -29,6 +29,11 @@ pub struct Offsets(pub BTreeMap<PathBuf, Offset>);
 
 link_files::specification!(Offsets, include_str!("tail/offsets.schema.toml"));
 
+/// The offsets read, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Offsets>()
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Offset {
     pub inode: u64,

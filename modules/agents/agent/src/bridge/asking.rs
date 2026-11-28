@@ -281,7 +281,7 @@ pub(super) fn owner_chats(
         .spawn()
         .within(format!("running {} owner", program.display()))?;
     let mut stdin = child.stdin.take().within("no stdin")?;
-    stdin.write_all(format!("{}\n", serde_json::to_string(request)?).as_bytes())?;
+    stdin.write_all(link_connection_contract::stated(request)?.as_bytes())?;
     drop(stdin);
     let output = child.wait_with_output()?;
     // A connection with no `owner` command (webhook's): no chat of the

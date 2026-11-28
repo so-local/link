@@ -228,6 +228,8 @@ pub fn print(head: &str, file: &File) -> anyhow::Result<String> {
     let mut out = String::new();
     out.push_str(head.trim_end());
     out.push_str("\n\n");
+    let schema = <File as link_files::schema::Specification>::format().current;
+    out.push_str(&format!("schema = {schema}\n"));
     if let Some(version) = file.version {
         out.push_str(&format!("version = {version}\n"));
     }

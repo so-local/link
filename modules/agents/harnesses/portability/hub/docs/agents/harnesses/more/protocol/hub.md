@@ -102,7 +102,7 @@ as it came.
 
 The owner's command goes to the harness by a name it offers, as its
 session's latest `available_commands_update` lists them. A prompt that is one
-command, an action of Link's namespaces or one of its aliases, such as [`/chat:create`](../../../../../../../link/docs/agents/link/commands/README.md#start-a-new-conversation) and its alias `/new`, goes as the first of the action's names the
+command, an action of Link's namespaces or one of its aliases, such as [`/chat:create`](../../../../../../../link/docs/agents/harnesses/link/commands/README.md#start-a-new-conversation) and its alias `/new`, goes as the first of the action's names the
 harness offers; one it offers, or one no
 action has, goes as it came. The names are the namespaces' modules'
 `actions.toml`'s.
@@ -199,7 +199,8 @@ answers that it takes none, kind by kind.
 ## Its endpoint
 
 The hub refuses a connection without the key, or naming an agent that
-isn't its own, and proves it holds the key before it's sent it, as the
+isn't its own, and with no key set it serves none (503), as Link
+Harness does, and proves it holds the key before it's sent it, as the
 [contract](../../../../../../contract/docs/agents/harnesses/more/protocol/contract.md)
 asks; `Hub::serve` sets `TCP_NODELAY` on each connection it takes.
 

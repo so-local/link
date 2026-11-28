@@ -28,7 +28,7 @@ the same validation and defaults. Flags override only the fields named.
 A command gets `--spec FILE` when it consumes a registered specification kind.
 Simple commands still have typed arguments without making another
 configuration format. A kind has one identity across modules that
-compose it; a module's identity says who exports it. [`lnk spec list`](../../../modules/tooling/spec/docs/tooling/spec/README.md#list-the-kinds)
+compose it; a module's identity says who exports it. [`lnk spec list`](../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#list-the-kinds)
 shows that ownership, and each kind's `spec show` inspects effective
 configuration without creating a resource.
 
@@ -90,7 +90,7 @@ In its specification, never in a harness or a bridge.
 A decision is what anyone
 with the whole evidence would choose (a platform's documented limit on
 a bot's messages, a guard against a broken tool server), and lives in
-the code; [a model's own figures are facts too](../../../modules/agents/harnesses/link/docs/agents/link/more/decisions.md#where-does-a-models-window-come-from), kept as data Link includes
+the code; [a model's own figures are facts too](../../../modules/agents/harnesses/link/docs/agents/harnesses/link/decisions.md#where-does-a-models-window-come-from), kept as data Link includes
 and you correct.
 
 #### What an opinion is
@@ -137,7 +137,7 @@ is renewed and when it lapses, how often a streamed answer is shown
 again, whether the scheduler asks first and in which time zone, and how
 much of a model's window to keep for the answer or for counting roughly
 are opinions too, each a key. Link's specification has no `[model] allow`, so any model may run: "the default
-only" would refuse [`lnk agent start --model.default`](../../../modules/agents/agent/docs/agents/README.md#create-an-agent).
+only" would refuse [`lnk agent start --model.default`](../../../modules/agents/agent/docs/agents/README.md#start-your-agent).
 
 ### Who picks where an agent's things are kept?
 
@@ -281,12 +281,12 @@ sandbox module keeps one, and modules never link each other's code. What
 a specification opens on a machine is one function there, `Confinement::of`; the
 refusals that need the machine itself (a write that leads out, a program
 it could replace) stay the sandbox module's, checked as it wraps:
-another module has a specification checked by running [`lnk sandbox`](../../../modules/security/sandbox/docs/security/sandbox/README.md#sandbox), never by its
+another module has a specification checked by running [`lnk sandbox`](../../../modules/security/sandbox/docs/tooling/sandbox/README.md#sandbox), never by its
 own copy of the rules.
 
 ### Is a harness's sandbox a specification?
 
-Yes: what a harness runs with is two specifications joined, the agent's `~/Link/Safe/Agents/<agent>/sandbox.toml`, written by [`lnk agent permission add`](../../../modules/agents/agent/docs/security/sandbox/permissions/README.md#choose-what-your-agent-can-reach) and `deny`, and what the harness needs (`~/.lnk/safe/agents/harness-grants/<harness>.toml`),
+Yes: what a harness runs with is two specifications joined, the agent's `~/Link/Safe/Agents/<agent>/sandbox.toml`, written by [`lnk agent permission add`](../../../modules/agents/agent/docs/tooling/sandbox/permissions/README.md#choose-what-your-agent-can-reach) and `deny`, and what the harness needs (`~/.lnk/safe/agents/harness-grants/<harness>.toml`),
 and that is all there is. A harness comes with none of its own to add
 yours to, and none with `[commands] allow = ["*"]`: it says each need
 in `lnk-<harness> needs` as sections, with why, and Link asks
