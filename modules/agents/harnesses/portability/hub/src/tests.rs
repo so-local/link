@@ -497,6 +497,35 @@ async fn a_connection_needs_the_key_and_the_agent() {
     assert_eq!(open(Some(KEY), AGENT).await, 101);
 }
 
+/// An endpoint without its key serves nothing: 503, whatever is sent.
+#[tokio::test]
+async fn an_endpoint_without_its_key_serves_nothing() {
+    let dir = temp("hub-no-key");
+    let hub = Hub::new(Config {
+        start: Box::new(|| Err(std::io::Error::other("never started"))),
+        cwd: "/agent".into(),
+        key: None,
+        agent: Some(AGENT.into()),
+        sessions: dir.join("sessions.json"),
+        state: None,
+        tools: Tools::default(),
+    });
+    let at = served(hub).await;
+    for key in [None, Some(KEY)] {
+        let mut request = format!("ws://{at}/acp").into_client_request().unwrap();
+        if let Some(key) = key {
+            let value = format!("Bearer {key}").parse().unwrap();
+            request.headers_mut().insert("authorization", value);
+        }
+        match tokio_tungstenite::connect_async(request).await {
+            Err(tokio_tungstenite::tungstenite::Error::Http(answer)) => {
+                assert_eq!(answer.status().as_u16(), 503);
+            }
+            other => panic!("served without a key: {:?}", other.map(|_| ())),
+        }
+    }
+}
+
 #[tokio::test]
 #[expect(
     clippy::disallowed_methods,

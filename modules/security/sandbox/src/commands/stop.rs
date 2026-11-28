@@ -174,6 +174,11 @@ struct OnStop {
 
 link_files::specification!(OnStop, include_str!("stop/on_stop.schema.toml"));
 
+/// Each sandbox's on-stop file, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<OnStop>()
+}
+
 pub(crate) fn on_stop_dir() -> anyhow::Result<PathBuf> {
     let dir = wire::dir()?.join("on-stop");
     link_files::create_private_dir(&dir)?;

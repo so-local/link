@@ -19,6 +19,11 @@ pub static HELD: std::sync::LazyLock<link_files::schema::Format> = std::sync::La
     link_files::schema::Format::shipped(include_str!("holding/held.schema.toml"))
 });
 
+/// The held messages, which an upgrade converts.
+pub fn saved_held() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::shipped::<link_agent_place::Held>(&HELD)
+}
+
 /// Where agent `agent` keeps its generation here: the ID of the move it
 /// arrived by (`~/.lnk/safe/agents/<agent>/generation`), none for one
 /// made here. Held messages are given only to the generation they name.

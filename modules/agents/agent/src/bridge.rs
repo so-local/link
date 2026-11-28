@@ -30,10 +30,10 @@ mod asking;
 mod bridging;
 mod carrying;
 mod holding;
-mod outbox;
+pub(crate) mod outbox;
 mod storage;
 mod team_files;
-mod way_in;
+pub(crate) mod way_in;
 pub use asking::{forget_owner_reader, owner_reader};
 pub use bridging::{carried, forget, keep_out, link, links, module_state, request, run, state};
 use bridging::{keep, make_state, section};
@@ -44,7 +44,7 @@ use carrying::{real_folders, sleep_unless};
 use holding::give_held_until;
 pub use holding::{
     HELD, deliver_held, for_generation, generation, generation_file, give_held, held_file,
-    keep_held, set_generation,
+    keep_held, saved_held, set_generation,
 };
 pub use storage::StoragePlan;
 use team_files::serve_team_files;
@@ -101,6 +101,11 @@ pub fn sent_in_schedule(
 }
 
 link_files::specification!(Plan, include_str!("bridge/plan.schema.toml"));
+
+/// Each agent's bridge plan, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Plan>()
+}
 
 /// How an agent's connections are carried.
 #[derive(Duplicate, Debug, Default, PartialEq, Serialize, Deserialize)]

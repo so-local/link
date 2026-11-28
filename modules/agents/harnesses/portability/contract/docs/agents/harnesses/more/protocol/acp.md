@@ -36,7 +36,7 @@ Harness advertises session loading, listing and resuming, images and
 embedded resources; another harness may support a different set. Link's
 endpoint authentication and WebSocket framing are integration details,
 documented with the concrete endpoints.
-Link Harness's [ACP page](../../../../../../../link/docs/agents/link/more/acp/README.md)
+Link Harness's [ACP page](../../../../../../../link/docs/agents/harnesses/link/more/acp/README.md)
 describes its methods, capabilities and endpoint. The
 [Harness Hub](../../../../../../hub/docs/agents/harnesses/more/protocol/hub.md)
 describes how adapters expose an ACP harness through Link, and the

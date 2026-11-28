@@ -115,7 +115,7 @@ fn pending_activation_does_not_fire_and_a_retry_recovers_it() {
     };
     link_files::write_private(
         &path(&store, &job.id),
-        &serde_json::to_vec(&pending).unwrap(),
+        &link_files::saved::print_json(&pending).unwrap(),
     )
     .unwrap();
     let (driver, seen) = recording();

@@ -52,6 +52,11 @@ pub struct Note {
 
 link_files::specification!(Note, include_str!("moved/note.schema.toml"));
 
+/// A move's note, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Note>()
+}
+
 /// `~/.lnk/safe/agents/transfers/moved`: a note per agent that left this machine.
 pub fn dir() -> PathBuf {
     link_files::layout::Hidden::Moved.path()
@@ -162,14 +167,6 @@ fn aside_in(root: &Path, name: &str) -> anyhow::Result<PathBuf> {
     Ok(to)
 }
 
-/// Moves agent `name`'s folder `dir` whole to where it's put aside
-/// ([`aside`]); returns where.
-pub fn keep_files(name: &str, dir: &Path) -> anyhow::Result<PathBuf> {
-    let to = aside(name)?;
-    std::fs::rename(dir, &to).within(format!("moving {} to {}", dir.display(), to.display()))?;
-    Ok(to)
-}
-
 /// Puts aside `folder`'s own folder, and its Home where `home` (it's the
 /// agent's, not one you chose), each as it's named in an agent's folder
 /// (`home`, `agent`), in one folder ([`aside`]); returns where, or none
@@ -231,32 +228,10 @@ pub fn kept_files(note: &Note) -> Option<link_agent_contract::folder::Folder> {
     Some(link_agent_contract::folder::Folder::new(&kept, None))
 }
 
-/// Deletes the keys each harness home in `homes` keeps: a `.env` at its
-/// top or in a folder at its top (`.heron/.env`), never through a link.
-fn strip_keys(homes: &Path) {
-    let Ok(harnesses) = std::fs::read_dir(homes) else {
-        return;
-    };
-    for home in harnesses.flatten() {
-        if !home.file_type().is_ok_and(|t| t.is_dir()) {
-            continue;
-        }
-        let home = home.path();
-        let _ = std::fs::remove_file(home.join(".env"));
-        for folder in std::fs::read_dir(&home).into_iter().flatten().flatten() {
-            if folder.file_type().is_ok_and(|t| t.is_dir()) {
-                let _ = std::fs::remove_file(folder.path().join(".env"));
-            }
-        }
-    }
-}
-
-/// What of an agent's own files folder [`clear`] keeps.
+/// What of an agent's own files folder [`clear`] keeps: never its
+/// harness homes, which keep credentials.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kept {
-    /// Its whole folder: Home, its own and its harness homes (an agent
-    /// not seen running where it went).
-    All,
     /// Its Home, where it's its own, and its own folder.
     Files,
     /// Nothing: its files go with it.
@@ -266,10 +241,9 @@ pub enum Kept {
 /// Agent `agent` left this machine for `to`: its service, its owner
 /// delivery's reader of the interaction store, settings, harness homes (state, installs, keys), log, sockets, sandbox rules and
 /// its memory's and scheduler's tools go, its files folder is kept [`keep_days`] when it's its own (a folder
-/// you chose stays where it is), and a note says where it went. With
-/// `unconfirmed` (it wasn't seen running there), its harness homes are
-/// kept with its files. Returns what to tell the user.
-pub fn leave(agent: &Settings, to: Place, unconfirmed: bool) -> anyhow::Result<Cleared> {
+/// you chose stays where it is), and a note says where it went. Returns
+/// what to tell the user.
+pub fn leave(agent: &Settings, to: Place) -> anyhow::Result<Cleared> {
     // What it was granted of its teams' folders, read before its sandbox
     // file goes.
     let teams = crate::sandbox_file::of(&agent.name).spec.teams;
@@ -279,13 +253,17 @@ pub fn leave(agent: &Settings, to: Place, unconfirmed: bool) -> anyhow::Result<C
     agent
         .forget_keys()
         .within(format!("{}'s keys stay in your secrets", agent.name))?;
-    let mut cleared = clear(
-        agent,
-        match unconfirmed {
-            true => Kept::All,
-            false => Kept::Files,
-        },
-    )?;
+    let mut cleared = clear(agent, Kept::Files)?;
+    // A harness keeps credentials in its home (DeepSeek's
+    // `.credentials.yaml`, OpenClaw's `auth-profiles.json`), and the
+    // agent's configuration folder holds its own: while either stays, it
+    // hasn't left, and `left` is tried again.
+    anyhow::ensure!(
+        cleared.left.is_empty(),
+        "{} hasn't left: what keeps its credentials stays here ({})",
+        agent.name,
+        cleared.left.join("; ")
+    );
     Note {
         teams,
         service: agent.service.clone(),
@@ -498,32 +476,13 @@ fn clear(agent: &Settings, kept: Kept) -> anyhow::Result<Cleared> {
             .stdin(std::process::Stdio::null())
             .output();
     }
-    if matches!(kept, Kept::All) && agent.boxes().is_dir() {
-        let root = link_files::layout::Hidden::HarnessHistory.path();
-        let saved = aside_in(&root, &agent.name)?;
-        std::fs::rename(agent.boxes(), &saved)?;
-        strip_keys(&saved);
-        notes.push(format!(
-            "Its harness homes, without their keys, stay in {}.",
-            tilde(&saved)
-        ));
-    }
     let put_aside = match kept {
-        Kept::All if dir.exists() => {
-            let put_aside = keep_files(&agent.name, &dir)?;
-            Some(put_aside)
-        }
-        Kept::All | Kept::Files => keep_folder(&agent.name, &agent.folder(), own_files)?,
+        Kept::Files => keep_folder(&agent.name, &agent.folder(), own_files)?,
         Kept::Nothing => None,
     };
     if let Some(put_aside) = &put_aside {
         notes.push(format!(
-            "Its {} stay in {} {}.",
-            match kept {
-                Kept::All =>
-                    "files and harnesses, without the keys a harness keeps in its home (its .env),",
-                _ => "files",
-            },
+            "Its files stay in {} {}.",
             tilde(put_aside),
             match keep_days() {
                 Some(days) => format!("for {days} days"),
@@ -542,10 +501,15 @@ fn clear(agent: &Settings, kept: Kept) -> anyhow::Result<Cleared> {
     {
         left.push(format!("{}: {err}", dir.display()));
     }
-    let _ = std::fs::remove_dir_all(settings::config_of(&agent.name));
+    let config = settings::config_of(&agent.name);
+    match std::fs::remove_dir_all(&config) {
+        Err(err) if err.kind() != std::io::ErrorKind::NotFound => {
+            left.push(format!("{}: {err}", config.display()));
+        }
+        _ => {}
+    }
     let _ = std::fs::remove_dir_all(agent.wires());
-    // Its harness homes: memory, conversations, settings and keys, unless
-    // `Kept::All` put them aside above.
+    // Its harness homes: memory, conversations, settings and keys.
     match remove_owned(&[link_files::layout::Hidden::AgentData.path()], &agent.name) {
         Ok(homes) => left.extend(homes),
         Err(err) => left.push(format!("{err:#}")),
@@ -900,32 +864,6 @@ mod tests {
         );
     }
 
-    /// A kept agent's harness homes keep their files but not their keys,
-    /// and a `.env` that's a link is removed, never followed.
-    #[test]
-    fn the_kept_homes_lose_their_keys() {
-        let dir = link_test_kit::TempDir::new("strip-keys");
-        let homes = dir.join("Harnesses");
-        let heron = homes.join("heron");
-        std::fs::create_dir_all(heron.join(".heron")).unwrap();
-        std::fs::write(heron.join(".env"), "KEY=1").unwrap();
-        std::fs::write(heron.join(".heron/.env"), "KEY=2").unwrap();
-        std::fs::write(heron.join(".heron/config.yaml"), "kept").unwrap();
-        let outside = dir.join("outside.env");
-        std::fs::write(&outside, "not the harness's").unwrap();
-        std::fs::create_dir_all(homes.join("otter/.otter")).unwrap();
-        std::os::unix::fs::symlink(&outside, homes.join("otter/.otter/.env")).unwrap();
-        strip_keys(&homes);
-        assert!(!heron.join(".env").exists());
-        assert!(!heron.join(".heron/.env").exists());
-        assert!(heron.join(".heron/config.yaml").exists());
-        assert!(homes.join("otter/.otter/.env").symlink_metadata().is_err());
-        assert_eq!(
-            std::fs::read_to_string(&outside).unwrap(),
-            "not the harness's"
-        );
-    }
-
     #[test]
     fn dates_both_ways() {
         assert_eq!(date(0), "1970-01-01");
@@ -966,7 +904,7 @@ mod tests {
             };
             std::fs::write(
                 dir.join(id).join(crate::transfer::RECORD),
-                serde_json::to_vec(&record).unwrap(),
+                link_files::saved::print_json(&record).unwrap(),
             )
             .unwrap();
         }

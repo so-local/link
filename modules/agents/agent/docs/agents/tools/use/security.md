@@ -109,7 +109,7 @@ Where an agent's memory runs, and what it reads and writes.
   fails, crashes or runs past its limits fails that file alone, found
   by its name.
 - Memory's service, which serves many agents, runs the converter in
-  [`lnk sandbox run`](../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) with nothing granted, so a crafted PDF that takes
+  [`lnk sandbox run`](../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) with nothing granted, so a crafted PDF that takes
   over the parser reaches no network and no one's files. A single
   agent's memory already runs inside that agent's sandbox. With the
   agent's sandbox off, the converter reaches what its user can.
@@ -174,7 +174,7 @@ Where an agent's memory runs, and what it reads and writes.
   change it:
 - `lnk agent show --instructions` shows it, and the file is yours to edit.
   Another engine's calls that write ask, as any tool's do.
-- The agent reaches it only through its proxy, which logs each call, which [`lnk sandbox log show`](../../../../../../security/sandbox/docs/security/sandbox/security/log/README.md#see-every-call-on-the-wire) shows. Each agent has its own, over its own files; one
+- The agent reaches it only through its proxy, which logs each call, which [`lnk sandbox log show`](../../../../../../security/sandbox/docs/tooling/sandbox/security/log/README.md#see-every-call-on-the-wire) shows. Each agent has its own, over its own files; one
   agent's proxy names no other's.
 - Its index holds a copy of what it indexed, and each chunk's vector,
   in a folder only you can read (700), which no harness reaches. It
@@ -255,7 +255,7 @@ do to the agent.
   outside the agent's sandbox, as a tool defined for that agent alone, `browser-<agent id>`, which [`lnk agent tool add browser`](../../../../../tools/browser-tool/docs/agents/tools/browser/guide.md#add-it) adds.
   Every session of the agent shares it (`--shared`), its twelve calls
   allowed, so they ask nothing.
-- It starts Chromium in a sandbox of its own, [`lnk sandbox run`](../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide), which
+- It starts Chromium in a sandbox of its own, [`lnk sandbox run`](../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide), which
   reads the folder of Chromium's own program, links resolved, where it
   isn't one of the system's, writes only the profile, and reaches the
   agent's internet hosts (`--internet.hosts`, from its `[internet]
@@ -270,7 +270,7 @@ do to the agent.
   `--localhost.ports` for `localhost:<port>`).
 - A page that makes the proxy pause the browser's way out keeps it
   paused: the browser says so, and starts no other browser in its place
-  until [`lnk sandbox start`](../../../../../../security/sandbox/docs/security/sandbox/guide.md#stop-a-sandbox).
+  until [`lnk sandbox start`](../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#stop-a-sandbox).
 - On Linux Chromium always runs with `--no-sandbox`, since its own
   sandbox needs a user namespace that Link's sandbox refuses inside; on
   a Mac it does so only as root. One page that takes over a renderer
@@ -314,7 +314,7 @@ Where `run` and `file` serve, and the sandbox each call runs in.
 
 - Link Harness's `run` and `file` serve outside its sandbox, as its
   tools (`run-<agent id>`, `file-<agent id>`), and run their calls in
-  sandboxes made from the agent's sandbox file by [`lnk sandbox run`](../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide):
+  sandboxes made from the agent's sandbox file by [`lnk sandbox run`](../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide):
   `run` one a call, ended with everything the call started; `file`,
   which runs only Link file, one a session. The servers only start
   those sandboxes, and read or run nothing of the agent's.

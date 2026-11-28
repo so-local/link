@@ -264,6 +264,32 @@ fn removing_a_source_after_an_unfinished_managed_send_releases_its_model_key() {
     );
 }
 
+/// A switch refused for want of its receiver's key releases nothing: the
+/// model key kept back for a managed host stays kept here.
+#[test]
+fn a_refused_switch_keeps_its_retained_model_key() {
+    let world = World::new("refused-switch-retained");
+    an_agent_with_files(&world);
+    let kept = world.lnk_agent(&[
+        "state-send",
+        "--phase",
+        "switch",
+        "--without-model-credentials",
+    ]);
+    assert!(!kept.status.success());
+    let checkpoint = world
+        .here
+        .join(format!(".lnk/safe/agents/transfers/moved/{ID}.models"));
+    assert!(checkpoint.is_file());
+    let refused = world.lnk_agent(&["state-send", "--phase", "switch"]);
+    assert!(!refused.status.success());
+    assert!(
+        String::from_utf8_lossy(&refused.stderr)
+            .contains("a switch needs its receiver's public key")
+    );
+    assert!(checkpoint.is_file());
+}
+
 /// An agent a cloud account hosts is talked to through that account's
 /// adapter (`agent-chat`), on the `link` connection's threads: its answer
 /// as it comes, a message that joined a running turn and a refusal said,
@@ -549,7 +575,7 @@ fn an_agent_moves_to_a_cloud_that_hosts_agents_and_back() {
         .and_then(|mut child| {
             use std::io::Write;
             child.stdin.take().unwrap().write_all(
-                br#"{"connection":"telegram","chat":"42","from":"42","text":"stale","generation":"ffffffffffffffffffffffffffffffff"}
+                br#"{"connection":"telegram","chat":"42","from":"42","text":"stale","generation":"ffffffffffffffffffffffffffffffff","schema":1}
 "#,
             )?;
             child.wait_with_output()
@@ -676,7 +702,7 @@ fn sqlite_conversations_notes_and_schedules_move_to_a_host_and_back() {
     // The receiving machine supports file alone. The preference stays in the spec.
     write(
         &world.here.join(".lnk/safe/agents/policy.toml"),
-        "[storage]\nconversations = [\"sqlite\", \"file\"]\ninstructions = [\"sqlite\", \"file\"]\nschedule = [\"sqlite\", \"file\"]\nmemory = [\"sqlite\", \"file\"]\n",
+        "schema = 1\n[storage]\nconversations = [\"sqlite\", \"file\"]\ninstructions = [\"sqlite\", \"file\"]\nschedule = [\"sqlite\", \"file\"]\nmemory = [\"sqlite\", \"file\"]\n",
     );
     ok(&world.lnk_agent(&["move", "--cloud", "host", "--yes"]));
     let hosted = world.root.join(format!("host/agents/{ID}"));
@@ -685,7 +711,7 @@ fn sqlite_conversations_notes_and_schedules_move_to_a_host_and_back() {
     // Bring the same data back through the file driver's import.
     write(
         &world.here.join(".lnk/safe/agents/policy.toml"),
-        "[storage]\nconversations = [\"file\"]\ninstructions = [\"file\"]\nschedule = [\"file\"]\nmemory = [\"file\"]\n",
+        "schema = 1\n[storage]\nconversations = [\"file\"]\ninstructions = [\"file\"]\nschedule = [\"file\"]\nmemory = [\"file\"]\n",
     );
     ok(&world.lnk_agent(&["move", "--here", "--agent", "main", "--no-start"]));
     let dest = link_store_contract::store::file::Folder::at(&own, ID).unwrap();

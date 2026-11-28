@@ -13,6 +13,24 @@ place, so most of what goes wrong is that check or the `PATH`.
 Add `~/.lnk/exec/bin` to your `PATH`: the installer leaves your shell's
 settings alone, and prints the line to add.
 
+### "you can't write to ..."
+
+`lnk` installs its modules in its own folder, so it goes in a folder you
+can write. Set `LNK_INSTALL_DIR` to one you own, or leave it out for
+`~/.lnk/exec/bin`.
+
+### "couldn't download ..."
+
+The network didn't answer for the file it names. Check your connection
+and run the install line again. "the release ... has no" names a file
+the release lacks, as a version that doesn't exist would.
+
+### "Your modules are another release's"
+
+The installer replaced `lnk` and left the modules an older install put
+beside it. Run `lnk upgrade` to bring them, and your files, to the new
+release.
+
 ### "ssh-keygen (OpenSSH) is needed to check the release signature"
 
 Install OpenSSH 8.1 or newer, or set `LNK_INSECURE=1` to install

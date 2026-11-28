@@ -71,7 +71,7 @@ The commands other programs read, and what each prints or does.
 Prints `{"at", "units": [{"id", "kind", "parent", "name", "owner",
 "teams", "measures": {"<measure>": {"now", "day"}}}]}`: this machine,
 each agent here and each of its processes, or the unit named and its
-processes. `at` is in Unix seconds. Read by [`lnk agent list`](../../../../../../../agents/agent/docs/agents/start/create.md#run-more-than-one-agent).
+processes. `at` is in Unix seconds. Read by [`lnk agent list`](../../../../../../../agents/agent/docs/agents/start/show.md#list-your-agents).
 
 #### Each unit
 

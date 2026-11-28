@@ -196,7 +196,7 @@ mod tests {
     #[test]
     fn the_history_wire_states_its_protocol() {
         let history = History::parse(
-            "[[gone]]\nwas = \"task show --raw\"\nnow = \"lnk task spec show\"\nsince = \"0.14.0\"\nuntil = \"0.16.0\"\n[[renamed]]\nmodule = \"memory\"\nnow = \"notes\"\nsince = \"0.14.0\"\nuntil = \"0.16.0\"\n",
+            "[[gone]]\nwas = \"task show --raw\"\nnow = \"lnk task spec show\"\nsince = \"0.0.4\"\nuntil = \"0.0.6\"\n[[renamed]]\nmodule = \"memory\"\nnow = \"notes\"\nsince = \"0.0.4\"\nuntil = \"0.0.6\"\n",
         )
         .unwrap();
         let text = serde_json::to_string(&history.wire()).unwrap();

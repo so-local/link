@@ -39,8 +39,14 @@ const FIXTURES: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures");
 /// Link Document Converter as the workspace built it, extracting documents' text
 /// for an index a test opens: none is installed beside the test's own
 /// program.
+/// Its parser's wall-clock deadline is the product's, scaled as every
+/// test's is ([`link_test_kit::wait::scaled`]): a loaded machine reads a
+/// document as surely as a quiet one.
 fn extractor() -> Extractor {
-    Extractor::program(documents_program(), extract::deadline())
+    Extractor::program(
+        documents_program(),
+        link_test_kit::wait::scaled(extract::deadline()),
+    )
 }
 
 /// `lnk-document-converter`, as `cargo build --workspace --bins` built it.

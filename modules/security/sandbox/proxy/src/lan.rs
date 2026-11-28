@@ -9,6 +9,23 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use anyhow::ensure;
 
+/// What `[lan]` counts as this machine's own ([`lan.toml`]).
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Own {
+    /// The start of each name of an interface whose network is this
+    /// machine's: its containers' and virtual machines'.
+    interfaces: Vec<String>,
+    /// Files only a cloud's Mac has.
+    cloud_mac_files: Vec<std::path::PathBuf>,
+}
+
+/// [`Own`], read once.
+fn own() -> &'static Own {
+    static OWN: std::sync::OnceLock<Own> = std::sync::OnceLock::new();
+    OWN.get_or_init(|| toml::from_str(include_str!("lan.toml")).expect("lan.toml reads"))
+}
+
 /// Whether `host` may be reached as one of your network's machines at
 /// all, before it is resolved: `*`, its name or address listed, or an
 /// address in a listed range.
@@ -78,9 +95,9 @@ fn never(ip: IpAddr) -> bool {
         || bridged(ip)
 }
 
-/// Whether `ip` is on the network of one of this machine's bridges
-/// (Docker's `docker0` and `br-*`, libvirt's `virbr0`, a VM app's
-/// `bridge100`): its containers and VMs, which are this machine.
+/// Whether `ip` is on the network of one of this machine's bridges or
+/// virtual machines' interfaces ([`is_this_machines`]): its containers
+/// and VMs, which are this machine.
 fn bridged(ip: IpAddr) -> bool {
     bridges()
         .iter()
@@ -120,7 +137,7 @@ fn bridges() -> Vec<(IpAddr, IpAddr)> {
         // SAFETY: a name getifaddrs gave, NUL-terminated.
         let name = unsafe { std::ffi::CStr::from_ptr(ifa.ifa_name) };
         let name = name.to_string_lossy();
-        if !is_bridge(&name) {
+        if !is_this_machines(&name) {
             continue;
         }
         if let (Some(addr), Some(mask)) = (address(ifa.ifa_addr), address(ifa.ifa_netmask)) {
@@ -137,17 +154,31 @@ fn bridges() -> Vec<(IpAddr, IpAddr)> {
     Vec::new()
 }
 
-/// Whether the interface `name` is a bridge: on Linux, the kernel says
-/// so; on macOS, it's named `bridge<n>`.
-fn is_bridge(name: &str) -> bool {
-    if cfg!(target_os = "macos") {
-        return name.starts_with("bridge");
+/// Whether the interface `name`'s network is this machine's own: one
+/// named as its containers' and VMs' are ([`lan.toml`]), and on Linux a
+/// bridge, as the kernel says, or any interface with no device behind
+/// it, read in `/sys/class/net`.
+fn is_this_machines(name: &str) -> bool {
+    is_this_machines_in(name, std::path::Path::new("/sys/class/net"))
+}
+
+/// [`is_this_machines`], Linux's interfaces read in `net`.
+fn is_this_machines_in(name: &str, net: &std::path::Path) -> bool {
+    if name.is_empty() || name.contains('/') || name == "lo" {
+        return false;
     }
-    !name.contains('/')
-        && std::path::Path::new("/sys/class/net")
-            .join(name)
-            .join("bridge")
-            .is_dir()
+    if own()
+        .interfaces
+        .iter()
+        .any(|start| name.starts_with(start.as_str()))
+    {
+        return true;
+    }
+    if cfg!(target_os = "macos") {
+        return false;
+    }
+    let at = net.join(name);
+    at.is_dir() && (at.join("bridge").is_dir() || !at.join("device").exists())
 }
 
 /// The IP address in `sa`, if it holds one.
@@ -313,8 +344,61 @@ pub fn canonical(ip: IpAddr) -> IpAddr {
         [0, 0, 0, 0, 0, 0, ..] if !v6.is_loopback() && !v6.is_unspecified() => v4(s[6], s[7]),
         [0x64, 0xff9b, 0, 0, 0, 0, ..] => v4(s[6], s[7]),
         [0x2002, ..] => v4(s[1], s[2]),
+        _ if NAT64
+            .get()
+            .is_some_and(|prefixes| prefixes.iter().any(|p| p[..] == s[..6])) =>
+        {
+            v4(s[6], s[7])
+        }
         _ => ip,
     }
+}
+
+/// This network's own NAT64 prefixes (`/96`), learned from
+/// `ipv4only.arpa` ([`learn_nat64`]): an address in one is an IPv4
+/// address, judged as that one.
+static NAT64: tokio::sync::OnceCell<Vec<[u16; 6]>> = tokio::sync::OnceCell::const_new();
+
+/// How long learning this network's NAT64 prefix may take, once.
+const NAT64_LOOKUP: std::time::Duration = std::time::Duration::from_secs(2);
+
+/// Learns this network's own NAT64 prefixes once (RFC 7050): the IPv6
+/// addresses this machine's resolver gives `ipv4only.arpa`, which has
+/// only the IPv4 addresses 192.0.0.170 and 192.0.0.171, each that
+/// address under its network's prefix. None, or no answer in time,
+/// learns none: the well-known prefix alone counts.
+pub async fn learn_nat64() {
+    NAT64
+        .get_or_init(|| async {
+            let found =
+                tokio::time::timeout(NAT64_LOOKUP, tokio::net::lookup_host(("ipv4only.arpa", 0)))
+                    .await;
+            match found {
+                Ok(Ok(addrs)) => nat64_prefixes(addrs.map(|a| a.ip())),
+                _ => Vec::new(),
+            }
+        })
+        .await;
+}
+
+/// The `/96` NAT64 prefixes `addrs`, `ipv4only.arpa`'s addresses, show:
+/// each IPv6 address ending in 192.0.0.170 or 192.0.0.171.
+fn nat64_prefixes(addrs: impl Iterator<Item = IpAddr>) -> Vec<[u16; 6]> {
+    let mut prefixes: Vec<[u16; 6]> = Vec::new();
+    for addr in addrs {
+        let IpAddr::V6(v6) = addr else {
+            continue;
+        };
+        let s = v6.segments();
+        let known = [Ipv4Addr::new(192, 0, 0, 170), Ipv4Addr::new(192, 0, 0, 171)];
+        let embedded = Ipv4Addr::from((u32::from(s[6]) << 16) | u32::from(s[7]));
+        let mut prefix = [0u16; 6];
+        prefix.copy_from_slice(&s[..6]);
+        if known.contains(&embedded) && !prefixes.contains(&prefix) {
+            prefixes.push(prefix);
+        }
+    }
+    prefixes
 }
 
 /// Whether `entry`, an address or a range, holds `ip`.
@@ -347,7 +431,19 @@ fn matches(entry: &str, ip: IpAddr) -> bool {
 /// makes it one, for tests; nothing makes a cloud's machine not one.
 pub fn on_cloud() -> bool {
     std::env::var("LNK_TEST_ON_CLOUD").is_ok_and(|v| v == "1")
-        || on_cloud_at(std::path::Path::new("/sys"))
+        || match cfg!(target_os = "macos") {
+            true => mac_on_cloud_at(std::path::Path::new("/")),
+            false => on_cloud_at(std::path::Path::new("/sys")),
+        }
+}
+
+/// [`on_cloud`] on a Mac whose `/` is at `root`: an EC2 Mac, by the files
+/// only a cloud's Mac has ([`lan.toml`]).
+pub fn mac_on_cloud_at(root: &std::path::Path) -> bool {
+    own()
+        .cloud_mac_files
+        .iter()
+        .any(|file| root.join(file.strip_prefix("/").unwrap_or(file)).exists())
 }
 
 /// [`on_cloud`], the machine's `/sys` at `sys`: AWS's firmware names
@@ -406,6 +502,61 @@ mod tests {
 
     fn list(entries: &[&str]) -> Vec<String> {
         entries.iter().map(|e| e.to_string()).collect()
+    }
+
+    /// This machine's virtual machines' and containers' interfaces are
+    /// this machine's, by name from `lan.toml`, and on Linux any
+    /// interface with no device behind it; a real network card's isn't.
+    #[test]
+    fn this_machines_virtual_machines_are_this_machines() {
+        let net = link_test_kit::TempDir::new("net");
+        for vm in ["vboxnet0", "vmnet8", "vnic0", "tap3", "bridge100", "virbr0"] {
+            assert!(is_this_machines_in(vm, &net), "{vm}");
+        }
+        std::fs::create_dir_all(net.join("eth0").join("device")).unwrap();
+        std::fs::create_dir_all(net.join("veth9")).unwrap();
+        std::fs::create_dir_all(net.join("en7").join("device")).unwrap();
+        std::fs::create_dir_all(net.join("en7").join("bridge")).unwrap();
+        assert!(
+            !is_this_machines_in("eth0", &net),
+            "a card's network is yours"
+        );
+        assert!(is_this_machines_in("en7", &net), "a bridge");
+        assert_eq!(
+            is_this_machines_in("veth9", &net),
+            !cfg!(target_os = "macos"),
+            "no device behind it"
+        );
+        assert!(!is_this_machines_in("lo", &net));
+        assert!(!is_this_machines_in("../eth0", &net));
+    }
+
+    /// An EC2 Mac is a cloud's machine, by the files only it has.
+    #[test]
+    fn an_ec2_mac_is_a_clouds() {
+        let root = link_test_kit::TempDir::new("mac");
+        assert!(!mac_on_cloud_at(&root));
+        let daemons = root.join("Library/LaunchDaemons");
+        std::fs::create_dir_all(&daemons).unwrap();
+        std::fs::write(daemons.join("com.amazon.ec2.macos-init.plist"), "").unwrap();
+        assert!(mac_on_cloud_at(&root));
+    }
+
+    /// A network's own NAT64 prefix shows in `ipv4only.arpa`'s IPv6
+    /// addresses, each 192.0.0.170 or .171 under it; nothing else is one.
+    #[test]
+    fn a_networks_own_nat64_prefix_is_learned() {
+        let addrs = [
+            "2001:db8:64::c000:aa",
+            "2001:db8:64::c000:ab",
+            "192.0.0.170",
+            "2001:db8:1::1",
+        ]
+        .map(|a| a.parse::<IpAddr>().unwrap());
+        assert_eq!(
+            nat64_prefixes(addrs.into_iter()),
+            [[0x2001, 0xdb8, 0x64, 0, 0, 0]]
+        );
     }
 
     #[test]
@@ -541,7 +692,7 @@ mod tests {
             let entry = list(&[&addr.to_string()]);
             assert!(!allowed(addr, "x", &entry), "{addr}");
         }
-        assert!(!is_bridge("../../etc"));
+        assert!(!is_this_machines("../../etc"));
     }
 
     #[test]

@@ -283,6 +283,15 @@ async fn install_from(
                 .collect()
         )
     );
+    // An older release reads no file a newer one wrote: its programs
+    // name each such file in the plan, kept as it is, before the yes.
+    if *said < link_version::version() {
+        out.block(Note(sentence!(
+            "{} {} came before this one: each file it can't read stays as it is, named below.",
+            Product::new("lnk"),
+            Version::new(said.to_string())
+        )));
+    }
     if !migrating::agreed(out, Some(installing), &plan, yes)? {
         return Ok(None);
     }
@@ -667,8 +676,8 @@ async fn check_core() -> Result<Done, Report> {
     })
 }
 
-/// `1.2.3` from a downloaded program's `--version` line: `lnk 1.2.3` (lnk
-/// and the modules, whose commands are named `lnk`) or `lnk-<name> 1.2.3`.
+/// `0.0.1` from a downloaded program's `--version` line: `lnk 0.0.1` (lnk
+/// and the modules, whose commands are named `lnk`) or `lnk-<name> 0.0.1`.
 pub(super) fn version_of(binary: &std::path::Path) -> anyhow::Result<link_version::Version> {
     let output = link_secretive::process::command(binary)
         .arg("--version")
@@ -689,7 +698,7 @@ pub(super) fn version_of(binary: &std::path::Path) -> anyhow::Result<link_versio
         })
 }
 
-/// The version in a `lnk 1.2.3` or `lnk-<name> 1.2.3` line.
+/// The version in a `lnk 0.0.1` or `lnk-<name> 0.0.1` line.
 fn parse_version_line(text: &str) -> Option<String> {
     // The first line: lnk's own then says where it runs from.
     let (name, version) = text.trim().lines().next()?.split_once(' ')?;
@@ -801,35 +810,32 @@ case \"$*\" in\nuninstall) echo mute >> '{}' ;;\n*) exit 1 ;;\nesac\n",
     fn a_bridge_refusal_names_the_bridge_release() {
         let protocol = link_version::Protocol::parse(
             "name = \"upgrade\"\ncurrent = 3\noldest = 2\nupgrade = \"lnk upgrade\"\n\
-             bridge = \"0.20.0\"\n",
+             bridge = \"0.0.20\"\n",
         )
         .unwrap();
         let refused = anyhow::Error::new(protocol.read("the downloaded lnk", 1).unwrap_err())
             .context("asking lnk-hooks what it changes");
-        assert_eq!(bridge(&refused).as_deref(), Some("0.20.0"));
+        assert_eq!(bridge(&refused).as_deref(), Some("0.0.20"));
         let older = protocol.accept("the downloaded lnk", 1).unwrap_err();
         assert_eq!(
             bridge(&anyhow::Error::new(older)).as_deref(),
-            Some("0.20.0")
+            Some("0.0.20")
         );
         assert_eq!(bridge(&anyhow::anyhow!("the network went away")), None);
     }
 
     #[test]
     fn version_lines() {
+        assert_eq!(parse_version_line("lnk 0.0.2\n").as_deref(), Some("0.0.2"));
         assert_eq!(
-            parse_version_line("lnk 0.12.0\n").as_deref(),
-            Some("0.12.0")
+            parse_version_line("lnk 0.0.2\n  /usr/local/bin/lnk (installed)\n").as_deref(),
+            Some("0.0.2")
         );
         assert_eq!(
-            parse_version_line("lnk 0.12.0\n  /usr/local/bin/lnk (installed)\n").as_deref(),
-            Some("0.12.0")
+            parse_version_line("lnk-otter 0.0.2").as_deref(),
+            Some("0.0.2")
         );
-        assert_eq!(
-            parse_version_line("lnk-otter 0.12.0").as_deref(),
-            Some("0.12.0")
-        );
-        assert_eq!(parse_version_line("other 0.12.0"), None);
+        assert_eq!(parse_version_line("other 0.0.2"), None);
         assert_eq!(parse_version_line("lnk"), None);
         assert_eq!(parse_version_line(""), None);
     }

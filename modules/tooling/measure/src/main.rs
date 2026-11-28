@@ -15,7 +15,14 @@ fn main() -> std::process::ExitCode {
     // Safe to hold a secret before anything else: no core dump, no other
     // process of this user reading it.
     link_secretive::process::guard();
-    link_core::saved::own(&[link_measure::settings::saved]);
+    link_core::saved::own(&[
+        link_measure::settings::saved,
+        link_measure_contract::client::tokens::saved,
+        link_measure::sample::saved,
+        link_measure::store::saved_days,
+        link_measure::tail::saved,
+        link_measure::view::saved_now,
+    ]);
     link_core::describe_component!();
     link_settings::output::run(try_main)
 }

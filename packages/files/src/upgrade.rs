@@ -19,6 +19,7 @@ use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 use anyhow::{Context, bail, ensure};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use toml_edit::DocumentMut;
 
@@ -42,28 +43,50 @@ pub const PROTOCOL_VARIABLE: &str = "LNK_UPGRADE_PROTOCOL";
 pub struct Saved {
     pub format: &'static Format,
     convert: fn(&Format, Encoding, &str) -> anyhow::Result<String>,
-    check: fn(&str) -> anyhow::Result<()>,
+    check: fn(&Format, &str) -> anyhow::Result<()>,
 }
 
 impl Saved {
     pub fn of<T: Specification>() -> Saved {
+        Saved::shipped::<T>(T::format())
+    }
+
+    /// A `Format::shipped` format, whose value `T` is another crate's
+    /// type, so it can't name its format as a [`Specification`] does.
+    pub fn shipped<T: DeserializeOwned + Serialize>(format: &'static Format) -> Saved {
         Saved {
-            format: T::format(),
+            format,
             convert: convert::<T>,
-            check: |text| crate::saved::parse::<T>(text).map(drop),
+            check: |format, text| format.read_saved::<T>(text).map(drop),
         }
+    }
+
+    /// The map, which core owns.
+    pub fn map() -> Saved {
+        Saved::of::<crate::layout::map::Map>()
     }
 
     /// The upgrade's own journal, which core owns.
     pub fn journal() -> Saved {
         Saved::of::<journal::Journal>()
     }
+
+    /// Home's marker, which core owns (`lnk location create`).
+    pub fn marker() -> Saved {
+        Saved::of::<crate::layout::Marker>()
+    }
+
+    /// When Link last swept its folders, which core owns
+    /// (`lnk location check`).
+    pub fn maintenance() -> Saved {
+        Saved::of::<crate::maintenance::State>()
+    }
 }
 
 /// `text`, a file of `format` written as `encoding`, in the current
 /// schema, read back as `T`. A TOML file keeps its comments, key order
 /// and line endings; JSON is written as its owner writes it.
-fn convert<T: Specification>(
+fn convert<T: DeserializeOwned + Serialize>(
     format: &Format,
     encoding: Encoding,
     text: &str,
@@ -75,18 +98,19 @@ fn convert<T: Specification>(
             if text.contains("\r\n") {
                 converted = converted.replace("\r\n", "\n").replace('\n', "\r\n");
             }
-            crate::saved::parse::<T>(&converted)?;
+            format.read_saved::<T>(&converted)?;
             Ok(converted)
         }
         Encoding::Json => {
-            let value: T = crate::saved::parse_json(text.as_bytes())?;
-            Ok(String::from_utf8(crate::saved::print_json(&value)?)?)
+            let value: T = format.read_json(text.as_bytes())?.spec;
+            Ok(String::from_utf8(format.print_json(&value)?)?)
         }
         Encoding::Lines => {
             let mut converted = String::new();
             for line in text.lines().filter(|line| !line.trim().is_empty()) {
-                let value: T = crate::saved::parse_line(line.as_bytes())?;
-                converted.push_str(std::str::from_utf8(&crate::saved::line(&value)?)?);
+                let value: T = format.read_json(line.as_bytes())?.spec;
+                converted.push_str(std::str::from_utf8(&format.print_json(&value)?)?);
+                converted.push('\n');
             }
             Ok(converted)
         }
@@ -145,6 +169,15 @@ pub enum Change {
         kind: String,
         from: u32,
         to: u32,
+        why: String,
+    },
+    /// A file Link writes that this release can't read or convert (torn,
+    /// not its kind's shape, or written by a newer release): kept as it
+    /// is and named, `why` saying what's wrong, while the other files go
+    /// on, so one file never stops an upgrade.
+    Unread {
+        file: PathBuf,
+        kind: String,
         why: String,
     },
     /// A spec you wrote, behind its kind's schema: offered, never
@@ -470,8 +503,9 @@ fn schema_of(format: &Format, encoding: Encoding, text: &str) -> anyhow::Result<
     };
     let from = match encoding {
         // Its number alone: a step may refuse what a transfer takes first.
+        // An error names the line, never what's there.
         Encoding::Toml => number(
-            toml::from_str::<toml::Table>(text)?
+            crate::fs::from_toml::<toml::Table>(text, Path::new("the file"))?
                 .get("schema")
                 .map(serde_json::to_value)
                 .transpose()?
@@ -541,9 +575,10 @@ fn refused(err: &anyhow::Error) -> Option<&crate::schema::Refused> {
 /// Each file of `owned` behind its current schema, converted in memory:
 /// written, when `apply` and `given`, the agreed plan, names it, else
 /// only named. For the plan, each is tried as `given`'s transfers leave
-/// it, so one that won't convert is refused before the yes. A file a step
-/// refuses is kept and named, and the rest go on. A spec, which a person
-/// writes, is only ever offered.
+/// it, so one that won't convert is named before the yes. A file a step
+/// refuses is kept and named, as is one this release can't read or
+/// convert, and the rest go on. A spec, which a person writes, is only
+/// ever offered.
 fn conversions(
     owned: &Saved,
     roots: &Roots,
@@ -555,11 +590,22 @@ fn conversions(
         return Ok(Vec::new());
     }
     let mut changes = Vec::new();
+    let unread = |file: PathBuf, err: anyhow::Error| Change::Unread {
+        file,
+        kind: format.kind.clone(),
+        why: format!("{err:#}"),
+    };
     for place in &format.files {
         for (file, _) in found(place, roots)? {
             // Read under its writers' lock, and held until it's written.
             let _lock = match apply && !format.named {
-                true => Some(lock(&file, place.encoding)?),
+                true => match lock(&file, place.encoding) {
+                    Ok(held) => Some(held),
+                    Err(err) => {
+                        changes.push(unread(file, err));
+                        continue;
+                    }
+                },
                 false => None,
             };
             let Some(original) = text(&file)? else {
@@ -579,8 +625,13 @@ fn conversions(
                 }
                 continue;
             }
-            let from = schema_of(format, place.encoding, &original)
-                .with_context(|| format!("reading {}", file.display()))?;
+            let from = match schema_of(format, place.encoding, &original) {
+                Ok(from) => from,
+                Err(err) => {
+                    changes.push(unread(file, err));
+                    continue;
+                }
+            };
             if from == format.current {
                 continue;
             }
@@ -602,7 +653,8 @@ fn conversions(
                         continue;
                     }
                     None => {
-                        return Err(err.context(format!("converting {}", file.display())));
+                        changes.push(unread(file, err));
+                        continue;
                     }
                 },
             };
@@ -650,13 +702,18 @@ fn take(
 ) -> anyhow::Result<Option<Taken>> {
     let format = owned.format;
     let mut source: DocumentMut = source.parse()?;
-    let schema = match source.get("schema") {
-        None => transfer.schema,
-        Some(item) => item
-            .as_integer()
-            .and_then(|n| u32::try_from(n).ok())
-            .context("schema must be a positive integer")?,
-    };
+    let schema = source
+        .get("schema")
+        .with_context(|| {
+            format!(
+                "this {} file names no schema, and every file Link saves names the one it was \
+                 written in: it isn't one Link wrote",
+                transfer.from
+            )
+        })?
+        .as_integer()
+        .and_then(|n| u32::try_from(n).ok())
+        .context("schema must be a positive integer")?;
     if schema > transfer.schema {
         return Ok(None);
     }
@@ -668,7 +725,10 @@ fn take(
         format.kind,
         transfer.schema
     );
-    let (mut destination, _) = format.document(into.unwrap_or_default())?;
+    let mut destination = match into {
+        Some(text) => format.document(text)?.0,
+        None => format.empty(),
+    };
     let mut paths = Vec::new();
     let mut taken = crate::schema::Body::new();
     for (old, new) in &transfer.take {
@@ -704,7 +764,7 @@ fn take(
         add(destination.as_table_mut(), &made, &format.kind, "")?;
     }
     let destination = destination.to_string();
-    (owned.check)(&destination).with_context(|| {
+    (owned.check)(format, &destination).with_context(|| {
         format!(
             "{} with the records of {} isn't one this release reads",
             format.kind, transfer.from

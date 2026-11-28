@@ -18,7 +18,7 @@ it runs there already, and answers with each error and its line.
 
 You need the agents modules, which [`lnk up`](../../../../../../../../docs/more/modules/install.md#pick-your-modules) installs and which
 bring Link Code, and Link Harness. A new agent has `code` off:
-[`lnk agent tool add code`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) turns it on, and it gets `code` at its start
+[`lnk agent tool add code`](../../../../../../agent/docs/agents/README.md#tools) turns it on, and it gets `code` at its start
 when a language server it may run is on your computer. The language servers run locally without a search or analysis API fee. Your agent’s model calls retain their usual cost.
 
 ### Marked as your files'
@@ -86,7 +86,7 @@ like `java` reads the project's sources but fetches no dependencies.
 ### Found on the `PATH`
 
 A server is found as `run`'s programs are, on the `PATH` of whoever last
-ran [`lnk agent start`](../../../../../../agent/docs/agents/README.md#create-an-agent), then the system's, and only if your agent's
+ran [`lnk agent start`](../../../../../../agent/docs/agents/README.md#start-your-agent), then the system's, and only if your agent's
 sandbox file's `[commands]` allows it. Link's file allows any program
 on the `PATH` (`allow = ["*"]`) beside its toolchains, so all seven and
 the builds they run; drop `allow` to keep only the toolchains' programs.

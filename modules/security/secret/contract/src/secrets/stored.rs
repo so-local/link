@@ -3,6 +3,11 @@
 
 use super::*;
 
+/// The largest store [`Store::save`] writes: well past any person's
+/// secrets, and short of what one caller could fill the keeper's disk
+/// with, a request at a time.
+pub(super) const STORE_MAX: usize = 8 << 20;
+
 /// Which kind of secret one is, said by a tag, never told from which of
 /// its other values it has.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -199,10 +204,16 @@ impl Store {
     pub(super) fn save(&self, secrets: &Secrets) -> anyhow::Result<()> {
         // A value is written by the serializer, so it can't add a line.
         let text = Secret::new(link_files::saved::print(secrets).context("writing the secrets")?);
+        let bytes = text.expose().as_bytes();
+        ensure!(
+            bytes.len() <= STORE_MAX,
+            "the secrets kept would be over {} MB: delete some with lnk secret delete first",
+            STORE_MAX >> 20
+        );
         (if keeper::running_as_keeper() {
-            at_rest::write(&self.file, text.expose().as_bytes())
+            at_rest::write(&self.file, bytes)
         } else {
-            link_files::write_private(&self.file, text.expose().as_bytes()).map_err(Into::into)
+            link_files::write_private(&self.file, bytes).map_err(Into::into)
         })
         .with_context(|| format!("writing {}", self.file.display()))
     }
@@ -571,7 +582,7 @@ mod tests {
     #[test]
     fn a_wrongly_typed_value_is_never_echoed_and_a_bad_way_is_refused() {
         let err = parse(&format!(
-            "[entry.{ID}]\nkind = \"named\"\nname = \"X\"\nto = \"npm_hunter2\"\n"
+            "schema = 1\n[entry.{ID}]\nkind = \"named\"\nname = \"X\"\nto = \"npm_hunter2\"\n"
         ))
         .err()
         .unwrap();
@@ -580,13 +591,13 @@ mod tests {
         assert!(shown.starts_with("line 4: not as"), "{shown}");
         // A sealed one's way, edited by hand to any host, is refused as read.
         let err = parse(&format!(
-            "[entry.{ID}]\nkind = \"named\"\nname = \"X\"\nto = []\nsealed = {{ host = \"*.example.com\" }}\n"
+            "schema = 1\n[entry.{ID}]\nkind = \"named\"\nname = \"X\"\nto = []\nsealed = {{ host = \"*.example.com\" }}\n"
         ))
         .err()
         .unwrap();
         assert!(format!("{err:#}").contains("how X is given"), "{err:#}");
         let read = parse(&format!(
-            "[entry.{ID}]\nkind = \"named\"\nname = \"X\"\nto = []\nsealed = {{ host = \"API.Stripe.com\" }}\n"
+            "schema = 1\n[entry.{ID}]\nkind = \"named\"\nname = \"X\"\nto = []\nsealed = {{ host = \"API.Stripe.com\" }}\n"
         ))
         .unwrap();
         assert_eq!(
@@ -600,7 +611,7 @@ mod tests {
     /// showing a value.
     #[test]
     fn a_store_of_the_shape_before_ids_is_refused() {
-        let err = parse("[NPM_TOKEN]\nvalue = \"npm_hunter2\"\nto = []\n")
+        let err = parse("schema = 1\n[NPM_TOKEN]\nvalue = \"npm_hunter2\"\nto = []\n")
             .err()
             .unwrap();
         let shown = format!("{err:#}");
@@ -625,7 +636,7 @@ mod tests {
                 ..Kept::default()
             },
         );
-        let text = toml::to_string(&secrets).unwrap();
+        let text = link_files::saved::print(&secrets).unwrap();
         assert!(text.contains(&format!("[entry.{ID}]")), "{text}");
         assert!(
             text.contains(&format!("principal = \"service:{service}\"")),
@@ -646,7 +657,7 @@ mod tests {
             text.contains(&format!("resource = \"secret:{ID}\"")),
             "{text}"
         );
-        let refused = |entry: &str| parse(&format!("[entry.{ID}]\n{entry}\n")).is_err();
+        let refused = |entry: &str| parse(&format!("schema = 1\n[entry.{ID}]\n{entry}\n")).is_err();
         let grant = |principal: &str, action: &str, resource: &str, workload: &str| {
             format!(
                 "kind = \"named\"\nname = \"X\"\nto = [{{ principal = \"{principal}\", action = \
@@ -735,7 +746,7 @@ mod tests {
                 ..Kept::default()
             },
         );
-        let read = parse(&toml::to_string(&secrets).unwrap()).unwrap();
+        let read = parse(&link_files::saved::print(&secrets).unwrap()).unwrap();
         let yours = read.for_you(&[ID.to_string(), own, gone]).unwrap();
         assert_eq!(yours.len(), 1);
         assert_eq!(yours[0].name, "NPM_TOKEN");

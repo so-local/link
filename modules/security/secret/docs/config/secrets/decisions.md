@@ -29,7 +29,7 @@ So a secret's value is in its store and nowhere else on the disk. The
 bridge that owns the store reads the value at each call, after checking
 the grant names the route's caller, so a removed secret or grant stops
 the next call. Already dispatched requests can finish. A run handed
-secrets by its caller, with [`lnk sandbox run --with-fd`](../../../../sandbox/docs/security/sandbox/guide.md#sandbox-guide), is granted nothing
+secrets by its caller, with [`lnk sandbox run --with-fd`](../../../../sandbox/docs/tooling/sandbox/guide.md#sandbox-guide), is granted nothing
 by the store, so its values go to its proxy on a pipe, never in a file.
 
 ## Why is a secret given only where it's granted?

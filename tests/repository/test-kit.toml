@@ -5,7 +5,7 @@
 # it may only go down.
 
 [promises]
-left = 254
+left = 253
 
 [runtime-folders]
 files = [
@@ -113,7 +113,6 @@ files = [
 [tmp-paths]
 files = [
     "interop/cloud/aws/src/install.rs",
-    "interop/cloud/gcp/src/install.rs",
     "packages/service/src/service.rs",
     "modules/agents/agent/src/adapter/launches.rs",
     "modules/agents/agent/src/migrating/tests.rs",
@@ -187,7 +186,7 @@ files = [
     "modules/security/sandbox/proxy/src/tests/relaying.rs",
     "modules/security/sandbox/proxy/src/wire/mod.rs",
     "modules/security/sandbox/proxy/src/wire/tests.rs",
-    "modules/security/sandbox/src/bridges/tools/route.rs",
+    "modules/security/sandbox/src/bridges/tools/route/tests.rs",
     "modules/security/sandbox/tests/blank.rs",
     "modules/security/sandbox/tests/dotfiles.rs",
     "modules/security/sandbox/tests/enter.rs",

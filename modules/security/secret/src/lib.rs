@@ -8,7 +8,7 @@ pub mod bridge;
 mod checks;
 pub mod cli;
 pub mod keeper;
-pub mod preferences;
+pub mod settings;
 pub mod socket;
 mod tokens;
 

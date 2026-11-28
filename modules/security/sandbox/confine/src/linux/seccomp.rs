@@ -334,6 +334,17 @@ pub fn program(exec: Exec) -> Vec<Insn> {
             deny(libc::EACCES),
             insn(LD_ABS_W, 0, 0, NR),
         ]);
+        // A filter of its own that hands its children's calls to a
+        // listener (`SECCOMP_FILTER_FLAG_NEW_LISTENER`, its second
+        // argument): the listener answers for the kernel, so a program
+        // under it could be told an exec the list refused went through.
+        p.extend([
+            insn(JEQ, 0, 3, libc::SYS_seccomp as u32),
+            insn(LD_ABS_W, 0, 0, arg(1)),
+            insn(JSET, 0, 1, libc::SECCOMP_FILTER_FLAG_NEW_LISTENER as u32),
+            deny(libc::EPERM),
+            insn(LD_ABS_W, 0, 0, NR),
+        ]);
     }
     p.push(insn(RET, 0, 0, ALLOW));
     p
@@ -748,6 +759,28 @@ mod tests {
                 libc::SYS_execve,
                 [0; 6]
             ),
+            ALLOW
+        );
+    }
+
+    /// Under `[commands]`, a filter with a listener of its own is
+    /// refused: its listener could answer an exec the list refused. A
+    /// plain filter, and any filter without a list, still goes.
+    #[test]
+    fn a_filter_with_a_listener_is_refused_under_commands() {
+        let listener = libc::SECCOMP_FILTER_FLAG_NEW_LISTENER;
+        let with = [libc::SECCOMP_SET_MODE_FILTER as u64, listener, 0, 0, 0, 0];
+        let plain = [libc::SECCOMP_SET_MODE_FILTER as u64, 0, 0, 0, 0, 0];
+        let only = program(Exec::Only {
+            memory: MemoryFiles::Sealed,
+        });
+        assert_eq!(
+            run(&only, ARCH, libc::SYS_seccomp, with),
+            ERRNO | libc::EPERM as u32
+        );
+        assert_eq!(run(&only, ARCH, libc::SYS_seccomp, plain), ALLOW);
+        assert_eq!(
+            run(&program(Exec::Any), ARCH, libc::SYS_seccomp, with),
             ALLOW
         );
     }

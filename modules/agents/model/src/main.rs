@@ -14,6 +14,7 @@ fn main() -> std::process::ExitCode {
     // Safe to hold a secret before anything else: no core dump, no other
     // process of this user reading it.
     link_secretive::process::guard();
+    link_core::saved::own(&[link_model::added::saved, link_model_contract::facts_saved]);
     link_core::describe_component!();
     link_settings::output::run(|out| {
         // Its runtime after it, so the guard took its secrets on one thread.
@@ -121,6 +122,18 @@ async fn try_main(out: &mut Out) -> Result<Done, Report> {
             return add(out, &args.url, &args.name).await;
         }
         Command::RuntimeRemove(args) => return remove(&args.name).await,
+        Command::Uninstall(given) => {
+            let kept = install::kept(&link_files::home_dir());
+            // Ollama's models go through its API before the files go.
+            let delete = |picked: &[String]| {
+                tokio::task::block_in_place(|| {
+                    tokio::runtime::Handle::current().block_on(install::delete_parts(picked))
+                })
+            };
+            link_core::uninstall::run(&given, &kept, || Ok(()), delete)
+                .within("removing what the models module installed")?;
+            return Ok(Done::shown());
+        }
         Command::ModelServe(args) => return serve(out, args).await,
         Command::ModelInstall(args) => {
             return install_model(out, args.model, args.yes).await;

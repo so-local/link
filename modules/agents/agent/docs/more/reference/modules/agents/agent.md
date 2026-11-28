@@ -29,7 +29,7 @@ lnk agent create <name> [place] [--cloud <cloud>] [--foreground] [--from <from>]
 
 - `--cloud`, string: A cloud account
 - `--foreground`, boolean: Run it in this terminal instead of in the background
-- `--from`, string: A ready-made agent to start from, by its name, with its instructions, skills and settings: a cloud that hosts agents makes it from one it lists (`agent.ready-made.list`)
+- `--from`, string: An agent to start from, by the name of its archive, with its instructions, skills and settings: a cloud that hosts agents makes it from one it lists
 - `--here`, boolean: This machine
 - `--let-sleep`, boolean: Let the machine sleep while it runs, this start alone: the next start keeps it awake again unless its specification's `[run] let_sleep` says otherwise
 - `name`, position 1, string, required: Its name: lowercase letters, digits and dashes, starting with a letter; not here or all, which are Link's words
@@ -147,10 +147,11 @@ It answers `agent.life-agent-entry`.
 Start your agent (Link Harness by default), in the background
 
 ```usage
-lnk agent start [--agent <agent>] [--foreground] [--let-sleep] [--no-sandbox] [--sandbox <sandbox>] [--spec <spec>] [--yes] [field flags]
+lnk agent start [--agent <agent>] [--all] [--foreground] [--let-sleep] [--no-sandbox] [--sandbox <sandbox>] [--spec <spec>] [--yes] [field flags]
 ```
 
 - `--agent`, `-a`, agent ID: The agent, by its ID, agent:<id>; on the command line its name too, which is looked up in your agents and sent as its ID [default: the only one here]
+- `--all`, boolean: Start every agent here, each as its own start would, in the background
 - `--foreground`, boolean: Run it in this terminal instead of in the background
 - `--let-sleep`, boolean: Let the machine sleep while it runs, this start alone: the next start keeps it awake again unless its specification's `[run] let_sleep` says otherwise
 - `--no-sandbox`, boolean: Run with no sandbox, from now on, until a start with --sandbox: the harness can then read your whole home folder (documents, SSH keys, browser data) and write outside its own. The only way to run without one, never implied by --yes. Available on a computer or box; refused where trusted machine policy forbids it (`unsandboxed = false` in agents.toml) or policy cannot be trusted

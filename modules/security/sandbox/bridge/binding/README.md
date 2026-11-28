@@ -6,7 +6,7 @@ The package `link-sandbox-binding` keeps the agents bound on this machine, and t
 
 ## Docs
 
-- [Agent Binding](docs/security/sandbox/more/bridges/binding.md): `link-sandbox-binding`: the agents bound on this machine and their keys, kept outside every sandbox, which every bridge checks a call's proof against
+- [Agent Binding](docs/tooling/sandbox/more/bridges/binding.md): `link-sandbox-binding`: the agents bound on this machine and their keys, kept outside every sandbox, which every bridge checks a call's proof against
 
 <!-- docs-tree:end -->
 

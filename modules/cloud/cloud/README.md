@@ -11,8 +11,8 @@ machines in them.
 
 ### Pages
 
-- [Cloud Accounts](docs/services/cloud/README.md): Connect your AWS or Google Cloud account once, and your boxes and buckets there use it
-  - [Cloud Accounts Guide](docs/services/cloud/guide.md): Connect named cloud accounts, inspect their identities, and disconnect them without deleting their resources
+- [Platforms](docs/services/cloud/README.md): Connect your AWS or Google Cloud account once, and your boxes and buckets there use it
+  - [Platforms Guide](docs/services/cloud/guide.md): Connect named cloud accounts, inspect their identities, and disconnect them without deleting their resources
 
 ### References
 

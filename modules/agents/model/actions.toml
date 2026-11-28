@@ -317,7 +317,7 @@ names = ["/usage", "/cost"]
 
 [actions."model.model.get"]
 description = "Show this conversation's model and effort without changing them"
-docs = "/agents/link/commands#model-commands"
+docs = "/agents/harnesses/link/commands#model-commands"
 role = "secondary"
 output = "core.report"
 surfaces = []
@@ -329,7 +329,7 @@ command = true
 
 [actions."model.model.help"]
 description = "List the model commands available in this chat"
-docs = "/agents/link/commands#model-commands"
+docs = "/agents/harnesses/link/commands#model-commands"
 role = "secondary"
 output = "core.report"
 surfaces = []
@@ -352,7 +352,7 @@ specification's `[model] thinking` takes, asked where the model can. Given no
 model, it names the conversation's and the others, and its effort. On the CLI, an
 agent's model is its specification's: `lnk agent model set <model>`.
 """
-docs = "/agents/link/commands/models#switch-this-conversation"
+docs = "/agents/harnesses/link/commands/models#switch-this-conversation"
 role = "secondary"
 output = "core.report"
 surfaces = []

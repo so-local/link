@@ -28,4 +28,4 @@ Hermes again, with `sudo apt-get install -y libatomic1`.
 ## Something else on your Mac uses port 8642
 
 Or [the ports after it](security.md#its-ports). Stop it, because
-`main`'s port is fixed. Another agent's is in its own block, which [`lnk agent list --json`](../../../../../../../../modules/agents/agent/docs/agents/start/create.md#run-more-than-one-agent) shows.
+`main`'s port is fixed. Another agent's is in its own block, which [`lnk agent list --json`](../../../../../../../../modules/agents/agent/docs/agents/start/show.md#list-your-agents) shows.

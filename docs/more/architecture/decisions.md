@@ -89,7 +89,7 @@ The bridge protocol and the binding's credentials define how a caller
 crosses the sandbox boundary. They belong to that owner in
 `modules/security/sandbox/bridge/`, with the binding beneath it.
 Other subjects depend on those contracts instead of keeping their own
-proof or ownership rules. Their [bridge reference](../../../modules/security/sandbox/bridge/docs/security/sandbox/more/bridges.md)
+proof or ownership rules. Their [bridge reference](../../../modules/security/sandbox/bridge/docs/tooling/sandbox/more/bridges.md)
 explains the shared boundary.
 
 ## Layers

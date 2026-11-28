@@ -2,7 +2,7 @@
 
 An environment file determines setup, services and the values they receive.
 This page describes its trust boundaries, and
-[Sandbox](../../../../../security/sandbox/docs/security/sandbox/security.md)
+[Sandbox](../../../../../security/sandbox/docs/tooling/sandbox/security.md)
 and [Boxes](../../../../box/docs/services/boxes/security.md) describe
 the corresponding execution boundaries.
 
@@ -25,7 +25,7 @@ system-owned links outside home that only root can create, such as
 ### Sandbox specifications
 
 Named sandbox specifications have the same checks as
-[`lnk sandbox run --spec`](../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide): they cannot write Link's settings, the home
+[`lnk sandbox run --spec`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide): they cannot write Link's settings, the home
 folder itself or a dot folder in it. Copied specifications live in
 Link's settings on the box, inaccessible to sandboxes, so one stage
 cannot change a later stage's sandbox.

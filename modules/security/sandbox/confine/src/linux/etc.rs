@@ -45,7 +45,7 @@ fn etc_entry(path: &Path, at: &str, depth: usize, args: &mut Vec<String>) {
     let hidden = path
         .file_name()
         .and_then(|n| n.to_str())
-        .is_some_and(|n| crate::system::ETC_HIDDEN.contains(&n));
+        .is_some_and(crate::system::etc_hidden);
     if hidden || !link_sandbox_client::plain_path(path) {
         return;
     }
@@ -94,8 +94,7 @@ fn holds_hidden(dir: &Path, depth: usize) -> bool {
         .flatten()
         .any(|e| {
             let name = e.file_name();
-            name.to_str()
-                .is_some_and(|n| crate::system::ETC_HIDDEN.contains(&n))
+            name.to_str().is_some_and(crate::system::etc_hidden)
                 || (e.file_type().is_ok_and(|t| t.is_dir()) && holds_hidden(&e.path(), depth + 1))
         })
 }

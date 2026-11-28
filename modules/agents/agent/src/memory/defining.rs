@@ -441,6 +441,11 @@ struct Definition {
 
 link_files::specification!(Definition, include_str!("defining/record.schema.toml"));
 
+/// Each memory tool's record, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Definition>()
+}
+
 /// What `define` defines the memory tool from: the engine's
 /// program (which a new release changes), the other modules' programs it
 /// runs (one installed since changes them), its folders and notes, the

@@ -232,12 +232,17 @@ impl Gcp {
         let duration = format!("--duration={}s", expires.get().as_secs());
         // The credential override authenticates gcloud, but sign-url needs
         // the service-account file explicitly to select its local signer.
-        // Only the connected account may choose it, never the shell.
-        let signing_file = self
-            .cli
-            .env
-            .get("CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE")
-            .map(|path| path.expose_map(|path| format!("--private-key-file={path}")));
+        // Only the connected account may choose it, never the shell. This
+        // machine's service account has no file: IAM signs for it.
+        let signing_file = match crate::connect::credential(|name| self.cli.env.contains_key(name))
+        {
+            Some(crate::connect::Credential::File) => self
+                .cli
+                .env
+                .get(crate::connect::OVERRIDE)
+                .map(|path| path.expose_map(|path| format!("--private-key-file={path}"))),
+            Some(crate::connect::Credential::Machine) | None => None,
+        };
         let mut args = vec![
             "storage",
             "sign-url",

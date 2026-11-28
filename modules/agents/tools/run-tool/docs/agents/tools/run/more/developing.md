@@ -19,7 +19,7 @@ gives it everything at a start.
 The programs of the sandbox file's `[commands]` this machine has
 (`--program`), the shell among them or no `command` is offered
 (`[tools] conditions`' `shell`, and `background` only beside it), the
-specification's `[tool.run]`, and the sandbox, [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) with the flags
+specification's `[tool.run]`, and the sandbox, [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) with the flags
 the sandbox file makes, `--commands.developer_tools` among them on a Mac
 when `[commands.macos] developer_tools` grants Xcode's tools. No number or grant is the program's own, and
 with no sandbox after `--` it refuses to start.
@@ -205,7 +205,7 @@ told past their keep measured from the end are removed with their output.
 
 ### `stop --state <dir>` and `remove --state <dir>`
 
-`stop`, by [`lnk agent stop`](../../../../../../../agent/docs/agents/harnesses/use/README.md#one-running-in-a-terminal), and `delete`, by [`lnk agent delete`](../../../../../../../agent/docs/agents/start/delete.md#delete-your-agent) or a move,
+`stop`, by [`lnk agent stop`](../../../../../../../agent/docs/agents/harnesses/use/README.md#one-running-in-a-terminal), and `delete`, by [`lnk agent delete`](../../../../../../../agent/docs/agents/start/create.md#delete-an-agent) or a move,
 stop what runs, and `delete` then deletes everything.
 
 ### `tests/run/background.rs`

@@ -80,24 +80,26 @@ fn from<'a>(sections: &'a [(String, String)], name: &str) -> &'a str {
     &sections.iter().find(|(n, _)| n == name).unwrap().1
 }
 
+/// Link's spec alone gives every section but the repository's
+/// instructions, which `[instructions] repository = "link"` adds.
 #[test]
 fn links_spec_alone_gives_every_section() {
+    let (repository, _) = sections("link-repository", "[instructions]\nrepository = \"link\"\n");
+    assert_eq!(from(&repository, "repository"), "repository");
     let (sections, features) = sections("link", "");
-    assert_eq!(from(&sections, "repository"), "repository");
+    assert_eq!(from(&sections, "repository"), "none");
     assert_eq!(from(&sections, "persona"), "instructions/persona.md");
     assert_eq!(from(&sections, "owner"), "instructions/owner.md");
     assert!(features.contains(&Feature::Commands));
-    // File is on, so asked to, it changes its files, instructions and
-    // skills; the other tools are off until added.
-    for on in [
+    // Every tool, the repository's instructions and voice notes are off
+    // until added.
+    for off in [
+        Feature::RepoInstructions,
+        Feature::Voice,
         Feature::FileRead,
         Feature::FileEdit,
         Feature::CodeSearch,
         Feature::Diffs,
-    ] {
-        assert!(features.contains(&on), "{on:?}");
-    }
-    for off in [
         Feature::Subagents,
         Feature::Schedules,
         Feature::Proactive,
@@ -220,7 +222,7 @@ fn turned_off(feature: Feature) -> String {
 fn every_feature_turns_off_and_back_on() {
     let (sections, config) = composed(
         "every-on",
-        "[tool.scheduler]\nenabled = true\n[tool.run]\nenabled = true\n[tool.file]\nenabled = true\n[tool.code]\nenabled = true\n",
+        "[instructions]\nrepository = \"link\"\n[connections]\nvoice = true\n[tool.scheduler]\nenabled = true\n[tool.run]\nenabled = true\n[tool.file]\nenabled = true\n[tool.code]\nenabled = true\n",
     );
     for feature in Feature::ALL {
         assert!(

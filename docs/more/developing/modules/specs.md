@@ -125,21 +125,21 @@ A module that renames or removes a command, a runtime flag, a variable or a spec
 
 ### History File
 
-Each module keeps `history.toml` beside its `actions.toml`, in the one schema `link-spec` owns, and exports it in its description with the steps of every specification kind it binds. Core's own history also records renamed modules, which no longer exist to answer for themselves. Link 0.1 is the baseline every history starts from: a module records only what a release after 0.1 retired, and has no `history.toml` until it retires something. This example records a command and a variable a later release could retire.
+Each module keeps `history.toml` beside its `actions.toml`, in the one schema `link-spec` owns, and exports it in its description with the steps of every specification kind it binds. Core's own history also records renamed modules, which no longer exist to answer for themselves. Link 0.0.1 is the baseline every history starts from: a module records only what a release after 0.0.1 retired, and has no `history.toml` until it retires something. This example records a command and a variable a later release could retire.
 
 ```toml
 # history.toml
 [[gone]]
 was = "agent show --settings"
 now = "lnk agent spec show"
-since = "0.3.0"
-until = "0.6.0"
+since = "0.0.3"
+until = "0.0.6"
 
 [[gone]]
 was = "LNK_AGENT_STYLE"
 why = "Set style in the agent spec."
-since = "0.4.0"
-until = "0.7.0"
+since = "0.0.4"
+until = "0.0.7"
 ```
 
 ### Runtime Changes
@@ -152,7 +152,7 @@ A specification kind's steps live in its `schema.toml` beside its type, each fro
 
 ### Old Files
 
-Every read applies the steps in memory and names the conversion, as in "Read agent schema 1 as schema 2. [`lnk spec convert agent.toml`](../../../../modules/tooling/spec/docs/tooling/spec/README.md#convert-a-file) rewrites it." Files keep working across an upgrade while command lines are refused, because a file is kept and a command line is typed again.
+Every read applies the steps in memory and names the conversion, as in "Read agent schema 1 as schema 2. [`lnk spec convert agent.toml`](../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#convert-a-file) rewrites it." Files keep working across an upgrade while command lines are refused, because a file is kept and a command line is typed again.
 
 ### Conversion
 
@@ -178,7 +178,7 @@ lnk spec convert agent.toml
 
 #### Commands
 
-[`lnk spec list`](../../../../modules/tooling/spec/docs/tooling/spec/README.md#list-the-kinds) names every specification kind, the module that owns it and its current schema. [`lnk spec show KIND`](../../../../modules/tooling/spec/docs/tooling/spec/README.md#show-a-kind) prints a kind's fields with their flags, the actions that consume it and its history, and `--json` prints its JSON Schema for editors and other programs.
+[`lnk spec list`](../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#list-the-kinds) names every specification kind, the module that owns it and its current schema. [`lnk spec show KIND`](../../../../modules/tooling/spec/docs/config/specs/guides/kinds/README.md#show-a-kind) prints a kind's fields with their flags, the actions that consume it and its history, and `--json` prints its JSON Schema for editors and other programs.
 
 ## Supply a Specification
 
@@ -258,7 +258,7 @@ Every command reads `lnk <group> <verb> [<object>] [--flags]`, so a word in one 
 
 #### The positional
 
-A positional is what the verb acts on, and only that. Anything else is a flag: [`lnk agent move here --agent work`](../../../../modules/agents/agent/docs/agents/move/README.md#move-your-agent-to-the-cloud), never `lnk agent move work here`. The agent is `--agent` on every [`lnk agent`](../../../../modules/agents/agent/docs/agents/README.md#agents) command but those that make or end it, where it's the object: [`lnk agent create work`](../../../../modules/agents/agent/docs/agents/start/create.md#create-on-a-hosting-account) and [`lnk agent delete work`](../../../../modules/agents/agent/docs/agents/start/delete.md#delete-your-agent).
+A positional is what the verb acts on, and only that. Anything else is a flag: [`lnk agent move here --agent work`](../../../../modules/agents/agent/docs/agents/move/README.md#move-your-agent-to-the-cloud), never `lnk agent move work here`. The agent is `--agent` on every [`lnk agent`](../../../../modules/agents/agent/docs/agents/README.md#agents) command but those that make or end it, where it's the object: [`lnk agent create work`](../../../../modules/agents/agent/docs/agents/start/create.md#create-on-a-hosting-account) and [`lnk agent delete work`](../../../../modules/agents/agent/docs/agents/start/create.md#delete-an-agent).
 
 #### One slot, one kind
 
@@ -391,7 +391,7 @@ A specification still names what belongs to whoever runs it, such as a sandbox's
 
 #### A specification shown, not run
 
-A command shows what a specification would do and does nothing, as [`lnk box size list`](../../../../modules/compute/box/docs/services/boxes/size/README.md#list-matching-machines) and [`lnk sandbox check`](../../../../modules/security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) do. [Decisions](../../../config/specs/decisions.md#does-each-specification-keep-its-own-rules) says why specifications work this way.
+A command shows what a specification would do and does nothing, as [`lnk box size list`](../../../../modules/compute/box/docs/services/boxes/size/README.md#list-matching-machines) and [`lnk sandbox check`](../../../../modules/security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) do. [Decisions](../../../config/specs/decisions.md#does-each-specification-keep-its-own-rules) says why specifications work this way.
 
 ### Control and Publication
 
@@ -458,7 +458,7 @@ runs = ["curl"]
 refused_commands = ["sh", "ls"]
 ```
 
-One runner per group reads every case, in the tests of the crate that owns the specification, and every specification that reads is printed and read back as itself. The sandbox's runner (`modules/security/sandbox/tests/specs.rs`) runs [`lnk sandbox check --spec`](../../../../modules/security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) on it, and the box module's (`modules/compute/box/tests/box/specs.rs`) runs its matching against a fake cloud's sizes, with `[expect] size = ...` or `error = ...`. A specification that must be refused is a case too, and its `[expect] invalid` holds the words of the error it gets.
+One runner per group reads every case, in the tests of the crate that owns the specification, and every specification that reads is printed and read back as itself. The sandbox's runner (`modules/security/sandbox/tests/specs.rs`) runs [`lnk sandbox check --spec`](../../../../modules/security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) on it, and the box module's (`modules/compute/box/tests/box/specs.rs`) runs its matching against a fake cloud's sizes, with `[expect] size = ...` or `error = ...`. A specification that must be refused is a case too, and its `[expect] invalid` holds the words of the error it gets.
 
 ### Policy cases
 

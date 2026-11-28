@@ -4,7 +4,9 @@
 use std::io::Write;
 use std::process::Stdio;
 
-use link_format::{Exit, Out, Question, Report, Sentence, WithinExt, cmd, prose, sentence};
+use link_format::{
+    Exit, Foreign, Out, Question, Report, Sentence, WithinExt, cmd, prose, sentence,
+};
 
 /// A cloud of the storage module's to back up to, for `doing`: when you
 /// have none (`lnk storage list`), one made in a terminal, as you say
@@ -88,6 +90,61 @@ pub(crate) fn bucket_run(args: &[&str]) -> Option<serde_json::Value> {
         .filter(|v| !v.is_null())
 }
 
+/// After a move to a box that didn't finish, or was taken back: the key
+/// made for that box (`lnk storage keys`, which replaces the one before)
+/// revoked, and, where agent `id` stays on a box (`stays_on`), a new one
+/// made and put in place there, so its backups go on. Here, it backs up
+/// with your accounts, and needs none. Said when it can't be.
+pub(crate) fn key_back(out: &mut Out, id: &str, stays_on: Option<&str>) {
+    let Ok(owner) = link_agent::owners::agent_flag(id) else {
+        return;
+    };
+    if link_core::find_module("storage").is_none()
+        || bucket_run(&["export", &owner[0], &owner[1]]).is_none()
+    {
+        return;
+    }
+    let Some(box_name) = stays_on else {
+        let revoked = link_core::lnk()
+            .args(["storage", "revoke"])
+            .args(&owner)
+            .stdin(Stdio::null())
+            .status()
+            .is_ok_and(|s| s.success());
+        if !revoked {
+            out.block(Report::warning(sentence!(
+                "The key made for the move to reach your agent's buckets may still work: {} \
+                 revokes it.",
+                Foreign::new(&format!("lnk storage revoke {}", owner.join(" ")))
+            )));
+        }
+        return;
+    };
+    let given = super::machines::bucket_credentials(id).is_some_and(|credentials| {
+        let mut adopting = serde_json::json!({}).into();
+        with_credentials(&mut adopting, &credentials);
+        let mut command = link_core::lnk();
+        command
+            .args(["box", "run", box_name, "--", "storage", "adopt"])
+            .args(&owner)
+            .stdout(Stdio::null());
+        adopt(command, &adopting)
+    });
+    if !given {
+        out.block(
+            Report::warning(sentence!(
+                "Your agent's backups on {} are off: the key the move made replaced its own, and \
+                 no new one could be put in place there.",
+                Foreign::new(box_name)
+            ))
+            .next(
+                cmd!("lnk agent move --on {} --agent <agent>", box_name),
+                "move it there again",
+            ),
+        );
+    }
+}
+
 /// Agent `id`'s buckets put in place here (`lnk storage adopt`), from
 /// what the stream and the header carry; said when they can't be.
 pub(crate) fn adopt_buckets(
@@ -116,25 +173,42 @@ pub(crate) fn adopt_buckets(
         object.remove("credentials");
     }
     if let Some(credentials) = credentials {
-        adopting.expose_mut()["credentials"] = credentials.duplicate().into_exposed().0;
+        with_credentials(&mut adopting, credentials);
     }
     let owner = match link_agent::owners::agent_flag(id) {
         Ok(owner) => owner,
         Err(err) => return off(out, &format!("{err:#}")),
     };
-    let child = link_core::lnk()
-        .args(["storage", "adopt"])
-        .args(owner)
-        .stdin(Stdio::piped())
-        .spawn();
-    let adopted = child.and_then(|mut child| {
-        if let Some(mut input) = child.stdin.take() {
-            let text = link_secretive::Secret::new(serde_json::to_vec(adopting.expose())?);
-            input.write_all(text.expose())?;
-        }
-        child.wait()
-    });
-    if !adopted.is_ok_and(|s| s.success()) {
+    let mut command = link_core::lnk();
+    command.args(["storage", "adopt"]).args(owner);
+    if !adopt(command, &adopting) {
         off(out, "lnk storage adopt failed (above)");
     }
+}
+
+/// `credentials`, as `lnk storage keys` made them, put in `adopting`.
+fn with_credentials(
+    adopting: &mut link_secretive::Secret<link_secretive::Json>,
+    credentials: &link_secretive::Secret<link_secretive::Json>,
+) {
+    adopting.expose_mut()["credentials"] = credentials.duplicate().into_exposed().0;
+}
+
+/// Whether `command`, a `lnk storage adopt`, took `adopting` on its
+/// standard input and succeeded.
+fn adopt(
+    mut command: std::process::Command,
+    adopting: &link_secretive::Secret<link_secretive::Json>,
+) -> bool {
+    command
+        .stdin(Stdio::piped())
+        .spawn()
+        .and_then(|mut child| {
+            if let Some(mut input) = child.stdin.take() {
+                let text = link_secretive::Secret::new(serde_json::to_vec(adopting.expose())?);
+                input.write_all(text.expose())?;
+            }
+            child.wait()
+        })
+        .is_ok_and(|s| s.success())
 }

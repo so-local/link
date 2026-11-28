@@ -10,8 +10,7 @@ Link's programs.
 
 ### Pages
 
-- [Tooling](docs/tooling/README.md): Tooling gives you tools that run around your agents
-  - [Tooling Overview](docs/tooling/guide.md): What Link runs around your agents: what each agent costs, and these docs offline
+- [Tooling](docs/tooling/README.md): Tooling is what developers use around Local Link to make it easier to use
 
 ### Modules
 

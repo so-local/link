@@ -21,7 +21,7 @@ What the sandbox can't protect is what you give the harness: the files
 folder, its own state (memory, conversations), the model provider credential, which it
 can spend, and the bot. It has the network, so it can send what it can
 read anywhere. A harness's built-in tools (a shell) run inside the same
-sandbox; tools added with [`lnk sandbox tool add`](../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside) run outside it.
+sandbox; tools added with [`lnk sandbox tool add`](../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside) run outside it.
 
 #### Its gaps
 
@@ -29,7 +29,7 @@ Gaps, in short: the [sandbox's known gaps](../../more/security.md#known-gaps), s
 files and unpinned installers. See [Known
 limitations](../../../../../../../docs/more/architecture/security.md#known-limitations).
 What every sandbox guarantees, a harness's included, is the [sandbox's
-security](../../../../../../security/sandbox/docs/security/sandbox/security.md)
+security](../../../../../../security/sandbox/docs/tooling/sandbox/security.md)
 page; this one is what an agent adds.
 
 ### Link Harness
@@ -44,7 +44,7 @@ What Link's own harness runs, holds and reaches.
 - Its tools are the MCP servers Link runs outside the sandbox for its
   agent (`$LNK_MEMORY`, `$LNK_TOOL_<NAME>`). It reaches them only
   through its proxy, which asks you before each call you didn't allow
-  by name and logs every call, which [`lnk sandbox log show`](../../../../../../security/sandbox/docs/security/sandbox/security/log/README.md#see-every-call-on-the-wire) shows. It calls only the
+  by name and logs every call, which [`lnk sandbox log show`](../../../../../../security/sandbox/docs/tooling/sandbox/security/log/README.md#see-every-call-on-the-wire) shows. It calls only the
   tools its environment names, never a URL a model or a tool gives it.
 - A tool's answer goes to the model as the tool's words, never as
   yours or as instructions. A tool that returns text written by someone
@@ -231,7 +231,7 @@ What Link's own harness runs, holds and reaches.
 
 ### Exported State
 
-The [state export](state/README.md) contains conversation content, tool arguments and replies, and media. Native execution observations are read from the trusted runtime's stored records. They are not cryptographic attestations against an owner who can change those files. Exported native metadata excludes authorizing tokens and unrestricted request metadata. Imported updates and manifests never become local execution evidence. A missing, omitted, partial, or unknown record cannot establish success.
+The [state export](../../state/export/README.md) contains conversation content, tool arguments and replies, and media. Native execution observations are read from the trusted runtime's stored records. They are not cryptographic attestations against an owner who can change those files. Exported native metadata excludes authorizing tokens and unrestricted request metadata. Imported updates and manifests never become local execution evidence. A missing, omitted, partial, or unknown record cannot establish success.
 
 ### Portable History
 

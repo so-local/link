@@ -25,7 +25,7 @@ keys, account ids and hosts; rclone then asks for them.
 
 ### AWS and Google Cloud
 
-On AWS and Google Cloud, a bucket signs in as its [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) [account
+On AWS and Google Cloud, a bucket signs in as its [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) [account
 and nothing else](../../../../../compute/box/docs/services/boxes/security.md#keys).
 `rclone.conf` holds none of that sign-in. Each rclone run on the bucket
 gets the account's from `lnk cloud`: its aws profile's name or its

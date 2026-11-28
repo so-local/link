@@ -16,6 +16,11 @@ struct Answer {
 
 link_files::specification!(Answer, include_str!("owed.schema.toml"));
 
+/// Each owed answer, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Answer>()
+}
+
 impl WayIn {
     pub(super) async fn answer_received(
         &self,
@@ -108,7 +113,13 @@ impl WayIn {
             if entry.path().extension().is_none_or(|e| e != "json") {
                 continue;
             }
-            let bytes = dir.read(&entry.file_name(), WAY_IN.action_max)?;
+            // Delivered and removed since the listing, by a retry beside
+            // this one, which removes it holding only its thread's lock.
+            let bytes = match dir.read(&entry.file_name(), WAY_IN.action_max) {
+                Ok(bytes) => bytes,
+                Err(err) if err.kind() == std::io::ErrorKind::NotFound => continue,
+                Err(err) => return Err(err.into()),
+            };
             let answer: Answer = link_files::saved::parse_json(&bytes)?;
             anyhow::ensure!(
                 entry.file_name() == std::ffi::OsStr::new(&format!("{}.json", answer.id)),

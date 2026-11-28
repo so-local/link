@@ -381,11 +381,22 @@ pub fn backup(out: &mut Out, settings: &Settings, yes: bool) -> Result<Done, Rep
 
 /// Starts agent `settings` again after a backup or a restore stopped it.
 pub(crate) fn start_again(out: &mut Out, settings: &Settings) {
+    start_again_during(out, settings, None);
+}
+
+/// [`start_again`], as a part of move `move_id` (`lnk agent start
+/// --during-move`): a move's take-back, which that move lets through.
+pub(crate) fn start_again_during(out: &mut Out, settings: &Settings, move_id: Option<&str>) {
     out.hand_over();
-    let started = link_core::lnk()
+    let mut start = link_core::lnk();
+    start
         .arg("agent")
         .args(super::naming(&settings.name))
-        .arg("start")
+        .arg("start");
+    if let Some(move_id) = move_id {
+        start.args(["--during-move", move_id]);
+    }
+    let started = start
         .stdin(Stdio::null())
         .status()
         .is_ok_and(|s| s.success());

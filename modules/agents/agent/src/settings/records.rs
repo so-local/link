@@ -24,6 +24,11 @@ pub(super) struct Identity {
 
 link_files::specification!(Identity, include_str!("identity.schema.toml"));
 
+/// Each agent's identity, which an upgrade converts.
+pub(crate) fn saved_identity() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Identity>()
+}
+
 /// What this machine gave an agent: each machine gives its own.
 #[derive(Serialize, Deserialize, Default, PartialEq)]
 #[serde(deny_unknown_fields)]
@@ -46,6 +51,11 @@ pub struct Here {
 }
 
 link_files::specification!(Here, include_str!("here.schema.toml"));
+
+/// Each agent's records of this machine, which an upgrade converts.
+pub(crate) fn saved_here() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Here>()
+}
 
 /// `~/.lnk/safe/agents/<name>/identity.toml`.
 pub fn identity_path(name: &str) -> PathBuf {

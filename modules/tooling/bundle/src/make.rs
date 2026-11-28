@@ -263,6 +263,12 @@ fn make(spec: Merged, here: &Path, note: &dyn Fn(String)) -> anyhow::Result<Made
     });
     let signed = match (&signer, &secret) {
         (Some(signer), Some(key)) => {
+            // An unsigned part is programs alone: the job sealing the
+            // parts packs the archives (`parts`).
+            for folder in spec.fields.archives.as_deref().unwrap_or_default() {
+                let packed = pack_archives(folder, &dist, &host, &out)?;
+                note(format!("Packed {} archives to seal with it", packed.len()));
+            }
             note(format!("Sealing and signing as {}", signer.name));
             seal::seal(
                 &dist,
@@ -375,6 +381,82 @@ fn unpack(dist: &Path, target: &str, bin: &Path) -> anyhow::Result<PathBuf> {
     Ok(bin.to_path_buf())
 }
 
+/// Packs each archive in `folder`, a folder with its `archive.toml`, into
+/// `dist` as `link-<name>.tar.gz`, by `lnk archive export` of the
+/// bundle's own programs for `host`, every one of them unpacked into a
+/// folder of `out`'s, so an archive is checked by the modules it names:
+/// the archives are sealed and checked with the programs, never packed
+/// after. The names of the archives made, in order.
+fn pack_archives(
+    folder: &Path,
+    dist: &Path,
+    host: &str,
+    out: &Path,
+) -> anyhow::Result<Vec<String>> {
+    let bin = out.join(format!("packing-{}", std::process::id()));
+    let packed = (|| {
+        std::fs::create_dir_all(&bin)?;
+        let core = crate::asset("lnk", host);
+        ensure!(
+            dist.join(&core).is_file(),
+            "the bundle has no {core}, so this computer can't pack its archives"
+        );
+        let ending = format!("-{host}.tar.gz");
+        let mut programs: Vec<_> = std::fs::read_dir(dist)?
+            .map(|entry| Ok(entry?.file_name().to_string_lossy().into_owned()))
+            .collect::<std::io::Result<_>>()?;
+        programs.retain(|name| name.starts_with("lnk-") && name.ends_with(&ending));
+        programs.sort();
+        for asset in programs {
+            run(
+                "tar",
+                &[
+                    "-xzf",
+                    &dist.join(&asset).to_string_lossy(),
+                    "-C",
+                    &bin.to_string_lossy(),
+                ],
+                dist,
+            )?;
+        }
+        let mut names = Vec::new();
+        for entry in std::fs::read_dir(folder)
+            .with_context(|| format!("reading the archives in {}", folder.display()))?
+        {
+            let name = entry?.file_name().to_string_lossy().into_owned();
+            if folder.join(&name).join("archive.toml").is_file() {
+                names.push(name);
+            }
+        }
+        names.sort();
+        ensure!(!names.is_empty(), "{} holds no archive", folder.display());
+        let mut made = Vec::new();
+        for name in names {
+            let packed = format!("link-{name}.tar.gz");
+            ensure!(
+                !dist.join(&packed).exists(),
+                "the bundle holds {packed} already"
+            );
+            run(
+                &bin.join("lnk").to_string_lossy(),
+                &[
+                    "archive",
+                    "export",
+                    "--from",
+                    &folder.join(&name).to_string_lossy(),
+                    "--to",
+                    &dist.join(&packed).to_string_lossy(),
+                ],
+                folder,
+            )?;
+            made.push(packed);
+        }
+        anyhow::Ok(made)
+    })();
+    let _ = std::fs::remove_dir_all(&bin);
+    packed
+}
+
 /// Seals programs built before, by other runners, into one bundle.
 fn parts(
     spec: &Merged,
@@ -441,6 +523,12 @@ fn parts(
     std::fs::create_dir_all(&dist)?;
     for (name, path) in &found {
         std::fs::copy(path, dist.join(name))?;
+    }
+    for folder in spec.fields.archives.as_deref().unwrap_or_default() {
+        use link_actions::value::Words;
+        let host = crate::cli::Target::here()?.word().to_string();
+        let packed = pack_archives(folder, &dist, &host, &out)?;
+        note(format!("Packed {} archives to seal with it", packed.len()));
     }
     let commit = run("git", &["rev-parse", "HEAD"], first)?
         .trim()
@@ -653,6 +741,62 @@ fn checkout(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn archives_are_packed_into_the_bundle_before_its_seal() {
+        let dir = link_test_kit::temp::TempDir::new("bundle-archives");
+        let root = dir.path();
+        let (dist, archives, programs) = (root.join("dist"), root.join("archives"), root.join("p"));
+        for folder in [
+            &dist,
+            &programs,
+            &archives.join("coach"),
+            &archives.join("notes"),
+        ] {
+            std::fs::create_dir_all(folder).unwrap();
+        }
+        std::fs::write(archives.join("coach/archive.toml"), "schema = 1\n").unwrap();
+        let host = "x86_64-unknown-linux-musl";
+        // A stand-in lnk that writes what `archive export --to` names, if
+        // the bundle's other program for this host is beside it.
+        link_test_kit::write_program(
+            &programs.join("lnk"),
+            "#!/bin/sh\n[ -f \"$(dirname \"$0\")/lnk-archive\" ] || exit 1\n\
+             while [ $# -gt 0 ]; do [ \"$1\" = --to ] && echo packed > \"$2\"; shift; done\n",
+        )
+        .unwrap();
+        std::fs::write(programs.join("lnk-archive"), "").unwrap();
+        for program in ["lnk", "lnk-archive"] {
+            run(
+                "tar",
+                &[
+                    "-czf",
+                    &dist.join(crate::asset(program, host)).to_string_lossy(),
+                    "-C",
+                    &programs.to_string_lossy(),
+                    program,
+                ],
+                root,
+            )
+            .unwrap();
+        }
+        let packed = pack_archives(&archives, &dist, host, root).unwrap();
+        assert_eq!(packed, ["link-coach.tar.gz"]);
+        assert!(dist.join("link-coach.tar.gz").is_file());
+        assert!(
+            !dist.join("link-notes.tar.gz").exists(),
+            "no archive.toml, no archive"
+        );
+        let left: Vec<_> = std::fs::read_dir(root)
+            .unwrap()
+            .map(|e| e.unwrap().file_name().into_string().unwrap())
+            .filter(|n| n.starts_with("packing"))
+            .collect();
+        assert!(left.is_empty(), "{left:?}");
+        // One the bundle lacks the programs for is refused, packing nothing.
+        let refused = pack_archives(&archives, &dist, "aarch64-apple-darwin", root).unwrap_err();
+        assert!(refused.to_string().contains("can't pack"), "{refused}");
+    }
 
     #[test]
     fn parts_hold_one_set_of_programs() {

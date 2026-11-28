@@ -14,6 +14,7 @@ mod supervisor;
 #[cfg(test)]
 mod tests;
 mod worker;
+pub use state::saved;
 use state::{Desired, Identity, Record, Store};
 const MAX_STATE: u64 = 256 * 1024;
 const CONTROL_TIMEOUT: Duration = Duration::from_secs(10);

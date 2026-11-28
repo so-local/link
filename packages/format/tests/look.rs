@@ -294,7 +294,7 @@ fn a_report_has_its_why_tail_next_and_context() {
         .next(cmd!("lnk model show"), "see whether Ollama is up");
     r.trace.steps[0].at = Some("agent/src/launching.rs:88".into());
     let footer = Footer {
-        version: "lnk 0.9.2".into(),
+        version: "lnk 0.0.2".into(),
         platform: "linux x86_64".into(),
         command: "lnk agent start".into(),
         record: Some("/home/me/Link/Logs/r.txt".into()),
@@ -304,7 +304,7 @@ fn a_report_has_its_why_tail_next_and_context() {
         pipe,
         "\u{2717} Couldn't start main.\n  Ollama didn't answer at localhost:11434.\n\n    \
          Error: could not connect to ollama\n\n  Next\n    lnk model show   see whether \
-         Ollama is up\n\n  lnk 0.9.2 \u{b7} linux x86_64 \u{b7} lnk agent start \u{b7} \
+         Ollama is up\n\n  lnk 0.0.2 \u{b7} linux x86_64 \u{b7} lnk agent start \u{b7} \
          agent/src/launching.rs:88\n  Report it: lnk issue create \u{b7} everything is in \
          ~/Link/Logs/r.txt\n"
     );

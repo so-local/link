@@ -57,6 +57,7 @@ fn main() -> std::process::ExitCode {
     // Safe to hold a secret before anything else: no core dump, no other
     // process of this user reading it.
     link_secretive::process::guard();
+    link_core::saved::own(&[link_harness::config::saved]);
     link_core::describe_component!();
     let code = link_settings::output::run(try_main);
     // A compact conversation's folds handed on, done before it ends.

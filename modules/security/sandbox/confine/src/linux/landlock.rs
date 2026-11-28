@@ -284,7 +284,15 @@ fn restrict_exec_with(kernel: &impl Enforcement, allowed: &[PathBuf]) -> anyhow:
 /// it ([`crate::linux::enter`]).
 #[cfg(target_os = "linux")]
 pub fn restrict_files(read: &[PathBuf], write: &[PathBuf]) -> anyhow::Result<()> {
-    restrict_files_with(&Kernel, read, write)
+    restrict_files_with(&Kernel, read, write, false)
+}
+
+/// [`restrict_files`], for a wall that was asked for (`--file-wall`): a
+/// Landlock probe that fails inside refuses the launch, rather than run
+/// the program with the mounts alone where the wall was promised.
+#[cfg(target_os = "linux")]
+pub fn require_files(read: &[PathBuf], write: &[PathBuf]) -> anyhow::Result<()> {
+    restrict_files_with(&Kernel, read, write, true)
 }
 
 #[cfg(target_os = "linux")]
@@ -292,13 +300,20 @@ fn restrict_files_with(
     kernel: &impl Enforcement,
     read: &[PathBuf],
     write: &[PathBuf],
+    required: bool,
 ) -> anyhow::Result<()> {
     use anyhow::Context;
 
     // Absent Landlock the mounts are the only file wall; adding nothing
-    // keeps the sandbox running exactly as it does without it.
-    let Ok(abi) = kernel.probe() else {
-        return Ok(());
+    // keeps the sandbox running exactly as it does without it, unless the
+    // wall was asked for.
+    let abi = match kernel.probe() {
+        Ok(abi) => abi,
+        Err(err) if required => {
+            return Err(anyhow::Error::new(err)
+                .context("the file wall was asked for, and Landlock isn't here inside"));
+        }
+        Err(_) => return Ok(()),
     };
     let (handled, read_access) = file_rights(abi.get());
     // ABI 6 and newer also scopes the domain: a sandboxed program can't
@@ -558,6 +573,19 @@ mod tests {
         fn restrict(&self, _: &Self::Ruleset) -> io::Result<()> {
             self.step(Step::Restrict)
         }
+    }
+
+    /// With the file wall asked for, a Landlock probe that fails inside
+    /// refuses the launch; without it, the mounts stand alone.
+    #[test]
+    fn the_walls_inside_refuse_what_they_cant_hold() {
+        let failing = || Fake {
+            fail: Some(Step::Probe),
+            steps: Default::default(),
+            closed: Default::default(),
+        };
+        assert!(restrict_files_with(&failing(), &[], &[], true).is_err());
+        assert!(restrict_files_with(&failing(), &[], &[], false).is_ok());
     }
 
     #[test]

@@ -2,7 +2,7 @@
 
 use link_format::{Done, Out, Report, Table, WithinExt, sentence};
 
-pub fn run(out: &mut Out, asked: &crate::cli::FolderCheckArgs) -> Result<Done, Report> {
+pub fn run(out: &mut Out, asked: &crate::cli::LocationCheckArgs) -> Result<Done, Report> {
     let files = link_files::maintenance::staged_data(link_files::maintenance::now()?)
         .within("listing old staging in your data")?;
     if asked.json {

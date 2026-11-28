@@ -9,6 +9,8 @@ mod blank;
 #[cfg(target_os = "linux")]
 mod dotfiles;
 #[cfg(target_os = "linux")]
+mod ends;
+#[cfg(target_os = "linux")]
 mod enter;
 #[cfg(target_os = "linux")]
 mod loopback;
@@ -66,6 +68,10 @@ fn grant_here(home: &std::path::Path, name: &str, value: &str, given: &str) {
         .mode(0o600)
         .open(&file)
         .unwrap();
+    // A new store names its schema first, as `lnk secret` writes it.
+    if kept.metadata().unwrap().len() == 0 {
+        writeln!(kept, "schema = 1").unwrap();
+    }
     // Under an ID of its own, drawn from its name; an agent's own has no
     // name, a variable its own.
     let id: String = name

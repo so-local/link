@@ -7,7 +7,7 @@ the [agent specification](../../../../../../docs/config/specs/agent.md).
 
 A feature is on where its keys turn it on, and off where a key is left
 out, `"none"`, `"never"` or false. Link's specification enables its general features
-but leaves scheduler, run, file and code tools off. A key of `[connections]` is on
+and leaves every tool off: file, scheduler, run, code and Link MCP. A key of `[connections]` is on
 too where a connection's own table turns it on (`[connection.slack] images`).
 
 ### Read at each message
@@ -35,20 +35,20 @@ skills`.
 
 ### `commands`
 
-A message of yours that runs `/help`, a chat command, a model command, a skill command or [`/skill:write`](../../../../../../../harnesses/link/docs/agents/link/commands/skills.md#learn-a-skill): `[commands] help`, `status`, `create`, `stop`, `resume`, `fork`, `rename`, `export`, `queue`, `steer`, `compact`, `ask`, `verbose`, `model`, `skills` and `write`. The commands are these:
+A message of yours that runs `/help`, a chat command, a model command, a skill command or [`/skill:write`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/skills.md#learn-a-skill): `[commands] help`, `status`, `create`, `stop`, `resume`, `fork`, `rename`, `export`, `queue`, `steer`, `compact`, `ask`, `verbose`, `model`, `skills` and `write`. The commands are these:
 
-- Chat commands: [`/chat:status`](../../../../../../../harnesses/link/docs/agents/link/commands/README.md#inspect-its-work), [`/chat:create`](../../../../../../../harnesses/link/docs/agents/link/commands/README.md#start-a-new-conversation), [`/chat:stop`](../../../../../../../harnesses/link/docs/agents/link/commands/README.md#stop-an-answer), [`/chat:resume`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#resume-an-earlier-one), [`/chat:fork`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#fork-this-one), [`/chat:rename`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#name-this-one), [`/chat:export`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#write-one-out), [`/chat:queue`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#queue-or-steer-your-next-message), [`/chat:steer`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#queue-or-steer-your-next-message), [`/chat:compact`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#compact-it-now), [`/chat:ask`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#ask-on-the-side) and [`/chat:verbose`](../../../../../../../harnesses/link/docs/agents/link/commands/chats.md#show-its-tool-calls).
-- Model commands: [`/model:show`](../../../../../../../model/docs/agents/models/guide.md#where-things-live), [`/model:list`](../../../../../../../model/docs/agents/models/README.md#list) and [`/model:set`](../../../../../../../harnesses/link/docs/agents/link/commands/models.md#switch-this-conversation).
-- Skill commands: [`/skill:list`](../../../../../../../harnesses/link/docs/agents/link/commands/skills.md#run-a-skill) and `/skill:<name>`.
+- Chat commands: [`/chat:status`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md#inspect-its-work), [`/chat:create`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md#start-a-new-conversation), [`/chat:stop`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md#stop-an-answer), [`/chat:resume`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#resume-an-earlier-one), [`/chat:fork`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#fork-this-one), [`/chat:rename`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#name-this-one), [`/chat:export`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#write-one-out), [`/chat:queue`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#queue-or-steer-your-next-message), [`/chat:steer`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#queue-or-steer-your-next-message), [`/chat:compact`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#compact-it-now), [`/chat:ask`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#ask-on-the-side) and [`/chat:verbose`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#show-its-tool-calls).
+- Model commands: [`/model:show`](../../../../../../../model/docs/agents/models/guide.md#where-things-live), [`/model:list`](../../../../../../../model/docs/agents/models/README.md#list) and [`/model:set`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/models.md#switch-this-conversation).
+- Skill commands: [`/skill:list`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/skills.md#run-a-skill) and `/skill:<name>`.
 
 ### `goals`
 
-[`/chat:goal`](../../../../../../../harnesses/link/docs/agents/link/commands/README.md#pursue-a-goal): a goal it pursues after each answer until it holds, as many
+[`/chat:goal`](../../../../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md#pursue-a-goal): a goal it pursues after each answer until it holds, as many
 turns as `[goals] turns` lets it, while `[commands] goal` is on.
 
 ### `model-fallback`
 
-[`lnk agent start --model.fallback_model`](../../../../../../docs/agents/README.md#create-an-agent)'s model, for a turn its own can't answer: `[model] fallback`. A fallback is a hosted model: a specification whose `fallback_model` names one on this machine (`local/...`, or an alias of one) is refused, with falling back switched on or off.
+[`lnk agent start --model.fallback_model`](../../../../../../docs/agents/README.md#start-your-agent)'s model, for a turn its own can't answer: `[model] fallback`. A fallback is a hosted model: a specification whose `fallback_model` names one on this machine (`local/...`, or an alias of one) is refused, with falling back switched on or off.
 
 ## Its messages
 
@@ -70,8 +70,8 @@ An answer shown as it's written, `[connections] stream`, and with `activity` too
 
 ## Its tools
 
-Link's tools are each a feature or more. File starts on in Link's defaults, so asked to, an agent changes its files, instructions and skills. Scheduler, run and code start off.
-Add each of those explicitly with [`lnk agent tool add <name>`](../../../../../../docs/agents/README.md#add-tools-and-skills) or set
+Link's tools are each a feature or more. Every tool starts off in Link's defaults: file, scheduler, run, code and Link MCP. An agent turns on each one it uses.
+Add each of those explicitly with [`lnk agent tool add <name>`](../../../../../../docs/agents/README.md#tools) or set
 its `[tool.<name>] enabled = true` opinion.
 
 ### `subagents`, `schedules` and `proactive`
@@ -93,7 +93,7 @@ and the code tool's language servers, `[tool.code] enabled`.
 
 [`lnk agent create`](../../../../../../docs/agents/start/create.md#create-on-a-hosting-account) and the first `lnk agent start` write Link's
 specification out as concrete defaults under `[behavior]` in
-`~/Link/Safe/Agents/<agent>/agent.toml`, with all built-in tools off
+`~/Link/Safe/Agents/<agent>/agent.toml`, with every tool off,
 and no `extends` line. Turn a feature off a key at a time, as this
 agent working in a repository does with its persona, your profile and
 group chats:

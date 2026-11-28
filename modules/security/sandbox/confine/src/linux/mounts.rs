@@ -179,7 +179,10 @@ pub fn held(
             if let Some(asked) = asked {
                 asked.started(child.id());
             }
-            link_secretive::process::wait_in_front(&mut child)
+            let status = link_secretive::process::wait_in_front(&mut child);
+            // What bubblewrap left running as it ended, ended after it.
+            link_secretive::process::end_left(link_sandbox_contract::constants::BUBBLEWRAP);
+            status
         });
         let status = status.with_context(|| format!("running {}", argv[0]))?;
         Ok(status)

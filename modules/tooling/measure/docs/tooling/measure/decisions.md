@@ -22,7 +22,7 @@ names none of them.
 
 The machine is measured as well as its agents, and the watcher, its
 settings and the export are the measure module's, not an agent's. So
-it's a group of its own, beside `lnk agent`, and [`lnk agent list`](../../../../../agents/agent/docs/agents/start/create.md#run-more-than-one-agent)
+it's a group of its own, beside `lnk agent`, and [`lnk agent list`](../../../../../agents/agent/docs/agents/start/show.md#list-your-agents)
 shows the two numbers you'd look for there: memory and the day's
 spend.
 
@@ -124,7 +124,7 @@ Who may say each measure, and how each reaches the watcher.
 ### Why does a harness report through a file?
 
 It runs in its sandbox, which writes only its home and reaches no port
-of this machine's. So [`lnk agent start`](../../../../../agents/agent/docs/agents/README.md#create-an-agent) names a file in its home
+of this machine's. So [`lnk agent start`](../../../../../agents/agent/docs/agents/README.md#start-your-agent) names a file in its home
 (`LNK_MEASURES`), the harness appends a line of OTLP a turn, and the
 watcher reads on from where it left off. The harness moves it aside
 past 1 MiB, so it never grows.

@@ -20,7 +20,8 @@ Reads: `profile.toml`, `team/notes.md`, `team/schedule.csv`,
    to `profile.toml` `[[goals]]` with `area = "team"` too.
 4. Schedule: append one row per practice or game to `team/schedule.csv`:
    `date,time,kind,opponent_or_focus,location,notes`
-   Example: `2027-02-06,15:00,game,City FC,Home pitch,`. Recurring
+   Shape: `<YYYY-MM-DD>,<HH:MM>,<practice|game>,<their words>,<their words>,`.
+   Recurring
    practices: add each date for the next 4 weeks, ask before more.
 5. Training for the position: team sessions are the main work. Add at
    most 2 sessions a week: lifting for strength and injury prevention,

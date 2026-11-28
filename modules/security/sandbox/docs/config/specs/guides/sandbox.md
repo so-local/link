@@ -51,12 +51,12 @@ where every other key replaces the one before it.
 Each endpoint names its port; `*.abc.mongodb.net` holds the names under
 it, not `abc.mongodb.net`, and `hosts` must allow each. A `*.`
 endpoint's port can't be a `[localhost]` port or 40781. On Linux, a specification
-with endpoints [gets DNS from its proxy](../../../../proxy/docs/security/sandbox/more/proxy/connect.md#dns-where-a-sandbox-names-endpoints-linux).
+with endpoints [gets DNS from its proxy](../../../../proxy/docs/tooling/sandbox/more/proxy/connect.md#dns-where-a-sandbox-names-endpoints-linux).
 
 ### `[lan] hosts`
 
 Which addresses each reaches, and what is refused whatever is listed:
-[Security](../../../security/sandbox/security.md#what-can-cross-the-sandbox).
+[Security](../../../tooling/sandbox/security.md#what-can-cross-the-sandbox).
 On a cloud's machine, `"*"` and a range holding a whole private block
 are refused too, since the network there is the cloud's.
 
@@ -152,9 +152,9 @@ a name but not the name itself, or an IP address.
 ## Dot files that run outside
 
 At the top of each folder in `write`, [a project's dot files that run
-outside the sandbox](../../../../confine/docs/security/sandbox/wall/README.md#what-every-sandbox-keeps-closed) are read only.
+outside the sandbox](../../../../confine/docs/tooling/sandbox/wall/README.md#what-every-sandbox-keeps-closed) are read only.
 `write_dot_files` lists the folders of `write` where they're written
-too, for [a sandbox that commits](../../../security/sandbox/guide.md#let-it-commit).
+too, for [a sandbox that commits](../../../tooling/sandbox/guide.md#let-it-commit).
 A folder in it that isn't in `write` is refused. Left out, none is.
 
 ## One OS's Table
@@ -173,7 +173,7 @@ file's tables for the other, which it leaves out.
 `--files.write`, `--internet.hosts`, `--commands.allow`. A flag giving a
 key replaces the file's key, but `--files.hide`, which adds to it.
 Without `--spec`, the flags are the whole specification. Omitted grants stay
-closed in both inputs, and a grant always names its programs or toolchains. [`lnk agent permission add`](../../../../../../agents/agent/docs/security/sandbox/permissions/README.md#choose-what-your-agent-can-reach) and `deny`
+closed in both inputs, and a grant always names its programs or toolchains. [`lnk agent permission add`](../../../../../../agents/agent/docs/tooling/sandbox/permissions/README.md#choose-what-your-agent-can-reach) and `deny`
 take the same flags, and Link shows each grant in them.
 
 ### Write a File From Flags

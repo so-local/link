@@ -17,7 +17,7 @@ Ask it to "add tomatoes to my garden list" and it reads
 You need the agents modules, which [`lnk up`](../../../../../../../../docs/more/modules/install.md#pick-your-modules) installs and which
 bring Link File, and Link Harness. A new agent has `file` on, so asked
 to change a file, its standing instructions or a skill, it does.
-[`lnk agent tool add file`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) turns it on again where a specification turned it
+[`lnk agent tool add file`](../../../../../../agent/docs/agents/README.md#tools) turns it on again where a specification turned it
 off, and each start then gives the agent its `file`.
 
 ## What your agent can do
@@ -99,7 +99,7 @@ What `file__read`, `file__glob` and `file__grep` give, and a change's diff, come
 
 ### Turn it off
 
-It is off until you add it. [`lnk agent tool remove file`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) or the agent's
+It is off until you add it. [`lnk agent tool remove file`](../../../../../../agent/docs/agents/README.md#tools) or the agent's
 specification turns it off (`[tool.file] enabled = false`), or only
 `file__glob` and `file__grep` (`find = false`), or the diffs (`diffs = false`): what it
 turns off isn't listed to the model, and the answers carry no diff.
@@ -128,7 +128,7 @@ lnk agent start --sandbox sandbox.toml
 ### The whole of Home
 
 `write = ["."]` is the whole files folder, its Home: an agent whose
-files folder is a repository, as [`lnk agent start --run.files <repo>`](../../../../../../agent/docs/agents/README.md#create-an-agent) makes it, changes
+files folder is a repository, as [`lnk agent start --run.files <repo>`](../../../../../../agent/docs/agents/README.md#start-your-agent) makes it, changes
 any file of it.
 
 ### Its own folder
@@ -164,7 +164,7 @@ but File itself.
 File never writes `.git`, `.envrc`, `.vscode` or `.idea`, at any depth
 and in any case of their letters. Git, direnv and editors run what's in
 them as you, outside any sandbox, so a write there is refused before
-anything is made on the way. [The sandbox keeps them read only too](../../../../../../../security/sandbox/confine/docs/security/sandbox/wall/README.md#what-runs-outside-from-a-project).
+anything is made on the way. [The sandbox keeps them read only too](../../../../../../../security/sandbox/confine/docs/tooling/sandbox/wall/README.md#what-runs-outside-from-a-project).
 
 ### Links, sizes and pipes
 

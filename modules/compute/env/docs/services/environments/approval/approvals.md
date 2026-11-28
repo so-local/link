@@ -71,6 +71,7 @@ secret's ID and the name the file asks it by:
 
 ```toml
 # ~/.lnk/safe/envs/approvals.toml
+schema = 1
 [[approval]]
 spec = "/home/me/app/env.toml"
 name = "app"

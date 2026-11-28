@@ -56,8 +56,8 @@ accounts.
 
 ## What saving refuses
 
-A box holding secrets where they're usually left, Link's own stores, or
-agents is refused, and nothing on it is removed.
+A box holding secrets where they're usually left, Link's own stores,
+agents, or users of its own is refused, and nothing on it is removed.
 
 ### Secrets where they're usually left
 
@@ -86,7 +86,7 @@ asks them.
 
 ### What that refuses
 
-[`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts)'s, `lnk box`'s and each cloud adapter's folders (accounts,
+[`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#platforms)'s, `lnk box`'s and each cloud adapter's folders (accounts,
 logins, the SSH key), [`lnk storage`](../../../../../../storage/storage/docs/services/storage/README.md#storage)'s (keys and encryption passwords)
 and `~/Link/Files`, the agents' folders, settings and notes
 (`~/Link/Agents`, `~/.lnk/data/agents/move`) are refused wherever their
@@ -106,6 +106,14 @@ box rather than passing unseen.
 
 A box with agents on it is refused, since each box from the image would
 run them as themselves, with their keys and connections.
+
+### No users
+
+A box with [users of its own](../user/README.md) is refused, naming
+them: each member of the `lnk-users` group, and each folder in `/home`
+but `ubuntu`'s, a removed user's kept folder among them. The secret scan
+reads `ubuntu`'s home alone, so an image would otherwise carry their
+homes, Safes, keys and secrets to every box made from it.
 
 ### It removes nothing
 

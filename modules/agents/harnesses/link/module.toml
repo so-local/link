@@ -62,7 +62,7 @@ id = "sqlite-store"
 "next" = "lnk agent start"
 
 ["documentation"]
-"topic" = "agents/link"
+"topic" = "agents/harnesses/link"
 "root" = "docs"
 
 [dependencies.harness-contract]

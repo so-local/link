@@ -27,7 +27,7 @@ pub struct Issue {
     /// scope. The names themselves stay on this machine.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub names: Vec<Scoped>,
-    /// `lnk 0.14.0`.
+    /// `lnk 0.0.1`.
     pub version: String,
     /// `linux x86_64`.
     pub platform: String,

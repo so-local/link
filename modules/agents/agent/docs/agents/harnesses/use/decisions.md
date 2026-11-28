@@ -5,7 +5,7 @@ Why harness selection, installation and compatibility work this way.
 ## Harnesses
 
 Link Harness's own are on its
-[Decisions](../../../../../harnesses/link/docs/agents/link/more/decisions.md)
+[Decisions](../../../../../harnesses/link/docs/agents/harnesses/link/decisions.md)
 page.
 
 ### Which harness is the default?

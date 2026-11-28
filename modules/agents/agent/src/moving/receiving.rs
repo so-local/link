@@ -121,7 +121,7 @@ impl Target {
                 &link_agent_place::Request {
                     account: account.as_ref().duplicate(),
                     r#move: Some(move_id.clone()),
-                    phase: Some(phase.name().into()),
+                    phase: Some(phase),
                     ..Default::default()
                 },
             ),
@@ -247,6 +247,20 @@ pub(crate) fn settle_and_start(
     from: &str,
     to: &Option<String>,
 ) -> anyhow::Result<()> {
+    settle_and_start_during(out, name, id, from, to, None)
+}
+
+/// [`settle_and_start`], its start a part of move `move_id` (`lnk agent
+/// start --during-move`), so the move holding the agent there lets it
+/// through.
+pub(crate) fn settle_and_start_during(
+    out: &mut Out,
+    name: &str,
+    id: &str,
+    from: &str,
+    to: &Option<String>,
+    move_id: Option<&str>,
+) -> anyhow::Result<()> {
     let output = lnk_at(to, name, &["needs"])
         .stdin(Stdio::null())
         .output()
@@ -289,7 +303,11 @@ pub(crate) fn settle_and_start(
         );
     }
     out.hand_over();
-    let started = lnk_at(to, name, &["start"])
+    let mut start = vec!["start"];
+    if let Some(move_id) = move_id {
+        start.extend(["--during-move", move_id]);
+    }
+    let started = lnk_at(to, name, &start)
         .stdin(Stdio::null())
         .status()
         .within("starting your agent there")?;
@@ -554,16 +572,31 @@ pub(crate) fn receive_stream(
     if header.yes {
         crate::permissions::YES.store(true, std::sync::atomic::Ordering::Relaxed);
     }
+    // From here until it's put in place, a failure discards what came:
+    // a linked device's keys never wait in staging for a prune.
+    macro_rules! or_discard {
+        ($result:expr) => {
+            match $result {
+                Ok(value) => value,
+                Err(err) => {
+                    incoming.discard();
+                    return Err(err.into());
+                }
+            }
+        };
+    }
     // What you granted the agent: what the machine running the move gave,
     // else what it has here, else what came, less what opens this machine.
-    let here_sandbox = sandbox_file::path(&agent.name)
-        .exists()
-        .then(|| sandbox_file::load(&agent.name))
-        .transpose()?;
+    let here_sandbox = or_discard!(
+        sandbox_file::path(&agent.name)
+            .exists()
+            .then(|| sandbox_file::load(&agent.name))
+            .transpose()
+    );
     // The teams a cloud keeps that it's on, as the machine running the move
     // read them from that cloud, kept here first: their files are what
     // its grants of them are derived from, as every team's.
-    let namesakes = link_agent::hosted_teams::keep(agent.id(), &header.teams)?;
+    let namesakes = or_discard!(link_agent::hosted_teams::keep(agent.id(), &header.teams));
     for team in namesakes {
         out.block(Report::warning(sentence!(
             "Team {} here is another team: the one a cloud keeps that {} is on isn't kept here.",
@@ -574,7 +607,7 @@ pub(crate) fn receive_stream(
     // Its teams' folders derived again here from their files, the teams'
     // homes: never taken from the stream. Coming back, what this machine
     // granted it of a team's folder when it left is vouched for again.
-    let granted_here = moved::of_id(agent.id())?
+    let granted_here = or_discard!(moved::of_id(agent.id()))
         .map(|note| note.teams)
         .unwrap_or_default();
     let (sandbox, left_out) = transfer::settle_sandbox(
@@ -587,9 +620,11 @@ pub(crate) fn receive_stream(
         },
     );
     if let Some(sandbox) = &sandbox {
-        sandbox
-            .check()
-            .within(format!("in what {} may do", agent.name))?;
+        or_discard!(
+            sandbox
+                .check()
+                .within(format!("in what {} may do", agent.name))
+        );
     }
     // Each connection is what its module here says of it, and its link what
     // that module names: added first if it's missing, as `lnk agent

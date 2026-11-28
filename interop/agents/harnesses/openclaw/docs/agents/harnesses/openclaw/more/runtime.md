@@ -4,7 +4,7 @@ The openclaw adapter installs, configures, and runs the native harness for Link.
 
 ## How it runs
 
-[`lnk agent start`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent) installs the OpenClaw release Link pins, with its own
+[`lnk agent start`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent) installs the OpenClaw release Link pins, with its own
 Node, with its programs in read-only `~/.lnk/exec/harnesses/openclaw`
 and its mutable home in `~/.lnk/data/agents/<agent>/harnesses/openclaw`.
 It runs its gateway in the sandbox, with `openclaw acp` beside it behind
@@ -30,7 +30,7 @@ OpenClaw holds no bot's credential, and [`lnk agent chat send`](../../../../../.
 ### Its scheduled jobs
 
 Link's scheduler runs them once you add it with
-[`lnk agent tool add scheduler`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#add-tools-and-skills): each reaches OpenClaw as a message from the
+[`lnk agent tool add scheduler`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#tools): each reaches OpenClaw as a message from the
 schedule, and its answer goes to the chat the schedule names.
 
 ### Native Schedule Import

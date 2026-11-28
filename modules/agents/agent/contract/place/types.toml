@@ -31,8 +31,8 @@ type = "string"
 description = "`agent-receive`, `agent-send`, `agent-left` and `agent-abort`: the move, as `agent-in` or `agent-out` named it."
 
 [request.properties.phase]
-type = "string"
-description = "`agent-receive` and `agent-send`: `copy`, `switch` or `files`."
+shape = "phase"
+description = "`agent-receive` and `agent-send`: which part of the move the stream is."
 
 [request.properties.have]
 type = "object"
@@ -121,6 +121,12 @@ type = "integer"
 minimum = 0
 maximum = 9223372036854775807
 description = "`agent-backup` and `agent-restore`: when the backup was taken, in Unix seconds."
+
+[phase]
+type = "string"
+description = "Which part of a move a stream is"
+enum = ["copy", "switch", "files"]
+x-link-values = { copy = "While the agent answers: Home and memory's index, into staging", switch = "The agent paused: what changed since the copy, and everything else of it (its settings, connections, sandbox, specification and state)", files = "Home alone, for `lnk storage` on a cloud that hosts agents" }
 
 [hosted-agent]
 type = "object"

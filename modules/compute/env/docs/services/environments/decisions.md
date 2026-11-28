@@ -155,7 +155,7 @@ which would change the machine outside any sandbox.
 ### Why is an agent's sandbox its own file?
 
 An agent's sandbox follows it between machines and is granted through
-[`lnk agent permission add`](../../../../../agents/agent/docs/security/sandbox/permissions/README.md#choose-what-your-agent-can-reach). Its own file defines what the agent may do, never a
+[`lnk agent permission add`](../../../../../agents/agent/docs/tooling/sandbox/permissions/README.md#choose-what-your-agent-can-reach). Its own file defines what the agent may do, never a
 stage's.
 
 ### Why does the environment take no flags?

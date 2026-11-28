@@ -36,7 +36,7 @@ fn a_bucket_is_listed_by_its_id() {
     std::fs::create_dir_all(&safe).unwrap();
     std::fs::create_dir_all(home.join("Link/Files")).unwrap();
     let disk = format!(
-        "[[cloud]]\nname = \"disk\"\nkind = \"drive\"\npath = \"{0}/disk\"\n\
+        "schema = 1\n[[cloud]]\nname = \"disk\"\nkind = \"drive\"\npath = \"{0}/disk\"\n\
          [cloud.buckets.personal]\nid = \"a1b2c3d4e5f6\"\nname = \"local-link/personal\"\n\n",
         home.display()
     );
@@ -250,7 +250,7 @@ fn two_buckets(home: &TempDir) {
     std::fs::write(
         safe.join("clouds.toml"),
         format!(
-            "[[cloud]]\nname = \"disk\"\nkind = \"drive\"\npath = \"{}/disk\"\n\
+            "schema = 1\n[[cloud]]\nname = \"disk\"\nkind = \"drive\"\npath = \"{}/disk\"\n\
              [cloud.buckets.personal]\nid = \"p1e2r3s4o5n6\"\nname = \"local-link/personal\"\n\
              [cloud.buckets.\"agent:k3v9q2x7m1ab\"]\nid = \"a1g2e3n4t5b6\"\nname = \"local-link/agent-k3v9q2x7m1ab\"\nencrypted = true\n",
             home.display()
@@ -413,7 +413,7 @@ fn a_bucket_is_made_only_after_a_yes() {
     let safe = home.join(".lnk/safe/storage");
     std::fs::write(
         safe.join("clouds.toml"),
-        "[[cloud]]\nname = \"b2\"\nkind = \"rclone\"\nbackend = \"b2\"\n",
+        "schema = 1\n[[cloud]]\nname = \"b2\"\nkind = \"rclone\"\nbackend = \"b2\"\n",
     )
     .unwrap();
     std::fs::write(safe.join("rclone.conf"), "[b2]\ntype = b2\n").unwrap();

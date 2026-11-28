@@ -70,7 +70,7 @@ Where the model provider credential and each connection's token are kept.
 - The same goes for a Telegram bot's token: the harness gets the bot's
   id and `:link-wire-` with a tag that's new at each start and its
   agent's alone, never made from the token, and reaches Telegram through
-  its proxy, [which adds the token](../../../../../../security/sandbox/contract/route/docs/security/sandbox/more/contract/models-and-secrets.md#a-services-secret-added-by-the-proxy) and refuses `setWebhook`, `logOut` and
+  its proxy, [which adds the token](../../../../../../security/sandbox/contract/route/docs/tooling/sandbox/more/contract/models-and-secrets.md#a-services-secret-added-by-the-proxy) and refuses `setWebhook`, `logOut` and
   `close`, by the rule the Telegram module gives (`lnk-telegram rule
   --json`).
 - An agent doesn't start while a connected connection's module can't say

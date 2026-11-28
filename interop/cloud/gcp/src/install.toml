@@ -1,0 +1,10 @@
+# The gcloud archive Link installs: Google's version, and each archive's
+# SHA-256, checked before it's unpacked. A new version changes all of
+# them together, each sum read from the archive itself.
+version = "594.0.1"
+
+[sha256]
+linux-x86_64 = "8fc798fd0638428551f80277a568112d08afcf9cafd967d1cf39ae0918df2a1d"
+linux-arm = "ab9d36381e5e1de6efb4969ffa71d5c9b4765b7d4a534542dcb0360c062fbbe6"
+darwin-x86_64 = "2ff5c9cf457c0a7ec9edc830cf56a31c99dac8cda7ecaf77e9562fbb53f8ec22"
+darwin-arm = "2e51f02d41d0d5f405e64f4db55f75dbc71de0c92ee4172c67a3d418427775a1"

@@ -19,7 +19,7 @@ use link_format::{
 
 use super::journal::{End, Journal, Step, Undone, hosted_unended, recover, undo_there, went};
 use super::machines::{Dest, bucket_credentials, clouds, destination, reach, ready_box, start_box};
-use super::receiving::{Target, settle_and_start};
+use super::receiving::{Target, settle_and_start_during};
 use super::sending::{Source, human};
 use super::{Header, find, hosted_place, lnk_at, place};
 
@@ -403,7 +403,7 @@ pub fn move_to(
         let have = source.copy(out, &name, &id, &target, &have)?;
         let started = std::time::Instant::now();
         journal.reached(Step::Paused)?;
-        source.pause(out, &name)?;
+        source.pause(out, &name, &id)?;
         guard.check()?;
         // Where its keys go, noted before they're sent: `lnk secret
         // remove` reaches them there.
@@ -418,7 +418,7 @@ pub fn move_to(
         journal.reached(Step::Switched)?;
         guard.check()?;
         if !no_start && !target.is_hosted() {
-            settle_and_start(out, &name, &id, &from_place, &to)?;
+            settle_and_start_during(out, &name, &id, &from_place, &to, Some(source.move_id()))?;
         }
         guard.check()?;
         switched = Some(started.elapsed());
@@ -482,7 +482,10 @@ pub fn move_to(
             );
             return Err(err.into());
         }
-        let resumed = source.resume(out, &name);
+        let resumed = source.resume(out, &name, &id);
+        // The key made for the box it didn't go to, revoked; made again where
+        // it stays on a box.
+        journal.key_back(out);
         drop(guard);
         let from_hosted = matches!(source, Source::Hosted { .. });
         if !resumed && from_hosted {
@@ -546,7 +549,16 @@ pub fn move_to(
     let machine = machine.within("where it went")?;
     // A copy where it was that couldn't be removed is said there, its
     // journal kept for the next move or start to remove it.
-    let _went = went(out, &journal, &source, &machine)?;
+    // From a box to another with buckets, but no key made for the new one.
+    let new_box_keyless = from.is_some()
+        && !found.runs_agents
+        && to.is_some()
+        && header.bucket_credentials.is_none()
+        && link_agent::owners::agent_flag(&id)
+            .ok()
+            .and_then(|[flag, owner]| super::buckets::bucket_run(&["export", &flag, &owner]))
+            .is_some();
+    let _went = went(out, &journal, &source, &machine, new_box_keyless)?;
     Ok(Done::success(sentence!(
         "{} runs on {} now{}.",
         &agent,
@@ -567,11 +579,13 @@ pub fn move_to(
 /// Agent `name`'s copy on `to`, stopped there and removed again (`lnk
 /// agent left`, as a move away would) after a switch that didn't end with
 /// it answering there: one copy, the one it answers from where it was,
-/// `from`. Whether it was; said when it can't be, but `quiet`ly when it
-/// may not be there at all.
+/// `from`. Each named by its ID, `id`, too, so another agent of that name
+/// there is never stopped or removed. Whether it was; said when it can't
+/// be, but `quiet`ly when it may not be there at all.
 pub(crate) fn take_back(
     out: &mut Out,
     name: &str,
+    id: &str,
     to: &Option<String>,
     source: &Source,
     from: &End,
@@ -586,7 +600,7 @@ pub(crate) fn take_back(
     };
     // Started there already: stopped first, as only a stopped agent can
     // have left.
-    let _ = lnk_at(to, name, &["stop"])
+    let _ = lnk_at(to, name, &["stop", "--agent-id", id])
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -598,6 +612,7 @@ pub(crate) fn take_back(
         "--on"
     });
     left.arg(back.unwrap_or_else(|| "this-computer".into()));
+    left.args(["--move", source.move_id(), "--agent-id", id]);
     if *from == End::Here
         && let Ok(machine) = link_machine::installation::installation()
     {

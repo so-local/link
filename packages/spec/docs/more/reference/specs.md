@@ -8,7 +8,7 @@ or field flags. Each registered kind has one typed reader for both inputs.
 The [specification catalogue](../../../../../docs/config/specs/README.md) links to the
 reference of every registered kind, from a box to a sandbox.
 Each reference shows Every Option and identifies its consuming commands.
-The [specification command](../../../../../modules/tooling/spec/docs/tooling/spec/README.md)
+The [specification command](../../../../../docs/config/specs/README.md)
 lists registered kinds and displays their declared shapes.
 
 ## Combine a File and Flags

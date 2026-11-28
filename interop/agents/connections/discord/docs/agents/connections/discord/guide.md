@@ -21,7 +21,7 @@ lnk agent connect discord
 
 ### Without prompts
 
-From a script, set `LNK_DISCORD_TOKEN` to the bot's token in the environment the script runs `lnk` in, and [`lnk agent connect discord`](../../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels) reads it instead of asking. The [shared connection guide](../../../../../../../../modules/agents/connections/docs/agents/connections/guide.md#connect-it) explains credential inputs.
+From a script, set `LNK_DISCORD_TOKEN` to the bot's token in the environment the script runs `lnk` in, and [`lnk agent connect discord`](../../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app) reads it instead of asking. The [shared connection guide](../../../../../../../../modules/agents/connections/docs/agents/connections/guide.md#connect-it) explains credential inputs.
 
 ## Photos and documents
 

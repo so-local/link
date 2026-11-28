@@ -4,10 +4,6 @@
 /// The harness `lnk agent start` installs first: Link Harness.
 pub const DEFAULT_HARNESS: &str = "link";
 
-/// The first agent's name, made by `lnk agent start` on a machine with
-/// none.
-pub const MAIN: &str = "main";
-
 /// Whether harness `name` reaches its hosted model through its proxy's
 /// address, so the proxy can hold the key and the harness only a
 /// placeholder, unless the agent says otherwise: Link Harness, built to

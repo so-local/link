@@ -2,11 +2,6 @@
 # `lnk agent start --run.files` names. Only what differs from Link's defaults
 # is set here, each with its reason.
 schema = 1
-harness = "link"
-sandbox = true      # it runs commands, so every one runs in a sandbox
-awake = true        # it stays ready for the next task
-
-[behavior]
 
 [behavior.model]
 thinking = "medium"   # planning a change and reading a diff reward some reasoning
@@ -21,8 +16,7 @@ calls = 80    # and a round may read or edit several files at once
 [behavior.instructions]
 owner = "none"   # programmer needs nothing of you beyond the task and the repository
 # persona stays Link's default, instructions/persona.md: programmer's way of working.
-# repository stays "link": the repository's AGENTS.md or CLAUDE.md is in its
-# prompt, so the repository's own rules reach it before it edits.
+repository = "link"   # the repository's AGENTS.md or CLAUDE.md is in its prompt, so its own rules reach it before it edits
 
 [behavior.connections]
 groups = "never"   # a programmer is asked in private, never pulled into a group chat
@@ -37,6 +31,12 @@ output = "32 KB"   # enough of a failing log to read the first error and the las
 
 [behavior.tool.file]
 enabled = true     # reads and edits the repository's files
+
+[behavior.tool.scheduler]
+enabled = true     # every ready-made agent can schedule
+
+[behavior.tool.mcp]
+enabled = true     # Link MCP: Link's manual and declared commands, for a developer
 
 [behavior.tool.code]
 enabled = true     # language servers (Link's defaults cover Rust, Go, Python, TypeScript, C/C++, Java and Kotlin)

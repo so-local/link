@@ -23,10 +23,6 @@ pub const RULES: &[Rule] = &[Rule {
 #[serde(deny_unknown_fields)]
 struct Layer {
     depends_on: Vec<String>,
-    /// The concepts the layer introduces, which no layer it's built on
-    /// says: the repository checks' `layer_words` rule reads them.
-    #[serde(default, rename = "words")]
-    _words: Vec<String>,
 }
 
 /// A package, as its manifest says it.

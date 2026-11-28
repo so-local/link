@@ -267,7 +267,7 @@ fn request(account: &Account, group: &Movement, phase: Phase) -> Request {
     Request {
         account: account.duplicate(),
         r#move: Some(group.id.clone()),
-        phase: Some(phase.name().into()),
+        phase: Some(phase),
         ..Default::default()
     }
 }
@@ -486,6 +486,11 @@ struct Finish {
 }
 
 link_files::specification!(Finish, include_str!("finish.schema.toml"));
+
+/// Each team move's finish, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Finish>()
+}
 impl Finish {
     fn root(&self) -> std::path::PathBuf {
         link_files::layout::Hidden::TeamMoving
@@ -557,7 +562,7 @@ impl Finish {
             })?;
             for member in &self.group.members {
                 if let Some(messages) = reply.team_held.get(&member.id) {
-                    crate::moving::sending::deliver_at(out, &None, &member.name, messages);
+                    crate::moving::delivering::deliver_at(out, &None, &member.name, messages);
                 }
                 moved::models::release(&member.id)?;
             }

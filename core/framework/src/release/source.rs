@@ -481,7 +481,7 @@ mod tests {
         assert_eq!(Source::bundle_of(&bin.join("lnk")), None);
         let version = root.path().join(super::super::BUNDLE_VERSION);
         std::fs::create_dir_all(version.parent().unwrap()).unwrap();
-        std::fs::write(&version, "0.14.0-dev.1\n").unwrap();
+        std::fs::write(&version, "0.0.4-dev.1\n").unwrap();
         let canonical = root.path().canonicalize().unwrap();
         assert_eq!(Source::bundle_of(&bin.join("lnk")), Some(canonical));
         let elsewhere = root.path().join("exec").join("bin");
@@ -496,10 +496,10 @@ mod tests {
     #[test]
     fn a_copy_of_the_running_release_is_followed() {
         let copies = link_test_kit::TempDir::new("release-copy");
-        let version: link_version::Version = "0.14.0-dev.202610131900".parse().unwrap();
+        let version: link_version::Version = "0.0.4-dev.202610131900".parse().unwrap();
         std::fs::write(copies.join("update.json"), "{}").unwrap();
         assert_eq!(Source::copy_in(copies.path(), &version), None);
-        let other = copies.join("download/v0.14.0-dev.202610121900");
+        let other = copies.join("download/v0.0.4-dev.202610121900");
         std::fs::create_dir_all(&other).unwrap();
         std::fs::write(other.join("SHA256SUMS"), "").unwrap();
         assert_eq!(Source::copy_in(copies.path(), &version), None);
@@ -520,13 +520,13 @@ mod tests {
     fn what_is_followed_says_why() {
         use super::Followed;
         let root = link_test_kit::TempDir::new("release-followed");
-        let version: link_version::Version = "0.14.0-dev.202610131900".parse().unwrap();
+        let version: link_version::Version = "0.0.4-dev.202610131900".parse().unwrap();
         let bin = root.join("bundle").join("bin");
         std::fs::create_dir_all(&bin).unwrap();
         std::fs::write(bin.join("lnk"), "").unwrap();
         let stamp = root.join("bundle").join(super::super::BUNDLE_VERSION);
         std::fs::create_dir_all(stamp.parent().unwrap()).unwrap();
-        std::fs::write(&stamp, "0.14.0-dev.202610131900\n").unwrap();
+        std::fs::write(&stamp, "0.0.4-dev.202610131900\n").unwrap();
         let installed = root.join("exec").join("bin");
         std::fs::create_dir_all(&installed).unwrap();
         std::fs::write(installed.join("lnk"), "").unwrap();
@@ -553,7 +553,7 @@ mod tests {
         let copy = of(None, &installed.join("lnk")).unwrap();
         assert!(!copy.lacks(Some(&version)));
         assert!(copy.lacks(None));
-        let later: link_version::Version = "0.14.0-dev.202610141900".parse().unwrap();
+        let later: link_version::Version = "0.0.4-dev.202610141900".parse().unwrap();
         assert!(copy.lacks(Some(&later)));
         let bundle = of(None, &bin.join("lnk")).unwrap();
         assert!(!bundle.lacks(None) && !bundle.lacks(Some(&later)));
@@ -640,25 +640,25 @@ mod tests {
         let joined = |text: &str| {
             text.parse::<Source>()
                 .unwrap()
-                .join("download/v0.15.0-dev.202610171200")
+                .join("download/v0.0.5-dev.202610171200")
                 .unwrap()
                 .to_string()
         };
         assert_eq!(
             joined("s3://my-builds/dev/0123"),
-            "s3://my-builds/dev/0123/download/v0.15.0-dev.202610171200"
+            "s3://my-builds/dev/0123/download/v0.0.5-dev.202610171200"
         );
         assert_eq!(
             joined("s3://my-builds"),
-            "s3://my-builds/download/v0.15.0-dev.202610171200"
+            "s3://my-builds/download/v0.0.5-dev.202610171200"
         );
         assert_eq!(
             joined("file:///srv/rel"),
-            "file:///srv/rel/download/v0.15.0-dev.202610171200"
+            "file:///srv/rel/download/v0.0.5-dev.202610171200"
         );
         assert_eq!(
             joined("https://builds.example/dev"),
-            "https://builds.example/dev/download/v0.15.0-dev.202610171200"
+            "https://builds.example/dev/download/v0.0.5-dev.202610171200"
         );
         let source: Source = "s3://my-builds".parse().unwrap();
         assert!(source.join("../x").is_err());

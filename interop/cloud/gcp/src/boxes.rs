@@ -31,6 +31,10 @@ use link_format::{Report, aside, sentence};
 
 use link_cloud_contract::ownership::firewall;
 /// What a refused GPU or spot box most often needs.
+/// The network Google makes in every project, where a box whose spec
+/// attaches none goes, behind Link's own firewall rules.
+const DEFAULT_NETWORK: &str = "default";
+
 const QUOTA: &str = "Google Cloud gives a new account no GPUs, and few spot machines, until you \
                      ask it to raise the project's quota: in its console's IAM & Admin, Quotas.";
 
@@ -201,12 +205,9 @@ impl Gcp {
     pub fn wait_running(&self, id: &str) -> anyhow::Result<String> {
         // `instances create` returns once it runs.
         let instance = self.describe(id)?;
-        Ok(
-            instance["networkInterfaces"][0]["accessConfigs"][0]["natIP"]
-                .as_str()
-                .within(format!("{id} has no public address"))?
-                .to_string(),
-        )
+        Ok(address(&instance)
+            .within(format!("{id} has no address to reach it at"))?
+            .to_string())
     }
 
     pub fn start(&self, id: &str) -> anyhow::Result<String> {
@@ -517,7 +518,7 @@ impl Gcp {
                 "create",
                 &rule.name,
                 "--network",
-                "default",
+                DEFAULT_NETWORK,
                 "--action",
                 rule.action.word(),
                 "--rules",
@@ -535,6 +536,19 @@ impl Gcp {
             ]))?;
         }
         Ok(())
+    }
+}
+
+/// Where instance `i` is reached: its public address on the project's
+/// `default` network, where Link's own firewall rules let SSH in, and its
+/// private one on a network its spec attached, whose rules let in only
+/// its peers on that network.
+fn address(i: &serde_json::Value) -> Option<&str> {
+    let interface = &i["networkInterfaces"][0];
+    if last(&interface["network"]) == DEFAULT_NETWORK {
+        interface["accessConfigs"][0]["natIP"].as_str()
+    } else {
+        interface["networkIP"].as_str()
     }
 }
 
@@ -570,9 +584,7 @@ fn found_of(i: &serde_json::Value) -> Found {
             .and_then(|s| s.parse().ok()),
         place: last(&i["zone"]),
         state: i["status"].as_str().unwrap_or("unknown").to_lowercase(),
-        ip: i["networkInterfaces"][0]["accessConfigs"][0]["natIP"]
-            .as_str()
-            .map(str::to_string),
+        ip: address(i).map(str::to_string),
         size: size_of(i),
         ..Found::default()
     }
@@ -615,6 +627,21 @@ fn made_once(created: anyhow::Result<Vec<u8>>) -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    /// A box on the default network is reached at its public address, and
+    /// one on a network its spec attached at its private one.
+    #[test]
+    fn a_box_on_an_attached_network_is_reached_privately() {
+        let on = |network: &str| {
+            serde_json::json!({ "networkInterfaces": [{
+                "network": format!("https://www.googleapis.com/compute/v1/projects/p/global/networks/{network}"),
+                "networkIP": "10.128.0.7",
+                "accessConfigs": [{ "natIP": "34.1.2.3" }],
+            }]})
+        };
+        assert_eq!(super::address(&on("default")), Some("34.1.2.3"));
+        assert_eq!(super::address(&on("lnkc-boxes")), Some("10.128.0.7"));
+    }
+
     /// A rule another launch made meanwhile is made; any other failure isn't.
     #[test]
     fn a_rule_made_meanwhile_is_made() {

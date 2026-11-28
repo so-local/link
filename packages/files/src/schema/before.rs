@@ -1,4 +1,4 @@
-//! Shapes that predate Link 0.1, which starts every schema again at 1 and
+//! Shapes that predate Link 0.0.1, which starts every schema again at 1 and
 //! keeps no install made earlier: each declared in its owner's
 //! `schema.toml` under `[before]` and refused by name with what replaced
 //! it, never read into the current shape and never taken for a newer one.
@@ -9,7 +9,7 @@ use anyhow::ensure;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-/// `[before]`: the schema numbers and keys a file written before 0.1 may
+/// `[before]`: the schema numbers and keys a file written before 0.0.1 may
 /// carry, each with what replaced it.
 #[derive(Clone, Debug, Default, PartialEq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -84,7 +84,7 @@ impl Before {
     pub fn schema(&self, kind: &str, from: u32) -> anyhow::Result<()> {
         match self.schemas.get(&from.to_string()) {
             Some(why) => anyhow::bail!(
-                "{kind} schema {from} predates Link 0.1, which starts every schema again at 1: {why}"
+                "{kind} schema {from} predates Link 0.0.1, which starts every schema again at 1: {why}"
             ),
             None => Ok(()),
         }
@@ -96,7 +96,7 @@ impl Before {
         for (path, why) in &self.keys {
             let parts = super::path::keys(path).unwrap_or_default();
             if let Some(found) = find(document, &parts, String::new()) {
-                anyhow::bail!("{kind} {found} predates Link 0.1: {why}");
+                anyhow::bail!("{kind} {found} predates Link 0.0.1: {why}");
             }
         }
         Ok(())
@@ -153,8 +153,8 @@ kind = "example"
 current = 1
 command = "lnk example spec show"
 [before]
-since = "0.1.0"
-until = "0.2.0"
+since = "0.0.1"
+until = "0.0.2"
 schemas = { "2" = "write it as schema 1" }
 keys = { owner = "leave owner out", "jobs.*.id" = "name it with name" }
 "#,
@@ -169,7 +169,7 @@ keys = { owner = "leave owner out", "jobs.*.id" = "name it with name" }
             .unwrap_err()
             .to_string();
         assert!(
-            error.contains("example schema 2 predates Link 0.1"),
+            error.contains("example schema 2 predates Link 0.0.1"),
             "{error}"
         );
         assert!(error.contains("write it as schema 1"), "{error}");
@@ -184,22 +184,26 @@ keys = { owner = "leave owner out", "jobs.*.id" = "name it with name" }
     #[test]
     fn a_key_from_before_the_restart_is_refused_by_its_path() {
         let error = format()
-            .read::<Spec>("owner = \"me\"\n")
+            .read::<Spec>("schema = 1\nowner = \"me\"\n")
             .unwrap_err()
             .to_string();
-        assert_eq!(error, "example owner predates Link 0.1: leave owner out");
-        let text = "[[jobs]]\nname = \"a\"\n[[jobs]]\nname = \"b\"\nid = \"j-1\"\n";
+        assert_eq!(error, "example owner predates Link 0.0.1: leave owner out");
+        let text = "schema = 1\n[[jobs]]\nname = \"a\"\n[[jobs]]\nname = \"b\"\nid = \"j-1\"\n";
         let error = format().read::<Spec>(text).unwrap_err().to_string();
         assert_eq!(
             error,
-            "example jobs.1.id predates Link 0.1: name it with name"
+            "example jobs.1.id predates Link 0.0.1: name it with name"
         );
         let error = format()
-            .read_json::<Spec>(br#"{"jobs":[{"name":"a","id":"j"}]}"#)
+            .read_json::<Spec>(br#"{"schema":1,"jobs":[{"name":"a","id":"j"}]}"#)
             .unwrap_err()
             .to_string();
-        assert!(error.contains("jobs.0.id predates Link 0.1"), "{error}");
-        assert!(format().read::<Spec>("[[jobs]]\nname = \"a\"\n").is_ok());
+        assert!(error.contains("jobs.0.id predates Link 0.0.1"), "{error}");
+        assert!(
+            format()
+                .read::<Spec>("schema = 1\n[[jobs]]\nname = \"a\"\n")
+                .is_ok()
+        );
     }
 
     /// A `[before]` key is a path as a step's is: a key holding a dot is
@@ -207,18 +211,18 @@ keys = { owner = "leave owner out", "jobs.*.id" = "name it with name" }
     #[test]
     fn a_key_from_before_the_restart_may_be_quoted() {
         let base = "schema = 1\nkind = \"example\"\ncurrent = 1\ncommand = \"lnk example spec show\"\n\
-                    [before]\nsince = \"0.1.0\"\nuntil = \"0.2.0\"\n";
+                    [before]\nsince = \"0.0.1\"\nuntil = \"0.0.2\"\n";
         let quoted = format!(
             "{base}keys = {{ 'locations.\"lnk.old\"' = \"it's lnk.migration-journal\" }}\n"
         );
         let error = Format::parse(&quoted)
             .unwrap()
-            .read::<Spec>("[locations.\"lnk.old\"]\npath = \"x\"\n")
+            .read::<Spec>("schema = 1\n[locations.\"lnk.old\"]\npath = \"x\"\n")
             .unwrap_err()
             .to_string();
         assert_eq!(
             error,
-            "example locations.\"lnk.old\" predates Link 0.1: it's lnk.migration-journal"
+            "example locations.\"lnk.old\" predates Link 0.0.1: it's lnk.migration-journal"
         );
         let broken = format!("{base}keys = {{ 'locations.\"lnk' = \"x\" }}\n");
         assert!(Format::parse(&broken).is_err());
@@ -227,15 +231,15 @@ keys = { owner = "leave owner out", "jobs.*.id" = "name it with name" }
     #[test]
     fn a_declaration_of_a_schema_this_lnk_reads_or_without_its_window_is_refused() {
         let base = "schema = 1\nkind = \"example\"\ncurrent = 2\ncommand = \"lnk example spec show\"\n\
-                    [[steps]]\nfrom = 1\nsince = \"0.1.0\"\nuntil = \"0.2.0\"\n";
+                    [[steps]]\nfrom = 1\nsince = \"0.0.1\"\nuntil = \"0.0.2\"\n";
         let reads = format!(
-            "{base}[before]\nsince = \"0.1.0\"\nuntil = \"0.2.0\"\nschemas = {{ \"2\" = \"x\" }}\n"
+            "{base}[before]\nsince = \"0.0.1\"\nuntil = \"0.0.2\"\nschemas = {{ \"2\" = \"x\" }}\n"
         );
         assert!(Format::parse(&reads).is_err());
         let windowless = format!("{base}[before]\nkeys = {{ owner = \"x\" }}\n");
         assert!(Format::parse(&windowless).is_err());
         let any = format!(
-            "{base}[before]\nsince = \"0.14.0\"\nuntil = \"0.16.0\"\nkeys = {{ \"*.id\" = \"x\" }}\n"
+            "{base}[before]\nsince = \"0.0.4\"\nuntil = \"0.0.6\"\nkeys = {{ \"*.id\" = \"x\" }}\n"
         );
         let refused = Format::parse(&any).unwrap_err().to_string();
         assert!(refused.contains("starts with *"), "{refused}");

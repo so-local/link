@@ -123,8 +123,7 @@ fn a_conversation_reads_only_its_own_files() {
         .unwrap_err();
     assert!(format!("{err:#}").contains("larger than"), "{err:#}");
     std::fs::rename(&kept, &log).unwrap();
-    let mut line = serde_json::to_vec(&said(1, "Hi")).unwrap();
-    line.push(b'\n');
+    let line = link_files::saved::line(&said(1, "Hi")).unwrap();
     std::fs::write(&log, line).unwrap();
 
     // A link for the copy is replaced, not written through.

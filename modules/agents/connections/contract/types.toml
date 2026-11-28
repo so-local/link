@@ -3,8 +3,9 @@ schema = 1
 [connected]
 type = "object"
 description = "What connect made: the connection's settings, for another program only since they hold its token, and its bot"
-required = ["settings", "bot"]
+required = ["protocol", "settings", "bot"]
 additionalProperties = false
+properties.protocol = { type = "integer", minimum = 1, maximum = 4294967295, description = "The connection protocol's version it speaks, which its reader refuses when older or newer than its own" }
 properties.settings = { x-link-any = true, description = "The connection's section of the harness's settings, its token included: the owner alone allowed" }
 properties.bot = "bot"
 
@@ -20,8 +21,9 @@ properties.team = { type = "string", description = "Its workspace, where the con
 [described]
 type = "object"
 description = "What the connection is: what lnk agent keeps, shows and carries of it without knowing it by name"
-required = ["title", "linked", "bridged"]
+required = ["protocol", "title", "linked", "bridged"]
 additionalProperties = false
+properties.protocol = { type = "integer", minimum = 1, maximum = 4294967295, description = "The connection protocol's version it speaks, which its reader refuses when older or newer than its own" }
 properties.title = { type = "string", description = "Its name as people write it, as Telegram" }
 properties.secret_fields = { type = "array", items = { type = "string" }, description = "The fields of its settings that are secret" }
 properties.linked = { type = "boolean", description = "Whether its account is linked as a device (link and state), not given by a token" }
@@ -192,5 +194,7 @@ properties.state = { type = "array", items = { type = "string" }, description = 
 [ruled]
 type = "object"
 description = "The connection's routing rule, left out when the harness holds the secret itself"
+required = ["protocol"]
 additionalProperties = false
+properties.protocol = { type = "integer", minimum = 1, maximum = 4294967295, description = "The connection protocol's version it speaks, which its reader refuses when older or newer than its own" }
 properties.rule = "rule"

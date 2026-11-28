@@ -219,3 +219,9 @@ Where a webhook's posts arrive, and how each is checked.
 - The bridge takes at most 64 posts at once, as its way in takes
   messages; a body not read within 10 seconds, or a check not answered
   within 30, is refused.
+- A chat's messages are answered one at a time per thread, four threads
+  at once. Only your own answer to a question or command skips that
+  queue, at most eight at once: a member's message in a shared group
+  waits its turn, and a message you forward on Telegram is quoted as
+  forwarded (`Forwarded:`, each line after `> `), so a command or a
+  code in another's words is never taken as yours.

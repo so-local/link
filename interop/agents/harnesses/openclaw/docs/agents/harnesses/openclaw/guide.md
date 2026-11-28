@@ -39,7 +39,7 @@ lnk agent start --model.default local/qwen3
 
 ## Bring an Existing OpenClaw Agent
 
-[`lnk agent migrate --harness openclaw`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-your-agent)
+[`lnk agent migrate --harness openclaw`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-to-local-link)
 discovers the installation's agents and workspaces, copies the selected
 ones, and handles supported secrets, connections, and native jobs.
 The original files remain available and its service is kept stopped.

@@ -283,11 +283,11 @@ mod tests {
     #[test]
     fn each_stage_says_its_own_and_source_says_none() {
         // As `lnk --version` prints it: each line after the first indented.
-        let said = |line: &str| format!("lnk 0.14.0\n  {line}\n  /usr/local/bin/lnk (installed)\n");
+        let said = |line: &str| format!("lnk 0.0.4\n  {line}\n  /usr/local/bin/lnk (installed)\n");
         let prod = said("a prod build: it trusts only the signer it was built with");
         let dev = said("a dev build: it trusts the signer it was built with as well as Link's");
         let staging = said("a staging build: it trusts the staging signer as well as Link's");
-        let source = "lnk 0.14.0\n  /home/me/link/target/debug/lnk (a build, not installed)\n";
+        let source = "lnk 0.0.4\n  /home/me/link/target/debug/lnk (a build, not installed)\n";
         assert!(says_its_build(Build::Prod, &prod));
         assert!(says_its_build(Build::Dev, &dev));
         assert!(says_its_build(Build::Staging, &staging));

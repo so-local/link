@@ -163,7 +163,7 @@ Read by scripts and checks.
 #### `--action`
 
 `--action <action>` sends one agent action and exits, as `-m` sends one
-message. `model:get` and [`/model:get`](../../../../../harnesses/link/docs/agents/link/commands/README.md#model-commands) both send `/model:get`. It
+message. `model:get` and [`/model:get`](../../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md#model-commands) both send `/model:get`. It
 conflicts with `--message`, and follows the same local or remote chat path.
 
 #### `held`

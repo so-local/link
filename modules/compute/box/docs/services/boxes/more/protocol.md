@@ -16,7 +16,8 @@ drops: a SOCKS proxy there, the one on this machine's loopback at
 
 The socket's folder is made first, only the box user's, and a socket
 left there by a connection before removed. `--port <p>` instead: on
-`127.0.0.1:<p>` of the box. `--to` is required: ssh's own SOCKS,
+`127.0.0.1:<p>` of the box, refused when the box has users of its own
+(any member of `lnk-users`), whom a port there would serve too. `--to` is required: ssh's own SOCKS,
 which reaches anything here, is never used.
 
 ### `lnk box run <box> -- <args>`
@@ -25,7 +26,7 @@ which reaches anything here, is never used.
 its exit status. Read by [`lnk agent move`](../../../../../../agents/agent/docs/agents/move/README.md#move-your-agent-to-the-cloud) and [`lnk agent create --on`](../../../../../../agents/agent/docs/agents/start/create.md#create-on-a-hosting-account),
 readying the box first (`module add harness secret`, `sandbox ready
 --yes`, `agent route direct --default`), by `lnk agent show` (when the
-agent is on a box) and by [`lnk agent list`](../../../../../../agents/agent/docs/agents/start/create.md#run-more-than-one-agent) (a box without the harness
+agent is on a box) and by [`lnk agent list`](../../../../../../agents/agent/docs/agents/start/show.md#list-your-agents) (a box without the harness
 module has no agents).
 
 #### From `lnk secret delete`

@@ -18,6 +18,11 @@ use super::Tokens;
 
 link_files::specification!(Tokens, include_str!("tokens.schema.toml"));
 
+/// The tokens counted, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Tokens>()
+}
+
 /// The folder of the counts in Link's `settings`.
 pub fn dir(settings: &Path) -> PathBuf {
     link_files::layout::Hidden::MeasureCredentials.at(settings)

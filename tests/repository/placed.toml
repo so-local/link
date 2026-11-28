@@ -1,27 +1,6 @@
 # Every format Link saves says where its files are, in its schema.toml's
-# `[[files]]`, or that it holds history (`link_repository_check::placed`).
-# These are still unplaced, each with why, a list that only shrinks.
+# `[[files]]`, or that it holds history or state inside something else
+# (`link_repository_check::placed`). These are still unplaced, each with
+# why, a list that only shrinks.
 
 [unplaced]
-"modules/agents/connections/contract/src/connection/groups.schema.toml" = "in a connection's state folder, which its caller chooses and no location names yet"
-"modules/agents/harnesses/portability/contract/src/harness/authority/state.schema.toml" = "in the folder its host chooses, and no adapter or command activates it yet"
-"modules/agents/stores/contract/src/files/dir/capacity.schema.toml" = "in a directory store's own folder, wherever its caller keeps the store"
-"modules/agents/stores/contract/src/store/file/revisions/counter.schema.toml" = "an object in a store, not a file on a machine"
-"modules/agents/stores/contract/src/store/file/revisions/record.schema.toml" = "an object in a store, not a file on a machine"
-"modules/agents/stores/contract/src/store/objects/files/schema.toml" = "an object in a store, not a file on a machine"
-"modules/agents/tools/run-tool/src/background/record.schema.toml" = "in the run tool's state folder, which its caller hands it and no location names yet"
-"modules/agents/tools/scheduler-tool/contract/src/definitions.schema.toml" = "in a scheduler's state folder, which its caller hands it and no location names yet"
-"modules/agents/tools/scheduler-tool/src/portable.schema.toml" = "in a scheduler's state folder, which its caller hands it and no location names yet"
-"modules/agents/tools/scheduler-tool/src/relay.schema.toml" = "in a scheduler's state folder, which its caller hands it and no location names yet"
-"modules/security/sandbox/bridge/binding/src/binding.schema.toml" = "its folder is named by a location of a layer built on this one, which this layer's schema can't say"
-"modules/security/sandbox/confine/src/linux/mounts.schema.toml" = "a sandbox run's own placeholder list, in the run's folder"
-"modules/security/sandbox/confine/src/linux/workers/account.schema.toml" = "a box worker account's journal under the system's root, which the map doesn't hold"
-"modules/security/sandbox/contract/client/src/sandbox/namespace.schema.toml" = "a namespace definition handed to the program serving it, at the path its caller names"
-"modules/security/sandbox/contract/src/box_user.schema.toml" = "a box user's record under the system's root, which the map doesn't hold"
-"modules/security/sandbox/contract/src/box_workers.schema.toml" = "a box's worker launcher settings under the system's root, which the map doesn't hold"
-"modules/security/sandbox/src/wrap/launch.schema.toml" = "a sandbox proxy launch's own file, beside the run that reads it"
-"modules/security/sandbox/src/wrap/routed.schema.toml" = "a sandbox proxy's routes, handed through a variable to the run that reads them"
-"modules/security/secret/contract/src/secrets/at_rest.schema.toml" = "an envelope around another format's file, at that file's place"
-"packages/archive/src/manifest.schema.toml" = "inside an archive, which import reads through its steps"
-"packages/service/src/guest.schema.toml" = "a guest service's configuration in a box's system folder, which the map doesn't hold"
-"packages/spec/src/io/seen.schema.toml" = "in each spec kind's owner's safe folder, which no one location names"

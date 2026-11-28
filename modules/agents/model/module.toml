@@ -24,6 +24,9 @@ owner = "modules/agents/model"
 "topic" = "agents/models"
 "root" = "docs"
 
+["removal"]
+"parts" = ["models", "ollama"]
+
 [pins.ollama]
 file = "externals.json"
 pointer = "/ollama"

@@ -5,7 +5,12 @@
 //! starting the program again (`--list`), then starts it once more for
 //! each selected test, `--exact <test>`, with [`ONE`](super::ONE) naming
 //! the test, so that process is libtest as usual, running only it. As
-//! many run at once as libtest would run threads.
+//! many run at once as the machine has CPUs, times `per_cpu`
+//! ([`program.toml`](super::Settings)): a system test's programs run on a
+//! processor, so the suite's `RUST_TEST_THREADS`, sized for tests that
+//! wait, doesn't size it. `--test-threads` given to the program wins.
+//! With [`COPIES`](super::COPIES) set, the one selected test runs as that
+//! many copies, as wide.
 //!
 //! Each test's process is the leader of a process group of its own, with
 //! a home and runtime folder made new for it. Its temp folder is the
@@ -22,7 +27,7 @@ use std::path::Path;
 use std::sync::{Arc, Mutex, mpsc};
 use std::time::{Duration, Instant};
 
-use super::{ONE, settings};
+use super::{COPIES, ONE, settings};
 
 /// What a run was asked, in libtest's own flags.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -180,11 +185,22 @@ pub fn run() -> i32 {
             line(&mut out, &options, name, "ignored");
         }
     }
-    let threads = options
-        .threads
-        .or_else(|| std::env::var("RUST_TEST_THREADS").ok()?.parse().ok())
-        .filter(|n: &usize| *n > 0)
-        .unwrap_or_else(|| std::thread::available_parallelism().map_or(1, |n| n.get()));
+    if let Some(copies) = std::env::var(COPIES)
+        .ok()
+        .and_then(|n| n.parse::<usize>().ok())
+    {
+        match (queue.len(), queue.front().cloned()) {
+            (1, Some(name)) => {
+                counts.filtered = 0;
+                queue = std::iter::repeat_n(name, copies).collect();
+            }
+            _ => {
+                eprintln!("error: {COPIES} runs one test, selected by its whole name");
+                return 101;
+            }
+        }
+    }
+    let threads = options.threads.unwrap_or_else(width);
     let outcomes = run_all(&program, queue, threads, &options);
     let mut successes = Vec::new();
     let mut failures = Vec::new();
@@ -206,6 +222,12 @@ pub fn run() -> i32 {
     let _ = writeln!(out, "\n{}\n", counts.summary(started.elapsed()));
     let _ = out.flush();
     if counts.failed == 0 { 0 } else { 101 }
+}
+
+/// How many system tests run at once when `--test-threads` doesn't say:
+/// the machine's CPUs times `per_cpu`.
+pub fn width() -> usize {
+    (super::cpus() * settings().per_cpu).max(1)
 }
 
 /// One test's run.
@@ -469,12 +491,8 @@ fn relay(program: &Path, args: &[String]) -> i32 {
 
 /// This test program, to start again with the run's whole environment,
 /// as libtest's own thread for the test would have it.
-#[expect(
-    clippy::disallowed_methods,
-    reason = "the test program started again for its own test keeps the run's environment whole, as a libtest thread would"
-)]
 fn itself(program: &Path) -> std::process::Command {
-    std::process::Command::new(program)
+    link_secretive::process::carried(program)
 }
 
 /// libtest's line for a test's verdict, or its one character when quiet.

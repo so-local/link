@@ -44,6 +44,9 @@ pub use harness::{Child, Pipes};
 pub use state::Store;
 pub use tools::Tools;
 
+/// The hub's formats, which each harness serving through it owns.
+pub const SAVED: [fn() -> link_files::upgrade::Saved; 2] = [sessions::saved, tools::saved];
+
 /// Offline personal capture uses the same archive and source routing as a
 /// running hub. Native files remain adapter-owned and unchanged.
 pub fn export_personal(
@@ -282,9 +285,10 @@ impl Hub {
         Ok(())
     }
 
+    /// Whether `headers` carry its key: never where it has none.
     fn keyed(&self, headers: &HeaderMap) -> bool {
         let Some(key) = &self.key else {
-            return true;
+            return false;
         };
         let sent = headers
             .get(header::AUTHORIZATION)
@@ -347,6 +351,11 @@ async fn acp(
 ) -> Response {
     if let Err((status, why)) = hub.its_agent(&headers) {
         return refuse(status, why);
+    }
+    // With no key set, it serves nothing, as Link Harness does: an
+    // endpoint any program of the machine could open.
+    if hub.key.is_none() {
+        return refuse(StatusCode::SERVICE_UNAVAILABLE, "no key is set");
     }
     if !hub.keyed(&headers) {
         return refuse(StatusCode::UNAUTHORIZED, "wrong or missing key");

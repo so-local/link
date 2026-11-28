@@ -29,7 +29,7 @@ lnk agent start --model.default local/qwen3
 
 ## Bring an Existing Hermes Agent
 
-[`lnk agent migrate --harness hermes`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-your-agent)
+[`lnk agent migrate --harness hermes`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-to-local-link)
 copies a standalone Hermes installation and its selected profiles into
 Link-managed agents. The plan identifies native files, secrets,
 connections, and scheduled jobs before changing them. Creating a fresh

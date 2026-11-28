@@ -229,9 +229,23 @@ impl Incoming {
     /// `describe(connection)`, this machine's module, says, never what came:
     /// a connection whose name isn't one, or whose module here says nothing,
     /// is left out, and its name returned. The agent's permissions are
-    /// the caller's to settle ([`settle_permissions`]).
+    /// the caller's to settle ([`settle_permissions`]). What came is gone
+    /// from staging after, whether or not it was put in place: a failure
+    /// never leaves a linked device's keys there for a prune.
     pub fn apply(
         self,
+        settings: &mut Settings,
+        state: &State,
+        state_of: impl Fn(&str) -> Option<State>,
+        describe: impl Fn(&str) -> Option<link_connection_contract::Describe>,
+    ) -> anyhow::Result<Vec<String>> {
+        let applied = self.apply_staged(settings, state, state_of, describe);
+        remove_staging(&self.staging);
+        applied
+    }
+
+    fn apply_staged(
+        &self,
         settings: &mut Settings,
         state: &State,
         state_of: impl Fn(&str) -> Option<State>,
@@ -269,7 +283,8 @@ impl Incoming {
         std::fs::create_dir_all(&incoming_home)?;
         if incoming_home.is_dir() {
             settings.id = Some(crate::settings::ids::workload(self.manifest.agent.id())?);
-            settings.service = self.manifest.agent.service.clone();
+            settings.service =
+                service_after(self.manifest.agent.service.as_deref(), &settings.service);
             if let Some(owner) = &self.manifest.agent.owner {
                 settings.owner = Some(owner.clone());
             }
@@ -303,7 +318,7 @@ impl Incoming {
             |connection| crate::bridge::state(&agent, connection),
         )?;
         settings.id = Some(crate::settings::ids::workload(self.manifest.agent.id())?);
-        settings.service = self.manifest.agent.service.clone();
+        settings.service = service_after(self.manifest.agent.service.as_deref(), &settings.service);
         if let Some(owner) = &self.manifest.agent.owner {
             settings.owner = Some(owner.clone());
         }
@@ -318,15 +333,45 @@ impl Incoming {
         if settings.files.is_none() {
             settings.files = Some(files);
         }
-        let _ = std::fs::remove_dir_all(&self.staging);
         Ok(left_out)
     }
 
     /// Drops what was unpacked, changing nothing: the copy staged here
     /// goes too.
     pub fn discard(self) {
-        let _ = std::fs::remove_dir_all(&self.staging);
+        remove_staging(&self.staging);
     }
+}
+
+/// Removes `staging` and what's in it, a folder a stream unpacked
+/// without write permission (`0o500`) made writable first, never through
+/// a link.
+pub(super) fn remove_staging(staging: &Path) {
+    fn writable(dir: &Path) {
+        use std::os::unix::fs::PermissionsExt;
+        let Ok(meta) = std::fs::symlink_metadata(dir) else {
+            return;
+        };
+        if !meta.is_dir() {
+            return;
+        }
+        let mode = meta.permissions().mode();
+        if mode & 0o700 != 0o700 {
+            let _ = std::fs::set_permissions(dir, std::fs::Permissions::from_mode(mode | 0o700));
+        }
+        for entry in std::fs::read_dir(dir).into_iter().flatten().flatten() {
+            writable(&entry.path());
+        }
+    }
+    writable(staging);
+    let _ = std::fs::remove_dir_all(staging);
+}
+
+/// The service an arriving agent acts as: the one its stream names, or,
+/// naming none, the one `here` has, whose secrets and model keys are
+/// kept by it, never lost to nothing.
+pub(super) fn service_after(arriving: Option<&str>, here: &Option<String>) -> Option<String> {
+    arriving.map(str::to_string).or_else(|| here.clone())
 }
 
 /// The connections that `came`, each as this machine's module describes it

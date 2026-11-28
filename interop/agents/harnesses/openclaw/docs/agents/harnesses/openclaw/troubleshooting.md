@@ -19,14 +19,14 @@ lnk up
 
 ## It answers "Auto-compaction could not recover this turn"
 
-The model's context window was too small. [`lnk agent start`](../../../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent) again sets
+The model's context window was too small. [`lnk agent start`](../../../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent) again sets
 32,768 tokens. A model that can't hold that much needs more memory, or
 a hosted model.
 
 ## Something else on your Mac uses port 18789
 
 Or [the ports after it](security.md#its-ports). Stop it, because
-`main`'s ports are fixed. Another agent's are in its own block, which [`lnk agent list --json`](../../../../../../../../modules/agents/agent/docs/agents/start/create.md#run-more-than-one-agent) shows.
+`main`'s ports are fixed. Another agent's are in its own block, which [`lnk agent list --json`](../../../../../../../../modules/agents/agent/docs/agents/start/show.md#list-your-agents) shows.
 
 ## An old OpenClaw install keeps starting outside Link
 

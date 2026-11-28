@@ -4,7 +4,7 @@ The hermes adapter installs, configures, and runs the native harness for Link. T
 
 ## How it runs
 
-[`lnk agent start`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent) installs the Hermes release Link pins, with its own
+[`lnk agent start`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent) installs the Hermes release Link pins, with its own
 Python and Node, in the read-only `~/.lnk/exec/harnesses/hermes`, keeps its
 configuration and conversations in
 `~/.lnk/data/agents/<agent>/harnesses/hermes`, and runs the published
@@ -31,7 +31,7 @@ your files folder.
 ### Its scheduled jobs
 
 Link's scheduler runs them once you add it with
-[`lnk agent tool add scheduler`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#add-tools-and-skills): each reaches Hermes as a message from the
+[`lnk agent tool add scheduler`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#tools): each reaches Hermes as a message from the
 schedule, and its answer goes to the chat the schedule names.
 
 ## Native Schedules

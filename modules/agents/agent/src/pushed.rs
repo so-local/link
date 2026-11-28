@@ -507,6 +507,11 @@ struct SeenList {
 
 link_files::specification!(SeenList, include_str!("pushed/seen.schema.toml"));
 
+/// The hook posts taken, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<SeenList>()
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Taken {
@@ -609,7 +614,7 @@ impl Seen {
     }
 }
 
-mod questions;
+pub(crate) mod questions;
 pub use questions::PER_DAY as QUESTIONS_PER_DAY;
 
 #[cfg(test)]

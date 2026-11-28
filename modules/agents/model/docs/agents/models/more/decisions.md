@@ -140,7 +140,7 @@ and `uninstall` for software Link downloads, a model, and `add` and
 ## How does a model at its own address reach an agent?
 
 `lnk model runtime add <url>` remembers it, and discovery asks it as it asks the
-default ports. So `lnk model runtime list --json`, and with it [`lnk agent start`](../../../../../agent/docs/agents/README.md#create-an-agent),
+default ports. So `lnk model runtime list --json`, and with it [`lnk agent start`](../../../../../agent/docs/agents/README.md#start-your-agent),
 the tunnel and every harness, see it without a flag of their own, and a
 model someone is building needs no port trick. Only an address on this
 machine is added: discovery never goes through a proxy, and the sandbox

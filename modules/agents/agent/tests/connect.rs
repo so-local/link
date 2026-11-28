@@ -17,29 +17,29 @@ const ADAPTER: &str = "#!/bin/sh\n[ \"$1\" = connections ] && echo '[\"slack\", 
 
 /// A Signal module: the agent's number and its owner's.
 const SIGNAL: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Signal", "secret_fields": [], "linked": true, "bridged": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Signal", "secret_fields": [], "linked": true, "bridged": true}'; exit 0; }
 printf '%s\n' "$@" > "$HOME/asked"
-echo '{"settings": {"account": "+15557654321", "allowed_users": ["+15551234567"]}, "bot": {"id": "+15557654321", "name": "+15557654321"}}'
+echo '{"protocol": 1, "settings": {"account": "+15557654321", "allowed_users": ["+15551234567"]}, "bot": {"id": "+15557654321", "name": "+15557654321"}}'
 "#;
 
 /// A Slack module that says what it was asked, then pairs Dana.
 const SLACK: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Slack", "secret_fields": ["bot_token","app_token"], "linked": false, "bridged": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Slack", "secret_fields": ["bot_token","app_token"], "linked": false, "bridged": true}'; exit 0; }
 printf '%s\n' "$@" > "$HOME/asked"
 echo '  Got it, Dana.' >&2
-echo '{"settings": {"bot_token": "xoxb-made", "app_token": "xapp-made", "allowed_users": ["U0DANA"]}, "bot": {"id": "U0BOT", "name": "link-main", "team": "Acme"}}'
+echo '{"protocol": 1, "settings": {"bot_token": "xoxb-made", "app_token": "xapp-made", "allowed_users": ["U0DANA"]}, "bot": {"id": "U0BOT", "name": "link-main", "team": "Acme"}}'
 "#;
 
 /// A connection from outside Link, which Link knows nothing of.
 const MATRIX: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Matrix", "secret_fields": ["token"]}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Matrix", "secret_fields": ["token"]}'; exit 0; }
 [ "$1" = rule ] && { echo 'null'; exit 0; }
-echo '{"settings": {"token": "syt_made", "allowed_users": ["@me:example.org"]}, "bot": {"id": "@agent:example.org", "name": "agent"}}'
+echo '{"protocol": 1, "settings": {"token": "syt_made", "allowed_users": ["@me:example.org"]}, "bot": {"id": "@agent:example.org", "name": "agent"}}'
 "#;
 
 /// One that gives up.
 const FAILING: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Slack", "bridged": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Slack", "bridged": true}'; exit 0; }
 echo 'Error: Slack refused: invalid_auth' >&2
 exit 1
 "#;
@@ -48,7 +48,7 @@ exit 1
 /// as it could answer the code itself, so its start again is what fails.
 #[cfg(target_os = "linux")]
 const FAILING_LINKED: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Slack", "linked": true, "bridged": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Slack", "linked": true, "bridged": true}'; exit 0; }
 echo 'Error: Slack refused: invalid_auth' >&2
 exit 1
 "#;

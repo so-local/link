@@ -52,7 +52,7 @@ shows or fixes it. `unreached` means nothing answered, such as a local
 runtime that isn't running. `too_long` means the prompt is past the
 model's window, `overloaded` that the model answered 429 or a 5xx, and
 `refused` that its provider or runtime turned the request down. The
-[Link Harness](../../../../../harnesses/link/docs/agents/link/guide.md)
+[Link Harness](../../../../../harnesses/link/docs/agents/harnesses/link/guide.md)
 falls back to its second model on the first three.
 
 #### Refused before the stream
@@ -78,7 +78,7 @@ use the same API at `LNK_MODEL_URL`. Request actions read typed JSON
 from standard input, or `--request <file>`. A person reads each answer
 as fields, and chat's text as it streams, then the rest of its answer.
 With `--json` they print the JSON, chat's a stream event a line.
-Each [`lnk agent model`](../../../../../agent/docs/agents/README.md#change-your-model) command uses the grant of the agent its `--agent` names.
+Each [`lnk agent model`](../../../../../agent/docs/agents/README.md#models) command uses the grant of the agent its `--agent` names.
 Agent commands spell the actions `/model:<action>` and take JSON for
 structured requests. The registry generates their discovery names.
 
@@ -94,8 +94,8 @@ structured requests. The registry generates their discovery names.
 
 `lnk model list --json` prints plain names, as the route does. The owner
 runtime inventory, including addresses, is `lnk model runtime list --json`;
-[`lnk agent start`](../../../../../agent/docs/agents/README.md#create-an-agent) uses it. `lnk model show <name>` returns the same
+[`lnk agent start`](../../../../../agent/docs/agents/README.md#start-your-agent) uses it. `lnk model show <name>` returns the same
 `Shown` type as the route to an agent, granted a runtime. Run by its
 owner, it prints the model's known facts, including their overrides, as
 blocks for a person and the public `Shown` object with `--json`.
-[`lnk issue create`](../../../../../../../docs/more/modules/guide.md#get-help) reads that JSON for a model named in a failure.
+[`lnk issue create`](../../../../../../../core/cli/docs/tooling/issue.md#report-a-bug) reads that JSON for a model named in a failure.

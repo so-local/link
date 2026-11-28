@@ -12,11 +12,11 @@ package.
 
 ### Pages
 
-- [Sandbox Isolation](docs/security/sandbox/wall/README.md): The sandbox confines each program as tightly as the operating system allows while the program can still run
+- [Sandbox Isolation](docs/tooling/sandbox/wall/README.md): The sandbox confines each program as tightly as the operating system allows while the program can still run
 
 ### More
 
-- [Decisions](docs/security/sandbox/wall/decisions.md): Why the sandbox's wall, `link-sandbox-confine`, works the way it does
+- [Decisions](docs/tooling/sandbox/wall/decisions.md): Why the sandbox's wall, `link-sandbox-confine`, works the way it does
 
 <!-- docs-tree:end -->
 

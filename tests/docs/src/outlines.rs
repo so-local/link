@@ -446,7 +446,7 @@ fn resolve(
         external: &mut BTreeSet<String>,
     ) -> Result<(), String> {
         for node in nodes {
-            let target = node.target.strip_suffix(" \"tab\"").unwrap_or(&node.target);
+            let target = crate::md::target_path(&node.target);
             if target.contains("://") {
                 if let Some((site, address)) =
                     tree.site_page(target.split(['#', '?']).next().unwrap_or_default())

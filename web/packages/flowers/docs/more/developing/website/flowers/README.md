@@ -33,6 +33,33 @@ export function Background() {
 }
 ```
 
+### Field Size
+
+A server can't know the window's size, so the field's first drawing is
+hidden. Before the browser paints after hydrating, the field measures
+itself, lays out its flowers at that size and fades them in over
+`revealTime` in `motionConstants`. No flower is ever seen stretched or
+jumping to a new place. `flowerCount` is the count for a field 1,280
+pixels wide or wider. A narrower field holds fewer flowers, by the square
+root of its share of that width (`fieldCount`), so a phone's field holds
+20 and stays full without crowding.
+
+## Draw a Flower on a Server
+
+`HeadArt` from `@link-flowers/browser/art` draws one sunflower's head as
+a whole SVG, with no state, effects or animation. A server renders it
+once, as a website's share card does. Its petals are the same shapes
+`FlowerSvg` draws. Every element inside the SVG is plain SVG, since an
+image renderer such as Next's `ImageResponse` accepts nothing else there.
+
+```tsx
+import { HeadArt } from "@link-flowers/browser/art";
+
+export function Sunflower() {
+  return <HeadArt size={189} />;
+}
+```
+
 ## Configure the Components
 
 Both components take `flower`, `settings`, `paused`, `interactive`, `pointerTarget`, `className`, `style` and `title`. `FlowerSvg` also accepts `framing="head"` or `framing="full"`, and `FlowerBackground` accepts `fixed`. A `pointerTarget` ref selects the host container that observes movement. Fixed backgrounds observe the document by default. Touch input does not bend the flowers.

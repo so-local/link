@@ -89,7 +89,7 @@ async fn serve_callback(
             () = tokio::time::sleep_until(deadline) => break,
             _ = arrival.changed() => break,
             Some(stream) = incoming.recv() => {
-                if relays.len() >= CALLBACK_CONNECTIONS {
+                if open(&mut relays) >= CALLBACK_CONNECTIONS {
                     continue;
                 }
                 let browser = link_sandbox_proxy::wire::Counted::new(stream, call);
@@ -105,6 +105,14 @@ async fn serve_callback(
     let finishing = async { while relays.join_next().await.is_some() {} };
     let _ = tokio::time::timeout(CALLBACK_REQUEST, finishing).await;
     Ok(())
+}
+
+/// How many of `relays` are still open: those finished reaped first, so
+/// a browser's connections closed long since never count against the
+/// port's [`CALLBACK_CONNECTIONS`].
+fn open<T: 'static>(relays: &mut tokio::task::JoinSet<T>) -> usize {
+    while relays.try_join_next().is_some() {}
+    relays.len()
 }
 
 /// One connection from the browser, into the sandbox once it sends its
@@ -140,6 +148,29 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A callback counts only its open connections: those finished are
+    /// reaped before the count, so they never fill its eight.
+    #[tokio::test]
+    async fn a_callback_counts_only_open_connections() {
+        let mut relays = tokio::task::JoinSet::new();
+        let (hold, held) = tokio::sync::oneshot::channel::<()>();
+        relays.spawn(async move {
+            let _ = held.await;
+        });
+        for _ in 0..CALLBACK_CONNECTIONS {
+            relays.spawn(async {});
+        }
+        // Each finished one ends; the held one stays open.
+        link_test_kit::wait::eventually_async(
+            "the finished relays end",
+            std::time::Duration::from_secs(5),
+            || open(&mut relays) == 1,
+        )
+        .await;
+        assert_eq!(open(&mut relays), 1);
+        drop(hold);
+    }
 
     /// Only a machine without IPv6 goes without IPv6's listener: a port
     /// another program holds there is a refusal.

@@ -74,8 +74,11 @@ package, for the current user only), or Google's archive from
 
 #### How they're fetched
 
-Both come over HTTPS only. Link doesn't pin them or check their
-signatures: it trusts those sites, as their own install instructions do.
+Both come over HTTPS only, each at the version Link pins, beside its
+SHA-256 (`install.toml` beside each adapter's `install.rs`). The download
+is checked against that sum before it's unpacked or run, and one that
+differs is refused. A newer CLI comes with a newer Link, never on its
+own.
 Neither needs administrator rights, and neither changes your shell's
 settings.
 
@@ -147,20 +150,33 @@ cloud account.
 
 ### Your own SSH settings
 
-Every connection to a box runs your `ssh`, which reads your
-`~/.ssh/config`, so a `ProxyJump` you need still works. What would hand
-the box something of this computer is turned off on the command line,
-which wins over that file:
+Every connection to a box runs your `ssh` with `-F none`, so it reads
+none of your SSH settings (`~/.ssh/config` and the system's) but their
+`ProxyJump`. That one Link reads with `ssh -G` and keeps as a
+`ProxyCommand` that runs `ssh -W` to the jump host, which reads your
+settings as a jump host needs. What would hand the box something of
+this computer is off:
 
-- `ForwardAgent=no`: a box never gets your SSH agent, which would let
-  whoever controls it sign as you to any host your keys reach.
+- `-i` Link's key with `IdentitiesOnly=yes`, `IdentityAgent=none` and
+  `ForwardAgent=no`: a box is offered Link's key and certificate alone,
+  never one of yours (`IdentityFile`, `CertificateFile`), which would
+  tell whoever controls it which keys you hold, and never gets your keys
+  forwarded, which would let it sign as you to any host they reach.
 - `ForwardX11=no`, and `PermitLocalCommand=no`, so no `LocalCommand`
   runs here.
 - `ClearAllForwardings=yes`, on every connection but `lnk box forward`'s,
-  so no `LocalForward`, `RemoteForward` or `DynamicForward` of yours
-  opens. `lnk box forward` exists to forward one port or socket, and
-  ssh can't clear the file's without clearing it too: a forward of
-  yours under `Host *` opens on that connection as well.
+  so no forward given on the command line opens beside the one `lnk box
+  forward` asks for.
+- `--` before the box's address, which a listing saves only once it
+  reads as an IPv4 or IPv6 address, so nothing a cloud says reaches ssh
+  as an option.
+
+What a box prints reaches your terminal line by line through Link's
+cleaning, without control characters, unless the session has a terminal
+of its own (`-t`): a box's program never moves your cursor, retitles
+your window or writes what the screen hides. Output to a file or a pipe
+passes through untouched. An answer Link reads whole, a script's output
+or a socket's folder, is refused past 16 MiB.
 
 ## Boxes here
 
@@ -170,7 +186,7 @@ own, no SSH server and no forwarded ports.
 
 ### Its sandbox
 
-Its commands run under [`lnk sandbox run`](../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) with the specification captured when it
+Its commands run under [`lnk sandbox run`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) with the specification captured when it
 was made, which writes the box's home and opens what that specification opens.
 Link's own specification opens nothing more. The specification is never read from its
 source again, so editing that file changes no box. `lnk box copy` writes

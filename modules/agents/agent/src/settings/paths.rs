@@ -169,6 +169,11 @@ impl Defaults {
 
 link_files::specification!(Defaults, include_str!("defaults.schema.toml"));
 
+/// The agents' defaults, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Defaults>()
+}
+
 /// The name of an agent's settings file in its folder.
 pub const SETTINGS_FILE: &str = "agent.toml";
 

@@ -38,7 +38,9 @@ mod config;
 mod running;
 mod transfers;
 use buckets::{FileList, class_flag, object, pending_in, uploader_hashes};
-pub use config::{Kept, SECRET_KEYS, config_in, held, kept, remove_section, section};
+pub use config::{
+    Kept, SECRET_KEYS, config_in, held, kept, keychain_saved, remove_section, section,
+};
 use config::{file_section, keychain, keychain_list_path, keychain_settings, put_section};
 use running::sweep_runs;
 

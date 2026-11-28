@@ -24,7 +24,7 @@ fn adapter(from: bool, own: &str) -> String {
 /// A Slack module that can share: keeps what it was handed, and takes the
 /// code in #team.
 const SLACK: &str = r##"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Slack", "secret_fields": ["bot_token","app_token"], "bridged": true, "share": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Slack", "secret_fields": ["bot_token","app_token"], "bridged": true, "share": true}'; exit 0; }
 [ "$1" = share ] || exit 1
 cat > "$HOME/sharing"
 echo '  Shared.' >&2
@@ -33,14 +33,14 @@ echo '{"chat": "chat:slack:C0TEAM", "name": "#team"}'
 
 /// One that can't.
 const SLACK_UNSHARING: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Slack", "bridged": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Slack", "bridged": true}'; exit 0; }
 cat > "$HOME/sharing"
 exit 1
 "#;
 
 /// One whose wait ends with no code.
 const SLACK_TIMING_OUT: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Slack", "bridged": true, "share": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Slack", "bridged": true, "share": true}'; exit 0; }
 cat > "$HOME/sharing"
 echo 'Error: no code within 10 minutes' >&2
 exit 1
@@ -48,7 +48,7 @@ exit 1
 
 /// One that says it shared a chat on another connection.
 const SLACK_ELSEWHERE: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title": "Slack", "bridged": true, "share": true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title": "Slack", "bridged": true, "share": true}'; exit 0; }
 cat > "$HOME/sharing"
 echo '{"chat": "chat:telegram:-1001234"}'
 "#;

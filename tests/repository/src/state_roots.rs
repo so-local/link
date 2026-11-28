@@ -129,6 +129,8 @@ fn native(name: &str) -> bool {
     // These names are owned by the named program or OS, not Link.
     [
         ".aws",
+        ".bash_profile",
+        ".bashrc",
         ".cache",
         ".claude",
         ".codex",
@@ -144,6 +146,7 @@ fn native(name: &str) -> bool {
         ".hermes",
         ".local",
         ".openclaw",
+        ".profile",
         ".signal-cli",
         ".ssh",
     ]

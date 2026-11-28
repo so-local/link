@@ -12,6 +12,7 @@ mod backups;
 mod boxes;
 mod finding;
 mod harnesses;
+mod holding;
 mod hosted;
 mod members;
 mod recovering;
@@ -50,15 +51,15 @@ struct World {
 const CONNECTIONS: [(&str, &str); 3] = [
     (
         "lnk-telegram",
-        r#"{"title":"Telegram","secret_fields":["bot_token"],"bridged":true}"#,
+        r#"{"protocol":1,"title":"Telegram","secret_fields":["bot_token"],"bridged":true}"#,
     ),
     (
         "lnk-slack",
-        r#"{"title":"Slack","secret_fields":["bot_token","app_token"],"bridged":true}"#,
+        r#"{"protocol":1,"title":"Slack","secret_fields":["bot_token","app_token"],"bridged":true}"#,
     ),
     (
         "lnk-discord",
-        r#"{"title":"Discord","secret_fields":["bot_token"],"bridged":true}"#,
+        r#"{"protocol":1,"title":"Discord","secret_fields":["bot_token"],"bridged":true}"#,
     ),
 ];
 
@@ -182,7 +183,7 @@ case "$1 $2 $3" in
            # The network dropped once the switch landed there.
            [ -e '{root}/drop-after-switch' ] && {{ rm '{root}/drop-after-switch'; HOME='{there}' XDG_RUNTIME_DIR='{runtimes}/there' HOME_NAME=there LNK_TEST_MACHINE_KIND='{there}/kind.toml' '{harness}' "$@"; : > '{root}/dark-b1'; exit 255; }} ;; esac
          # The box stops answering once the agent started there.
-         [ "$*" = "-a main start" ] && [ -e '{root}/dark-after-start' ] && {{ HOME='{there}' XDG_RUNTIME_DIR='{runtimes}/there' HOME_NAME=there LNK_TEST_MACHINE_KIND='{there}/kind.toml' '{harness}' "$@"; : > '{root}/dark-b1'; exit 0; }}
+         case "$*" in "-a main start"*) [ -e '{root}/dark-after-start' ] && {{ HOME='{there}' XDG_RUNTIME_DIR='{runtimes}/there' HOME_NAME=there LNK_TEST_MACHINE_KIND='{there}/kind.toml' '{harness}' "$@"; : > '{root}/dark-b1'; exit 0; }} ;; esac
          # A switch the box refuses, before anything of it is read.
          case "$*" in *"receive --no-start --phase switch"*) [ -e '{root}/refuse-switch' ] && {{ echo "refused" >&2; exit 1; }} ;; esac
          # Ctrl-C, as the move asks what its harness needs there.
@@ -270,6 +271,18 @@ esac"#,
         self.command_by(harness, args).output().unwrap()
     }
 
+    /// [`World::lnk_agent`] on the box, as another computer's move runs
+    /// it there.
+    fn lnk_agent_there(&self, args: &[&str]) -> Output {
+        self.lnk_agent_command(args)
+            .env("HOME", &self.there)
+            .env("XDG_RUNTIME_DIR", self.runtimes.join("there"))
+            .env("HOME_NAME", "there")
+            .env("LNK_TEST_MACHINE_KIND", self.there.join("kind.toml"))
+            .output()
+            .unwrap()
+    }
+
     /// [`World::lnk_agent`], to start: its output not yet read.
     fn lnk_agent_command(&self, args: &[&str]) -> Command {
         self.command_by(&link_test_kit::programs().join("lnk-agent"), args)
@@ -350,7 +363,7 @@ esac
 const SIGNAL: &str = r#"#!/bin/sh
 case "$1" in
   state) echo '{"include": ["~/.signal-cli/data", "~/.signal-cli/account"], "exclude": []}' ;;
-  describe) echo '{"title": "Signal", "linked": true, "bridged": true, "cli": true}' ;;
+  describe) echo '{"protocol": 1, "title": "Signal", "linked": true, "bridged": true, "cli": true}' ;;
   *) exit 1 ;;
 esac
 "#;

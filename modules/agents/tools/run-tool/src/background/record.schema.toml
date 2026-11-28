@@ -1,3 +1,4 @@
 schema = 1
 kind = "background command record"
 current = 1
+holds = "inside"

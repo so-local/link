@@ -114,3 +114,63 @@ async fn source_observation_survives_client_disconnect_and_settles_the_original_
             .is_empty()
     );
 }
+
+/// A session over a pipe whose server reads what it's sent and never
+/// answers, and the pipe's other end, kept open.
+fn silent() -> (Arc<Session>, tokio::io::DuplexStream) {
+    let (client, server) = tokio::io::duplex(1 << 20);
+    let session = Arc::new(Session {
+        tool: "silent".into(),
+        started: Started {
+            argv: vec![],
+            env: BTreeMap::new(),
+            shared: false,
+        },
+        stdin: tokio::sync::Mutex::new(Box::new(client)),
+        pending: Mutex::default(),
+        hints: Mutex::default(),
+        used: Mutex::new(std::time::Instant::now()),
+        child: Mutex::new(None),
+    });
+    (session, server)
+}
+
+/// A server that never answers holds at most `MOST_PENDING` calls; the
+/// next is refused, not kept.
+#[tokio::test]
+async fn a_silent_server_holds_only_so_many_calls() {
+    let (session, _server) = silent();
+    let mut waiting = Vec::new();
+    for id in 0..MOST_PENDING {
+        let call = json!({"jsonrpc":"2.0","id":id,"method":"tools/call"});
+        waiting.push(session.begin_request(&call, vec![]).await.unwrap());
+    }
+    let over = json!({"jsonrpc":"2.0","id":MOST_PENDING,"method":"tools/call"});
+    let refused = session.begin_request(&over, vec![]).await.unwrap_err();
+    assert!(
+        format!("{refused:#}").contains("calls waiting"),
+        "{refused:#}"
+    );
+    assert_eq!(session.pending.lock().unwrap().len(), MOST_PENDING);
+}
+
+/// A listing replaces what the server said before, a next page adds to
+/// it, and no server grows the hints past `MOST_HINTS`.
+#[test]
+fn a_listing_replaces_the_hints() {
+    let (session, _server) = silent();
+    let listed = |names: std::ops::Range<usize>| {
+        let tools: Vec<Value> = names
+            .map(|n| json!({"name": format!("t{n}"), "annotations": {"readOnlyHint": true}}))
+            .collect();
+        json!({"result": {"tools": tools}})
+    };
+    session.keep_hints(&listed(0..2), true);
+    session.keep_hints(&listed(2..3), false);
+    assert_eq!(session.hints.lock().unwrap().len(), 3);
+    session.keep_hints(&listed(5..6), true);
+    assert_eq!(session.hints_of("t0"), Value::Null);
+    assert_eq!(session.hints_of("t5"), json!({"readOnlyHint": true}));
+    session.keep_hints(&listed(0..MOST_HINTS + 10), false);
+    assert_eq!(session.hints.lock().unwrap().len(), MOST_HINTS);
+}

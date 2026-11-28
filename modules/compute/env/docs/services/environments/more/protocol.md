@@ -97,7 +97,10 @@ service created when a box starts the environment invokes it for each service.
 The environment module owns three internal commands for a program that
 works in an environment's workdir.
 `lnk env export --spec <file>` returns `link_env_contract::environment::Packed`,
-the existing job environment contract's `file`, `hash` and `files` map.
+the existing job environment contract's `file`, `hash` and `files` map,
+with `protocol`, the hand-off's version (`environment/protocol.toml`),
+which import reads first and refuses by name, naming [`lnk upgrade`](../../../../../../../docs/more/modules/guide.md#upgrade),
+when another release wrote it.
 The files are text, relative to the environment's folder, and contain
 secret names rather than their values. At most 1024 files and 8 MiB
 cross this boundary.

@@ -49,7 +49,7 @@ impl Shapes {
 
 /// The text files git tracks under `root`, by their paths from it.
 #[expect(clippy::disallowed_methods, reason = "git lists the tracked files")]
-fn tracked(root: &Path) -> Vec<String> {
+pub(crate) fn tracked(root: &Path) -> Vec<String> {
     let listed = std::process::Command::new("git")
         .args(["ls-files", "-z"])
         .current_dir(root)

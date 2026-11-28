@@ -29,6 +29,11 @@ pub struct Record {
 
 link_files::specification!(Record, include_str!("landing/record.schema.toml"));
 
+/// Each move's staging record, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Record>()
+}
+
 /// The record in a staging folder.
 pub const RECORD: &str = "move.json";
 

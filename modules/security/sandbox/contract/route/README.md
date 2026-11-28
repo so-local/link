@@ -10,8 +10,8 @@ in place of a credential.
 
 ## Docs
 
-- [Routes](docs/security/sandbox/more/contract/routes.md): `link-sandbox-route`: a route, a way out of a sandbox beside the network, which its proxy mounts under `/_link/` and a bridge outside serves
-- [Models and Secrets on the Wire](docs/security/sandbox/more/contract/models-and-secrets.md): How a hosted model's key and a service's secret are added to a sandbox's calls outside it, by a route of its proxy's
+- [Routes](docs/tooling/sandbox/more/contract/routes.md): `link-sandbox-route`: a route, a way out of a sandbox beside the network, which its proxy mounts under `/_link/` and a bridge outside serves
+- [Models and Secrets on the Wire](docs/tooling/sandbox/more/contract/models-and-secrets.md): How a hosted model's key and a service's secret are added to a sandbox's calls outside it, by a route of its proxy's
 
 <!-- docs-tree:end -->
 

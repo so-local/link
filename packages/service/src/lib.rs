@@ -10,7 +10,7 @@ pub mod system;
 #[cfg(target_os = "linux")]
 mod guest;
 #[cfg(target_os = "linux")]
-pub use guest::guest_service_entry;
+pub use guest::{guest_service_entry, saved as saved_guest_state};
 #[cfg(not(target_os = "linux"))]
 pub fn guest_service_entry(_given: cli::GuestEntry) -> anyhow::Result<()> {
     anyhow::bail!("guest services require Linux")

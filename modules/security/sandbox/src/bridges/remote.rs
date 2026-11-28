@@ -118,10 +118,42 @@ fn message(event: &[u8]) -> Option<String> {
     (!lines.is_empty()).then(|| lines.join("\n"))
 }
 
+/// The client calls to the server go on: it follows no redirect, which
+/// would carry its headers' token to wherever the server points it, or
+/// from `https` to a host `check_url` never read.
+fn client(headers: reqwest::header::HeaderMap) -> anyhow::Result<reqwest::Client> {
+    link_fetch::install_crypto_provider();
+    Ok(reqwest::Client::builder()
+        .default_headers(headers)
+        .redirect(reqwest::redirect::Policy::none())
+        .build()?)
+}
+
+/// All of `response`'s body, refused past [`MAX_EVENT`], however much
+/// it declares or sends: never held whole beyond it.
+async fn capped(mut response: reqwest::Response) -> anyhow::Result<Vec<u8>> {
+    ensure!(
+        response
+            .content_length()
+            .is_none_or(|length| length <= MAX_EVENT as u64),
+        "the server declared an answer over {} MiB",
+        MAX_EVENT >> 20
+    );
+    let mut body = Vec::new();
+    while let Some(chunk) = response.chunk().await? {
+        body.extend_from_slice(&chunk);
+        ensure!(
+            body.len() <= MAX_EVENT,
+            "the server sent an answer over {} MiB",
+            MAX_EVENT >> 20
+        );
+    }
+    Ok(body)
+}
+
 /// `sandbox mcp-remote <url>`: MCP over stdio, to the server at `url`.
 pub async fn bridge(url: &str) -> anyhow::Result<()> {
     check_url(url)?;
-    link_fetch::install_crypto_provider();
     let mut headers = reqwest::header::HeaderMap::new();
     for (key, value) in link_secretive::process::variables(|k| k.starts_with(HEADER_ENV)) {
         let (name, value) = check_header(&value).within(format!("${key}"))?;
@@ -130,9 +162,7 @@ pub async fn bridge(url: &str) -> anyhow::Result<()> {
             reqwest::header::HeaderValue::from_str(&value)?,
         );
     }
-    let client = reqwest::Client::builder()
-        .default_headers(headers)
-        .build()?;
+    let client = client(headers)?;
     let session: Arc<std::sync::Mutex<Option<String>>> = Default::default();
     let out = Arc::new(tokio::sync::Mutex::new(tokio::fs::File::from_std(
         link_format::streams::Protocol::file()?,
@@ -209,7 +239,7 @@ async fn post(
         .and_then(|v| v.to_str().ok())
         .is_some_and(|t| t.starts_with("text/event-stream"));
     if !stream {
-        let body = response.bytes().await?;
+        let body = capped(response).await?;
         if let Ok(answer) = serde_json::from_slice::<Value>(&body) {
             write(out, &answer).await?;
         }
@@ -238,6 +268,36 @@ async fn write(out: &tokio::sync::Mutex<tokio::fs::File>, message: &Value) -> an
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A remote tool's client follows no redirect: a server's 3xx is its
+    /// answer, never a second request carrying the token elsewhere; and
+    /// an answer past its cap is refused.
+    #[tokio::test]
+    async fn a_remote_tools_client_follows_no_redirect() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let at = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let mut asked = 0;
+            for answer in [
+                "HTTP/1.1 302 Found\r\nLocation: http://127.0.0.1:1/elsewhere\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+                "HTTP/1.1 200 OK\r\nContent-Length: 999999999\r\nConnection: close\r\n\r\n",
+            ] {
+                let (mut stream, _) = listener.accept().await.unwrap();
+                let mut head = vec![0u8; 4096];
+                let _ = stream.read(&mut head).await.unwrap();
+                asked += 1;
+                stream.write_all(answer.as_bytes()).await.unwrap();
+            }
+            asked
+        });
+        let client = client(Default::default()).unwrap();
+        let moved = client.get(format!("http://{at}/mcp")).send().await.unwrap();
+        assert_eq!(moved.status(), 302, "the redirect is the answer");
+        let large = client.get(format!("http://{at}/mcp")).send().await.unwrap();
+        assert!(capped(large).await.is_err());
+        assert_eq!(server.await.unwrap(), 2, "nothing followed");
+    }
 
     #[test]
     fn a_server_is_https_or_on_this_machine() {

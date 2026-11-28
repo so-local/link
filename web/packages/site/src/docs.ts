@@ -739,8 +739,9 @@ export function page(lang: Language, segments: string[]): Page | undefined {
       else cards.push({ kind: "card", content: { type: "root", children: [contentsSection] } });
     }
 
-    // A tab's page is called what its tab is.
-    const tab = site(lang).tabs.find((t) => t.href === url);
+    // A tab's page is called what its tab is, unless the tab has a short
+    // label of its own ("tab"), when the page keeps its title.
+    const tab = site(lang).tabs.find((t) => t.href === url && !t.tab);
     return {
       homepage,
       file,
@@ -816,14 +817,15 @@ function pageContents(lang: Language, url: string, headings: DocEntry[]): DocEnt
 
 /**
  * A page of the site's tree: a tab, or a page nested under one in
- * navigation.md, with the pages nested under it in turn.
+ * navigation.md, with the pages nested under it in turn. A link titled
+ * with a label, such as "Parts of an Agent", starts a group: its
+ * `group` is that label, in the reader's language, drawn above it.
  */
-export type Node = Entry & { children: Node[]; ref?: boolean };
+export type Node = Entry & { children: Node[]; ref?: boolean; group?: string; tab?: boolean };
 
 export type Site = {
   name: string;
   description: string;
-  homeTitle: string;
   tabs: Node[];
   words: Record<string, string>;
 };
@@ -856,6 +858,7 @@ export function site(lang: Language): Site {
     const at = tree.children.findIndex((n) => n.type === "heading" && n.depth === 2 && toString(n) === "Pages");
     const outline = tree.children.slice(at + 1).find((n) => n.type === "list" || n.type === "heading");
     if (at < 0 || outline?.type !== "list") throw new Error(`${siteFile}: missing Pages outline`);
+    const words = labels(lang);
     const nodes = (list: List): Node[] => list.children.flatMap((item) => {
       const para = item.children[0];
       const links = para?.type === "paragraph" ? para.children.filter((c) => c.type === "link") : [];
@@ -873,18 +876,18 @@ export function site(lang: Language): Site {
       }
       const nested = item.children.find((c): c is List => c.type === "list");
       const href = resolve(lang, siteFile, url);
-      return href === undefined ? [] : [{ label: toString(link), href, children: nested ? nodes(nested) : [] }];
+      const title = link.title ?? undefined;
+      const group = title && title !== "tab" && title !== "include" ? (words[title] ?? title) : undefined;
+      return href === undefined ? [] : [{ label: toString(link), href, children: nested ? nodes(nested) : [], ...(group ? { group } : {}), ...(title === "tab" ? { tab: true } : {}) }];
     });
     const homeLanguage = where(lang).has("README.md") ? lang : defaultLanguage;
     const home = parse(homeLanguage, "README.md");
-    const homeHeading = home.children.find((n) => n.type === "heading" && n.depth === 1);
     const introduction = opening(home);
     return {
       name: toString(heading),
-      homeTitle: metadata(home).title || (homeHeading ? toString(homeHeading) : toString(heading)),
       description: metadata(home).description || (introduction ? flat(plainText(introduction)) : ""),
       tabs: nodes(outline),
-      words: labels(lang),
+      words,
     };
   });
 }
@@ -896,9 +899,25 @@ export function word(s: Site, key: string): string {
   return value;
 }
 
-/** Share metadata is derived from the site name and actual homepage title. */
-export function shareTitle(s: Site): string {
-  return s.name === s.homeTitle ? s.name : `${s.name} — ${s.homeTitle}`;
+/** The home page's headline, its hook, when it has one: "Sovereign Superintelligence". */
+export function headline(lang: Language): string | undefined {
+  return page(lang, [])?.hook;
+}
+
+/**
+ * What the home page is called, in its tab and wherever a link to the
+ * site is shared: the site's name and the home page's headline, or the
+ * name alone.
+ */
+export function shareTitle(lang: Language): string {
+  const name = site(lang).name;
+  const hook = headline(lang);
+  return hook ? `${name} — ${hook}` : name;
+}
+
+/** The share card's path, as the [lang] segment's opengraph-image serves it (share.tsx). */
+export function shareImage(lang: Language): string {
+  return `${lang === defaultLanguage ? "" : `/${lang}`}/opengraph-image/share`;
 }
 
 /**
@@ -974,7 +993,7 @@ export function tree(lang: Language): Node[] {
       placed.add(node.href);
       const file = fileAtUrl.get(node.href);
       if (node.href.startsWith("/") && !file) throw new Error(`${siteFile}: missing page ${node.href}`);
-      if ((nested || node.children.length > 0) && file && node.href !== tabs[0]?.href && node.label !== titleOf(lang, file)) {
+      if ((nested || node.children.length > 0) && file && node.href !== tabs[0]?.href && !node.tab && node.label !== titleOf(lang, file)) {
         throw new Error(`${siteFile}'s ## Pages calls ${file} ${node.label}, not its title ${titleOf(lang, file)}`);
       }
       visit(node.children, true);
@@ -982,7 +1001,7 @@ export function tree(lang: Language): Node[] {
       // page; it does not discover another document or change authored order.
       const opening = file && node.children.length ? source(where(lang).has(file) ? lang : defaultLanguage, file).text.split(/^## /m)[0] : "";
       const task = !documentation || opening.includes("<!-- quickstart -->") || opening.includes("```sh\n");
-      const reference = file?.startsWith("config/") || file === "tooling/README.md";
+      const reference = file?.startsWith("config/") && file !== "config/README.md";
       if (file && node.children.length && node.href !== tabs[0]?.href && task && !reference) {
         const own = sectionPages === "heading" ? page(lang, segmentsOf(lang, file)) : undefined;
         node.children.unshift({ label: own?.hook ?? (own ? titleOf(lang, file) : word(s, "Get Started")), href: node.href, children: [] });

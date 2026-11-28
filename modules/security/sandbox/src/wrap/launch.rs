@@ -182,7 +182,7 @@ mod tests {
         use std::os::unix::fs::PermissionsExt;
         let dir = link_test_kit::TempDir::new("launch-trust");
         let path = dir.join("launch.json");
-        link_files::write_private(&path, br#"{"env":{},"profile":null}"#).unwrap();
+        link_files::write_private(&path, br#"{"env":{},"profile":null,"schema":1}"#).unwrap();
         Launch::read(&path).unwrap();
         let link = dir.join("link.json");
         std::os::unix::fs::symlink(&path, &link).unwrap();

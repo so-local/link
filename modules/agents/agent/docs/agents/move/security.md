@@ -50,8 +50,13 @@ your boxes, or between boxes.
   the same receiving machine. The preliminary copy carries files and memory's
   index over SSH or the account's TLS. Between machines it can also carry
   the adapter-selected harness state; linked connection state waits for
-  the sealed switch. A link is carried as a link, and
-  a folder more than 32 deep refuses the move.
+  the sealed switch.
+- A link is carried as a link, and
+  a folder more than 32 deep refuses the move, sending or receiving.
+  A receiver reads at most 64 GB of one stream, and each extension
+  entry (a PAX header, or a long name) at most 64 KB, before it reads
+  one whole; what a box's `receive` says back is read up to its own
+  limit.
 - The switch starts only after the agent is paused and stopped (`lnk
   agent pause`).
 - **Receiving:** the stream is unpacked into `~/.lnk/safe/agents/transfers/receiving/<agent
@@ -130,7 +135,8 @@ your boxes, or between boxes.
 - If it doesn't answer there, the machine it left keeps its whole copy,
   stopped, keys included, until a move completes.
 - If that copy can't be deleted (its keys won't leave the machine's
-  secrets), the move keeps its journal, and the next `lnk agent move` or
+  secrets, or a harness home or its configuration folder, where a harness
+  keeps credentials, won't go), the move keeps its journal, and the next `lnk agent move` or
   `lnk agent start` of it on your computer deletes it before anything
   starts, refusing to start while it can't.
 - A move that fails after the switch holds the agent stopped where it
@@ -162,9 +168,19 @@ your boxes, or between boxes.
   bucket alone.
 - It sends the key in the move's first line, sealed to the box, and
   deletes the key the bucket had before. The box keeps it in its
-  `rclone.conf` (600). When the agent comes back to your computer, or
+  `rclone.conf` (600).
+- When the agent comes back to your computer, or
   goes to a cloud account that hosts agents, the key's user or service
-  account is deleted; a move to another box replaces the key.
+  account is deleted; a move to another box replaces the key. A move to
+  another box that can't make a key for it deletes the old box's key
+  too, and says the new box has no backups.
+- A move to a box that fails, or is taken back, deletes the key it made
+  for that box. Where the agent stays on a box, a new key is made and put
+  in place there, so its backups go on; this says so when it can't be.
+- When a key can't be deleted (`lnk storage revoke` fails, naming each
+  bucket whose key stays), or the agent's buckets' password stays where
+  it left (`lnk storage leave` fails), the move says what stayed and
+  what removes it.
 - When you delete the box with [`lnk box delete`](../../../../../compute/box/docs/services/boxes/lifecycle/delete.md#what-deletion-does), the key is deleted with
   it, and so is your computer's note of the agent there.
 - **Someone who takes over a box** gets that agent's bucket, still
@@ -219,7 +235,7 @@ and `lnk agent restore` are internal commands that help never offers.
   to a state path stops it, and one in a state path's place is removed
   or replaced, never followed.
 - **Restoring a lost agent:** `lnk agent restore <name>` finds an
-  agent's buckets by their labels in your [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) accounts, asks for
+  agent's buckets by their labels in your [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) accounts, asks for
   the encryption password with echo off, and adopts the buckets with a
   key reaching only them, as a box does. The model provider credential and bot token
   aren't in a bucket: they're asked again.

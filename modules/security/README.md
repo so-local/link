@@ -9,7 +9,6 @@ secret module owns the secrets, and the sandbox module owns the sandbox.
 
 ### Pages
 
-- [Security](docs/security/README.md): Keep every program Local Link runs to the folders and hosts you allow, and check that the limits hold
 - [Credentials](docs/config/credentials/README.md): A credential is a secret that authorizes, named by whose it is, such as this computer's credential for a box it reaches
   - [Held Credentials](docs/config/credentials/held.md): The credentials you hold for other services, such as a model provider's API key or a cloud account's keys, which Local Link keeps and uses but never mints
   - [Agent Credentials](docs/config/credentials/agent.md): What proves a call comes from an agent, and what keeps another program from acting as it: its key, its memory's embedding proof and its sandbox proxy's secret

@@ -1,8 +1,7 @@
 //! The checks the package's declarations name, each a rule the declared
 //! shape alone can't say.
 
-/// A Policy Spec's own rules, beyond its shape: its name, its version,
-/// and grants whose actions and resources are of one kind.
+/// A Policy Spec's own rules, beyond its shape: its name, and grants whose actions and resources are of one kind.
 pub(crate) fn policy(policy: &crate::Policy) -> Result<(), String> {
     policy.check().map_err(|e| format!("{e:#}"))
 }

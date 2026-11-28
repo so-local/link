@@ -36,13 +36,17 @@ fn a_log_names_its_schema_and_refuses_a_newer_one() {
     std::fs::write(&path, format!("{future}\n")).unwrap();
     let error = store.read(&agent, &thread).unwrap_err();
     assert!(format!("{error:#}").contains("needs a newer lnk"));
-    // The shared no-schema policy also applies to an existing unversioned line.
+    // A line naming no schema is an old shape on disk, refused by name.
     std::fs::write(
         &path,
         format!("{}\n", serde_json::to_string(&event).unwrap()),
     )
     .unwrap();
-    assert_eq!(store.read(&agent, &thread).unwrap(), [event]);
+    let error = store.read(&agent, &thread).unwrap_err();
+    assert!(
+        format!("{error:#}").contains("names no schema"),
+        "{error:#}"
+    );
 }
 
 #[test]
@@ -111,13 +115,12 @@ fn private_configuration_names_its_schema_and_refuses_a_newer_one() {
     );
     assert_eq!(store.config(&agent).unwrap(), config);
 
-    // The shared no-schema policy accepts the existing current shape.
-    // Missing read registrations remain absent rather than inferred.
+    // A file naming no schema is an old shape on disk, refused by name.
     std::fs::write(&path, serde_json::to_vec(&config).unwrap()).unwrap();
     let fresh = Files::new(store.agents.clone());
-    let read = fresh.config(&agent).unwrap();
-    assert_eq!(read, config);
-    assert!(read.read_sources.is_empty());
+    let error = format!("{:#}", fresh.config(&agent).unwrap_err());
+    assert!(error.contains("names no schema"), "{error}");
+    assert!(!error.contains(private));
 
     value["schema"] = 2.into();
     std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();

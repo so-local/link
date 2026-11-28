@@ -13,6 +13,7 @@ headings, and fills them as you tell it things.
 - interests.md: hobbies, books, places and tastes.
 - routines.md: daily and weekly rhythms.
 - dates.md: birthdays, anniversaries and renewals.
+- reminders.md: every reminder set, by its schedule ID.
 - lists/: todo.md and shopping.md.
 - notes/: anything else, one file per topic.
 

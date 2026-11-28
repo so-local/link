@@ -243,7 +243,7 @@ An owner's buckets move with its folder: the module that keeps it [asks
 `lnk storage` for them](more/protocol.md) by the owner's ID, and puts them in place where
 the folder lands. On a box, its folder backs
 up with a key that reaches only its bucket. If its machine is gone, the
-buckets are found again by their labels in your [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) accounts.
+buckets are found again by their labels in your [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) accounts.
 
 #### Objects beside its files
 

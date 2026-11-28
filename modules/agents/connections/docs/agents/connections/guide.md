@@ -80,7 +80,7 @@ The agent's specification chooses how these lines show, with `activity` in
 `replace`, Link's default on every connection, shows the latest eight
 while the answer is written, then the finished answer alone. `keep`
 leaves every line above the finished answer as a log of what it did.
-`off` shows none, and [`/chat:verbose`](../../../../harnesses/link/docs/agents/link/commands/chats.md#show-its-tool-calls) turns them off and on for one
+`off` shows none, and [`/chat:verbose`](../../../../harnesses/link/docs/agents/harnesses/link/commands/chats.md#show-its-tool-calls) turns them off and on for one
 conversation.
 
 ```toml

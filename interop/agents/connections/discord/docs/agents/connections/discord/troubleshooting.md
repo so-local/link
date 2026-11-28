@@ -15,5 +15,5 @@ Message Content Intent, then connect again.
 ## You can't message the bot
 
 The bot can be messaged only once it's in a server you're in. Add it to
-your server with the link [`lnk agent connect discord`](../../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels) printed, then
+your server with the link [`lnk agent connect discord`](../../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app) printed, then
 send it the code in a direct message.

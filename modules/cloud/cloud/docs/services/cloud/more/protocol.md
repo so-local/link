@@ -14,7 +14,7 @@ account's keys.
 
 `[{"name", "kind", "place", "identity", "login"}]`, one entry per
 connected account. Read by [`lnk agent move`](../../../../../../agents/agent/docs/agents/move/README.md#move-your-agent-to-the-cloud) (whether where it goes is a
-cloud account) and [`lnk agent list`](../../../../../../agents/agent/docs/agents/start/create.md#run-more-than-one-agent) (the accounts to ask whether they
+cloud account) and [`lnk agent list`](../../../../../../agents/agent/docs/agents/start/show.md#list-your-agents) (the accounts to ask whether they
 host agents).
 
 ### `lnk cloud env <name> --json`

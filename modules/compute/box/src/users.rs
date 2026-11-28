@@ -105,19 +105,31 @@ fn add(out: &mut Out, places: &Places, add: UserAdd) -> anyhow::Result<Done> {
         None => places.home(&name),
     };
     install_programs(places)?;
+    // Who reads their spec: they themselves where they're a user of the
+    // machine already, whose folder is theirs to fill; root only where it
+    // isn't yet, or is root's, kept from a user removed.
+    let reader = known.as_ref().and_then(|_| ids_of(&name));
     // Their spec, read as it would be in their session (`~` their home),
     // kept absolute, checked and shown, all before anything is made.
     let staged = places.users().join(format!("adding-{name}"));
     let _ = std::fs::remove_dir_all(&staged);
     root_dir(&staged)?;
     let result = (|| {
-        let absolute = as_them(places, &folder, &["spec", "show", "--spec"], &sandbox, &[])
-            .within("reading their sandbox's spec")?;
+        let absolute = as_them(
+            places,
+            reader,
+            &folder,
+            &["spec", "show", "--spec"],
+            &sandbox,
+            &[],
+        )
+        .within("reading their sandbox's spec")?;
         let spec = staged.join(format!("{name}.toml"));
         root_file(&spec, absolute.as_bytes())?;
         let folder_flag = folder.display().to_string();
         let opens = as_them(
             places,
+            reader,
             &folder,
             &["enter", "--check", "--spec"],
             &spec,
@@ -157,6 +169,9 @@ fn add(out: &mut Out, places: &Places, add: UserAdd) -> anyhow::Result<Done> {
                 .args(["--shell", "/bin/sh", "--user-group", "--groups", GROUP])
                 .arg(&name),
         )?;
+        // Theirs alone: useradd's default (`HOME_MODE`, often 755) lets
+        // every other user of the box read it.
+        close_folder(&folder)?;
     }
     let user = BoxUser {
         folder: folder.clone(),
@@ -240,8 +255,29 @@ fn remove(out: &mut Out, places: &Places, remove: UserRemove) -> anyhow::Result<
             "list the users",
         ));
     };
-    // Their key first: nothing lets them in while the rest goes.
-    std::fs::remove_file(places.keys(&name)).within("removing their key")?;
+    // Their key first: nothing lets them in while the rest goes. One
+    // gone already (a remove cut short) is gone.
+    match std::fs::remove_file(places.keys(&name)) {
+        Err(err) if err.kind() != std::io::ErrorKind::NotFound => {
+            return Err(err).within("removing their key");
+        }
+        _ => {}
+    }
+    // Their sessions ended, so none outlives them and userdel, which
+    // refuses a user still running, goes ahead. None running is fine.
+    let _ = link_secretive::process::command("pkill")
+        .args(["-KILL", "-u"])
+        .arg(&name)
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+    // Their secrets in the keeper go before they do, so a user given
+    // their name or their ID later never finds them.
+    if let Some((uid, _)) = ids_of(&name) {
+        link_secret_contract::keeper::remove_user(uid)
+            .within("removing their secrets from the keeper")?;
+    }
     let mut userdel = link_secretive::process::command("userdel");
     if delete_folder {
         userdel.arg("--remove");
@@ -275,17 +311,42 @@ fn user_exists(name: &str) -> bool {
     !unsafe { libc::getpwnam(name.as_ptr()) }.is_null()
 }
 
+/// The user and group IDs of the machine's user `name`, if there is one.
+fn ids_of(name: &str) -> Option<(u32, u32)> {
+    let name = std::ffi::CString::new(name).ok()?;
+    // SAFETY: a NUL-ended name; the entry is read before any other call.
+    let entry = unsafe { libc::getpwnam(name.as_ptr()) };
+    // SAFETY: a non-null entry getpwnam returned, read at once.
+    (!entry.is_null()).then(|| unsafe { ((*entry).pw_uid, (*entry).pw_gid) })
+}
+
+/// A new user's folder closed to everyone but them (700).
+fn close_folder(folder: &Path) -> anyhow::Result<()> {
+    use std::os::unix::fs::PermissionsExt;
+    std::fs::set_permissions(folder, std::fs::Permissions::from_mode(0o700))
+        .within("closing their folder to the box's other users")
+}
+
 /// What root's copy of `lnk-sandbox` prints for `lnk sandbox <args>
 /// <file> <more>`, run as a session of theirs would be: `HOME` their
-/// folder, nothing else of this user's.
+/// folder, nothing else of this user's, and as `ids` (theirs) where
+/// they're a user already, so nothing they put in their folder is read
+/// as root.
 fn as_them(
     places: &Places,
+    ids: Option<(u32, u32)>,
     folder: &Path,
     args: &[&str],
     file: &Path,
     more: &[&str],
 ) -> anyhow::Result<String> {
-    let output = link_secretive::process::command(places.sandbox())
+    use std::os::unix::process::CommandExt;
+    let mut command = link_secretive::process::command(places.sandbox());
+    if let Some((uid, gid)) = ids {
+        // std drops root's other groups (`setgroups`) with its ID.
+        command.uid(uid).gid(gid);
+    }
+    let output = command
         .args(args)
         .arg(file)
         .args(more)
@@ -425,4 +486,16 @@ fn root_write(path: &Path, text: &[u8], mode: u32) -> anyhow::Result<()> {
         let _ = std::fs::remove_file(&new);
     }
     written.within(format!("writing {}", path.display()))
+}
+
+#[cfg(test)]
+mod tests {
+    /// A user's spec is read as them where they're a user already: their
+    /// IDs are the machine's, and a name it doesn't have has none.
+    #[test]
+    fn a_user_of_the_machine_is_read_as_themselves() {
+        assert_eq!(super::ids_of("root"), Some((0, 0)));
+        assert_eq!(super::ids_of("lnk-no-such-user"), None);
+        assert_eq!(super::ids_of("bad\0name"), None);
+    }
 }

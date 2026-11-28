@@ -71,13 +71,6 @@ requiring the lower layer to depend on them.
 Move code to its owner instead of adding [a dependency that crosses the
 boundary](decisions.md#layers).
 
-### Layer Words
-
-A lower layer names none of a higher layer's concepts either. Each
-`layer.toml` may declare the words its layer introduces, such as
-`agent`, `team` and `harness` for `modules/agents/`, and [the repository
-checks refuse them](../../../tests/repository/docs/more/developing/testing/repository-checks.md#layer-words) in every layer below it.
-
 ## Rust Workspaces
 
 Each Rust workspace owns a Cargo manifest, lockfile, toolchain, build

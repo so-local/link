@@ -20,12 +20,23 @@ export function pose(plant: Plant, time: number, settings: SceneSettings): Pose 
   return { length: plant.length, bend, angle: bend / constants.radians, tip };
 }
 
+/**
+ * How many flowers a field `width` wide holds: `flowerCount` at the
+ * initial width and wider, and fewer on a narrower screen, by the square
+ * root of the share of that width, so a phone's field is full without
+ * crowding.
+ */
+export function fieldCount(width: number, settings: SceneSettings): number {
+  return Math.max(1, Math.round(settings.flowerCount * Math.sqrt(Math.min(1, width / constants.initialWidth))));
+}
+
 export function createField(width: number, height: number, settings: SceneSettings): Plant[] {
   const random = randomSource(settings.seed), between = (a: number, b: number) => a + (b - a) * random();
   const plants: Plant[] = [];
-  for (let i = 0; i < settings.flowerCount; i++) {
+  const count = fieldCount(width, settings);
+  for (let i = 0; i < count; i++) {
     const depth = (i % 4 + random()) / 4;
-    const fraction = (i + .5 + between(-.22, .22)) / settings.flowerCount;
+    const fraction = (i + .5 + between(-.22, .22)) / count;
     const scale = between(1.185 * (1 - settings.sizeVariation / 100), 1.185 * (1 + settings.sizeVariation / 100));
     plants.push({
       depth, x: width * fraction, y: height * (1.105 + .045 * depth) + settings.fieldOffset, scale,

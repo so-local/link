@@ -2,3 +2,9 @@ schema = 1
 kind = "seen specs"
 current = 1
 command = "lnk sandbox run"
+
+# Only sandboxes ask what they have seen run, in their own safe folder.
+[[files]]
+location = "lnk.sandboxes"
+path = "seen.toml"
+encoding = "toml"

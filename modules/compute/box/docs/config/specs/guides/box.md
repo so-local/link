@@ -87,8 +87,7 @@ contract](../../../../contract/docs/services/boxes/more/contract.md) describes.
 
 From a file, `[lnk] version` can't be behind this computer's `lnk`, so
 a specification someone hands you can't install a release with a known hole. To
-mean a lower one, type `--lnk.version` yourself. Releases before 0.11.0
-have no modules and are refused either way.
+mean a lower one, type `--lnk.version` yourself.
 
 ## Values
 

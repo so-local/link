@@ -9,7 +9,7 @@
 //! An adapter is a program answering these commands:
 //!
 //! ```text
-//! lnk-<kind> connect [--name N] [--region R] [--profile P] [--key-id K] [--project P] [--zone Z] [--credential-file F]
+//! lnk-<kind> connect [--name N] [--region R] [--profile P] [--key-id K] [--project P] [--zone Z] [--credential-file F] [--machine]
 //!                     signs in to an account (the cloud's own login, reused,
 //!                     else asking on the terminal, questions on stderr), checks
 //!                     it, and prints the [`Account`] as JSON on stdout. Its

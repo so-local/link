@@ -149,6 +149,16 @@ refused (`yours_held`).
 tests point it at a keeper of their own with `LNK_TEST_KEEPER`
 (`TEST_KEEPER`).
 
+#### Its Limits
+
+Each call has one deadline, 30 seconds from its accept, for its every
+read and write, so a caller writing a byte at a time holds the keeper
+no longer. A store is at most 8 MB, and `Store::save` refuses to write
+one larger. `remove_user` asks the keeper, as root, to remove another
+user's store and the note of whose it was (`remove_user_store` on the
+keeper's side), before that user is removed; any other caller is
+refused.
+
 #### Its version
 
 On the socket, each call is one line of JSON each way,
@@ -164,7 +174,11 @@ upgrade. [The versions](../../../../../../../../packages/version/docs/more/libra
 first, then atomically replaces and syncs the file and its directories;
 without a TPM the file is the keeper's private fallback, never the
 working user's. `at_rest::read` opens a private file, and migrates
-plaintext when asked.
+plaintext when asked. `at_rest::require_sealing`, which the keeper calls
+when its unit says `--sealed`, makes a write that finds no TPM fail
+rather than write plaintext. The payload is sealed at the envelope's
+schema version and opens from its oldest (`open_sealed_within`), so a
+change to it is a step of that schema.
 
 ## The secret route
 
@@ -227,7 +241,7 @@ client may read (`secret_prefix`).
 
 ## Bindings
 
-[A workload's binding](../../../../../../sandbox/bridge/binding/docs/security/sandbox/more/bridges/binding.md) proves its calls to every bridge.
+[A workload's binding](../../../../../../sandbox/bridge/binding/docs/tooling/sandbox/more/bridges/binding.md) proves its calls to every bridge.
 `keeper::RouteRevoker` is the `Revoker` a keyring is given when it
 unbinds a workload: it asks the keeper to revoke the routes granted to
 that binding (`unbind_route`) before the key is removed.

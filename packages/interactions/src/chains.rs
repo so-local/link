@@ -130,6 +130,11 @@ impl Chains {
 
 link_files::specification!(Chain, include_str!("chains.schema.toml"));
 
+/// Each thread's approval chain, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Chain>()
+}
+
 fn read(path: &Path) -> anyhow::Result<Chain> {
     match std::fs::read(path) {
         Ok(bytes) => link_files::saved::parse_json(&bytes)

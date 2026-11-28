@@ -79,16 +79,20 @@ impl Notes {
     }
 
     /// The notes of the releases after `from`, up to and including `to`,
-    /// oldest first: what upgrading from one to the other changed.
+    /// oldest first: what upgrading from one to the other changed. Each end
+    /// is held as the release it's a build of, so a staging build of a
+    /// release shows that release's notes, and a later build of the same
+    /// release shows nothing twice.
     pub fn between(
         &self,
         from: &link_version::Version,
         to: &link_version::Version,
     ) -> Vec<&ReleaseNotes> {
+        let (from, to) = (from.release(), to.release());
         self.release
             .iter()
             .rev()
-            .filter(|release| release.version > *from && release.version <= *to)
+            .filter(|release| release.version > from && release.version <= to)
             .collect()
     }
 }
@@ -184,9 +188,9 @@ mod tests {
     #[test]
     fn notes_between_two_releases_are_those_after_the_first() {
         let notes = Notes::parse(
-            "[[release]]\nversion = \"0.4.0\"\nnotes = [\"Four.\"]\n\
-             [[release]]\nversion = \"0.3.0\"\nnotes = [\"Three.\"]\n\
-             [[release]]\nversion = \"0.2.0\"\nnotes = [\"Two.\", \"Also two.\"]\n",
+            "[[release]]\nversion = \"0.0.4\"\nnotes = [\"Four.\"]\n\
+             [[release]]\nversion = \"0.0.3\"\nnotes = [\"Three.\"]\n\
+             [[release]]\nversion = \"0.0.2\"\nnotes = [\"Two.\", \"Also two.\"]\n",
         )
         .unwrap();
         let versions = |from: &str, to: &str| -> Vec<String> {
@@ -196,14 +200,19 @@ mod tests {
                 .map(|r| r.version.to_string())
                 .collect()
         };
-        assert_eq!(versions("0.1.0", "0.3.0"), ["0.2.0", "0.3.0"]);
-        assert_eq!(versions("0.2.0", "0.4.0"), ["0.3.0", "0.4.0"]);
-        assert_eq!(versions("0.3.0", "0.3.0"), Vec::<String>::new());
-        assert_eq!(versions("0.4.0", "0.2.0"), Vec::<String>::new());
+        assert_eq!(versions("0.0.1", "0.0.3"), ["0.0.2", "0.0.3"]);
+        assert_eq!(versions("0.0.2", "0.0.4"), ["0.0.3", "0.0.4"]);
+        assert_eq!(versions("0.0.3", "0.0.3"), Vec::<String>::new());
+        assert_eq!(versions("0.0.4", "0.0.2"), Vec::<String>::new());
         assert_eq!(
-            versions("0.3.0-staging.1", "0.3.0"),
-            ["0.3.0"],
-            "a staging build's upgrade to its release says the release's notes"
+            versions("0.0.2", "0.0.3-staging.202611250000.g1a2b3c"),
+            ["0.0.3"],
+            "a staging build of a release shows that release's notes"
+        );
+        assert_eq!(
+            versions("0.0.3-staging.1", "0.0.3"),
+            Vec::<String>::new(),
+            "a later build of the same release shows nothing twice"
         );
     }
 
@@ -214,15 +223,15 @@ mod tests {
         };
         assert!(Notes::parse("release = []").is_ok());
         assert!(Notes::parse("").is_err(), "the list is declared");
-        assert!(Notes::parse(&release("0.2.0", "[]")).is_err());
-        assert!(Notes::parse(&release("0.2.0", "[\" \"]")).is_err());
-        assert!(Notes::parse(&release("0.2.0", "[\"One\\nTwo\"]")).is_err());
+        assert!(Notes::parse(&release("0.0.2", "[]")).is_err());
+        assert!(Notes::parse(&release("0.0.2", "[\" \"]")).is_err());
+        assert!(Notes::parse(&release("0.0.2", "[\"One\\nTwo\"]")).is_err());
         assert!(Notes::parse(&release("two", "[\"Two.\"]")).is_err());
-        let ascending = release("0.2.0", "[\"Two.\"]") + &release("0.3.0", "[\"Three.\"]");
+        let ascending = release("0.0.2", "[\"Two.\"]") + &release("0.0.3", "[\"Three.\"]");
         assert!(Notes::parse(&ascending).is_err());
-        let twice = release("0.2.0", "[\"Two.\"]") + &release("0.2.0", "[\"Two.\"]");
+        let twice = release("0.0.2", "[\"Two.\"]") + &release("0.0.2", "[\"Two.\"]");
         assert!(Notes::parse(&twice).is_err());
-        assert!(Notes::parse(&(release("0.2.0", "[\"Two.\"]") + "more = 1\n")).is_err());
+        assert!(Notes::parse(&(release("0.0.2", "[\"Two.\"]") + "more = 1\n")).is_err());
     }
 
     #[test]

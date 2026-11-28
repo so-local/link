@@ -98,15 +98,23 @@ fn a_documents_parser_runs_in_a_child_holding_no_secret() {
 echo \"$1 $2 $3\" > {seen}/args
 /bin/cat > {seen}/document
 printf '{{\"text\":\"'
-/bin/ls -l /proc/$$/fd | /usr/bin/tr '\\n' '|'
+for f in /proc/$$/fd/*; do
+  [ -e \"$f\" ] || continue
+  printf '%s -> ' \"${{f##*/}}\"
+  /bin/readlink -n \"$f\"
+  printf '|'
+done
 printf '\"}}'",
             seen = seen.display()
         ),
     );
+    // Its descriptors read by the shell's own glob, each printed straight
+    // to its stdout: a pipeline's pipe, or a redirect's file, the shell
+    // holds while it starts the command, which would list it as its own.
     // This process has an environment for the child not to be given.
     assert!(std::env::vars_os().next().is_some());
     let extractor = Extractor::program(&probe, extract::deadline());
-    // The answer: its descriptors, as `ls -l` lists them, a line each.
+    // The answer: its descriptors, each `<fd> -> <target>`, `|` after each.
     let fds = extractor
         .text(Format::Pdf, b"%PDF-1.4 the document")
         .unwrap();

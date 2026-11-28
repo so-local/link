@@ -9,7 +9,7 @@ lnk agent memory
 
 ## Start it
 
-Your agent's first [`lnk agent start`](../../../../../../agent/docs/agents/README.md#create-an-agent) offers it, and `lnk agent tool add
+Your agent's first [`lnk agent start`](../../../../../../agent/docs/agents/README.md#start-your-agent) offers it, and `lnk agent tool add
 memory` does the same as `memory start`. `start` restarts your agent if
 it's running as a service; one running in a terminal keeps what it had
 until you start it again there, and `start` says so. It says where the
@@ -17,7 +17,7 @@ notes it keeps are, and `--agent <name>` picks another agent.
 
 ### What it needs
 
-You need an agent, and [`lnk agent memory start`](../../../../../../agent/docs/agents/more/settings/files.md#lnksafesandboxestoolsmemory-idjson-600) adds Link Memory if
+You need an agent, and [`lnk agent memory start`](../../../../../../agent/docs/agents/state/files.md#lnksafesandboxestoolsmemory-idjson-600) adds Link Memory if
 it's missing. Searching by meaning also takes an embedding model, a
 download of a few hundred megabytes. Nothing costs anything, because it
 all runs on your computer.
@@ -284,13 +284,13 @@ sets `"2 GB"`.
 
 ## In each harness
 
-[Link Harness calls memory by itself](../../../../../../harnesses/link/docs/agents/link/guide.md#give-it-memory-and-tools), as `memory__search` and the rest.
+[Link Harness calls memory by itself](../../../../../../harnesses/link/docs/agents/harnesses/link/guide.md#give-it-memory-and-tools), as `memory__search` and the rest.
 A harness from outside Link finds it in its own MCP settings, as the
 server `memory`, added at each start.
 
 ### A skill's file
 
-Link Harness reads [a skill's `SKILL.md`](../../../../../../harnesses/link/docs/agents/link/guide.md#give-it-skills) with `read` when a task needs
+Link Harness reads [a skill's `SKILL.md`](../../../../../../harnesses/link/docs/agents/harnesses/link/guide.md#give-it-skills) with `read` when a task needs
 it,
 by its path, `skills/<name>/SKILL.md`. Memory reads a text file in
 `skills/` straight from the folder, never through a link, but never

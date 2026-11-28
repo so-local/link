@@ -40,7 +40,7 @@ is never taken as none.
 
 ### Who reads it
 
-[`lnk agent list`](../../../../../../../docs/agents/start/create.md#run-more-than-one-agent), [`lnk agent move`](../../../../../../../docs/agents/move/README.md#move-your-agent-to-the-cloud) (finding an agent there), and `lnk
+[`lnk agent list`](../../../../../../../docs/agents/start/show.md#list-your-agents), [`lnk agent move`](../../../../../../../docs/agents/move/README.md#move-your-agent-to-the-cloud) (finding an agent there), and `lnk
 secret delete` (signed in as the owner a move took an agent there as:
 listed no longer, the agent took its keys with it, and the account is
 no longer named).
@@ -98,7 +98,9 @@ account.
 ## Transfer a Move Stream
 
 The receiving and sending commands exchange the selected phase and
-validate the files that cross the account boundary.
+validate the files that cross the account boundary. A phase is one of
+`copy`, `switch` and `files`, declared in the contract's `types.toml`,
+and a request naming any other is refused, naming the word it gave.
 
 ### `lnk-<kind> agent-receive`
 

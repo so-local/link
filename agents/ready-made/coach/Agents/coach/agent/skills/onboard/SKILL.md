@@ -36,8 +36,13 @@ Reads: `profile.toml`, `README.md`. Writes: `profile.toml`,
    does not configure the scheduler. If they differ or setup is unknown,
    ask the owner to align the agent's scheduler setup and leave reminders
    explicitly pending. `cron__create` takes a five-field `cron`, with no
-   per-call zone, name, or `to`. Put the message in `prompt` and use
-   `answer: here`, retaining each returned ID.
+   per-call zone, name, or `to`. Put the message in `prompt` and keep
+   each returned ID. Check-ins go where they read you: when the head of
+   their message names a service, such as "on Telegram", use
+   `answer: here`; when it says "on Link", this is Link's own chat, which
+   they won't see from their phone. When `answer` offers a connected
+   service, ask which should get them and put its name in `answer`; when
+   it offers none, use `here` and say they land in this chat.
    Once setup is confirmed, create these unless they asked for fewer:
    - `daily-check-in`, Monday to Saturday at 19:15 (or after their usual
      session time), message "Run the check-in skill.";

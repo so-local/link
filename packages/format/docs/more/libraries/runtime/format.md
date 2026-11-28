@@ -42,7 +42,7 @@ from the programs. Every command is reached from `lnk up` by success
 Nexts, but those on a short list of unreached commands, which may
 shrink, never grow. A command that declares Nexts declares a failure
 Next that isn't `retry`, and every cycle of failure Nexts has a way out.
-[`lnk issue create`](../../../../../../docs/more/modules/guide.md#get-help) counts for neither.
+[`lnk issue create`](../../../../../../core/cli/docs/tooling/issue.md#report-a-bug) counts for neither.
 
 ### Handing the terminal over
 
@@ -114,7 +114,7 @@ start, then says each line through `log::say` with its level and
 
 #### Lines in a terminal
 
-[`lnk agent start --foreground`](../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent) runs the harness with `log::relay`, which
+[`lnk agent start --foreground`](../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent) runs the harness with `log::relay`, which
 copies its output to the terminal as it comes and logs it a line at a
 time. A line that is already a record is logged as it is, naming the
 agent when it names none. Any other line becomes a record of its own

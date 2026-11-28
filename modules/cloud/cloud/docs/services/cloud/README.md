@@ -1,6 +1,6 @@
-# Cloud Accounts
+# Platforms
 
-> Cloud Accounts for Your Boxes and Buckets
+> Platforms for Your Boxes and Buckets
 
 **Connect your [AWS](../../../../../../interop/cloud/aws/docs/services/cloud/aws.md)
 or [Google Cloud](../../../../../../interop/cloud/gcp/docs/services/cloud/gcp.md)
@@ -60,7 +60,7 @@ rules for its resources.
 
 ### Pages
 
-- [Cloud Accounts Guide](guide.md): Connect named cloud accounts, inspect their identities, and disconnect them without deleting their resources
+- [Platforms Guide](guide.md): Connect named cloud accounts, inspect their identities, and disconnect them without deleting their resources
 
 ### More
 

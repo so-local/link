@@ -1,7 +1,7 @@
-//! The end an agent leaves: `lnk agent state-send`, `pause`, `resume`,
-//! `deliver` and `left`, and the stream piped to the other end.
+//! The end an agent leaves: `lnk agent state-send`, `pause`, `resume`
+//! and `left`, and the stream piped to the other end.
 
-use std::io::{BufRead, Write};
+use std::io::{Read, Write};
 use std::process::Stdio;
 
 use anyhow::ensure;
@@ -13,16 +13,40 @@ use link_agent::service;
 use link_agent::settings::{self, Settings};
 use link_agent::transfer::{self, Have, Phase};
 use link_format::WithinExt;
-use link_format::{
-    Done, Foreign, Name, Note, Out, Path, Report, Sentence, cmd, phrase, prose, sentence,
-};
+use link_format::{Done, Foreign, Name, Note, Out, Report, Sentence, cmd, phrase, sentence};
 use link_harness_contract::harness::State;
 use link_secretive::Duplicate;
 
-use super::backups::start_again;
+use super::backups::start_again_during;
 use super::buckets::bucket_run;
 use super::receiving::Target;
 use super::{Header, hosted_place, lnk_at, place, state_of};
+
+/// The most of what a box's `receive` says after its key that's shown.
+const SAID: u64 = 1 << 20;
+
+/// `child`'s exit and at most `most` bytes of what it writes (its stderr
+/// is the terminal's): one that says more is stopped, and refused.
+fn output_within(
+    mut child: std::process::Child,
+    most: u64,
+) -> anyhow::Result<std::process::Output> {
+    let mut stdout = Vec::new();
+    if let Some(out) = child.stdout.take() {
+        out.take(most + 1).read_to_end(&mut stdout)?;
+    }
+    if stdout.len() as u64 > most {
+        let _ = child.kill();
+        let _ = child.wait();
+        anyhow::bail!("the other end said more than {} MB: refused", most >> 20);
+    }
+    let status = child.wait()?;
+    Ok(std::process::Output {
+        status,
+        stdout,
+        stderr: Vec::new(),
+    })
+}
 
 /// Where a move takes the agent from.
 pub(crate) enum Source {
@@ -72,10 +96,11 @@ impl Source {
         let mut receiver = to.receiver(id, Phase::Copy)?;
         // To a machine, the harness's state comes in the copy too; an
         // account that hosts agents takes it in the switch.
-        let mut sender = self.sender(agent, Phase::Copy, have, None, !to.is_hosted(), false)?;
+        let mut sender =
+            self.sender((agent, id), Phase::Copy, have, None, !to.is_hosted(), false)?;
         let copied = pipe(&mut sender, &mut receiver, to.first_copy(), true);
         let sent = sender.wait()?;
-        let output = receiver.wait_with_output()?;
+        let output = output_within(receiver, link_agent_contract::moving::MAX_HAVE)?;
         drop(copying);
         ensure!(
             sent.success(),
@@ -96,13 +121,13 @@ impl Source {
         to.copied(&output.stdout)
     }
 
-    /// What sends phase `phase` of agent `agent`'s move, `have` what the
+    /// What sends phase `phase` of agent `agent`'s (`id`'s) move, `have` what the
     /// other end holds: its `send`, or the account's `agent-send`.
     /// `seal_to` is what the switch's secrets are sealed to, by the
     /// machine it's on or the account that hosts it.
     fn sender(
         &self,
-        agent: &str,
+        (agent, id): (&str, &str),
         phase: Phase,
         have: &Have,
         seal_to: Option<&link_secretive::SealTo>,
@@ -118,7 +143,7 @@ impl Source {
                 if without_model_credentials {
                     args.push("--without-model-credentials");
                 }
-                args.extend(["--move", move_id]);
+                args.extend(["--move", move_id, "--agent-id", id]);
                 let seal_to = seal_to.map(ToString::to_string);
                 if let Some(seal_to) = &seal_to {
                     args.extend(["--seal-to", seal_to]);
@@ -136,7 +161,7 @@ impl Source {
                 let request = link_agent_place::Request {
                     account: account.as_ref().duplicate(),
                     r#move: Some(move_id.clone()),
-                    phase: Some(phase.name().into()),
+                    phase: Some(phase),
                     have: have.clone(),
                     seal_to: seal_to.cloned(),
                     ..Default::default()
@@ -149,11 +174,11 @@ impl Source {
         }
     }
 
-    /// Agent `agent` paused where it is, for its switch: on a machine,
-    /// `lnk agent pause`; an account that hosts it pauses it as it gives
-    /// its switch.
-    pub(crate) fn pause(&self, out: &mut Out, agent: &str) -> anyhow::Result<()> {
-        let Source::Machine(from, _) = self else {
+    /// Agent `agent` (`id`) paused where it is, for its switch, and held
+    /// there for this move alone: on a machine, `lnk agent pause --move`;
+    /// an account that hosts it pauses it as it gives its switch.
+    pub(crate) fn pause(&self, out: &mut Out, agent: &str, id: &str) -> anyhow::Result<()> {
+        let Source::Machine(from, move_id) = self else {
             return Ok(());
         };
         let _pausing = out.activity(phrase!(
@@ -161,7 +186,7 @@ impl Source {
             Name::new("agent", agent),
             Foreign::new(&place(from))
         ));
-        let paused = lnk_at(from, agent, &["pause"])
+        let paused = lnk_at(from, agent, &["pause", "--move", move_id, "--agent-id", id])
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .status()
@@ -197,7 +222,7 @@ impl Source {
                 unreachable!()
             };
             let mut sender = self.sender(
-                agent,
+                (agent, id),
                 Phase::Switch,
                 have,
                 Some(seal_to),
@@ -206,7 +231,7 @@ impl Source {
             )?;
             let carried = pipe(&mut sender, &mut receiver, None, false);
             let sent = sender.wait()?;
-            let output = receiver.wait_with_output()?;
+            let output = output_within(receiver, link_agent_contract::moving::MAX_MANIFEST)?;
             ensure!(
                 sent.success() && output.status.success(),
                 "the switch to {} failed",
@@ -241,10 +266,20 @@ impl Source {
         // What it says after, shown as it says it.
         let shown = std::thread::spawn(move || {
             let mut said = Vec::new();
-            let _ = std::io::copy(&mut rest, &mut said);
+            let _ = std::io::copy(&mut (&mut rest).take(SAID), &mut said);
+            // Past what's shown, read and dropped, so the other end
+            // never stops on a full pipe.
+            let _ = std::io::copy(&mut rest, &mut std::io::sink());
             said
         });
-        let mut sender = self.sender(agent, Phase::Switch, have, Some(&seal_to), false, false)?;
+        let mut sender = self.sender(
+            (agent, id),
+            Phase::Switch,
+            have,
+            Some(&seal_to),
+            false,
+            false,
+        )?;
         let first = header.sealed_to(&seal_to)?;
         let carried = pipe(&mut sender, &mut receiver, Some(&first), false);
         let sent = sender.wait()?;
@@ -266,15 +301,19 @@ impl Source {
         Ok(None)
     }
 
-    /// Agent `agent` answering where it was again, after a move that
-    /// failed: `lnk agent resume` on a machine, `agent-abort` for an
-    /// account that hosts it. Whether it does.
-    pub(crate) fn resume(&self, out: &mut Out, agent: &str) -> bool {
+    /// Agent `agent` (`id`) answering where it was again, after a move
+    /// that failed: `lnk agent resume --move` on a machine, `agent-abort`
+    /// for an account that hosts it. Whether it does.
+    pub(crate) fn resume(&self, out: &mut Out, agent: &str, id: &str) -> bool {
         match self {
-            Source::Machine(from, _) => lnk_at(from, agent, &["resume"])
-                .stdin(Stdio::null())
-                .status()
-                .is_ok_and(|s| s.success()),
+            Source::Machine(from, move_id) => lnk_at(
+                from,
+                agent,
+                &["resume", "--move", move_id, "--agent-id", id],
+            )
+            .stdin(Stdio::null())
+            .status()
+            .is_ok_and(|s| s.success()),
             Source::Hosted { .. } => self.abort(out),
         }
     }
@@ -307,13 +346,26 @@ impl Source {
         &self,
         out: &mut Out,
         agent: &str,
+        id: &str,
         to: &Option<String>,
         machine: &moved::Place,
     ) -> bool {
         match self {
-            Source::Machine(from, _) => {
+            Source::Machine(from, move_id) => {
                 let slot = if machine.cloud { "--cloud" } else { "--on" };
-                let mut left = lnk_at(from, agent, &["left", slot, &machine.name]);
+                let mut left = lnk_at(
+                    from,
+                    agent,
+                    &[
+                        "left",
+                        slot,
+                        &machine.name,
+                        "--move",
+                        move_id,
+                        "--agent-id",
+                        id,
+                    ],
+                );
                 if let Some(machine_id) = &machine.id {
                     left.args(["--machine-id", machine_id]);
                 }
@@ -337,7 +389,7 @@ impl Source {
                 });
                 match left {
                     Ok(reply) => {
-                        deliver_at(out, to, agent, &reply.held);
+                        super::delivering::deliver_at(out, to, agent, &reply.held);
                         true
                     }
                     Err(err) => {
@@ -388,87 +440,6 @@ pub(crate) fn said(out: &mut Out, aborted: Option<Report>) -> bool {
             false
         }
     }
-}
-
-/// Messages `held` given to agent `agent` on `to` (`lnk agent deliver`,
-/// which keeps them there until they're given), one JSON line each.
-/// Kept on this computer first ([`held_here`]), until `to` has them: said
-/// when it doesn't.
-pub(crate) fn deliver_at(
-    out: &mut Out,
-    to: &Option<String>,
-    agent: &str,
-    held: &[link_agent_place::Held],
-) {
-    if held.is_empty() {
-        return;
-    }
-    let path = held_here(agent);
-    let before = std::fs::read_to_string(&path).unwrap_or_default();
-    let lines: Vec<u8> = held
-        .iter()
-        .filter_map(|message| bridge::HELD.print_json(message).ok())
-        .flat_map(|line| line.into_iter().chain(*b"\n"))
-        .collect();
-    let kept = link_files::write_private(&path, &[before.as_bytes(), &lines].concat());
-    let child = lnk_at(to, agent, &["deliver"])
-        .stdin(Stdio::piped())
-        .spawn();
-    let handed = child.and_then(|mut child| {
-        if let Some(mut input) = child.stdin.take() {
-            input.write_all(&lines)?;
-        }
-        child.wait()
-    });
-    if handed.is_ok_and(|s| s.success()) {
-        let _ = match before.is_empty() {
-            true => std::fs::remove_file(&path),
-            false => link_files::write_private(&path, before.as_bytes()),
-        };
-        return;
-    }
-    let agent = Name::new("agent", agent);
-    out.block(match kept {
-        Ok(()) => Report::warning(sentence!(
-            "The {} message(s) that came while {} was paused couldn't be handed to it: kept in {}.",
-            held.len(),
-            &agent,
-            Path::new(&path)
-        ))
-        .next(
-            cmd!(
-                "lnk agent deliver --agent {} < {}",
-                &agent,
-                Path::new(&path)
-            ),
-            "give them where it runs",
-        ),
-        Err(err) => Report::warning(sentence!(
-            "The {} message(s) that came while {} was paused couldn't be handed to it nor kept.",
-            held.len(),
-            &agent
-        ))
-        .why(Sentence::adopt(&format!(
-            "{err}: {}",
-            held.iter()
-                .map(|h| format!(
-                    "{:?} from {}",
-                    link_format::clean(&h.text),
-                    link_format::clean(&h.from)
-                ))
-                .collect::<Vec<_>>()
-                .join("; ")
-        ))),
-    });
-}
-
-/// Where this computer keeps the messages a cloud held for agent `agent`
-/// until where it went has them: `~/.lnk/safe/agents/transfers/held/<agent>.jsonl`,
-/// each line naming its schema ([`bridge::HELD`]).
-pub(crate) fn held_here(agent: &str) -> std::path::PathBuf {
-    link_files::layout::Hidden::Held
-        .path()
-        .join(format!("{agent}.jsonl"))
 }
 
 /// `lnk agent receive --phase <phase>` of agent `id` on `to`, its output
@@ -668,20 +639,8 @@ pub(crate) fn send_to(
         Some(move_id) => move_id,
         None => link_agent_contract::moving::new_move_id()?,
     };
+    check_send(settings, phase, seal_to)?;
     let switch = phase == Phase::Switch;
-    ensure!(
-        !switch || seal_to.is_some(),
-        "a switch needs its receiver's public key"
-    );
-    ensure!(
-        phase != Phase::Files,
-        "a move sends a copy, then a switch: not files alone"
-    );
-    ensure!(
-        !switch || !service::running_anywhere(&settings.name),
-        "{} is running: lnk agent pause first, so its files don't change under the switch",
-        settings.name
-    );
     let adapter = Adapter::find(settings.harness())?;
     let (state, connections, bucket) = match switch {
         true => {
@@ -718,6 +677,47 @@ pub(crate) fn send_to(
         bucket,
         seal_to,
     )
+}
+
+/// What refuses phase `phase` of agent `settings`' send, before anything
+/// of it is read, sent or released: a switch with no key to seal its
+/// secrets to, or while the agent runs; files alone.
+pub fn check_send(
+    settings: &Settings,
+    phase: Phase,
+    seal_to: Option<&link_secretive::SealTo>,
+) -> anyhow::Result<()> {
+    let switch = phase == Phase::Switch;
+    ensure!(
+        !switch || seal_to.is_some(),
+        "a switch needs its receiver's public key"
+    );
+    ensure!(
+        phase != Phase::Files,
+        "a move sends a copy, then a switch: not files alone"
+    );
+    ensure!(
+        !switch || !service::running_anywhere(&settings.name),
+        "{} is running: lnk agent pause first, so its files don't change under the switch",
+        settings.name
+    );
+    Ok(())
+}
+
+/// An error unless agent `settings` has ID `id`, when a move names it so
+/// (`--agent-id`): an agent made since under its name is another, never
+/// stopped, paused, sent, resumed or removed for the move.
+pub fn check_agent_id(settings: &Settings, id: Option<&str>) -> anyhow::Result<()> {
+    let Some(id) = id else {
+        return Ok(());
+    };
+    ensure!(
+        settings.agent_id() == Some(id),
+        "{} here isn't agent {}: another agent has its name",
+        settings.name,
+        link_format::clean(id)
+    );
+    Ok(())
 }
 
 /// What `--have` names for `send`: a file of JSON, or `-` for stdin;
@@ -784,89 +784,14 @@ pub const TURN_WAIT: std::time::Duration = std::time::Duration::from_secs(60);
 /// `lnk agent resume`: the agent here takes messages again, after a move
 /// whose switch failed: no longer paused, and started.
 pub fn resume(out: &mut Out, settings: &Settings) {
-    bridge::unpause(&settings.name);
-    start_again(out, settings);
+    resume_during(out, settings, None);
 }
 
-/// `lnk agent deliver`: each message on stdin, a JSON line as a cloud
-/// that hosts agents held it while the agent was paused there
-/// (`link_agent_place::Held`), kept with the agent's settings
-/// ([`bridge::keep_held`]) before any is given; then each kept, given to
-/// the agent here as its connection's message ([`bridge::give_held`]). One
-/// it can't be given now waits for its bridge to give it as it reaches
-/// its harness; one it's never given here is shown whole, and goes. One
-/// held for another generation of it ([`bridge::for_generation`]: the
-/// agent a move left, or a later one) is shown and never kept. Fails
-/// only when they couldn't be kept.
-pub async fn deliver(out: &mut Out, settings: &Settings) -> anyhow::Result<()> {
-    let mut messages = Vec::new();
-    let input = std::io::BufReader::new(std::io::Read::take(std::io::stdin().lock(), 256 << 20));
-    for line in input.lines() {
-        let line = line?;
-        if line.trim().is_empty() {
-            continue;
-        }
-        messages.push(
-            bridge::HELD
-                .read_json::<link_agent_place::Held>(line.as_bytes())
-                .within("reading a held message")?
-                .spec,
-        );
-    }
-    let agent = Name::new("agent", &settings.name);
-    let here = bridge::generation(&settings.name);
-    let (messages, others): (Vec<_>, Vec<_>) = messages
-        .into_iter()
-        .partition(|held| bridge::for_generation(here.as_deref(), held));
-    for held in &others {
-        out.block(
-            Report::warning(sentence!(
-                "A message from {} on {} was held for another move of {}: not given here.",
-                Foreign::new(&held.from),
-                Foreign::new(&held.connection),
-                &agent
-            ))
-            .why(prose!("It said {}.", Foreign::new(&held.text))),
-        );
-    }
-    bridge::keep_held(&settings.name, &messages)?;
-    let Ok(plan) = bridge::Plan::load(&settings.name) else {
-        out.block(Note(sentence!(
-            "{} message(s) wait for {}: given when it starts.",
-            messages.len(),
-            &agent
-        )));
-        return Ok(());
-    };
-    let given = bridge::give_held(settings, &plan, false).await?;
-    for (held, why) in &given.refused {
-        out.block(
-            Report::warning(sentence!(
-                "A message from {} on {} ({}) can't be given to {} here, {}.",
-                Foreign::new(&held.from),
-                Foreign::new(&held.connection),
-                Foreign::new(&held.chat),
-                &agent,
-                Foreign::new(why)
-            ))
-            .why(prose!("It said {}.", Foreign::new(&held.text))),
-        );
-    }
-    if given.given > 0 {
-        out.block(Note(sentence!(
-            "{} was given {} message(s).",
-            &agent,
-            given.given
-        )));
-    }
-    if given.waiting > 0 {
-        out.block(Note(sentence!(
-            "{} message(s) wait for {}: given once it answers.",
-            given.waiting,
-            &agent
-        )));
-    }
-    Ok(())
+/// [`resume`] for move `move_id`, the start it makes that move's own
+/// (`lnk agent start --during-move`).
+pub fn resume_during(out: &mut Out, settings: &Settings, move_id: Option<&str>) {
+    bridge::unpause(&settings.name);
+    start_again_during(out, settings, move_id);
 }
 
 /// `lnk agent receive --have --agent-id <id>`: what agent `id`'s staging here
@@ -888,22 +813,30 @@ pub fn left(out: &mut Out, settings: &Settings, to: moved::Place) -> anyhow::Res
         Ok(machine) => machine.name,
         Err(_) => "here".into(),
     };
-    let cleared = moved::leave(settings, to, false)?;
+    let mut cleared = moved::leave(settings, to)?;
     crate::services::on_stop(&settings.name, false);
     // A copy of it that came here for a move that never switched.
     if let Some(id) = settings.agent_id() {
         transfer::drop_staging(id);
     }
-    // Its buckets' password is its own: it went with it.
+    // Its buckets' password is its own: it went with it, or it's said
+    // with what left it.
     if let Some(id) = settings.agent_id()
         && link_core::find_module("storage").is_some()
         && let Ok(owner) = link_agent::owners::agent_flag(id)
     {
-        let _ = link_core::lnk()
+        let gone = link_core::lnk()
             .args(["storage", "leave"])
-            .args(owner)
+            .args(&owner)
             .stdin(Stdio::null())
-            .status();
+            .status()
+            .is_ok_and(|s| s.success());
+        if !gone {
+            cleared.left.push(format!(
+                "its buckets' password, still kept here: lnk storage leave {} removes it",
+                owner.join(" ")
+            ));
+        }
     }
     for note in cleared.notes {
         out.block(Note(Sentence::adopt(&note)));
@@ -918,36 +851,4 @@ pub fn left(out: &mut Out, settings: &Settings, to: moved::Place) -> anyhow::Res
 }
 
 #[cfg(test)]
-mod tests {
-
-    /// The copy's progress counts the files of the stream as it passes,
-    /// in pieces of any size, and its bytes.
-    #[test]
-    fn the_copy_counts_its_files_as_they_pass() {
-        let mut tar = tar::Builder::new(Vec::new());
-        for (name, size) in [("a", 10usize), ("b", 0), ("c", 1000)] {
-            let mut header = tar::Header::new_gnu();
-            header.set_size(size as u64);
-            header.set_mode(0o644);
-            header.set_cksum();
-            tar.append_data(&mut header, name, vec![7u8; size].as_slice())
-                .unwrap();
-        }
-        let mut header = tar::Header::new_gnu();
-        header.set_entry_type(tar::EntryType::Directory);
-        header.set_size(0);
-        header.set_cksum();
-        tar.append_data(&mut header, "d", std::io::empty()).unwrap();
-        let bytes = tar.into_inner().unwrap();
-        for piece in [1, 7, 512, 4096] {
-            let mut count = super::Count::default();
-            for chunk in bytes.chunks(piece) {
-                count.add(chunk);
-            }
-            assert_eq!(count.files, 3, "in pieces of {piece}");
-            assert_eq!(count.bytes, bytes.len() as u64);
-        }
-        assert_eq!(super::human(999), "999 bytes");
-        assert_eq!(super::human(4_200_000), "4.2 MB");
-    }
-}
+mod tests;

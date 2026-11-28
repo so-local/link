@@ -44,7 +44,7 @@ For an adapter with an `endpoint`: what its endpoint takes
 (`Authorization: Bearer <key>`), refusing anything else, and a
 connection Link carries for it is left out of the settings. It's also
 the agent's key for this start, which proves the agent's calls to its
-[bridges](../../../../../../../../../security/sandbox/bridge/docs/security/sandbox/more/bridges.md).
+[bridges](../../../../../../../../../security/sandbox/bridge/docs/tooling/sandbox/more/bridges.md).
 
 ### `store`
 
@@ -83,7 +83,7 @@ sandbox lets it.
 
 ### How Link hands it
 
-[`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#create-an-agent) hands it on every machine to a harness that keeps
+[`lnk agent start`](../../../../../../../../agent/docs/agents/README.md#start-your-agent) hands it on every machine to a harness that keeps
 Link's collections (its contract says `conversations`), each place
 resolved from the agent's `[storage]` and the machine's `~/.lnk/safe/agents/policy.toml`.
 It installs the needed drivers and serves the bridge, each call
@@ -333,7 +333,7 @@ run only its own program and the store drivers it's handed.
 Each need is a specification with no `name`, `version`, relative path or limit
 of calls (`per_minute`, the agent's own), opening something on some OS,
 and taken as it is on this OS: one that opens nothing here is passed
-over. It's shown and taken back as the flags [`lnk agent permission add`](../../../../../../../../agent/docs/security/sandbox/permissions/README.md#choose-what-your-agent-can-reach) takes
+over. It's shown and taken back as the flags [`lnk agent permission add`](../../../../../../../../agent/docs/tooling/sandbox/permissions/README.md#choose-what-your-agent-can-reach) takes
 (`--network.mode host`), and a key Link doesn't know is refused, the
 harness not started.
 

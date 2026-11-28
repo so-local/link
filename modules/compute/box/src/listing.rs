@@ -285,7 +285,10 @@ fn discover(out: &mut Out, boxes: &mut Boxes, all_regions: bool) -> (Vec<String>
                 Value::from(&name)
             )));
         }
-        for f in reply.boxes.unwrap_or_default() {
+        for mut f in reply.boxes.unwrap_or_default() {
+            // Only an address, as ssh takes it: anything else the cloud
+            // said is never saved, nor reaches ssh.
+            f.ip = address(f.ip);
             listed.insert((name.clone(), f.id.clone()));
             if let Some(known) = boxes
                 .boxes
@@ -450,5 +453,26 @@ fn settle(out: &mut Out, boxes: &mut Boxes) {
                 .why(prose_of(&err)),
             ),
         }
+    }
+}
+/// `ip`, a box's address as its cloud listed it, if it is one: an IPv4
+/// or IPv6 address, never a name or an option.
+fn address(ip: Option<String>) -> Option<String> {
+    ip.filter(|ip| ip.parse::<std::net::IpAddr>().is_ok())
+}
+
+#[cfg(test)]
+mod tests {
+    /// Only an address a cloud lists is saved: a name, an option or
+    /// anything else is dropped before it's kept or reaches ssh.
+    #[test]
+    fn a_listed_address_is_parsed_before_its_saved() {
+        let address = |ip: &str| super::address(Some(ip.to_string()));
+        assert_eq!(address("192.0.2.7").as_deref(), Some("192.0.2.7"));
+        assert_eq!(address("2001:db8::7").as_deref(), Some("2001:db8::7"));
+        assert_eq!(address("-oProxyCommand=sh"), None);
+        assert_eq!(address("box.example.com"), None);
+        assert_eq!(address("192.0.2.7 extra"), None);
+        assert_eq!(super::address(None), None);
     }
 }

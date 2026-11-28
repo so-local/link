@@ -81,7 +81,8 @@ MCP servers. A local model's address stays in `link.patch.yml` (600);
 ### The endpoint's key in `lnk secret list`
 
 [`lnk secret list`](../../../../../../../../modules/security/secret/contract/docs/config/secrets/more/contract.md#listed-for-lnk-secret-list) lists its copy of the endpoint's key
-(`~/.deepseek/link.env`) in each agent's home.
+(`~/.deepseek/link.env`) in each agent's home. That home is a folder the
+agent can read, so the agent can read the endpoint's key there.
 
 ### Known gap: other keys in `.env`
 

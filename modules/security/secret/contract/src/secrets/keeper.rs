@@ -31,7 +31,7 @@ mod routing;
 mod serving;
 use calling::{call, peer_uid, read_line, socket};
 pub use routing::{RouteRevoker, Routes, protect_routes, protect_routes_for, unbind_route};
-pub use serving::{serve, serve_with_routes, user_store};
+pub use serving::{remove_user_store, serve, serve_with_routes, user_store};
 
 /// The user the keeper runs as: it holds secrets and runs nothing else.
 pub const KEEPER_USER: &str = "lnk-secrets";
@@ -171,6 +171,11 @@ pub enum Request {
     /// Every secret kept for you gone, the store with them (`lnk
     /// uninstall`).
     Clear,
+    /// Another user's store gone, and the note of whose it was: root's
+    /// alone to ask, as `lnk box user remove` does before the user goes.
+    RemoveUser {
+        uid: u32,
+    },
 }
 
 /// One of a service's own secrets, as [`super::keep_own`] keeps it: none,
@@ -362,6 +367,19 @@ pub fn yours_held() -> anyhow::Result<()> {
         );
     }
     Ok(())
+}
+
+/// Removes what the keeper here keeps for the user whose ID is `uid`, as
+/// root, before that user is removed (`lnk box user remove`): their
+/// secrets, and the note of whose they were. Nothing to do where
+/// there's no keeper.
+pub fn remove_user(uid: u32) -> anyhow::Result<()> {
+    match socket() {
+        Some(socket) => Holder::Keeper(socket)
+            .ask(Request::RemoveUser { uid })?
+            .done(),
+        None => Ok(()),
+    }
 }
 
 /// Whether there's a keeper here: a [`KEEPER_USER`] on this machine (or

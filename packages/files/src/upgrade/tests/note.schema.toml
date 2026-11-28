@@ -11,5 +11,5 @@ encoding = "toml"
 [[steps]]
 from = 1
 rename = { said = "text" }
-since = "0.2.0"
-until = "0.4.0"
+since = "0.0.2"
+until = "0.0.4"

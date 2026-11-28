@@ -27,7 +27,7 @@ links for the details it leaves to another page.
 
 After a command fails, `lnk issue create` prints a bug report scrubbed
 of names, paths, addresses and anything shaped like a secret, ready to
-read and paste. [Getting Help](docs/more/guide.md#getting-help) has the
+read and paste. [Getting Help](docs/more/README.md#get-help) has the
 issue forms, and a security problem never goes in an issue: see
 [Report a Vulnerability](docs/more/vulnerabilities.md).
 
@@ -53,7 +53,7 @@ Docs change with the code, in the same pull request, following
 [Writing Docs](tests/docs/docs/more/developing/documentation/writing-docs.md).
 The other rules every change follows are in
 [Conventions](docs/more/developing/setup/conventions.md), and
-[Send a Change](docs/more/guide.md#send-a-change) covers branches and
+[Send a Change](docs/more/README.md#send-a-change) covers branches and
 pull requests. Describe only contents present in this repository. Omit
 absent folders, components, and capabilities rather than explaining
 their absence. Use Oxford commas in prose lists of three or more items.

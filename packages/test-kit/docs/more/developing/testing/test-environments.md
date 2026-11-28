@@ -187,9 +187,9 @@ another process appends to is read under its lock, whole lines only.
 
 A wait ran past its deadline. Read what the last check saw: if the
 awaited event never came, the code lost it, which is the bug. A machine
-slower than most sets `LNK_TEST_TIME_SCALE` once. A 4-CPU machine is one
-for the harness tests, whose confined agents each start dozens of
-programs, so it sets `LNK_TEST_TIME_SCALE=3`.
+with few CPUs scales every wait by itself (a 4-CPU machine's waits are
+three times as long, [`LNK_TEST_TIME_SCALE`](testing-kit.md#lnk_test_time_scale)),
+and one slower than its CPUs say sets `LNK_TEST_TIME_SCALE` once.
 
 ### Clocks
 

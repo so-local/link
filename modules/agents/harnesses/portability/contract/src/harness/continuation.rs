@@ -38,6 +38,11 @@ pub struct Context {
 
 link_files::specification!(Context, include_str!("continuation/context.schema.toml"));
 
+/// A harness's continuation context, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Context>()
+}
+
 pub fn folder(home: &Path) -> PathBuf {
     link_files::state::path(home, link_files::state::Area::Context)
 }

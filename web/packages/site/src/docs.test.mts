@@ -512,11 +512,12 @@ test("reference sections open directly and list their child pages in Docs", () =
 test("metadata comes from the homepage and shared labels fall back and refresh", () => {
   assert.equal(docs.site("en").name, "Example");
   assert.equal(docs.site("en").description, "Welcome.");
-  assert.equal(docs.shareTitle(docs.site("en")), "Example — Home");
+  assert.equal(docs.shareTitle("en"), "Example", "a home page without a headline is shared by the site's name");
+  assert.equal(docs.shareImage("en"), "/opengraph-image/share");
+  assert.equal(docs.shareImage("es"), "/es/opengraph-image/share");
   assert.equal(docs.page("en", [])?.description, "Welcome.");
   put("README.md", "# New home\n\nA changed opening.\n");
   assert.equal(docs.site("en").description, "A changed opening.");
-  assert.equal(docs.shareTitle(docs.site("en")), "Example — New home");
   writeFileSync(join(web, "docs/navigation.es.md"), website);
   writeFileSync(join(catalogs, "es.json"), JSON.stringify({ Copy: "Copiar", Language: "Español" }));
   assert.equal(docs.word(docs.site("es"), "Copy"), "Copiar");

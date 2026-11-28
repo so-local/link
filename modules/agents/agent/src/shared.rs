@@ -52,6 +52,11 @@ pub struct Member {
 
 link_files::specification!(Member, include_str!("shared/member.schema.toml"));
 
+/// Each shared harness member, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Member>()
+}
+
 /// Whether the agent's harness, under `contract`, joins its
 /// owner's one here, sandboxed as `boxed`, behind a proxy if `proxied`:
 /// the machine says so, its harness can, and it reaches nothing but

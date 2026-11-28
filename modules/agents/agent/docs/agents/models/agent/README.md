@@ -193,7 +193,7 @@ computer can't be a fallback.
 
 ### Check Which Harnesses Fall Back
 
-Link Harness [falls back](../../../../../harnesses/link/docs/agents/link/guide.md#fall-back-to-a-hosted-model), one turn at a time.
+Link Harness [falls back](../../../../../harnesses/link/docs/agents/harnesses/link/guide.md#fall-back-to-a-hosted-model), one turn at a time.
 A harness that can't fall back ignores the fallback, and Local Link keeps it for when a harness
 that can runs the agent.
 

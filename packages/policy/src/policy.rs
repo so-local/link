@@ -9,7 +9,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::name::{AccountId, Action, Actions, Kind, PrincipalId, Resources};
 
-/// The only version of the Policy Spec there is.
+/// The version a policy Link makes starts at. A policy's `version` is its
+/// author's to bump as they change it; its shape's version is its
+/// `schema`, the one counter Link reads.
 pub const VERSION: u32 = 1;
 
 /// The most grants a policy holds: a policy is a page a person reads.
@@ -163,17 +165,12 @@ impl Policy {
         said.join(" ")
     }
 
-    /// What its type alone can't hold: a name, its version, and grants
-    /// whose actions and resources are of one kind.
+    /// What its type alone can't hold: a name, and grants whose actions
+    /// and resources are of one kind. Its `version` is its author's.
     pub fn check(&self) -> anyhow::Result<()> {
         ensure!(
             !self.name.is_empty() && self.name.len() <= 64,
             "a policy's name is 1 to 64 characters"
-        );
-        ensure!(
-            self.version == VERSION,
-            "a policy's version is {VERSION}, not {}",
-            self.version
         );
         ensure!(
             self.allow.len() <= MAX_GRANTS,

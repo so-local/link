@@ -1,6 +1,6 @@
 //! An upgrade's changes on two owners' files: Link's settings, whose
 //! `secret.keychain` moves to a policy in schema 2, kept where secret
-//! preferences are, and the policy, whose `title` is `label` in its schema 2 and which takes the
+//! settings are, and the policy, whose `title` is `label` in its schema 2 and which takes the
 //! setting. A note, another file of state, and a coded kind, which takes
 //! the settings' `name` by its own code, join some. Each runs in its own
 //! installation folder, asked as `lnk upgrade` asks.
@@ -61,13 +61,13 @@ crate::specification!(Coded, include_str!("tests/coded.schema.toml"), migrations
 
 mod migrations;
 
-/// Settings of schema 1, as 0.1 wrote them, with your comments.
+/// Settings of schema 1, as 0.0.1 wrote them, with your comments.
 const SETTINGS: &str = "# My settings.\nschema = 1\nname = \"desk\"\n\n[secret]\n# Off for now.\nkeychain = true\ncolor = \"blue\"\n";
 
 /// A policy of schema 1, its comment yours.
 const POLICY: &str = "schema = 1\n# What I call it.\ntitle = \"mine\"\n";
 
-/// A machine of its own with 0.1's settings and policy: its roots, and
+/// A machine of its own with 0.0.1's settings and policy: its roots, and
 /// `None` where this machine can't hold a trusted control file.
 fn machine(name: &str) -> Option<(link_test_kit::TempDir, Roots)> {
     let dir =
@@ -82,7 +82,7 @@ fn machine(name: &str) -> Option<(link_test_kit::TempDir, Roots)> {
     }
     crate::write_private(&settings, SETTINGS.as_bytes()).unwrap();
     crate::write_private(
-        &Hidden::SecretPreferences.at_default(&roots.hidden),
+        &Hidden::SecretSettings.at_default(&roots.hidden),
         POLICY.as_bytes(),
     )
     .unwrap();
@@ -136,7 +136,7 @@ fn the_plan_names_each_change_and_changes_nothing() {
     };
     let planned = plan(&roots);
     let settings = Hidden::Settings.at_default(&roots.hidden);
-    let policy = Hidden::SecretPreferences.at_default(&roots.hidden);
+    let policy = Hidden::SecretSettings.at_default(&roots.hidden);
     assert_eq!(
         planned,
         [
@@ -162,7 +162,7 @@ fn the_plan_names_each_change_and_changes_nothing() {
         ]
     );
     assert_eq!(read(&roots, Hidden::Settings), SETTINGS);
-    assert_eq!(read(&roots, Hidden::SecretPreferences), POLICY);
+    assert_eq!(read(&roots, Hidden::SecretSettings), POLICY);
     assert!(!journal(&roots).exists());
     // As the answer a program prints, read back by the protocol's version.
     let printed = serde_json::to_vec(&Answer::stating(planned.clone(), None, &PROTOCOL)).unwrap();
@@ -180,13 +180,13 @@ fn an_upgrade_moves_the_record_and_converts_both_files_keeping_comments_and_mode
     let Some((_dir, roots)) = machine("upgrade-converts") else {
         return;
     };
-    let policy = Hidden::SecretPreferences.at_default(&roots.hidden);
+    let policy = Hidden::SecretSettings.at_default(&roots.hidden);
     std::fs::set_permissions(&policy, std::fs::Permissions::from_mode(0o640)).unwrap();
     // The transfer writes the policy in its current schema, converting it.
     let changes = upgrade(&roots);
     assert_eq!(changes.len(), 2, "{changes:?}");
     assert_eq!(
-        read(&roots, Hidden::SecretPreferences),
+        read(&roots, Hidden::SecretSettings),
         // The record's comment goes with it.
         "schema = 2\n# What I call it.\nlabel = \"mine\"\n# Off for now.\nkeychain = true\n"
     );
@@ -225,7 +225,7 @@ fn an_interrupted_transfer_finishes_on_a_rerun_and_takes_nothing_twice() {
         // The source keeps its record until its destination has it.
         assert_eq!(read(&roots, Hidden::Settings), SETTINGS, "{name}");
         upgrade(&roots);
-        let moved = read(&roots, Hidden::SecretPreferences);
+        let moved = read(&roots, Hidden::SecretSettings);
         assert_eq!(moved.matches("keychain").count(), 1, "{name}: {moved}");
         assert!(
             !read(&roots, Hidden::Settings).contains("keychain"),
@@ -271,7 +271,7 @@ fn a_destination_changed_mid_transfer_is_taken_again_and_a_refused_one_recovers_
     interrupt(&roots, journal::Stop::Recorded);
     // Changed to hold the record otherwise: refused before anything
     // changes, before the yes.
-    let into = Hidden::SecretPreferences.at_default(&roots.hidden);
+    let into = Hidden::SecretSettings.at_default(&roots.hidden);
     let colliding = "schema = 1\nkeychain = false\n";
     crate::write_private(&into, colliding.as_bytes()).unwrap();
     let refused = upgrade_of(&owners(), &roots).unwrap_err();
@@ -279,7 +279,7 @@ fn a_destination_changed_mid_transfer_is_taken_again_and_a_refused_one_recovers_
         format!("{refused:#}").contains("holds keychain"),
         "{refused:#}"
     );
-    assert_eq!(read(&roots, Hidden::SecretPreferences), colliding);
+    assert_eq!(read(&roots, Hidden::SecretSettings), colliding);
     assert_eq!(read(&roots, Hidden::Settings), SETTINGS);
     // Kept another way, the rerun takes the records again, from the
     // source the stopped run never touched.
@@ -341,7 +341,7 @@ fn only_the_agreed_plan_is_made() {
     let refused = run(Stage::Convert, &owners(), &roots, &[]).unwrap_err();
     assert!(format!("{refused:#}").contains("agreed"), "{refused:#}");
     assert_eq!(read(&roots, Hidden::Settings), SETTINGS);
-    assert_eq!(read(&roots, Hidden::SecretPreferences), POLICY);
+    assert_eq!(read(&roots, Hidden::SecretSettings), POLICY);
     assert!(!journal(&roots).exists());
 }
 
@@ -376,7 +376,7 @@ fn a_missing_destination_keeps_its_records_and_names_the_file_never_blocking() {
 }
 
 #[test]
-fn the_plan_tries_each_conversion_and_refuses_one_that_fails_before_the_yes() {
+fn the_plan_tries_each_conversion_and_names_one_that_fails_before_the_yes() {
     let Some((_dir, roots)) = machine("upgrade-tried") else {
         return;
     };
@@ -384,13 +384,45 @@ fn the_plan_tries_each_conversion_and_refuses_one_that_fails_before_the_yes() {
     let wrong = SETTINGS.replace("name = \"desk\"", "name = 5");
     let settings = Hidden::Settings.at_default(&roots.hidden);
     crate::write_private(&settings, wrong.as_bytes()).unwrap();
-    let refused = plan_of(&owners(), &roots).unwrap_err();
+    let planned = plan_of(&owners(), &roots).unwrap();
     assert!(
-        format!("{refused:#}").contains(&settings.display().to_string()),
-        "{refused:#}"
+        planned
+            .iter()
+            .any(|change| matches!(change, Change::Unread { file, .. } if *file == settings)),
+        "{planned:?}"
     );
     assert_eq!(read(&roots, Hidden::Settings), wrong);
-    assert_eq!(read(&roots, Hidden::SecretPreferences), POLICY);
+    assert_eq!(read(&roots, Hidden::SecretSettings), POLICY);
+}
+
+/// A torn file, one in no schema's shape and one a newer release wrote
+/// are each kept as they are and named, and the files beside them are
+/// converted: one file never stops `lnk upgrade`.
+#[test]
+fn one_unreadable_file_is_kept_and_named_and_the_rest_converted() {
+    let Some((_dir, roots)) = machine("upgrade-unread") else {
+        return;
+    };
+    let envs = Hidden::Envs.at_default(&roots.hidden);
+    let note = envs.join("note.toml");
+    crate::write_private(&note, b"schema = 1\nsaid = \"hi\"\n").unwrap();
+    let owners = [Saved::of::<Note>()];
+    let unread = |changes: &[Change], torn: &Path, words: &str| {
+        changes.iter().any(|change| {
+            matches!(change, Change::Unread { file, why, .. } if file == torn && why.contains(words))
+        })
+    };
+    for (text, words) in [
+        ("schema = 1\nsaid = \"hi", "isn't as it should be"),
+        ("schema = 9\nsaid = \"hi\"\n", "needs a newer lnk"),
+    ] {
+        crate::write_private(&note, text.as_bytes()).unwrap();
+        let planned = plan_of(&owners, &roots).unwrap();
+        assert!(unread(&planned, &note, words), "{planned:?}");
+        let changes = upgrade_of(&owners, &roots).unwrap();
+        assert!(unread(&changes, &note, words), "{changes:?}");
+        assert_eq!(std::fs::read_to_string(&note).unwrap(), text);
+    }
 }
 
 #[test]
@@ -527,7 +559,7 @@ fn a_transfer_takes_only_from_another_file_in_control() {
     let policy = include_str!("tests/policy.schema.toml");
     let own = policy.replace(
         "source = { location = \"lnk.settings\"",
-        "source = { location = \"lnk.secret-preferences\"",
+        "source = { location = \"lnk.secret-settings\"",
     );
     let refused = Format::parse(&own).unwrap_err().to_string();
     assert!(refused.contains("its own file"), "{refused}");
@@ -546,7 +578,7 @@ fn a_record_the_destination_holds_otherwise_is_refused_before_anything_changes()
     };
     let held = "schema = 1\nkeychain = false\n";
     crate::write_private(
-        &Hidden::SecretPreferences.at_default(&roots.hidden),
+        &Hidden::SecretSettings.at_default(&roots.hidden),
         held.as_bytes(),
     )
     .unwrap();
@@ -555,7 +587,32 @@ fn a_record_the_destination_holds_otherwise_is_refused_before_anything_changes()
         format!("{refused:#}").contains("holds keychain already"),
         "{refused:#}"
     );
-    assert_eq!(read(&roots, Hidden::SecretPreferences), held);
+    assert_eq!(read(&roots, Hidden::SecretSettings), held);
+}
+
+/// A file naming no schema is no file Link wrote: refused, as the
+/// source of a transfer and as a file to convert, and left as it is.
+#[test]
+fn a_file_naming_no_schema_is_refused_never_taken_for_the_current() {
+    let Some((_dir, roots)) = machine("upgrade-unnamed") else {
+        return;
+    };
+    let bare = SETTINGS.replace("schema = 1\n", "");
+    let settings = Hidden::Settings.at_default(&roots.hidden);
+    crate::write_private(&settings, bare.as_bytes()).unwrap();
+    let refused = plan_of(&owners(), &roots).unwrap_err();
+    assert!(
+        format!("{refused:#}").contains("names no schema"),
+        "{refused:#}"
+    );
+    assert_eq!(read(&roots, Hidden::Settings), bare);
+    let policy = Hidden::SecretSettings.at_default(&roots.hidden);
+    crate::write_private(&policy, b"title = \"mine\"\n").unwrap();
+    let refused = plan_of(&[Saved::of::<Policy>()], &roots).unwrap_err();
+    assert!(
+        format!("{refused:#}").contains("names no schema"),
+        "{refused:#}"
+    );
 }
 
 #[test]
@@ -564,7 +621,7 @@ fn a_file_newer_than_this_release_is_refused_naming_the_upgrade() {
         return;
     };
     crate::write_private(
-        &Hidden::SecretPreferences.at_default(&roots.hidden),
+        &Hidden::SecretSettings.at_default(&roots.hidden),
         b"schema = 3\nlabel = \"later\"\n",
     )
     .unwrap();
@@ -600,6 +657,27 @@ fn only_history_keeps_its_steps_forever() {
     assert!(refused.contains("never rewrites"), "{refused}");
 }
 
+/// State inside something else lists no files and takes no records, and
+/// its steps are retired as state's are.
+#[test]
+fn state_inside_something_else_lists_no_files_and_retires_its_steps() {
+    let ledger = include_str!("tests/ledger.schema.toml");
+    let inside = ledger.replace("holds = \"history\"", "holds = \"inside\"");
+    let refused = Format::parse(&inside).unwrap_err().to_string();
+    assert!(refused.contains("names no until"), "{refused}");
+    let retired = inside.replace("since = \"0.0.2\"", "since = \"0.0.2\"\nuntil = \"0.0.3\"");
+    let format = Format::parse(&retired).unwrap();
+    assert_eq!(format.holds, Holds::Inside);
+    let line = format
+        .read_json::<serde_json::Value>(br#"{"said":"hello","schema":1}"#)
+        .unwrap();
+    assert_eq!(line.spec["text"], "hello");
+    let listed =
+        format!("{retired}\n[[files]]\nlocation = \"lnk.settings\"\nencoding = \"toml\"\n");
+    let refused = Format::parse(&listed).unwrap_err().to_string();
+    assert!(refused.contains("can't find"), "{refused}");
+}
+
 #[test]
 fn a_star_stands_for_part_of_one_name_and_is_put_back_where_it_goes() {
     let Some((_dir, roots)) = machine("upgrade-stars") else {
@@ -632,5 +710,39 @@ fn a_star_stands_for_part_of_one_name_and_is_put_back_where_it_goes() {
         Hidden::MigrationJournal
             .at_default(&roots.hidden)
             .join("mini/grants.toml")
+    );
+}
+
+/// A note as a type no `specification!` declares, another crate's, its
+/// format shipped beside the code that reads it.
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Plain {
+    text: String,
+}
+
+static SHIPPED: std::sync::LazyLock<Format> =
+    std::sync::LazyLock::new(|| Format::shipped(include_str!("tests/note.schema.toml")));
+
+#[test]
+fn a_shipped_format_converts_as_the_type_its_owner_reads() {
+    let Some((_dir, roots)) = machine("upgrade-shipped") else {
+        return;
+    };
+    let note = Hidden::Envs.at_default(&roots.hidden).join("note.toml");
+    crate::write_private(&note, b"schema = 1\nsaid = \"hi\"\n").unwrap();
+    let owners = [Saved::shipped::<Plain>(&SHIPPED)];
+    let changes = upgrade_of(&owners, &roots).unwrap();
+    assert!(
+        changes
+            .iter()
+            .any(|change| matches!(change, Change::Convert { file, to: 2, .. } if *file == note)),
+        "{changes:?}"
+    );
+    let text = std::fs::read_to_string(&note).unwrap();
+    assert!(text.contains("schema = 2"), "{text}");
+    assert_eq!(
+        SHIPPED.read_saved::<Plain>(&text).unwrap().spec,
+        Plain { text: "hi".into() }
     );
 }

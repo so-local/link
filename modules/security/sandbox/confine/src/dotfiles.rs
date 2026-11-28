@@ -22,6 +22,10 @@
 //!   top of the folder ([`hook_managers`]: pre-commit's and lefthook's
 //!   settings, husky's folder), where it's there.
 //!
+//! A folder the whole machine writes, sticky and open to everyone (`/tmp`,
+//! X's `/tmp/.X11-unix`), has none: no project lives there, and any user
+//! may already make or take away what's at its top.
+//!
 //! On Linux each is mounted read only over the folder's own bind; one that
 //! isn't there is made empty for the run (a folder, or for an included
 //! settings file, a file) and removed after ([`crate::linux::mounts`]),
@@ -123,11 +127,26 @@ impl Entry {
 /// and included settings git's settings name in it. `swept`: `folder` is
 /// in Link's data folders ([`Entry::swept`]).
 pub fn of(folder: &Path, home: &Path, swept: bool) -> Vec<Entry> {
+    if shared(folder) {
+        return Vec::new();
+    }
     let mut entries = of_folder(folder, home);
     for entry in &mut entries {
         entry.swept = swept;
     }
     entries
+}
+
+/// Whether `folder` is one the whole machine writes, sticky and open to
+/// everyone (`/tmp`, X's `/tmp/.X11-unix`): no project lives there, any
+/// user may already make or take away a `.git` in it, and another
+/// installation's sandboxes write it too, so nothing is made, mounted or
+/// swept at its top.
+fn shared(folder: &Path) -> bool {
+    use std::os::unix::fs::PermissionsExt;
+    folder
+        .metadata()
+        .is_ok_and(|m| m.is_dir() && m.permissions().mode() & 0o1002 == 0o1002)
 }
 
 fn of_folder(folder: &Path, home: &Path) -> Vec<Entry> {
@@ -482,6 +501,26 @@ mod tests {
         let (hooks, includes) = settings(text);
         assert_eq!(hooks, [".husky/_", "with \"quotes\""]);
         assert_eq!(includes, ["../.gitconfig.project", "~/work.gitconfig"]);
+    }
+
+    /// A folder the whole machine writes has no dot files: the same
+    /// folder, with the same `.git`, has them once it's private again.
+    #[test]
+    fn a_folder_everyone_writes_has_no_dot_files() {
+        use std::os::unix::fs::PermissionsExt;
+        let (_kept, dir) = temp("shared");
+        let (home, folder) = (dir.join("home"), dir.join("sockets"));
+        std::fs::create_dir_all(folder.join(".git")).unwrap();
+        std::fs::create_dir_all(&home).unwrap();
+        let mode = |bits| std::fs::set_permissions(&folder, std::fs::Permissions::from_mode(bits));
+        mode(0o1777).unwrap();
+        assert!(of(&folder, &home, false).is_empty());
+        mode(0o755).unwrap();
+        assert!(
+            of(&folder, &home, false)
+                .iter()
+                .any(|e| e.rel == Path::new(".git"))
+        );
     }
 
     #[test]

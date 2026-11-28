@@ -6,7 +6,7 @@ import { relocatedFragment } from "./relocations";
 test("moved sections preserve the fragment after page canonicalization", () => {
   assert.equal(relocatedFragment("/agents/tools/run/guide", "#run__start", "?view=full"), "/agents/tools/run/more/developing?view=full#direct-background-start");
   assert.equal(relocatedFragment("/agents/connections/more/protocol", "#lnk-connection-hook"), "/agents/connections/more/protocol/pushed#lnk-connection-hook");
-  assert.equal(relocatedFragment("/agents/link/commands/decisions", "#why-does---agent-last-only-until-the-agent-starts-again"), "/agents/link/commands/decisions#why-does---every-chat-last-only-until-the-agent-starts-again");
+  assert.equal(relocatedFragment("/agents/harnesses/link/commands/decisions", "#why-does---agent-last-only-until-the-agent-starts-again"), "/agents/harnesses/link/commands/decisions#why-does---every-chat-last-only-until-the-agent-starts-again");
 });
 
 test("translated and old English addresses retain their canonical language", () => {

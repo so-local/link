@@ -145,7 +145,7 @@ adapter's `configure`, as `memory`.
 
 ### Its sandbox
 
-It's run by [`lnk sandbox run`](../../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) reading `<folder>`, `<agent>`'s
+It's run by [`lnk sandbox run`](../../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) reading `<folder>`, `<agent>`'s
 `chats/` and `skills/`, the program itself and each of
 `programs` installed, and writing `<state>` (`<agent>/memory/<engine>`)
 and, with `LNK_MEMORY_NOTES`, the notes' folder `<agent>/memory`.

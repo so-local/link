@@ -51,23 +51,35 @@ fn each_feature_has_one_id_read_back() {
     assert_eq!(Feature::Images.table(), "[connections] images");
 }
 
-/// An agent with no `extends` has every feature but those of the tools
-/// Link's spec leaves off until added (file is on, so asked to, it
-/// changes its files, instructions and skills); with them added, every
-/// one.
+/// An agent with no `extends` has every feature but the repository's
+/// instructions, voice notes and the tools', which Link's spec leaves off
+/// until added; with them added, every one.
 #[test]
 fn links_spec_turns_every_feature_on() {
     use Feature::*;
     let link = resolved("");
-    let tools = [Subagents, Schedules, Proactive, Shell, Lsp];
+    let off = [
+        RepoInstructions,
+        Voice,
+        Subagents,
+        Schedules,
+        Proactive,
+        Shell,
+        FileRead,
+        FileEdit,
+        CodeSearch,
+        Diffs,
+        Lsp,
+    ];
     let untooled: Vec<Feature> = Feature::ALL
         .into_iter()
-        .filter(|f| !tools.contains(f))
+        .filter(|f| !off.contains(f))
         .collect();
     assert_eq!(Feature::of_spec(&link.spec), set(&untooled));
     assert!(Feature::chosen(&link).is_empty());
     let added = resolved(
-        "[tool.scheduler]\nenabled = true\n[tool.run]\nenabled = true\n\
+        "[instructions]\nrepository = \"link\"\n[connections]\nvoice = true\n\
+         [tool.scheduler]\nenabled = true\n[tool.run]\nenabled = true\n\
          [tool.file]\nenabled = true\n[tool.code]\nenabled = true\n",
     );
     assert_eq!(Feature::of_spec(&added.spec), set(&Feature::ALL));

@@ -15,6 +15,7 @@ use link_harness_contract::harness::identity;
 use serde_json::{Value, json};
 use serde_norway::Value as Yaml;
 mod sessions;
+pub(crate) use sessions::saved_imports;
 
 /// Where, in the user's home, Link archives the sessions it imported.
 const IMPORTS: &str = ".hermes/link-imports.json";

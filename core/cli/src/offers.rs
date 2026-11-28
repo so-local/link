@@ -18,6 +18,11 @@ struct Offered {
 
 link_files::specification!(Offered, include_str!("offers.schema.toml"));
 
+/// What an upgrade converts of `offers.toml`.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Offered>()
+}
+
 impl Offered {
     fn path() -> PathBuf {
         link_files::layout::Hidden::ModuleOffers.path()

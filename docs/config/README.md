@@ -7,6 +7,8 @@ and it comes in two kinds: specifications and settings.** You can read
 it, inspect it and keep it in git, so you get the same agent, machine,
 or sandbox every time.
 
+<!-- quickstart -->
+
 ## Specifications and Settings
 
 A specification describes one thing, such as an agent, a box or a
@@ -72,13 +74,13 @@ explains how an agent's and its team's specifications combine.
 ## Files You Can Edit
 
 Your configuration is files you can edit in place. This installation
-also has a stable ID and name. [Installation Identity](../../packages/machine/docs/config/installation.md)
+also has a stable ID and name. [Installations](../../packages/machine/docs/config/installation.md)
 describes both and shows how to inspect the identity file.
 
 ### Agent, Team, and Model Files
 
 A few more files are yours to edit. Each agent keeps setup and behavior
-in `~/Link/Safe/Agents/<name>/agent.toml`, and [permissions](../../modules/agents/agent/docs/security/sandbox/permissions/README.md) in
+in `~/Link/Safe/Agents/<name>/agent.toml`, and [permissions](../../modules/agents/agent/docs/tooling/sandbox/permissions/README.md) in
 `~/Link/Safe/Agents/<name>/sandbox.toml`, whichever harness runs the agent.
 [A team keeps the opinions its agents share](../../modules/agents/agent/contract/spec/docs/config/specs/guides/agent.md#where-its-kept) in `~/Link/Safe/Teams/<team>.toml`.
 [You describe models](../../modules/agents/model/docs/agents/models/providers.md#what-link-knows-of-a-model), or correct Local Link's figures, in
@@ -93,7 +95,9 @@ and where agents' things may be kept.
 
 Local Link keeps every other file under `~/.lnk`. [Where Link Keeps
 Things](../more/reference/locations.md) explains the layout and lists
-every location, and each file is on its module's Files page. [`lnk variable list <command>`](../../core/cli/docs/more/architecture/files.md#list-a-commands-variables) lists the
+every location, and each file is on its module's Files page.
+[`lnk location list`](../../core/cli/docs/config/locations.md#list-the-locations)
+lists where each location is on this machine. [`lnk variable list <command>`](../../core/cli/docs/config/variables.md#list-a-commands-variables) lists the
 environment variables a command reads.
 
 ## Secrets and Credentials

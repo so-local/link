@@ -327,12 +327,30 @@ async fn relay_in(listener: UnixListener) {
     .await
 }
 
+/// How long a connection to a served port may send nothing before it's
+/// dropped: held open with nothing said, many would fill the sandbox's.
+const HEAD_WAIT: std::time::Duration = std::time::Duration::from_secs(10);
+
+/// Whether `client` says something within `wait`: its first bytes,
+/// read only to look (`peek`), so all it sends reaches the sandbox.
+async fn speaks(client: &TcpStream, wait: std::time::Duration) -> bool {
+    let mut first = [0u8; 1];
+    matches!(
+        tokio::time::timeout(wait, client.peek(&mut first)).await,
+        Ok(Ok(n)) if n > 0
+    )
+}
+
 /// Outside: each connection to one of the harness's ports, into the
-/// sandbox through `in.sock`.
+/// sandbox through `in.sock`, once it says something within
+/// [`HEAD_WAIT`]: one that says nothing holds nothing of the sandbox's.
 pub async fn serve_inbound(listener: TcpListener, inbound: Inbound, port: u16) {
     each(listener, move |mut client| {
         let inbound = inbound.clone();
         async move {
+            if !speaks(&client, HEAD_WAIT).await {
+                return;
+            }
             if let Ok(mut link) = inbound.connect().await
                 && link.write_u16(port).await.is_ok()
             {
@@ -341,4 +359,27 @@ pub async fn serve_inbound(listener: TcpListener, inbound: Inbound, port: u16) {
         }
     })
     .await
+}
+
+#[cfg(test)]
+mod head_tests {
+    /// A served port holds a connection only once it says something in
+    /// time: silent, it's dropped; speaking, all it said is still there.
+    #[tokio::test]
+    async fn a_served_port_holds_a_connection_only_until_its_head_is_due() {
+        use tokio::io::AsyncWriteExt;
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let at = listener.local_addr().unwrap();
+        let _silent = tokio::net::TcpStream::connect(at).await.unwrap();
+        let (client, _) = listener.accept().await.unwrap();
+        let wait = std::time::Duration::from_millis(50);
+        assert!(!super::speaks(&client, wait).await, "said nothing");
+        let mut speaking = tokio::net::TcpStream::connect(at).await.unwrap();
+        speaking.write_all(b"GET / HTTP/1.1\r\n").await.unwrap();
+        let (client, _) = listener.accept().await.unwrap();
+        assert!(super::speaks(&client, std::time::Duration::from_secs(5)).await);
+        let mut first = [0u8; 3];
+        assert_eq!(client.peek(&mut first).await.unwrap(), 3);
+        assert_eq!(&first, b"GET");
+    }
 }

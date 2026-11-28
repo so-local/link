@@ -282,6 +282,11 @@ pub struct Clouds {
 
 link_files::specification!(Clouds, include_str!("clouds.schema.toml"));
 
+/// The storage clouds, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Clouds>()
+}
+
 impl Clouds {
     pub fn path() -> anyhow::Result<PathBuf> {
         Ok(crate::files::config_dir()?.join("clouds.toml"))

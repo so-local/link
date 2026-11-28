@@ -34,7 +34,7 @@ fn every_license_names_its_holder_and_no_placeholder() {
         format!("Copyright (c) {years} {holder}"),
     ];
     let mut problems = Vec::new();
-    for file in link_repository_check::layer_words::tracked(&root) {
+    for file in link_repository_check::tracked::tracked(&root) {
         let name = file.rsplit('/').next().unwrap_or(&file);
         if !(name == "LICENSE-MIT" || name == "LICENSE-APACHE") {
             continue;

@@ -13,8 +13,9 @@ lnk agent tool add scheduler
 You need the agents modules, which [`lnk up`](../../../../../../../../docs/more/modules/install.md#pick-your-modules) installs and which
 bring Link Scheduler, and a harness that reads who a message is from.
 Link Harness, OpenClaw, Hermes Agent and DeepSeek Harness do. A new agent
-has the scheduler off: [`lnk agent tool add scheduler`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) turns it on, and
-each start then gives the agent its scheduler.
+has the scheduler off: [`lnk agent tool add scheduler`](../../../../../../agent/docs/agents/README.md#tools) turns it on, and
+each start then gives the agent its scheduler. Every ready-made agent
+comes with it on.
 
 ## What your agent can do
 
@@ -100,7 +101,7 @@ Your agent does these without asking you, but for a recurring schedule,
 which asks you first, as [A Recurring Schedule Asks
 First](#a-recurring-schedule-asks-first) says. Set `[tool.scheduler] ask =
 true` in its specification and each waits for you to allow it, as any tool's call
-you haven't allowed does, in [`lnk sandbox question list`](../../../../../../../security/sandbox/docs/security/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks). A message from a schedule
+you haven't allowed does, in [`lnk sandbox question list`](../../../../../../../security/sandbox/docs/tooling/sandbox/tools/questions/README.md#answer-what-a-sandbox-asks). A message from a schedule
 or a subagent is never taken for yours, and your agent is told who's
 speaking. A recurring schedule starts without asking too once its specification
 says `[tool.scheduler] recurring = "allow"`, which only you can set.
@@ -179,7 +180,7 @@ calls the shape it's trained on and the asking stays the sandbox's.
 
 An agent that runs with no one to answer, such as one on a box, has its
 recurring schedules refused at once. Its refusal names the setting that
-lets them through, since [`lnk sandbox tool add --add`](../../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside) can't. To let
+lets them through, since [`lnk sandbox tool add --add`](../../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside) can't. To let
 the agent make recurring schedules without asking you, set it in the
 agent's specification:
 
@@ -189,7 +190,7 @@ schema = 1
 recurring = "allow"
 ```
 
-The same goes as a flag of [`lnk agent start`](../../../../../../agent/docs/agents/README.md#create-an-agent), `--tool.scheduler.recurring
+The same goes as a flag of [`lnk agent start`](../../../../../../agent/docs/agents/README.md#start-your-agent), `--tool.scheduler.recurring
 allow`. Link then gives the sandbox no `--ask-if` for that agent. The
 setting is the specification's, which the agent can't write, so only you let its
 schedules through. The ready-made coach and personal agents set it in the
@@ -260,10 +261,10 @@ from, as the teammate's answer would come.
 
 ## Turn it off
 
-The scheduler is off until you add it. [`lnk agent tool remove scheduler`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills)
+The scheduler is off until you add it. [`lnk agent tool remove scheduler`](../../../../../../agent/docs/agents/README.md#tools)
 turns it off again, or set it in your agent's
 [specification](../../../../../../agent/docs/config/specs/agent.md), which you give with
-[`lnk agent start --spec <file>`](../../../../../../agent/docs/agents/README.md#create-an-agent).
+[`lnk agent start --spec <file>`](../../../../../../agent/docs/agents/README.md#start-your-agent).
 
 ```toml
 schema = 1
@@ -335,7 +336,7 @@ it does whenever the agent is started.
 The scheduler also keeps one job for each conversation that the agent
 itself sets, never the model. It wakes the agent once a conversation
 has been quiet for its connection's `compact_after`, 55 minutes in
-Link's for a chat on Telegram, Slack, Discord or Signal, so [the conversation compacts](../../../../../../harnesses/link/docs/agents/link/conversations.md#after-a-quiet-hour).
+Link's for a chat on Telegram, Slack, Discord or Signal, so [the conversation compacts](../../../../../../harnesses/link/docs/agents/harnesses/link/conversations.md#after-a-quiet-hour).
 Each turn moves it later. Your agent never lists, reads or cancels it,
 and it counts toward none of the day's messages.
 

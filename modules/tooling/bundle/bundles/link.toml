@@ -12,3 +12,6 @@ target = [
 ]
 build = "prod"
 signer = "link"
+# Each archive, packed into link-<name>.tar.gz before the seal, so the
+# seal covers it like every program.
+archives = ["agents/ready-made"]

@@ -31,7 +31,7 @@ Link gives deepseek its own runtime settings and carries each chat through the a
 
 ### Existing Installations
 
-[`lnk agent migrate --harness deepseek`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-your-agent)
+[`lnk agent migrate --harness deepseek`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-to-local-link)
 can copy a standalone installation into Link's managed home. Starting
 fresh uses [agent creation](../../../../../../../../modules/agents/agent/docs/agents/start/create.md)
 with `--harness deepseek`. Both routes keep DeepSeek as the harness,

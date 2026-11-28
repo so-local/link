@@ -2,44 +2,47 @@
 
 > Run Your Agent Here or in Your Cloud
 
-Make any agent you can imagine, run it on this computer or in your own cloud,
-and [share it](share/README.md) with your friends and your community. Start
-one from scratch, bring in one you already run, or start from one someone
-shared, once [Local Link](../../../../../README.md#install) is installed and
-you have a hosted model's API key or choose a local model when asked.
+**An agent is an AI that gets things done for you.** Every agent is made of the
+same five parts: its state, its harness, its model, its connections, and its
+tools. [What Are Agents](agent.md) explains each part and how a harness works.
+Start one blank or from an archive someone shared, once
+[Local Link](../../../../../README.md#install) is installed and you have a
+hosted model's API key or choose a local model when asked.
 
 <!-- quickstart -->
 
-## Create an Agent
+## Start Your Agent
 
-Start your agent and choose its model when asked. The agent keeps running in
-the background. [Start Your Agent](start/README.md#start-your-agent-in-the-background) explains
-the first-start choices and how to start another agent. An
-[Agent Specification](../config/specs/agent.md) describes your agent as a TOML file,
-and [More](more/README.md) covers its configuration, access, security, and
-runtime interfaces.
+Your first start creates Onboarding, an agent that answers what Local
+Link can do, and asks for its model. The agent keeps running in the
+background. [Start Your Agent](start/README.md#start-your-agent-in-the-background) explains
+the first-start choices and how to start another agent.
 
 ```sh
 lnk agent start
 ```
 
-## Start Chatting
+## Talk to Your Agent
 
 Open a conversation in this terminal and send your first message. You can
 also name a conversation, follow up on it, or send a single message from a
 script with [Terminal Chat](chat/README.md#talk-to-it-here).
+Connect a messaging app to text your agent from your phone.
+[Talk to Your Agent](chat/README.md) covers the terminal, scripts, and every
+messaging app.
 
 ```sh
 lnk agent chat
+lnk agent connect telegram|slack|discord|signal
 ```
 
-## Share Agents
+## Create a Shareable Agent
 
 Share an agent you made with your friends and your community, and start the
-agents they share, each as one archive file. Local Link provides four
-[Ready-Made Agents](ready-made/README.md) to start from, a programmer, a
-researcher, a coach, and a personal assistant, and says plainly how far each
-one goes. [Share Agents](share/README.md) covers making an agent worth
+agents they share, each as one archive file. Local Link's
+[Ready-Made Agents](../../../../../agents/docs/agents/ready-made/README.md), a programmer, a researcher, a
+coach, and a personal assistant, are where you start: import one and
+make it yours. [Create a Shareable Agent](share/README.md) covers making an agent worth
 sharing, exporting it with
 [`lnk archive export`](../../../../tooling/archive/docs/tooling/archive/README.md#export),
 and importing someone else's.
@@ -50,64 +53,28 @@ lnk archive import link-coach.tar.gz
 lnk agent start --agent coach
 ```
 
-## Migrate Your Agent
+## Leverage Link Harness
 
-Import an agent you already run with OpenClaw, Hermes, or DeepSeek.
-[Migrate Harnesses](harnesses/use/migrate/README.md) explains the plan you
-review, the state that moves, and how to resume or undo a migration.
+Link Harness is Local Link's own harness. You edit its instructions and skills
+as files, inspect the prompt it sends, and keep your conversations in an event
+log you control. [Leverage Link Harness](../../../harnesses/link/docs/agents/link.md)
+shows how to get the most from it, and the
+[controlled benchmarks](../../../harnesses/link/docs/agents/harnesses/link/benchmarks.md)
+compare its startup and idle memory.
 
 ```sh
-lnk agent migrate
+lnk agent harness set link
 ```
 
-## Connect Your Channels
+## Create an Agent Team
 
-Connect a messaging app to text your running agent from your phone.
-[Connect Messaging Apps](connections/connect/README.md) shows how to create a
-bot, supply its credentials, and confirm the bot is yours. Each app has its own
-page:
-[Telegram](../../../../../interop/agents/connections/telegram/docs/agents/connections/telegram/README.md),
-[Slack](../../../../../interop/agents/connections/slack/docs/agents/connections/slack/README.md),
-[Discord](../../../../../interop/agents/connections/discord/docs/agents/connections/discord/README.md), and
-[Signal](../../../../../interop/agents/connections/signal/docs/agents/connections/signal/README.md).
-The [Connections](../../../connections/docs/agents/connections/README.md)
-catalogue lists them all.
+Give several agents distinct purposes and a shared folder, then address the
+team or one member. [Create an Agent Team](team/README.md) covers creating the members,
+choosing a lead, and keeping their work together when they move. A
+[Team Specification](../config/specs/team.md) describes a team as a TOML file.
 
 ```sh
-lnk agent connect telegram|slack|discord|signal
-```
-
-## Change Your Harness
-
-Switch the program that runs your agent. The agent keeps its model, files, and
-connections. [Switch Harnesses](harnesses/use/README.md) explains the
-supported harnesses and what happens to their saved state. Each harness has its
-own page:
-[Mini](../../../harnesses/mini/docs/agents/harnesses/more/mini/README.md),
-[Link Harness](../../../harnesses/link/docs/agents/link/README.md),
-[OpenClaw](../../../../../interop/agents/harnesses/openclaw/docs/agents/harnesses/openclaw/README.md),
-[Hermes](../../../../../interop/agents/harnesses/hermes/docs/agents/harnesses/hermes/README.md), and
-[DeepSeek](../../../../../interop/agents/harnesses/deepseek/docs/agents/harnesses/deepseek/README.md).
-The [Harnesses](../../../harnesses/docs/agents/harnesses/README.md) catalogue
-lists them all. The [Agent Protocol](../../../harnesses/portability/contract/docs/agents/harnesses/more/agent-protocol.md)
-explains the model every harness shares, and [Harness Adapters](../../../../../interop/agents/harnesses/docs/agents/harnesses/adapters/README.md)
-separates creating a harness fresh from adopting an existing installation.
-
-```sh
-lnk agent harness set mini|link|openclaw|hermes|deepseek
-```
-
-## Change Your Model
-
-Switch your agent to an available local model or to a hosted provider's model.
-[Switch Models](models/agent/README.md) shows how to install a local model, add
-provider credentials, and see what each harness supports. [Models](../../../model/docs/agents/models/README.md)
-covers the local runtimes and hosted providers that supply the models.
-
-```sh
-lnk agent model set anthropic/claude-sonnet-5-5
-lnk agent model set openai/gpt-6.1-sol
-lnk agent model set local/qwen3:8b
+lnk agent team list
 ```
 
 ## Move Your Agent
@@ -122,41 +89,70 @@ lnk agent move aws|gcp
 lnk agent move here
 ```
 
-## Add Tools and Skills
+## Migrate to Local Link
 
-Choose what your agent can do beyond talking, and add task instructions the
-agent can reuse. The tools are
-[Web](../../../tools/web-tool/docs/agents/tools/web/README.md) to fetch pages,
-[Browser](../../../tools/browser-tool/docs/agents/tools/browser/README.md) to
-use a site,
-[Desktop](../../../tools/desktop-tool/docs/agents/tools/desktop/README.md) to
-use an app, [Run](../../../tools/run-tool/docs/agents/tools/run/README.md) to
-run programs, [Code](../../../tools/code-tool/docs/agents/tools/code/README.md)
-to read code, [File](../../../tools/file-tool/docs/agents/tools/file/README.md)
-to edit files,
-[Memory](../../../tools/memory-tool/docs/agents/tools/memory/README.md) to
-search what the agent knows, and
-[Scheduler](../../../tools/scheduler-tool/docs/agents/tools/scheduler/README.md)
-to work later. [Tools and Skills](tools/use/README.md) explains search keys,
-each tool's permissions, and how to add skills you can inspect and edit. The
-[Tools](../../../tools/docs/agents/tools/README.md) catalogue groups the
-providers by the work they do.
+Import an agent you already run with OpenClaw, Hermes, or DeepSeek.
+[Migrate to Local Link](migrate/README.md) explains the plan you
+review, the state that moves, and how to resume or undo a migration.
+
+```sh
+lnk agent migrate
+```
+
+## Parts of an Agent
+
+Each part of an agent has its own section, which says what the part is and
+every command it has.
+[Ready-Made Agents](../../../../../agents/docs/agents/ready-made/README.md) are the six agents Local Link made
+to start from, [State](state/README.md) is what your agent knows and keeps,
+the [Connections](../../../connections/docs/agents/connections/README.md)
+catalogue lists every messaging app, and [More](more/README.md) covers the
+agent's settings, access, security, and runtime interfaces.
+
+### Harnesses
+
+Switch the program that runs your agent. The agent keeps its model, files, and
+connections. [Switch Harnesses](harnesses/use/README.md) explains what happens
+to each harness's saved state, and the
+[Harnesses](../../../harnesses/docs/agents/harnesses/README.md) catalogue
+lists them all.
+
+```sh
+lnk agent harness set mini|link|openclaw|hermes|deepseek
+```
+
+### Models
+
+Switch your agent to an available local model or to a hosted provider's model.
+[Switch Models](models/agent/README.md) shows how to install a local model, add
+provider credentials, and see what each harness supports. [Models](../../../model/docs/agents/models/README.md)
+covers the local runtimes and hosted providers that supply the models.
+
+```sh
+lnk agent model set anthropic/claude-sonnet-5-5
+lnk agent model set openai/gpt-6.1-sol
+lnk agent model set local/qwen3:8b
+```
+
+### Tools
+
+Choose what your agent can do beyond talking:
+[Web](../../../tools/web-tool/docs/agents/tools/web/README.md),
+[Browser](../../../tools/browser-tool/docs/agents/tools/browser/README.md),
+[Desktop](../../../tools/desktop-tool/docs/agents/tools/desktop/README.md),
+[Run](../../../tools/run-tool/docs/agents/tools/run/README.md),
+[Code](../../../tools/code-tool/docs/agents/tools/code/README.md),
+[File](../../../tools/file-tool/docs/agents/tools/file/README.md),
+[Memory](../../../tools/memory-tool/docs/agents/tools/memory/README.md), and
+[Scheduler](../../../tools/scheduler-tool/docs/agents/tools/scheduler/README.md).
+[Tools and Skills](tools/use/README.md) explains each tool's permissions and
+how to add skills, and the [Tools](../../../tools/docs/agents/tools/README.md)
+catalogue lists every tool.
 
 ```sh
 lnk agent tool list
 lnk agent tool add web
 lnk agent tool remove web
-```
-
-## Build a Team
-
-Give several agents distinct purposes and a shared folder, then address the
-team or one member. [Teams](team/README.md) covers creating the members,
-choosing a lead, and keeping their work together when they move. A
-[Team Specification](../config/specs/team.md) describes a team as a TOML file.
-
-```sh
-lnk agent team list
 ```
 
 <!-- docs-tree:start -->
@@ -165,15 +161,17 @@ lnk agent team list
 
 ### Pages
 
-- [Start Your Agent](start/README.md): Start an agent on this computer, choose its model, and reuse its saved settings on later starts
-- [Chat](chat/README.md): Talk to your running agent in a terminal, or send a message from a script
-- [Share Agents](share/README.md): Make any agent you can imagine, share it with your friends and then your community, and start the agents they share with you
-- [Ready-Made Agents](ready-made/README.md): Local Link provides four ready-made agents, examples you import, start, and build on, and the first agents anyone can share
+- [What Are Agents](agent.md): An agent is an AI that gets things done for you
+- [Start Your Agent](start/README.md): Your first `lnk agent start` creates Onboarding, an agent that answers what Local Link can do
+- [Talk to Your Agent](chat/README.md): Talk to your running agent in a terminal, send a message from a script, or text your agent from your phone
+- [Create a Shareable Agent](share/README.md): People share agents the way they share open-source code: start from one someone made, make it your own, and pass it on to your friends or publish it for everyone
+- [Create an Agent Team](team/README.md): A team splits a job by purpose
+- [Move Your Agent](move/README.md): Move your agent to a box in your own cloud, and back
+- [Migrate to Local Link](migrate/README.md): Bring an agent you already run with OpenClaw, Hermes, or DeepSeek under Local Link
+- [State](state/README.md): An agent's state is the files and folders the agent has access to, and the ones that make its tools work
 - [Switch Harnesses](harnesses/use/README.md): Switch the harness that runs your agent with `lnk agent harness set <harness>`
 - [Switch Models](models/agent/README.md): Change what your agent thinks with, in one command
 - [Connect Messaging Apps](connections/connect/README.md): Connect your agent to a messaging app so you can text the agent from your phone or workspace
-- [Move Your Agent](move/README.md): Move your agent to a box in your own cloud, and back
-- [Teams](team/README.md): A team splits a job by purpose
 - [Tools and Skills](tools/use/README.md): Choose the tools your agent can call, and add reusable instructions for recurring work
 
 ### More

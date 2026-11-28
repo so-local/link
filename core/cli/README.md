@@ -10,6 +10,9 @@ the installed parts.
 
 ### Pages
 
+- [Issues](docs/tooling/issue.md): `lnk issue create` turns the last command that failed into a bug report, scrubbed of what's private, so you can report it in a minute
+- [Locations](docs/config/locations.md): `lnk location` shows where Local Link keeps each of its locations on this machine, and moves one
+- [Variables](docs/config/variables.md): `lnk variable list` lists the environment variables Local Link's commands read, by name, with the commands that read each and what it's for
 - [Files and Variables](docs/more/architecture/files.md): The files and environment variables every `lnk` program reads, and those of the core and its installer
 - [Shell Completion](docs/more/reference/completion.md): Shell completion lets your shell finish `lnk` commands, their flags, and a flag's values when you press Tab, each shown with its help in zsh
 

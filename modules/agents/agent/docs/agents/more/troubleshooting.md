@@ -45,7 +45,7 @@ $USER` and log in again, or `lnk agent start --foreground`.
 ## `status` says it isn't answering
 
 Read `lnk agent log show --follow`, then the [Link
-Harness](../../../../harnesses/link/docs/agents/link/troubleshooting.md)
+Harness](../../../../harnesses/link/docs/agents/harnesses/link/troubleshooting.md)
 page, or its harness's own page.
 
 ## Getting hallucinations, or it forgets what was said earlier

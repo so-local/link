@@ -1588,8 +1588,8 @@ it once; nothing of it runs between.
 
 Whether Link starts the tool for the agent, in `[tool.scheduler]`,
 `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false
-withholds it. Link's specification starts the file tool enabled, and the
-scheduler, run, code and Link MCP disabled. Without the scheduler, no subagents or
+withholds it. Link's specification starts every tool disabled: the file tool, the
+scheduler, run, code and Link MCP. Without the scheduler, no subagents or
 schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true
 gives the screen at a start where this machine runs it, false takes it
 away, and Link's specification says neither, leaving what `lnk agent tool add`
@@ -1950,8 +1950,8 @@ it once; nothing of it runs between.
 
 Whether Link starts the tool for the agent, in `[tool.scheduler]`,
 `[tool.run]`, `[tool.file]`, `[tool.code]` and `[tool.mcp]`; false
-withholds it. Link's specification starts the file tool enabled, and the
-scheduler, run, code and Link MCP disabled. Without the scheduler, no subagents or
+withholds it. Link's specification starts every tool disabled: the file tool, the
+scheduler, run, code and Link MCP. Without the scheduler, no subagents or
 schedules run. `[tool.browser]` and `[tool.desktop]` take it too: true
 gives the screen at a start where this machine runs it, false takes it
 away, and Link's specification says neither, leaving what `lnk agent tool add`

@@ -1,0 +1,5 @@
+# The agent the first `lnk agent start` creates on a machine with no
+# agent (`first_agent.rs`): its name in its archive, and its archive
+# folder, from this file's folder, which the build carries into the module.
+name = "onboarding"
+folder = "../../../agents/ready-made/onboarding"

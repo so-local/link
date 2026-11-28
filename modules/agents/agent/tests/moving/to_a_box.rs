@@ -46,7 +46,7 @@ fn an_agent_moves_to_a_box_and_back_with_its_state_not_its_install() {
     );
     write(
         &here.join(".lnk/safe/agents/harness-grants/fake.toml"),
-        "risks = [\"browser\"]\nanswered = [\"browser\"]\n[network]\nmode = \"host\"\n\
+        "schema = 1\nrisks = [\"browser\"]\nanswered = [\"browser\"]\n[network]\nmode = \"host\"\n\
          [localhost]\nports = [8080]\n[asked.network]\nmode = \"host\"\n[asked.localhost]\n\
          ports = [8080]\n",
     );

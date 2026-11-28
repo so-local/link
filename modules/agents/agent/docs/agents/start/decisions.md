@@ -36,8 +36,9 @@ deadline. The owner instead drains output, waits and reaps the child.
 Each has a name you type and a random ID, kept in `machine.toml` and the
 agent's settings. An agent's ID is 12 random characters that never
 change. Names are what people say; IDs keep two machines' or two users'
-`main` apart, with no registry to hand out numbers. The first `lnk agent
-start` makes `main`: most people have one agent and never name it. No
+agents of one name apart, with no registry to hand out numbers. The
+first `lnk agent start` creates `onboarding`, its archive's name, so a
+first agent says what it's for. No
 agent or box is named `here`, `home` or `all`, Link's own words where a
 command takes a name, so `lnk agent move here` always means this
 machine; a computer named one of them before keeps its name.

@@ -8,8 +8,8 @@
 
 ### Pages
 
-- [Format](docs/more/libraries/runtime/format.md): `link-format` is everything `lnk` prints, as typed blocks one formatter renders: styled to a terminal, plain to a pipe or a file, and as `--json`
 - [Exit Codes](docs/more/modules/exit-codes.md): What each code `lnk` and its modules exit with means, so a script can tell a refusal from a failure
+- [Format](docs/more/libraries/runtime/format.md): `link-format` is everything `lnk` prints, as typed blocks one formatter renders: styled to a terminal, plain to a pipe or a file, and as `--json`
 
 ### More
 

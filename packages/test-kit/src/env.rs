@@ -93,7 +93,25 @@ pub fn clean<'a>(command: &'a mut Command, home: &Path) -> &'a mut Command {
             || (name.starts_with("LNK_") && name != crate::program::ONE)
             || PASSED.contains(&name)
     }));
+    default_stops(command);
     command.envs(crate::keychain::isolated(home))
+}
+
+/// Gives the child Ctrl-C (SIGINT) and SIGQUIT their default action, as
+/// it gets nothing else of how the test was started: a shell without job
+/// control starts each job it puts in the background with both ignored,
+/// and a child inheriting that never ends on the Ctrl-C a test sends. A
+/// test that wants a child started ignoring one sets it after this.
+fn default_stops(command: &mut Command) {
+    #[cfg(unix)]
+    // SAFETY: signal is async-signal-safe, as pre_exec needs.
+    unsafe {
+        std::os::unix::process::CommandExt::pre_exec(command, || {
+            libc::signal(libc::SIGINT, libc::SIG_DFL);
+            libc::signal(libc::SIGQUIT, libc::SIG_DFL);
+            Ok(())
+        });
+    }
 }
 
 #[cfg(all(test, unix))]

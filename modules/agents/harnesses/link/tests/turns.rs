@@ -66,6 +66,11 @@ pub(crate) struct World {
 }
 
 pub(crate) async fn world(name: &str) -> World {
+    world_with(name, None).await
+}
+
+/// [`world`], its agent run by `spec` in place of Link's.
+async fn world_with(name: &str, spec: Option<link_agent_spec::Spec>) -> World {
     let root = TempDir::new(&format!("turns-{name}"));
     let (model_url, asked) = fake_model().await;
     let (home, files) = (root.join("home"), root.join("files"));
@@ -81,7 +86,7 @@ pub(crate) async fn world(name: &str) -> World {
                 ..Model::default()
             },
             endpoint_key: Some("the-key".to_string().into()),
-            spec: None,
+            spec,
             ..Config::default()
         },
     );
@@ -111,7 +116,17 @@ pub(crate) fn client() -> reqwest::Client {
 #[tokio::test]
 #[expect(clippy::disallowed_methods, reason = "moves onto the testing kit")]
 async fn it_answers_and_remembers_the_thread() {
-    let world = world("remember").await;
+    // Link's spec, reading the repository's instructions, which it leaves
+    // off.
+    let own =
+        link_agent_spec::parse("schema = 1\n[instructions]\nrepository = \"link\"\n").unwrap();
+    let known = link_agent_spec::Known {
+        name: "main".into(),
+    };
+    let spec = link_agent_spec::resolve(Some(&own), &[], &known)
+        .unwrap()
+        .spec;
+    let world = world_with("remember", Some(spec)).await;
     // Yours for its model, `fake` on a runtime here, as OpenRouter would
     // name it.
     let model = world.root.join("files/instructions/models/local/fake");

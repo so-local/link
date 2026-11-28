@@ -203,6 +203,19 @@ struct Config {
 
 link_files::specification!(Config, include_str!("config.schema.toml"));
 
+/// The formats Mini Harness writes, which an upgrade converts.
+pub const SAVED: [fn() -> link_files::upgrade::Saved; 4] = [
+    saved,
+    threads::saved,
+    link_harness_hub::SAVED[0],
+    link_harness_hub::SAVED[1],
+];
+
+/// An agent's mini harness configuration, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Config>()
+}
+
 /// Link's tools, as `configure` kept them for `serve`.
 fn tools_path() -> PathBuf {
     link_files::home_dir().join("tools.json")

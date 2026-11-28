@@ -39,7 +39,7 @@ pub struct Record {
     pub issue: crate::issue::Issue,
 }
 
-/// `lnk 0.14.0`: the version this program was built as.
+/// `lnk 0.0.1`: the version this program was built as.
 pub fn version() -> String {
     format!("lnk {}", env!("CARGO_PKG_VERSION"))
 }
@@ -50,14 +50,25 @@ pub fn platform() -> String {
 }
 
 impl Record {
+    /// `report`'s record, from `command` as typed: as scrubbed of what
+    /// looks like a secret as its issue is, the value of each flag the
+    /// scrubber takes for a secret's (`--token`, `--password`) shown as
+    /// `<secret>`, and each tail line the scrubber leaves out, left out.
     pub fn new(report: &Report, command: Command) -> Self {
+        let scrub = crate::scrub::Scrub::here();
+        let flags = secret_flags(&command, &scrub);
+        let command = command.hiding(&flags.iter().map(String::as_str).collect::<Vec<_>>());
+        let mut report = report.clone();
+        if let Some(tail) = &mut report.tail {
+            tail.lines.retain(|line| scrub.line(&line.0).is_some());
+        }
         Record {
             version: version(),
             platform: platform(),
-            issue: crate::issue::Issue::of(report, &command, &crate::scrub::Scrub::here()),
+            issue: crate::issue::Issue::of(&report, &command, &scrub),
             command,
             time: crate::Time(SystemTime::now()),
-            report: report.clone(),
+            report,
         }
     }
 
@@ -104,6 +115,28 @@ impl Record {
     }
 }
 
+/// The flags of `command` (`--bot-token`, `--password=...`) whose value
+/// the scrubber takes for a secret: the line `<flag>=` it leaves out.
+fn secret_flags(command: &Command, scrub: &crate::scrub::Scrub) -> Vec<String> {
+    let mut flags = Vec::new();
+    for word in command.words() {
+        let (crate::Word::Fixed(text) | crate::Word::Value(text)) = word else {
+            continue;
+        };
+        if text == "--" {
+            break;
+        }
+        let Some(flag) = text.strip_prefix("--").map(|_| text.split('=').next()) else {
+            continue;
+        };
+        let flag = flag.unwrap_or(text).to_string();
+        if scrub.line(&format!("{flag}=")).is_none() && !flags.contains(&flag) {
+            flags.push(flag);
+        }
+    }
+    flags
+}
+
 /// The records in `dir` past the newest [`KEPT`], removed. Their names
 /// are their times, so they sort oldest first.
 fn prune(dir: &Path) {
@@ -147,5 +180,41 @@ mod tests {
         assert_eq!(std::fs::read_dir(&dir).unwrap().count(), KEPT);
         assert!(!written[0].exists());
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// A record keeps no more of a secret than its issue does: the value
+    /// of a flag named for one, and a tail line that looks like one, are
+    /// never in it.
+    #[test]
+    fn a_record_is_scrubbed_as_its_issue_is() {
+        let report = Report::error(sentence!("Couldn't log in.")).tail(crate::Tail::last(
+            "connecting to the registry\npassword: hunter2-in-the-tail",
+            10,
+        ));
+        let typed = Command::typed(
+            [
+                "lnk",
+                "example",
+                "connect",
+                "--bot-token",
+                "s3cret-value",
+                "--api-key=s3cret-joined",
+                "--name",
+                "main",
+            ]
+            .map(String::from),
+        );
+        let record = Record::new(&report, typed);
+        let text = serde_json::to_string(&record).unwrap();
+        for secret in ["s3cret-value", "s3cret-joined", "hunter2-in-the-tail"] {
+            assert!(!text.contains(secret), "{secret}: {text}");
+        }
+        assert_eq!(
+            record.command.text(),
+            "lnk example connect --bot-token <secret> --api-key=<secret> --name main"
+        );
+        let tail = record.report.tail.as_ref().unwrap();
+        assert_eq!(tail.lines.len(), 1);
+        assert_eq!(tail.lines[0].0, "connecting to the registry");
     }
 }

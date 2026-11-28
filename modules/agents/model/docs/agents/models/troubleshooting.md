@@ -24,7 +24,7 @@ uses: with more than one, `lnk model` doesn't pick for you.
 
 ## A model's name on two runtimes
 
-[`lnk agent start --model.default <name>`](../../../../agent/docs/agents/README.md#create-an-agent) takes the one on the runtime you added
+[`lnk agent start --model.default <name>`](../../../../agent/docs/agents/README.md#start-your-agent) takes the one on the runtime you added
 (an address at a runtime's default port too, once you add it), and says
 so. With neither or both added, it names each and stops: `lnk model runtime add
 <url>` the one you want.

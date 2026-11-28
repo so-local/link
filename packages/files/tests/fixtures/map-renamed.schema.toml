@@ -3,9 +3,9 @@ schema = 1
 # to `link.files`: the rename in layout.toml, and this step beside it.
 kind = "map"
 current = 2
-command = "lnk folder set"
+command = "lnk location set"
 [[steps]]
 from = 1
-since = '0.1.0'
-until = '0.2.0'
+since = '0.0.1'
+until = '0.0.2'
 rename = { 'locations."link.documents"' = 'locations."link.files"' }

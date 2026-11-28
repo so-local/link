@@ -272,6 +272,10 @@
       "directory": "modules/tooling/measure/contract"
     },
     {
+      "owner": "agents",
+      "directory": "agents"
+    },
+    {
       "owner": "scripts",
       "directory": "scripts"
     },

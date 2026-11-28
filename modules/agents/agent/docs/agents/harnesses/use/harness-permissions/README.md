@@ -1,7 +1,7 @@
 # Harness Permissions
 
 **A harness holds what it needs beyond your agent's grants for itself. Local Link asks when your agent switches to the harness, and the harness holds the grants only while it runs.** Your agent's
-own grants are on [Permissions](../../../../security/sandbox/permissions/README.md).
+own grants are on [Permissions](../../../../tooling/sandbox/permissions/README.md).
 
 ## Allow What a Harness Needs
 

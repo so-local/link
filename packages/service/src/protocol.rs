@@ -127,6 +127,12 @@ fn exchange_until<I: serde::Serialize, O: serde::de::DeserializeOwned>(
                     Ok(0) => return Err(io::Error::other("request pipe closed early")),
                     Ok(count) => written += count,
                     Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {}
+                    // It ended without reading the whole request: what it
+                    // answered, and how it exited, say why, never the pipe
+                    // it left, which only a race decides is seen.
+                    Err(error) if error.kind() == std::io::ErrorKind::BrokenPipe => {
+                        written = bytes.len();
+                    }
                     Err(error) => return Err(error),
                 }
                 if written == bytes.len() {

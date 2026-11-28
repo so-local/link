@@ -72,10 +72,17 @@ output knows which failures are its own and what a new flake needs.
 
 `cargo test-copies -p <package> <test>` builds the package's tests,
 finds the program holding the test, and runs that one test as many
-copies at once, `copies` in `checks.toml` (300). It prints how many
-failed and keeps the first failure's output in `target/check/copies/`.
-A flake shows under that load when the whole suite rarely meets it
-twice. A fix is proved when the same number of copies all pass.
+copies, `copies` in `checks.toml` (300). A unit test's copies start at
+once. A system test's run through its program's own runner, as many at
+once as the suite runs system tests, each in a process of its own: the
+load the test meets in the suite.
+
+#### What Copies Prove
+
+`cargo test-copies` prints how many failed and keeps the first
+failure's output in `target/check/copies/`. A flake shows under that
+load when the whole suite rarely meets it twice. A fix is proved when
+the same number of copies all pass.
 
 ### Ranked Table
 

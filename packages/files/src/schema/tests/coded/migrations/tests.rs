@@ -13,7 +13,7 @@ const TWICE: &[Migration] = &[DISKS[0], DISKS[0]];
 fn declared(step: &str) -> String {
     format!(
         "schema = 1\nkind = 'disks'\ncurrent = 2\ncommand = 'lnk disks spec show'\n[[steps]]\nfrom = 1\n\
-         since = '0.1.0'\nuntil = '0.2.0'\n{step}\n"
+         since = '0.0.1'\nuntil = '0.0.2'\n{step}\n"
     )
 }
 

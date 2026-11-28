@@ -4,3 +4,5 @@ schema = 1
 # in the store's folder.
 kind = "directory store capacity"
 current = 1
+
+holds = "inside"

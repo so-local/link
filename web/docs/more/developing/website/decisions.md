@@ -130,6 +130,14 @@ is highlighted, its ancestors stay visible and other sections fold with
 their page counts. Page headings appear beneath the active page. The map
 stays in place across tabs, and a hamburger opens it on narrower screens. Tabs keep their menus for direct access to the next level.
 
+### Why does a folded tree never flash?
+
+A reader can fold the tree away on a wide screen, and the choice is kept
+in the browser. A script at the top of the page applies it before the first
+paint, so a page never draws the tree and then hides it. On a narrow
+screen the tabs' row keeps its place from page to page and glides to the
+tab just picked.
+
 ### Why at most ten under a heading?
 
 A reader takes in about ten things at a glance; past that, a list is

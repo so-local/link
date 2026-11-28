@@ -56,5 +56,5 @@ other files.
 
 Its sandbox is off (`--no-sandbox`), the File tool is disabled, or its
 harness does not declare the compatible folder layout. Enable the tool
-with [`lnk agent tool add file`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills); use [`lnk agent harness set link`](../../../../../../agent/docs/agents/harnesses/use/README.md#switch-in-one-command) when
+with [`lnk agent tool add file`](../../../../../../agent/docs/agents/README.md#tools); use [`lnk agent harness set link`](../../../../../../agent/docs/agents/harnesses/use/README.md#switch-in-one-command) when
 the selected harness lacks that layout.

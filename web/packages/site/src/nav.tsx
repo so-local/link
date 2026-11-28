@@ -34,14 +34,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { Entry, Node } from "./docs";
 import { current as dark, frost, middle, pill, spread } from "./card";
+import { treeKey as kept } from "./tree";
 
 type Language = { lang: string; name: string; home: string };
 
-/** The tree as the reader last left it, in this browser: "open", "folded" or none. */
-const kept = "link-tree";
+/** The tree as the reader last left it, in this browser: "open", "folded" or none (tree.ts). */
 function keptTree(): string | null {
   try {
     return localStorage.getItem(kept);
@@ -58,11 +58,15 @@ function watchTree(change: () => void) {
   };
 }
 function keepTree(value: "open" | "folded") {
+  document.documentElement.dataset.tree = value;
   try {
     localStorage.setItem(kept, value);
   } catch {}
   window.dispatchEvent(new Event(kept));
 }
+
+/** Where the tabs' row was scrolled on the last page, so the next starts there; null before any page has drawn it. */
+let rowLeft: number | null = null;
 
 /**
  * Whether the bar's tree opens again on the next page: a section was
@@ -89,6 +93,12 @@ function Menu({ tab, shown, done }: { tab: Node; shown: boolean; done: () => voi
       <ul className={`${frost} p-2 shadow-lg`}>
         {pages.map((page) => (
           <li key={page.href}>
+            {page.group && (
+              <>
+                <div role="separator" className="mx-3 my-1.5 h-px bg-zinc-900/10" />
+                <div className="px-3 py-1.5 font-semibold text-zinc-500">{page.group}</div>
+              </>
+            )}
             <Link
               href={page.href}
               onClick={done}
@@ -149,11 +159,18 @@ function Branch({
         const on = path[depth] === i;
         const line = node.ref && !nodes[i - 1]?.ref;
         const row = "block min-w-0 flex-1 rounded-full px-3 py-1.5";
+        const group = node.group && (
+          <>
+            <div role="separator" className="mx-3 my-1.5 h-px bg-zinc-900/10" />
+            <div className="px-3 py-1.5 font-semibold text-zinc-500">{node.group}</div>
+          </>
+        );
         if (!node.children.length) {
           const lit = on && path.length === depth + 1;
           return (
             <li key={`${node.href} ${i}`}>
               {line && <div role="separator" className="mx-3 my-1.5 h-px bg-zinc-900/10" />}
+              {group}
               {node.href.startsWith("/") ? (
                 <Link
                   href={node.href}
@@ -176,6 +193,7 @@ function Branch({
         return (
           <li key={`${node.href} ${i}`}>
             {line && <div role="separator" className="mx-3 my-1.5 h-px bg-zinc-900/10" />}
+            {group}
             <div className="flex items-center">
               <Link
                 href={node.href}
@@ -347,17 +365,38 @@ export default function Nav({
 
   // On a narrow screen the tabs show the dark one, even one far along,
   // and stay where they are when it's already in view, so a tab you
-  // scrolled to and picked never jumps away. Its place is measured on
-  // screen: each tab sits in a positioned item, so its offsetLeft is
-  // from that item, not from the row.
+  // scrolled to and picked never jumps away. Each page renders its own
+  // tabs, so the row's place is carried across the change (rowLeft) and
+  // set before it paints; then, after a tab is picked, the row glides to
+  // it, unless the reader asks for less motion. A page that has just
+  // loaded starts there. The tab's place is measured on screen: each tab
+  // sits in a positioned item, so its offsetLeft is from that item, not
+  // from the row.
   const tabs = useRef<HTMLElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const row = tabs.current;
-    const lit = row?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (!row || !lit || row.scrollWidth <= row.clientWidth) return;
-    const box = row.getBoundingClientRect();
-    const tab = lit.getBoundingClientRect();
-    if (tab.left < box.left || tab.right > box.right) row.scrollLeft += tab.left - box.left - 64;
+    if (!row) return;
+    const glide = rowLeft !== null && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (rowLeft !== null) row.scrollLeft = rowLeft;
+    const keep = () => { rowLeft = row.scrollLeft; };
+    row.addEventListener("scroll", keep, { passive: true });
+    keep();
+    const show = () => {
+      const lit = row.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!lit || row.scrollWidth <= row.clientWidth) return;
+      const box = row.getBoundingClientRect();
+      const tab = lit.getBoundingClientRect();
+      if (tab.left < box.left || tab.right > box.right) row.scrollBy({ left: tab.left - box.left - 64, behavior: glide ? "smooth" : "auto" });
+    };
+    // A glide starts two frames later: the router shows the new page and
+    // scrolls it into view after this runs, which would stop a glide
+    // already under way.
+    if (!glide) show();
+    let frame = glide ? requestAnimationFrame(() => { frame = requestAnimationFrame(show); }) : 0;
+    return () => {
+      cancelAnimationFrame(frame);
+      row.removeEventListener("scroll", keep);
+    };
   }, [pathname]);
 
   // The bar's tree floats just under the tabs, wherever they are as the
@@ -511,7 +550,7 @@ export default function Nav({
           <nav
             ref={side}
             aria-label={label}
-            className={`${frost} sticky top-16 hidden max-h-[calc(100vh-5rem)] self-start overflow-y-auto p-2 text-sm ${away ? "" : "lg:block"}`}
+            className={`${frost} sticky top-16 hidden max-h-[calc(100vh-5rem)] self-start overflow-y-auto p-2 text-sm ${folded ? "" : "lg:block"} lg:[html[data-tree=open]_&]:block lg:[html[data-tree=folded]_&]:hidden`}
           >
             {tree_}
           </nav>

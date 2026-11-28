@@ -16,19 +16,20 @@ crate::specification!(
 schema = 1
 kind = "kept"
 current = 2
-command = "lnk folder"
+command = "lnk location"
 
 [[steps]]
 from = 1
-since = "0.1.0"
-until = "0.2.0"
+since = "0.0.1"
+until = "0.0.2"
 rename = { where = "place" }
 remove = { old = "nothing reads it" }
 "#
 );
 
 /// A file of the schema before is advanced through its step, never
-/// refused; one with no schema is the current; one newer is refused,
+/// refused; one with no schema is refused as none Link wrote; one newer
+/// is refused,
 /// naming the upgrade; and a write names the current schema.
 #[test]
 fn a_saved_file_advances_through_its_steps_and_refuses_a_newer_one() {
@@ -38,7 +39,8 @@ fn a_saved_file_advances_through_its_steps_and_refuses_a_newer_one() {
     crate::write_private(&path, b"schema = 1\nwhere = \"Docs\"\nold = 1\n").unwrap();
     assert_eq!(read::<Kept>(&path).unwrap().place.as_deref(), Some("Docs"));
     crate::write_private(&path, b"place = \"Docs\"\n").unwrap();
-    assert_eq!(read::<Kept>(&path).unwrap().place.as_deref(), Some("Docs"));
+    let refused = format!("{:#}", read::<Kept>(&path).unwrap_err());
+    assert!(refused.contains("names no schema"), "{refused}");
     crate::write_private(&path, b"schema = 3\nplace = \"Docs\"\n").unwrap();
     let refused = format!("{:#}", read::<Kept>(&path).unwrap_err());
     assert!(refused.contains("lnk upgrade"), "{refused}");
@@ -61,7 +63,9 @@ fn a_saved_file_advances_through_its_steps_and_refuses_a_newer_one() {
 fn a_saved_json_file_advances_through_the_same_steps() {
     let kept: Kept = parse_json(br#"{"schema":1,"where":"Docs","old":true}"#).unwrap();
     assert_eq!(kept.place.as_deref(), Some("Docs"));
-    let kept: Kept = parse_json(br#"{"place":"Docs"}"#).unwrap();
+    let refused = parse_json::<Kept>(br#"{"place":"Docs"}"#).unwrap_err();
+    assert!(refused.to_string().contains("names no schema"), "{refused}");
+    let kept: Kept = parse_json(br#"{"schema":2,"place":"Docs"}"#).unwrap();
     assert_eq!(kept.place.as_deref(), Some("Docs"));
     assert!(parse_json::<Kept>(br#"{"schema":3}"#).is_err());
     assert!(parse_json::<Kept>(br#"{"schema":1,"where":"a","place":"b"}"#).is_err());
@@ -99,7 +103,7 @@ fn every_line_of_a_ledger_names_its_schema() {
 #[test]
 fn a_shipped_format_reads_and_writes_another_crates_type() {
     let format = crate::schema::Format::shipped(
-        "schema = 1\nkind = \"names\"\ncurrent = 1\ncommand = \"lnk folder\"\n",
+        "schema = 1\nkind = \"names\"\ncurrent = 1\ncommand = \"lnk location\"\n",
     );
     let names: std::collections::BTreeMap<String, u32> = [("a".into(), 1)].into();
     let bytes = format.print_json(&names).unwrap();

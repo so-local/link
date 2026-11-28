@@ -26,7 +26,7 @@ Reads: `profile.toml`, `endurance/block.md`, `strength/program.md`,
    lighter, not heavier.
 6. Write `plan/week.md` with its exact header: `week_start`, `focus`
    and a table row per day:
-   `| 2027-01-18 | Mon | Easy run | 8 km at Z2, 5:50-6:20/km | planned |`
+   `| <YYYY-MM-DD> | <Mon> | <session> | <detail> | planned |`
    Include rest days as `Rest` rows so nothing is ambiguous.
 7. Say the plan in a short list by day (day, session, one detail).
 

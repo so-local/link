@@ -68,13 +68,7 @@ impl fmt::Display for CloudKind {
     }
 }
 
-/// A release of `lnk` a box may install: a version, [`FLOOR`] or later.
+/// A release of `lnk` a box may install: a version.
 pub(crate) fn lnk_version(text: &str) -> Result<Version, String> {
-    let version: Version = text.parse().map_err(|e| format!("{e}"))?;
-    if version < FLOOR {
-        return Err(format!(
-            "lnk {version} has no modules, which a box needs: {FLOOR} or later"
-        ));
-    }
-    Ok(version)
+    text.parse().map_err(|e| format!("{e}"))
 }

@@ -7,7 +7,7 @@ and how a command runs in the background.
 
 So code runs only in a sandbox the agent's sandbox file makes. Link
 Harness runs no code: it calls `run` and `file` as tools outside its
-sandbox, through its proxy, and their calls run under [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide)
+sandbox, through its proxy, and their calls run under [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide)
 with flags made from the file. A program a `run` call leaves running is
 gone at the next call, on Linux always and on macOS unless it [left the
 call's process group](../guide.md#programs-that-leave-on-macos). `file`

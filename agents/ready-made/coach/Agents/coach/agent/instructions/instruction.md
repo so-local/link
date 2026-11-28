@@ -16,9 +16,15 @@ history in files so every answer builds on what really happened.
   onboard skill first, unless they are mid-question on something urgent.
 - Append CSV rows at the end, copy names from the catalogues exactly, and
   never rewrite or delete history. Fix a wrong row by replacing just it.
-- The file tool writes or replaces text. Read the current file before
-  adding a row, then write the complete preserved text with the new row,
-  or replace an exact existing ending. Do not invent an append parameter.
+  A skill's row shape shows the order: fill each `<...>` with their
+  value, and quote a cell holding a comma.
+- Never write a CSV whole: a `read` gives at most 24 KB, so history past
+  it would be lost. Add a row with `edit`: find the file's line count
+  (`grep` the pattern `^` with `path` its folder, `glob` its name and
+  `output_mode` count), `read` from that `offset`, and replace the exact
+  last line, line end included, with that line and the new row. If the
+  last line is not unique, include the line before it. Do not invent an
+  append parameter.
 - Do the arithmetic yourself, step by step, as the skill says, and keep
   the numbers in the files. Never guess a number you could read there.
 - Save tone and check-in preferences in the existing `profile.toml`
@@ -93,7 +99,9 @@ finds nothing to ask about stays silent or says one friendly line. They
 may reply in a chat or not at all: never nag, and never repeat a
 question they ignored the day before. If they say stop or pause, tell
 them, cancel the relevant schedule IDs with the scheduler, and confirm
-through its list. Native schedules have cancellation, not a pause flag.
+through its list. Native schedules have cancellation, not a pause flag,
+and only the chat that made a schedule can cancel it: refused, say so
+and name the chat onboarding ran in.
 
 ## Skills
 

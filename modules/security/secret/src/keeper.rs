@@ -36,7 +36,9 @@ const START_WAIT: Duration = Duration::from_secs(15);
 
 /// The keeper's unit: run as its user, which runs nothing else, with
 /// nothing of the machine it doesn't need, never dumped, its memory
-/// locked out of swap.
+/// locked out of swap; on a machine with a TPM, its stores sealed to it
+/// (`--sealed`), so a TPM gone later stops its writes, never turning
+/// them to plaintext.
 pub fn unit() -> String {
     let user = keeper::KEEPER_USER;
     let program = link_files::layout::System::SecretProgram.path();
@@ -56,7 +58,7 @@ Description=Link's keeper of your secrets
 User={user}
 Group={user}
 {device_group}\
-ExecStart={program} keep --store {store}
+ExecStart={program} keep --store {store}{sealed}
 RuntimeDirectory={user}
 RuntimeDirectoryMode=0755
 ReadWritePaths={store}
@@ -76,6 +78,11 @@ WantedBy=multi-user.target
 ",
         program = program.display(),
         store = store.display(),
+        sealed = if secrets::at_rest::has_tpm() {
+            " --sealed"
+        } else {
+            ""
+        },
     )
 }
 
@@ -335,7 +342,7 @@ pub fn ask_first(out: &mut Out, yes: bool) -> Result<(), Report> {
     if !cfg!(target_os = "linux")
         || keeper::here()
         || !first
-        || crate::preferences::keeper_refused().map_err(crate::unreadable)?
+        || crate::settings::keeper_refused().map_err(crate::unreadable)?
     {
         return Ok(());
     }
@@ -371,7 +378,7 @@ pub fn ask_first(out: &mut Out, yes: bool) -> Result<(), Report> {
     match answer {
         true => made(out),
         false => {
-            crate::preferences::refuse_keeper().map_err(crate::unreadable)?;
+            crate::settings::refuse_keeper().map_err(crate::unreadable)?;
             out.block(Note(sentence!(
                 "Kept in {}, only yours, which any program you run can read: not asked again \
                  here; lnk secret keeper create makes the keeper's user later.",
@@ -383,8 +390,9 @@ pub fn ask_first(out: &mut Out, yes: bool) -> Result<(), Report> {
 }
 
 /// Serves the keeper: as its user alone, at `socket` ([`keeper::SOCKET`]),
-/// each user's store under `store` (`System::SecretStore` by default).
-pub fn keep(socket: Option<PathBuf>, store: Option<PathBuf>) -> Result<(), Report> {
+/// each user's store under `store` (`System::SecretStore` by default),
+/// and, `sealed`, each sealed to the TPM, never written in plaintext.
+pub fn keep(socket: Option<PathBuf>, store: Option<PathBuf>, sealed: bool) -> Result<(), Report> {
     let test = link_secretive::test_var(keeper::TEST_KEEPER);
     if test.is_none() && !keeper::running_as_keeper() {
         return Err(Report::error(sentence!(
@@ -399,6 +407,9 @@ pub fn keep(socket: Option<PathBuf>, store: Option<PathBuf>) -> Result<(), Repor
         ));
     }
     link_format::daemon::logs();
+    if sealed {
+        secrets::at_rest::require_sealing();
+    }
     serve(socket, store, test).map_err(|err| {
         crate::failed(sentence!("The keeper stopped."), err).next(
             cmd!("lnk secret keeper create"),

@@ -26,7 +26,7 @@ module's own, then the sandbox's and an interrupt's, as a shell's.
 
 ## A Program's Own Code
 
-A command that runs another program, such as [`lnk sandbox run`](../../../../../modules/security/sandbox/docs/security/sandbox/guide.md#sandbox-guide), ends
+A command that runs another program, such as [`lnk sandbox run`](../../../../../modules/security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide), ends
 with that program's code, as a shell would. That code is the program's
 and passes through untouched, so it can be any number, these included.
 

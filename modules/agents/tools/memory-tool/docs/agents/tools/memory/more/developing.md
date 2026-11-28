@@ -29,7 +29,7 @@ From the repository root, run `cargo build -p link-memory-tool`, `cargo test -p 
 
 ### Its tests
 
-`tests/agent.rs` drives it through Link's own [`lnk agent memory start`](../../../../../../../agent/docs/agents/more/settings/files.md#lnksafesandboxestoolsmemory-idjson-600),
+`tests/agent.rs` drives it through Link's own [`lnk agent memory start`](../../../../../../../agent/docs/agents/state/files.md#lnksafesandboxestoolsmemory-idjson-600),
 `tests/reads_conversations.rs` reads a conversation folder as Link
 Harness keeps one, and `tests/notes.rs` writes the notes.
 
@@ -163,7 +163,7 @@ the same ID.
 On a computer, `lnk agent memory connect` binds it so, with the key
 this machine's keyring holds, and `lnk agent memory service` runs the
 service with `--bridges <runtime>/lnk/agent/memory/<owner digest>` and
-`--peer <its own user>`: the service runs in [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide), which on a Link box runs
+`--peer <its own user>`: the service runs in [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide), which on a Link box runs
 its controller's work as a fresh worker user, so the user its agents'
 sessions come from is named, not taken to be its own. The worker's view
 of the service's folder shows its files as the controller's, so the

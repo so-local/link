@@ -57,6 +57,11 @@ pub struct Current {
 
 link_files::specification!(Current, include_str!("grants.schema.toml"));
 
+/// The sandbox grants, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Current>()
+}
+
 /// Whose word a call's reach is.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Authority {

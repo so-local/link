@@ -14,7 +14,7 @@ lnk agent create work --harness deepseek|hermes|openclaw
 
 ## Migrate an Existing Installation
 
-An installation you already use has native history, configuration, credentials, and possibly background services. [Migrate Harnesses](../../../../../../../modules/agents/agent/docs/agents/harnesses/use/migrate/README.md) brings supported OpenClaw, Hermes, and DeepSeek installations under Local Link.
+An installation you already use has native history, configuration, credentials, and possibly background services. [Migrate to Local Link](../../../../../../../modules/agents/agent/docs/agents/migrate/README.md) brings supported OpenClaw, Hermes, and DeepSeek installations under Local Link.
 
 ```sh
 lnk agent migrate --harness openclaw|hermes|deepseek

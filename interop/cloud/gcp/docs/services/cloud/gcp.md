@@ -21,8 +21,9 @@ commands for interactive work.
 
 ## An account
 
-`lnk-gcp connect` connects a Google Cloud account as one credential
-file that gcloud, rclone and Google's libraries all act as.
+`lnk-gcp connect` connects a Google Cloud account as one identity
+that gcloud, rclone and Google's libraries all act as. The identity is
+a credential file, or the Compute Engine machine's own service account.
 
 ### The credential file
 
@@ -32,9 +33,32 @@ The file is kept in Link's settings (`gcp/credentials/<name>.json`,
 only yours), so every part of Link using the account is the same
 identity.
 
+### This Machine's Service Account
+
+On a Compute Engine machine, `--machine` connects the service account
+attached to that machine, and Link writes no credential file. A
+Compute Engine machine has a metadata server, an address only programs
+on that machine reach, where Google Cloud says what the machine is. The
+adapter reads the account's email, the project and the zone there, and
+`--project` and `--zone` replace the project and the zone it reads.
+
+```sh
+lnk cloud connect gcp --machine
+```
+
+The account's settings name the metadata server (`GCE_METADATA_HOST`)
+and the account (`CLOUDSDK_CORE_ACCOUNT`). gcloud, rclone and Google's
+libraries each fetch short-lived tokens from the metadata server
+themselves, so no secret leaves Google Cloud's hands. A machine with no
+metadata server is refused, and so is a machine with no service account
+attached. `--machine` is never given with `--credential-file`.
+Signing a result upload has no key to sign with, so IAM signs it, and
+the account needs permission to sign as itself (the Service Account
+Token Creator role on itself).
+
 ### Saved Identity
 
-Both credential kinds explicitly select the saved file for gcloud too.
+Both credential-file kinds explicitly select the saved file for gcloud too.
 Previously saved accounts with only `GOOGLE_APPLICATION_CREDENTIALS`
 receive the same SDK override at each call. See
 [credential isolation](gcp/security.md) for its limits.
@@ -49,7 +73,9 @@ or a specification file alike.
 When boxes need gcloud and it's missing, it installs it for you from
 Google's own archive at `dl.google.com`, unpacked into Link's settings
 folder (`~/.lnk/safe/gcp`), for you only: no administrator rights, and its
-installer runs without touching your shell's settings.
+installer runs without touching your shell's settings. The archive is the
+version the adapter pins, checked against the SHA-256 it pins with it
+before it's unpacked.
 
 ## Boxes
 

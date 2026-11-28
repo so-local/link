@@ -219,10 +219,10 @@ fn every_policy_field_reads_equally_and_its_flags_override_file_values() {
     assert_eq!(from_flags, expected);
     let printed = link_spec::print_spec(&expected).unwrap();
     assert_eq!(link_policy::parse(&printed).unwrap(), expected);
-    // Every leaf differs, including an invalid version repaired before the
+    // Every leaf differs, including an invalid name repaired before the
     // registered semantic check. Losing any override changes or refuses it.
     let base = r#"schema = 1
-name = "before"
+name = ""
 version = 2
 [[allow]]
 actions = ["cloud.admin"]
@@ -308,13 +308,18 @@ fn policy_fields_refuse_wrong_types_and_missing_required_grant_members() {
             "{field}=0"
         );
     }
+    // Its version is its author's to bump: its schema is the shape's.
+    let mut bumped = complete.clone();
+    bumped.insert("version".into(), toml::Value::Integer(7));
+    assert_eq!(
+        link_policy::parse(&toml::to_string(&bumped).unwrap())
+            .unwrap()
+            .version,
+        7
+    );
     for (field, value) in [
         ("name", toml::Value::String(String::new())),
         ("name", toml::Value::String("x".repeat(65))),
-        (
-            "version",
-            toml::Value::Integer(i64::from(link_policy::VERSION) + 1),
-        ),
     ] {
         let mut invalid = complete.clone();
         invalid.insert(field.into(), value);

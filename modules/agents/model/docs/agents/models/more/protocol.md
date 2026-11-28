@@ -22,7 +22,7 @@ remove` forgets it.
 #### `--start`
 
 With `--start`, it lists after starting an installed Ollama that isn't
-running. Read by [`lnk agent start`](../../../../../agent/docs/agents/README.md#create-an-agent) (`--start`: offers the models here,
+running. Read by [`lnk agent start`](../../../../../agent/docs/agents/README.md#start-your-agent) (`--start`: offers the models here,
 Ollama's too when it was stopped).
 
 ### `lnk model serve --json`

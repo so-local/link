@@ -251,7 +251,11 @@ mod tests {
         assert_eq!(read.export.unwrap().url.as_str(), "http://localhost:4318");
         let err = toml::from_str::<Written>(&text("http://otel-collector:4318")).unwrap_err();
         assert!(err.to_string().contains("http:// to this machine"), "{err}");
-        let kept = but_export(&text("http://otel-collector:4318")).unwrap();
+        let kept = but_export(&format!(
+            "schema = 1\n{}",
+            text("http://otel-collector:4318")
+        ))
+        .unwrap();
         assert!(kept.export.is_none());
         assert_eq!(kept.every.as_deref(), Some("5s"));
     }

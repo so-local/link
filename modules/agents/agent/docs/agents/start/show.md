@@ -1,14 +1,48 @@
-# Inspect Your Agent
+# List and Show Agents
 
-See everything about your agent in one readout, or print the prompt its model gets.
+List your agents, ask whether one runs, and see everything about it in one readout.
 
 ```sh
+lnk agent list
 lnk agent show
-lnk agent show work
 lnk agent show --instructions
 ```
 
-## Everything About It
+## List Your Agents
+
+`lnk agent list` asks your boxes for their agents too. `--refresh` also
+asks your clouds for boxes made on your other computers, and `--here`
+lists only this machine's agents, asking nothing else.
+
+```sh
+lnk agent list --refresh
+lnk agent list --here
+```
+
+## Check Whether an Agent Runs
+
+`status` says one of five states. **running** means its harness answers,
+and **running in a terminal** that it runs there, from
+`lnk agent start --foreground`. **asleep** means it stopped for being
+idle and its next message starts it. **stopped** means it isn't running.
+**not answering** means it runs but its harness doesn't answer, and
+[`lnk agent log show`](log/README.md) shows why. Asleep and the two running states exit with success, the others with a failure.
+
+```sh
+lnk agent show work
+lnk agent log show --follow
+lnk agent log show --live
+```
+
+## Paused Wires and JSON
+
+`status` succeeds for running and asleep agents. When its proxy has
+paused its wire, or every wire is stopped, it says so and why. On a box,
+where no notification shows, that's where you see it. For other
+programs, `status --json` and `list --json` are in
+[contracts](../../../../../../docs/more/modules/contracts.md).
+
+## Everything About an Agent
 
 `lnk agent show` reads the agent whole. It opens with its name, state
 and machine, then gives each part of it a section.
@@ -29,13 +63,9 @@ opinions as one JSON document, for a program to read.
 `lnk agent show --json` prints what `lnk agent list --json` gives for
 it.
 
-## The Harness's Prompt
+## Prompt the Harness Builds
 
 Link Harness shows the prompt it assembles from the agent's instruction
-files, tool descriptions, skills and notes. [Link Harness](../../../../harnesses/link/docs/agents/link/guide.md#tell-it-who-to-be)
+files, tool descriptions, skills and notes. [Link Harness](../../../../harnesses/link/docs/agents/harnesses/link/guide.md#tell-it-who-to-be)
 explains its section order, caching and editable sources. A harness
 from outside Link builds its own prompt, which this command cannot show.
-
-## Read Its Conversations
-
-[Read Its Conversations](../chat/README.md#read-its-conversations) covers saved chat history and converting Link Harness conversations between storage formats.

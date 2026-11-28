@@ -69,7 +69,7 @@ fn file_wall(wall: Option<&crate::Wall>) -> anyhow::Result<()> {
     let (mut read, mut write) = baseline();
     read.extend(wall.read.iter().cloned());
     write.extend(wall.write.iter().cloned());
-    crate::linux::landlock::restrict_files(&read, &write)
+    crate::linux::landlock::require_files(&read, &write)
         .context("installing the Landlock file wall; target not started")
 }
 

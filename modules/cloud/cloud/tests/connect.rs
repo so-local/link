@@ -65,6 +65,18 @@ fn an_account_is_what_its_adapter_describes() {
     );
     let args = std::fs::read_to_string(dir.join("args")).unwrap();
     assert_eq!(args.trim(), "connect --name work --region moon-1");
+    // A machine's own account is the adapter's to read: --machine reaches it.
+    let machine = lnk_cloud(&home, &bin)
+        .args(["connect", "fake", "--name", "work", "--machine"])
+        .output()
+        .unwrap();
+    assert!(
+        machine.status.success(),
+        "{}",
+        String::from_utf8_lossy(&machine.stderr)
+    );
+    let args = std::fs::read_to_string(dir.join("args")).unwrap();
+    assert_eq!(args.trim(), "connect --name work --machine");
 
     let saved = home.join(".lnk/safe/clouds/accounts.toml");
     let mode = std::fs::metadata(&saved).unwrap().permissions();
@@ -306,7 +318,7 @@ fn an_accounts_keys_never_reach_a_terminal() {
     std::fs::create_dir_all(accounts.parent().unwrap()).unwrap();
     std::fs::write(
         &accounts,
-        "[[account]]\nname = \"work\"\nkind = \"aws\"\nplace = \"us-east-1\"\nidentity = \"\"\n\
+        "schema = 1\n[[account]]\nname = \"work\"\nkind = \"aws\"\nplace = \"us-east-1\"\nidentity = \"\"\n\
          login = \"\"\n\n[account.env]\nAWS_SECRET_ACCESS_KEY = \"s3cret-key\"\n",
     )
     .unwrap();

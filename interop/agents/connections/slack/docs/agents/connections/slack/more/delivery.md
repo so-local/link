@@ -11,7 +11,7 @@ address instead, by its Events API (`lnk-slack hook`).
 
 ### Its two secrets come with the push
 
-[`lnk agent connect slack`](../../../../../../../../../modules/agents/agent/docs/agents/README.md#connect-your-channels) keeps neither the app's signing secret nor a
+[`lnk agent connect slack`](../../../../../../../../../modules/agents/agent/docs/agents/connections/connect/README.md#choose-an-app) keeps neither the app's signing secret nor a
 configuration token, which can edit your Slack apps. Whatever pushes
 the agent's messages gives them to `hook` in the app's settings
 (`signing_secret`, `config_token`). The configuration token is used for

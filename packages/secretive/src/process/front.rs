@@ -1,4 +1,12 @@
-//! A wrapper in front of its child: the stops sent to it passed on.
+//! A wrapper in front of its child: the stops sent to it passed on, and
+//! what the child leaves running ended with it.
+//!
+//! A wrapper is its child's subreaper, so what the child leaves running
+//! as it ends becomes the wrapper's own child. [`end_left`] ends the
+//! program it names (bubblewrap's first process, which ignores every
+//! stop from outside its namespace but SIGKILL), never handing it to the
+//! machine's init, where nothing would end it. What else is left, such as
+//! a server meant to outlive the run, goes on.
 
 /// Which of the terminal's own signals (SIGINT, SIGQUIT) [`stand_in_front`]
 /// passes on.
@@ -76,6 +84,12 @@ fn stand_in_front_of(child: i32, terminal: Terminal) {
     #[cfg(target_os = "linux")]
     LEADER.store(-1, Ordering::Relaxed);
     CHILD.store(child, Ordering::Relaxed);
+    // What the child leaves running is this process's to end ([`end_left`]).
+    #[cfg(target_os = "linux")]
+    // SAFETY: a plain prctl on this process.
+    unsafe {
+        libc::prctl(libc::PR_SET_CHILD_SUBREAPER, 1);
+    }
     let theirs = match terminal {
         Terminal::Reaches => libc::SIG_IGN,
         Terminal::Passed => pass as *const () as libc::sighandler_t,
@@ -147,4 +161,49 @@ pub fn wait_in_front(child: &mut std::process::Child) -> std::io::Result<std::pr
     }
     stand_aside();
     child.wait()
+}
+
+/// Ends (SIGKILL) and reaps each child of this process that runs
+/// `program` (its name as the system gives it, `/proc/<pid>/comm`), once
+/// the one it stood in front of has been reaped: what that child left
+/// running, handed to this process as its subreaper ([`stand_in_front`]).
+/// A sandbox's first process killed so ends its whole namespace. Call it
+/// once the child is reaped.
+pub fn end_left(program: &str) {
+    // Elsewhere this process is no subreaper, so nothing is handed to it.
+    #[cfg(not(target_os = "linux"))]
+    let _ = program;
+    #[cfg(target_os = "linux")]
+    loop {
+        let me = std::process::id();
+        let left: Vec<libc::pid_t> = std::fs::read_dir("/proc/self/task")
+            .into_iter()
+            .flatten()
+            .flatten()
+            .filter_map(|task| std::fs::read_to_string(task.path().join("children")).ok())
+            .flat_map(|children| {
+                children
+                    .split_whitespace()
+                    .filter_map(|pid| pid.parse().ok())
+                    .collect::<Vec<libc::pid_t>>()
+            })
+            .filter(|&pid| pid > 1 && pid as u32 != me)
+            .filter(|pid| {
+                std::fs::read_to_string(format!("/proc/{pid}/comm"))
+                    .is_ok_and(|comm| comm.trim_end() == program)
+            })
+            .collect();
+        if left.is_empty() {
+            return;
+        }
+        for &pid in &left {
+            // SAFETY: a signal to this process's own child, unreaped, so its
+            // number names it until the wait below.
+            unsafe { libc::kill(pid, libc::SIGKILL) };
+        }
+        for &pid in &left {
+            // SAFETY: reaps this process's own child, signalled above.
+            unsafe { libc::waitpid(pid, std::ptr::null_mut(), 0) };
+        }
+    }
 }

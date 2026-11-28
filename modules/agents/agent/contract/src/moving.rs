@@ -78,6 +78,161 @@ pub const MAX_HAVE: u64 = 64 << 20;
 /// what was hashed even while the file changes.
 pub const IN_MEMORY: u64 = 8 << 20;
 
+/// The largest extension entry a receiver reads (a PAX header, or GNU's
+/// long name or link): each is read whole into memory, and a sender's
+/// say a file's hash and little more.
+pub const MAX_EXTENSION: u64 = 64 << 10;
+
+/// The most a receiver reads of one stream: past it, the stream is
+/// refused, so no sender fills the receiver's disk.
+pub const MAX_STREAM: u64 = 64 << 30;
+
+/// The deepest a path in a stream is, below its phase's folder
+/// (`files/`): as deep as the sender adds and the receiver puts in place
+/// ([`link_files::nofollow::DEEPEST`]).
+pub const DEEPEST: usize = link_files::nofollow::DEEPEST;
+
+/// A stream as [`unpack`] reads it: at most [`MAX_STREAM`] of it, and
+/// each extension entry at most [`MAX_EXTENSION`], told from the tar
+/// headers as they pass, before the archive reads one whole.
+struct Bounded<R> {
+    input: R,
+    read: u64,
+    /// Bytes until the next header, and where in a header this is.
+    until_header: u64,
+    header: Vec<u8>,
+    /// A PAX header's data as it passes, to read the size it gives the
+    /// next entry, which its header's own size field doesn't say.
+    pax: Option<Vec<u8>>,
+    pax_left: u64,
+    next_size: Option<u64>,
+}
+
+impl<R: Read> Bounded<R> {
+    fn new(input: R) -> Self {
+        Bounded {
+            input,
+            read: 0,
+            until_header: 0,
+            header: Vec::with_capacity(512),
+            pax: None,
+            pax_left: 0,
+            next_size: None,
+        }
+    }
+
+    /// Follows `bytes`, just read, through the headers and data they hold.
+    fn follow(&mut self, mut bytes: &[u8]) -> io::Result<()> {
+        while !bytes.is_empty() {
+            if self.until_header > 0 {
+                let n = bytes.len().min(self.until_header as usize);
+                if let Some(pax) = &mut self.pax {
+                    let take = n.min(self.pax_left as usize);
+                    pax.extend_from_slice(&bytes[..take]);
+                    self.pax_left -= take as u64;
+                    if self.pax_left == 0 {
+                        let pax = self.pax.take().unwrap_or_default();
+                        self.next_size = pax_size(&pax);
+                    }
+                }
+                self.until_header -= n as u64;
+                bytes = &bytes[n..];
+                continue;
+            }
+            let n = bytes.len().min(512 - self.header.len());
+            self.header.extend_from_slice(&bytes[..n]);
+            bytes = &bytes[n..];
+            if self.header.len() == 512 {
+                let header = std::mem::take(&mut self.header);
+                self.header_read(&header)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// A whole header block: what follows it, and an extension refused
+    /// when it's over [`MAX_EXTENSION`].
+    fn header_read(&mut self, header: &[u8]) -> io::Result<()> {
+        let refused = |why: String| io::Error::new(io::ErrorKind::InvalidData, why);
+        if header.iter().all(|b| *b == 0) {
+            return Ok(());
+        }
+        let size = header_size(&header[124..136])
+            .ok_or_else(|| refused("a header in the stream has no size".into()))?;
+        let kind = header[156];
+        let extension = matches!(kind, b'x' | b'g' | b'L' | b'K');
+        if extension && size > MAX_EXTENSION {
+            return Err(refused(format!(
+                "an extension entry of {size} bytes is over {} KB: the stream is refused",
+                MAX_EXTENSION >> 10
+            )));
+        }
+        let size = match extension {
+            true => size,
+            false => self.next_size.take().unwrap_or(size),
+        };
+        if kind == b'x' && size > 0 {
+            self.pax = Some(Vec::with_capacity(size as usize));
+            self.pax_left = size;
+        }
+        self.until_header = size.div_ceil(512) * 512;
+        Ok(())
+    }
+}
+
+impl<R: Read> Read for Bounded<R> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let n = self.input.read(buf)?;
+        self.read += n as u64;
+        if self.read > MAX_STREAM {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("the stream is over {} GB: refused", MAX_STREAM >> 30),
+            ));
+        }
+        self.follow(&buf[..n])?;
+        Ok(n)
+    }
+}
+
+/// A tar header's size field: octal, or base-256 when its first byte's
+/// high bit is set.
+fn header_size(field: &[u8]) -> Option<u64> {
+    if field[0] & 0x80 != 0 {
+        let mut size: u64 = (field[0] & 0x7f).into();
+        for b in &field[1..] {
+            size = size.checked_mul(256)?.checked_add((*b).into())?;
+        }
+        return Some(size);
+    }
+    let text = std::str::from_utf8(field).ok()?;
+    let text = text.trim_matches(|c: char| c == '\0' || c == ' ');
+    if text.is_empty() {
+        return Some(0);
+    }
+    u64::from_str_radix(text, 8).ok()
+}
+
+/// The `size` a PAX header's records give the next entry, if any.
+fn pax_size(pax: &[u8]) -> Option<u64> {
+    let mut rest = pax;
+    let mut size = None;
+    while !rest.is_empty() {
+        let space = rest.iter().position(|b| *b == b' ')?;
+        let len: usize = std::str::from_utf8(&rest[..space]).ok()?.parse().ok()?;
+        if len <= space || len > rest.len() {
+            return None;
+        }
+        let record = &rest[space + 1..len];
+        let record = record.strip_suffix(b"\n").unwrap_or(record);
+        if let Some(value) = record.strip_prefix(b"size=") {
+            size = std::str::from_utf8(value).ok()?.parse().ok();
+        }
+        rest = &rest[len..];
+    }
+    size
+}
+
 /// The authenticated envelope of a move's complete switch stream.
 pub fn stream_about() -> link_secretive::About {
     link_secretive::About {
@@ -87,60 +242,8 @@ pub fn stream_about() -> link_secretive::About {
     }
 }
 
-/// Which part of a move a stream is.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum Phase {
-    /// While the agent answers: Home and memory's index, into staging.
-    Copy,
-    /// The agent paused: what changed since the copy, and everything
-    /// else of it (its settings, connections, sandbox, spec, state).
-    Switch,
-    /// Home alone, for `lnk storage` on a cloud that hosts agents.
-    Files,
-}
-
-impl Phase {
-    /// The phase named `name` (`copy`, `switch`, `files`).
-    pub fn of(name: &str) -> anyhow::Result<Phase> {
-        match name {
-            "copy" => Ok(Phase::Copy),
-            "switch" => Ok(Phase::Switch),
-            "files" => Ok(Phase::Files),
-            other => bail!(
-                "{:?} isn't a phase of a move: copy, switch or files",
-                link_format::clean(other)
-            ),
-        }
-    }
-
-    pub fn name(self) -> &'static str {
-        match self {
-            Phase::Copy => "copy",
-            Phase::Switch => "switch",
-            Phase::Files => "files",
-        }
-    }
-
-    /// The folders a stream of this phase holds, as an account that hosts
-    /// agents sends it.
-    pub fn folders(self) -> &'static [&'static str] {
-        match self {
-            Phase::Copy => &["files", "memory"],
-            Phase::Switch => &["files", "memory", "schedule", "harness", "connections"],
-            Phase::Files => &["files"],
-        }
-    }
-    /// The folders a stream of this phase may hold, as it's read: a copy
-    /// between machines carries the harness's state too (`lnk agent state-send
-    /// --state`).
-    pub fn accepts(self) -> &'static [&'static str] {
-        match self {
-            Phase::Copy => &["files", "memory", "harness"],
-            phase => phase.folders(),
-        }
-    }
-}
+/// Which part of a move a stream is, as the hosting contract declares it.
+pub use link_agent_place::Phase;
 
 /// What every manifest says, whoever reads it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -288,6 +391,11 @@ pub fn check_path(path: &str, folders: &[&str]) -> anyhow::Result<()> {
     ensure!(
         plain,
         "{:?} isn't a plain path in the stream",
+        link_format::clean(path)
+    );
+    ensure!(
+        path.split('/').count() <= DEEPEST + 1,
+        "{:?} is more than {DEEPEST} folders deep: the stream is refused",
         link_format::clean(path)
     );
     let first = path.split('/').next().unwrap_or_default();
@@ -586,7 +694,7 @@ pub fn unpack(
     input: impl Read,
     into: impl FnOnce(&serde_json::Value, &Head) -> anyhow::Result<PathBuf>,
 ) -> anyhow::Result<Unpacked> {
-    let mut archive = tar::Archive::new(input);
+    let mut archive = tar::Archive::new(Bounded::new(input));
     archive.set_preserve_permissions(false);
     archive.set_overwrite(true);
     let unpacked = (|| -> anyhow::Result<Unpacked> {
@@ -769,158 +877,4 @@ pub fn remove_under(root: &Path, path: &str) -> anyhow::Result<()> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use link_test_kit::TempDir;
-
-    fn manifest(phase: Phase, removed: &[&str]) -> Vec<u8> {
-        serde_json::to_vec(&serde_json::json!({
-            "format": PROTOCOL.current, "phase": phase, "move": "0123456789abcdef0123456789abcdef",
-            "removed": removed, "agent": {"workload": "agent:a1b2c3d4e5f6", "name": "main"},
-        }))
-        .unwrap()
-    }
-
-    /// A manifest states the move protocol's version: an older one, a
-    /// newer one or none is refused by name.
-    #[test]
-    fn a_manifest_of_another_move_protocol_is_refused_by_name() {
-        let of = |format: serde_json::Value| check_format(&serde_json::json!({"format": format}));
-        assert!(of(PROTOCOL.current.into()).is_ok());
-        let older = of((PROTOCOL.oldest - 1).into()).unwrap_err().to_string();
-        assert!(
-            older.contains("below") && older.ends_with("lnk upgrade"),
-            "{older}"
-        );
-        let newer = of((PROTOCOL.current + 1).into()).unwrap_err().to_string();
-        assert!(newer.contains("newer than"), "{newer}");
-        assert!(of(serde_json::Value::Null).is_err());
-    }
-
-    #[test]
-    fn a_folder_round_trips_and_what_is_held_is_skipped() {
-        let dir = TempDir::new("moving-round");
-        let (from, to, spool) = (dir.join("from"), dir.join("to"), dir.join("spool"));
-        std::fs::create_dir_all(from.join("notes")).unwrap();
-        std::fs::write(from.join("notes/a.md"), "a").unwrap();
-        std::fs::write(from.join("b.txt"), "b".repeat(100)).unwrap();
-        std::os::unix::fs::symlink("notes/a.md", from.join("latest")).unwrap();
-        let big = vec![7u8; (IN_MEMORY + 10) as usize];
-        std::fs::write(from.join("big"), &big).unwrap();
-        let stream = |have: &Have| {
-            let mut tar = tar::Builder::new(Vec::new());
-            append_manifest(&mut tar, &manifest(Phase::Copy, &[])).unwrap();
-            let files = append_folder(&mut tar, &from, "files", have, None, &spool).unwrap();
-            append_end(&mut tar).unwrap();
-            (tar.into_inner().unwrap(), files)
-        };
-        let (bytes, files) = stream(&Have::new());
-        assert_eq!(files.len(), 3);
-        let unpacked = unpack(bytes.as_slice(), |_, _| Ok(to.clone())).unwrap();
-        assert_eq!(unpacked.head.phase, Phase::Copy);
-        assert_eq!(std::fs::read(to.join("files/big")).unwrap(), big);
-        assert_eq!(
-            std::fs::read_link(to.join("files/latest")).unwrap(),
-            Path::new("notes/a.md")
-        );
-        // The spool leaves nothing behind.
-        assert_eq!(std::fs::read_dir(&spool).unwrap().count(), 0);
-        // What the other end holds isn't sent again.
-        let have = have_of(&to.join("files"), "files").unwrap();
-        assert_eq!(have, have_of(&from, "files").unwrap());
-        let (again, _) = stream(&have);
-        assert!(again.len() < 8 * 1024, "{}", again.len());
-    }
-
-    /// An entry whose bytes were changed on the way, or that has no
-    /// hash, refuses the stream; a format-2 stream is refused by name.
-    #[test]
-    fn a_tampered_entry_is_refused() {
-        let dir = TempDir::new("moving-tampered");
-        let (from, to, spool) = (dir.join("from"), dir.join("to"), dir.join("spool"));
-        std::fs::create_dir_all(&from).unwrap();
-        std::fs::write(from.join("note"), "the original text").unwrap();
-        let mut tar = tar::Builder::new(Vec::new());
-        append_manifest(&mut tar, &manifest(Phase::Copy, &[])).unwrap();
-        append_folder(&mut tar, &from, "files", &Have::new(), None, &spool).unwrap();
-        append_end(&mut tar).unwrap();
-        let mut bytes = tar.into_inner().unwrap();
-        // Cut short, between two entries: refused.
-        let cut = bytes.len() - 1024 - 3 * 512;
-        let err = unpack(&bytes[..cut], |_, _| Ok(to.clone())).unwrap_err();
-        assert!(
-            format!("{err:#}").contains("stopped before its end"),
-            "{err:#}"
-        );
-        let at = bytes.windows(8).position(|w| w == b"original").unwrap();
-        bytes[at..at + 8].copy_from_slice(b"ORIGINAL");
-        let err = unpack(bytes.as_slice(), |_, _| Ok(to.clone())).unwrap_err();
-        assert!(format!("{err:#}").contains("SHA-256 differs"), "{err:#}");
-        assert!(!to.join("files/note").exists());
-
-        // No hash at all.
-        let mut tar = tar::Builder::new(Vec::new());
-        append_manifest(&mut tar, &manifest(Phase::Copy, &[])).unwrap();
-        let mut header = tar::Header::new_gnu();
-        header.set_size(3);
-        header.set_mode(0o644);
-        header.set_cksum();
-        tar.append_data(&mut header, "files/bare", &b"abc"[..])
-            .unwrap();
-        let err = unpack(tar.into_inner().unwrap().as_slice(), |_, _| Ok(to.clone())).unwrap_err();
-        assert!(
-            format!("{err:#}").contains("without its SHA-256"),
-            "{err:#}"
-        );
-
-        // A folder the phase doesn't allow.
-        let mut tar = tar::Builder::new(Vec::new());
-        append_manifest(&mut tar, &manifest(Phase::Copy, &[])).unwrap();
-        append_folder(&mut tar, &from, "connections", &Have::new(), None, &spool).unwrap();
-        let err = unpack(tar.into_inner().unwrap().as_slice(), |_, _| Ok(to.clone())).unwrap_err();
-        assert!(format!("{err:#}").contains("isn't in files/"), "{err:#}");
-    }
-
-    #[test]
-    fn paths_and_haves_are_checked() {
-        for good in ["files/a", "memory/link/index.sqlite", "files/.hidden/x"] {
-            check_path(good, &["files", "memory"]).unwrap();
-        }
-        for bad in [
-            "",
-            "/etc/passwd",
-            "files/../x",
-            "files/./x",
-            "files//x",
-            "other/x",
-            "files/\0",
-        ] {
-            assert!(check_path(bad, &["files", "memory"]).is_err(), "{bad:?}");
-        }
-        check_move_id("0123456789abcdef0123456789abcdef").unwrap();
-        assert!(check_move_id("0123456789ABCDEF0123456789abcdef").is_err());
-        assert!(check_move_id("\u{1b}[2J").is_err());
-        let have = read_have(
-            &br#"{"files/a": "0000000000000000000000000000000000000000000000000000000000000000"}"#
-                [..],
-        )
-        .unwrap();
-        assert_eq!(have.len(), 1);
-        assert!(read_have(&br#"{"../a": "00"}"#[..]).is_err());
-        assert_eq!(new_move_id().unwrap().len(), 32);
-    }
-
-    #[test]
-    fn a_link_on_the_way_is_never_opened_through() {
-        let dir = TempDir::new("moving-open");
-        std::fs::create_dir_all(dir.join("outside")).unwrap();
-        std::fs::write(dir.join("outside/secret"), "secret").unwrap();
-        std::fs::create_dir_all(dir.join("root")).unwrap();
-        std::os::unix::fs::symlink(dir.join("outside"), dir.join("root/out")).unwrap();
-        std::os::unix::fs::symlink(dir.join("outside/secret"), dir.join("root/s")).unwrap();
-        assert!(open_under(&dir.join("root"), Path::new("out/secret")).is_err());
-        assert!(open_under(&dir.join("root"), Path::new("s")).is_err());
-        assert!(have_of(&dir.join("root"), "files").unwrap().is_empty());
-        remove_under(&dir.join("root"), "files/x").unwrap();
-    }
-}
+mod tests;

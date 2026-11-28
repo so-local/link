@@ -91,7 +91,7 @@ impl Host {
         request: &Request,
         input: &mut impl BufRead,
     ) -> anyhow::Result<Reply> {
-        let phase = Phase::of(request.phase.as_deref().unwrap_or_default())?;
+        let phase = request.phase.context("no phase")?;
         if phase == Phase::Files {
             let agent = request.agent.clone().context("no agent")?;
             let dir = self.agent_dir(&agent.id)?;
@@ -173,7 +173,7 @@ impl Host {
     /// Send changed files. A switch pauses the agent and seals private state
     /// to the destination's recipient; copy and file transfers are unsealed.
     pub(crate) fn give(&self, request: &Request) -> anyhow::Result<()> {
-        let phase = Phase::of(request.phase.as_deref().unwrap_or_default())?;
+        let phase = request.phase.context("no phase")?;
         let have: Have = request.have.clone();
         moving::check_have(&have)?;
         let (agent, move_id) = match phase {

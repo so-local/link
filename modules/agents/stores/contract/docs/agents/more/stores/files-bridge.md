@@ -2,7 +2,7 @@
 
 How an agent's Home kept in a bucket is reached from its sandbox, and
 the storage credential the bridge holds, both in `link-store-contract`.
-[Every bridge](../../../../../../../security/sandbox/bridge/docs/security/sandbox/more/bridges.md) speaks `link-sandbox-bridge`'s calls.
+[Every bridge](../../../../../../../security/sandbox/bridge/docs/tooling/sandbox/more/bridges.md) speaks `link-sandbox-bridge`'s calls.
 
 ## Reviewed Writes
 

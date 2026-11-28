@@ -47,7 +47,7 @@ fn request(account: &cloud::Account, folder: &Folder) -> anyhow::Result<Request>
                     team: folder.id.clone(),
                 },
             )),
-            phase: Some(Phase::Files.name().into()),
+            phase: Some(Phase::Files),
             ..Default::default()
         });
     }
@@ -58,7 +58,7 @@ fn request(account: &cloud::Account, folder: &Folder) -> anyhow::Result<Request>
             name: folder.name.clone(),
             ..HostedAgent::default()
         }),
-        phase: Some(Phase::Files.name().into()),
+        phase: Some(Phase::Files),
         ..Request::default()
     })
 }

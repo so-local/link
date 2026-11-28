@@ -1,6 +1,6 @@
-# Teams
+# Create an Agent Team
 
-> Teams Give Every Agent a Purpose
+> Agent Teams Give Every Agent a Purpose
 
 A team splits a job by purpose. Each agent keeps its own model, connections,
 and files, sends the others messages, and shares a folder with them.

@@ -42,7 +42,7 @@ lnk agent tool add mcp|memory|browser|desktop|file|scheduler
 
 ### Run Local Link Commands
 
-[Link MCP](../../../../../tools/mcp/docs/agents/tools/mcp/README.md) reads documentation, inspects capabilities, and offers explicitly declared commands. Read calls are allowed, while changes ask through the sandbox. Link MCP is off by default, and the personal ready-made agent comes with it on. Add it with `lnk agent tool add mcp`.
+[Link MCP](../../../../../tools/mcp/docs/agents/tools/mcp/README.md) reads documentation, inspects capabilities, and offers explicitly declared commands. Read calls are allowed, while changes ask through the sandbox. Link MCP is off by default, and the Onboarding ready-made agent comes with it on. Add it with `lnk agent tool add mcp`.
 
 ### Approve Missing Sandbox Permissions
 
@@ -58,8 +58,8 @@ switches live together in `~/Link/Safe/Agents/<agent>/agent.toml` under `[behavi
 `add web` installs Link Web if it isn't here, and takes its search key
 from `BRAVE_API_KEY` or `TAVILY_API_KEY`, else asks for it. Without
 a key, your agent fetches pages but doesn't search. The key stays with
-Local Link's sandbox, outside your agent. [`lnk sandbox tool list`](../../../../../../security/sandbox/docs/security/sandbox/tools/README.md#tools-and-asking) shows Web's shared
-definition, and [`lnk sandbox tool remove web`](../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside) removes it for every agent.
+Local Link's sandbox, outside your agent. [`lnk sandbox tool list`](../../../../../../security/sandbox/docs/tooling/sandbox/tools/README.md#tools-and-asking) shows Web's shared
+definition, and [`lnk sandbox tool remove web`](../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside) removes it for every agent.
 
 ### Add Web on a New Machine
 
@@ -72,7 +72,7 @@ since says instead how to forget it.
 ### Add a Tool of Your Own
 
 Add a tool of your own, an MCP server
-[`lnk sandbox tool add`](../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside) defines, by its name. Each change says
+[`lnk sandbox tool add`](../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside) defines, by its name. Each change says
 where it's written. [Local Link's tools](../../../../../tools/docs/agents/tools/README.md) has each one.
 
 ### Restart for a Change
@@ -86,7 +86,7 @@ asking. With no terminal to ask in, the agent keeps running as it was, and
 
 In Link Harness, `/tool:list` reports the namespaces and action names
 exposed to the current agent. The command reads capability metadata without
-enabling a provider or granting a tool. [Command rules](../../../../../harnesses/link/docs/agents/link/commands/README.md)
+enabling a provider or granting a tool. [Command rules](../../../../../harnesses/link/docs/agents/harnesses/link/commands/README.md)
 explain owner-only slash invocation and unavailable commands.
 
 ## Add Reusable Skills

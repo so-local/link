@@ -32,6 +32,20 @@
   "additionalProperties": false,
   "description": "Which of Link's programs to build from source, for which targets, and how to seal and sign them into one release folder",
   "properties": {
+    "archives": {
+      "description": "A folder of archives, each a folder with its `archive.toml`, packed\ninto `link-<name>.tar.gz` by the bundle's own `lnk archive export`,\nwith every module the bundle holds beside it, and sealed with the\nprograms, repeated for more. It's none when none is given.",
+      "examples": [
+        [
+          "archives"
+        ]
+      ],
+      "items": {
+        "format": "path",
+        "type": "string",
+        "x-link-path": true
+      },
+      "type": "array"
+    },
     "build": {
       "$ref": "#/$defs/bundle.build",
       "description": "Its stage, which says what its `lnk` trusts: `dev` (the bundle's own\nsigner and Link's), `staging` (the staging signer and Link's) or `prod`\n(the bundle's own signer alone, at the workspace's version)."
@@ -151,7 +165,7 @@
     "version": {
       "description": "Its version. It's the workspace's, stamped for staging and dev, when\nnone is given.",
       "examples": [
-        "0.14.0"
+        "0.0.1"
       ],
       "type": "string"
     }

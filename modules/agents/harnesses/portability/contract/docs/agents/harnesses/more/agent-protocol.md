@@ -72,7 +72,7 @@ These commands manage different changes around the same agent, its harness, and 
 
 ### Adopt an Installation
 
-[`lnk agent migrate`](../../../../../../../agent/docs/agents/README.md#migrate-your-agent) discovers a supported existing installation through its adapter, copies native state, relocates paths, handles supported secrets, and keeps its original service stopped. It runs the same harness under Link. Converting the agent to another harness is a subsequent switch with that pair's transfer capabilities.
+[`lnk agent migrate`](../../../../../../../agent/docs/agents/README.md#migrate-to-local-link) discovers a supported existing installation through its adapter, copies native state, relocates paths, handles supported secrets, and keeps its original service stopped. It runs the same harness under Link. Converting the agent to another harness is a subsequent switch with that pair's transfer capabilities.
 
 ## Extend the Adapters
 

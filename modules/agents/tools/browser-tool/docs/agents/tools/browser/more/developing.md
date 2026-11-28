@@ -8,7 +8,7 @@ to use it: [Link Browser](../README.md).
 
 It starts Chromium as `<sandbox> --files.read <its folder> --files.write <profile>
 --internet.hosts <host>... -- /bin/sh -c 'exec chromium ...'`, the sandbox
-being what follows `--` in `serve`, so [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide).
+being what follows `--` in `serve`, so [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide).
 
 ### Hosts and program
 
@@ -116,7 +116,7 @@ Manual Browser registration supplies its private profile, sandbox command, and p
 
 ### By hand
 
-[`lnk agent tool add browser`](../../../../../../../agent/docs/agents/README.md#add-tools-and-skills) is the `browser-tool` module, the tool shared by every
+[`lnk agent tool add browser`](../../../../../../../agent/docs/agents/README.md#tools) is the `browser-tool` module, the tool shared by every
 session of the agent with its calls allowed, and your agent allowed to
 call it. The sandbox command after `serve`'s `--` is `lnk sandbox
 run`: the tool adds Chromium, its folder of helpers, and the shell that

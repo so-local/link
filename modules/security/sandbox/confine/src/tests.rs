@@ -84,6 +84,7 @@ fn policy(grants: &[Grant]) -> Rules {
             network: grants.contains(&Grant::Network),
             localhost: grants.contains(&Grant::Localhost),
             ports,
+            serves: Default::default(),
             certificates: false,
             developer_tools: grants.contains(&Grant::DeveloperTools),
             report_execs: false,
@@ -147,7 +148,7 @@ fn the_default_profile_is_the_box_and_localhost() {
     assert!(profile.contains("(deny default)"));
     let writes = profile.split("(allow file-write*").nth(1).unwrap();
     assert!(writes.contains(r#"(subpath "/Users/me/Link/Agents/main/home")"#));
-    assert!(writes.contains(r#"(regex #"^/private/tmp/\.?otter")"#));
+    assert!(writes.contains(r#"(regex #"^/private/tmp/\.?otter([-._/]|$)")"#));
     assert!(!writes.contains("/opt/tools"));
     // The home folder: directories can be stat()ed, files can't.
     assert!(profile.contains("(allow file-read-metadata (vnode-type DIRECTORY))"));
@@ -159,13 +160,27 @@ fn the_default_profile_is_the_box_and_localhost() {
     assert!(profile.contains(
         r#"(allow network-bind (local unix-socket (subpath "/Users/me/.lnk/data/agents/main/harnesses/otter")"#
     ));
-    assert!(profile.contains(r#"(path-regex #"^/private/tmp/\.?otter")"#));
+    assert!(profile.contains(r#"(path-regex #"^/private/tmp/\.?otter([-._/]|$)")"#));
     // No broad sysctl-read: kern.procargs2 gives other processes' env.
     assert!(!profile.contains("(allow sysctl-read)"));
     assert!(profile.contains(r#"(sysctl-name "kern.osversion")"#));
     // libuv's uptime (Node): a Node harness dies without it.
     assert!(profile.contains(r#"(sysctl-name "kern.boottime")"#));
     assert!(!profile.contains("(sysctl-name \"kern.procargs"));
+    // The system's own folders, never /System/Volumes, which holds the
+    // Data volume, a second path to /Users.
+    assert!(!profile.contains(r#"(subpath "/System")"#));
+    assert!(profile.contains(r#"(subpath "/System/Library")"#));
+    assert!(!profile.contains(r#"(subpath "/System/Volumes")"#));
+    assert!(!profile.contains("/System/Volumes/Data"));
+    // A program's temp files end at a separator, and the locale's
+    // settings are the two Library folders' alone.
+    assert!(profile.contains(r#"#"^/private/tmp/\.?otter([-._/]|$)")"#));
+    assert!(profile.contains(r#"(regex #"^/Library/Preferences/\.GlobalPreferences"#));
+    assert!(!profile.contains(r#"(regex #"/Library/Preferences"#));
+    // Neither every process nor the boot session's ID.
+    assert!(!profile.contains(r#"(sysctl-name-prefix "kern.proc.all")"#));
+    assert!(!profile.contains(r#"(sysctl-name "kern.bootsessionuuid")"#));
     assert!(!profile.contains("(allow network*)"));
     for closed in [
         "SecurityServer",
@@ -713,11 +728,16 @@ fn devices_terminals_and_homebrew_data_stay_closed() {
     // Listening: localhost only, on its own ports, unless network.
     assert!(!profile.contains(r#"(local ip "localhost:*")"#));
     let mut own = policy(&[]);
-    own.macos.ports = [18789].into();
+    own.macos.serves = [18789].into();
     assert!(
         seatbelt_profile(&own)
             .contains(r#"(allow network-bind network-inbound (local ip "localhost:18789"))"#)
     );
+    // A port it only reaches is never one it serves: no `[::1]:P` taken
+    // beside a server on `127.0.0.1:P`.
+    let reached = policy(&[]);
+    assert!(reached.macos.ports.contains(&18789));
+    assert!(!seatbelt_profile(&reached).contains("(local ip \"localhost:18789\")"));
     assert!(!profile.contains(r#"(local ip "*:*")"#));
     let online = seatbelt_profile(&policy(&[Grant::Network]));
     assert!(online.contains(r#"(allow network-bind network-inbound (local ip "*:*"))"#));

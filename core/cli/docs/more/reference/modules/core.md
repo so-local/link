@@ -64,56 +64,10 @@ lnk upgrade [version] [--check] [--json] [--yes]
 
 - `--check`, boolean: Report newer releases and advisories, installing nothing. Ordinary interactive commands refresh this guidance in the background
 - `--json`, boolean: Print the answer as JSON for other programs
-- `version`, position 1, string: Version to install, e.g. 0.14.0 [default: the latest release]
+- `version`, position 1, string: Version to install, e.g. 0.0.1 [default: the latest release]
 - `--yes`, boolean: Say yes to what it would ask
 
 It answers `core.report`.
-
-## Folder
-
-### `lnk folder check`
-
-List old atomic-write staging files in your data without deleting them
-
-```usage
-lnk folder check [--json]
-```
-
-It takes `--json`, boolean: Print the answer as JSON for other programs. It answers `core.staging`.
-
-### `lnk folder create`
-
-Make a new, empty Link folder at `~/Link`, in place of one that's gone
-
-```usage
-lnk folder create [--json]
-```
-
-It takes `--json`, boolean: Print the answer as JSON for other programs. It answers `core.folder`.
-
-### `lnk folder list`
-
-List the map: each location, by its ID, and where it is on this machine, starting with the Link folder
-
-```usage
-lnk folder list [--json]
-```
-
-It takes `--json`, boolean: Print the answer as JSON for other programs. It answers `core.map`.
-
-### `lnk folder set`
-
-Move a location to a path: its files, when they're there, and its entry in the map, with every location inside it; or point Link at files you moved
-
-```usage
-lnk folder set <location> <path> [--json]
-```
-
-- `--json`, boolean: Print the answer as JSON for other programs
-- `location`, position 1, string, required: The location's ID, as `lnk folder list` shows it: link for the Link folder
-- `path`, position 2, path, required: Where it goes, or where you moved it
-
-It answers `core.folder`.
 
 ## Issue
 
@@ -126,6 +80,52 @@ lnk issue create [--json] [--open]
 ```
 
 It takes `--json`, boolean: Print the answer as JSON for other programs. It takes `--open`, boolean: Open the bug form in your browser with what fits filled in. It answers `core.report`.
+
+## Location
+
+### `lnk location check`
+
+List old atomic-write staging files in your data without deleting them
+
+```usage
+lnk location check [--json]
+```
+
+It takes `--json`, boolean: Print the answer as JSON for other programs. It answers `core.staging`.
+
+### `lnk location create`
+
+Make a new, empty Link folder at `~/Link`, in place of one that's gone
+
+```usage
+lnk location create [--json]
+```
+
+It takes `--json`, boolean: Print the answer as JSON for other programs. It answers `core.location`.
+
+### `lnk location list`
+
+List the map: each location, by its ID, and where it is on this machine, starting with the Link folder
+
+```usage
+lnk location list [--json]
+```
+
+It takes `--json`, boolean: Print the answer as JSON for other programs. It answers `core.map`.
+
+### `lnk location set`
+
+Move a location to a path: its files, when they're there, and its entry in the map, with every location inside it; or point Link at files you moved
+
+```usage
+lnk location set <location> <path> [--json]
+```
+
+- `--json`, boolean: Print the answer as JSON for other programs
+- `location`, position 1, string, required: The location's ID, as `lnk location list` shows it: link for the Link folder
+- `path`, position 2, path, required: Where it goes, or where you moved it
+
+It answers `core.location`.
 
 ## Module
 

@@ -35,7 +35,7 @@ the limit it raises.
 | Characters in a list item | 400 | An item is a line or two; more is a section. |
 | Lines in a Markdown file | 500 | Split a longer page by subject. |
 | Pages under a page in the site's tree | 10 | Group a longer list in a folder. |
-| Pages under a page in the site's tree, at `/agents` | 12 | Agents, the product's center, holds more first-class pages. |
+| Pages under a page in the site's tree, at `/agents` | 16 | Agents lists its guides and its parts in one menu. |
 | Pages under a page in the site's tree, at `/agents/tools` | 12 | Each tool is a first-class page of the product's center. |
 | Characters in a paragraph | 600 | More is two subjects: two sections. |
 | Links under a README's ## Code | 5 | Name the entry points, three or so. |

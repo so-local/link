@@ -57,7 +57,6 @@ pub(crate) fn run(
     let own = match (named, &begun) {
         (Some(name), _) => name.to_string(),
         (None, Some(journal)) => journal.agent.clone(),
-        (None, None) if settings::names()?.is_empty() => settings::MAIN.to_string(),
         (None, None) => found.harness.clone(),
     };
     let names: Vec<String> = found

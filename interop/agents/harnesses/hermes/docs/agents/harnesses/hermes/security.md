@@ -121,7 +121,8 @@ addresses into `config.yaml` itself (600): none on the command line of
 ### Its API's key in `lnk secret list`
 
 [`lnk secret list`](../../../../../../../../modules/security/secret/contract/docs/config/secrets/more/contract.md#listed-for-lnk-secret-list) lists its API's key, the one Link hands it at each
-start, in each agent's home.
+start, in each agent's home. That home is a folder the agent can read,
+so the agent can read its own API's key there.
 
 ### Not listed: Hermes's own logins
 
@@ -161,7 +162,7 @@ own service (the LaunchAgent `ai.hermes.gateway`, or the systemd unit
 
 [`lnk agent harness show --harness hermes`](../../../../../../../../modules/agents/agent/docs/agents/harnesses/use/harness/README.md#inspect-the-installation) looks for these; `lnk agent
 harness delete --harness hermes` deletes them with its home. Its own service
-would run outside the sandbox, so [`lnk agent start`](../../../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent) stops it and moves
+would run outside the sandbox, so [`lnk agent start`](../../../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent) stops it and moves
 it aside.
 
 ### What it leaves

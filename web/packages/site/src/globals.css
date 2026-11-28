@@ -182,42 +182,56 @@ button:not(:disabled) {
   line-height: 1.6;
 }
 
-/* The landing card fits its content, centered, with room on every side so
-   no line or pill sits against its edge. */
+/* The landing card is one centered column of blocks: the logo, the
+   headline, the line beneath it, the command, its fine print, and the
+   actions. One space, which grows with the screen's height, separates
+   every block, and pads the card above and below twice over; no block
+   brings a margin of its own. */
 .landing {
+  --landing-space: clamp(1rem, 2.5svh, 1.5rem);
   container-type: inline-size;
-  padding: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 6vw, 4rem);
+  padding: calc(2 * var(--landing-space)) clamp(1.25rem, 5vw, 3rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--landing-space);
   text-align: center;
 }
-.landing h1 {
+.landing > *,
+.landing > .contents > * {
   margin: 0;
-  max-width: min(100%, 16ch);
-  font-size: clamp(2rem, 10cqw, 3.75rem);
+}
+/* The headline is one line on a wide card, sized to fit it, and two
+   balanced lines on a phone's, with room between its letters and lines
+   so neither crowds. */
+.landing h1 {
+  max-width: 100%;
+  font-size: clamp(1.625rem, 7cqw, 2.625rem);
   font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.05em;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
-.landing img {
-  width: clamp(6rem, 18svh, 9rem);
-  height: auto;
-  margin: 0 0 clamp(1rem, 3svh, 2rem);
+@container (min-width: 32rem) {
+  .landing h1 {
+    white-space: nowrap;
+  }
 }
 .landing p {
-  max-width: 36rem;
-  margin: 1.25rem 0 0;
+  max-width: 32rem;
   font-size: 1rem;
-  line-height: 1.75;
+  line-height: 1.5;
+  text-wrap: pretty;
   color: var(--color-zinc-700);
 }
 .landing [data-terminal] {
   max-width: 100%;
-  margin-inline: auto;
   text-align: left;
+}
+/* The licenses read as the install command's fine print. */
+.landing [data-terminal] + p {
+  font-size: 0.875rem;
 }
 /* Adjacent action pills wrap together inside a card. */
 .prose ul:has(> li > [data-button]) {
@@ -264,27 +278,10 @@ button:not(:disabled) {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 1.75rem;
-  margin-bottom: 0;
-  padding-block: 0.375rem;
 }
 .landing a:focus-visible {
   outline: 2px solid var(--color-zinc-900);
   outline-offset: 5px;
-}
-@media (max-height: 850px) {
-  .landing h1 {
-    font-size: clamp(1.875rem, 10cqw, 3.25rem);
-  }
-  .landing img {
-    width: 6rem;
-    margin-bottom: 0.5rem;
-  }
-  .landing p,
-  .landing ul:has(> li > [data-short-action]),
-  .landing p:has(> [data-button], > button) {
-    margin-top: 0.5rem;
-  }
 }
 
 button:not(:disabled),

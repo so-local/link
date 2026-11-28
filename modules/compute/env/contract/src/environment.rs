@@ -9,13 +9,21 @@ use serde::{Deserialize, Serialize};
 
 use crate::file::Read;
 
-/// An environment as it is carried to another machine: its file and every
-/// file the file names, by their paths from its folder, and its image's
-/// hash (`lnk env check`). Never a secret's value: those stay on the
-/// computer they were set on.
+/// The environment hand-off, as `environment/protocol.toml` declares it:
+/// what an environment carried to another machine states it's written in.
+pub static PROTOCOL: std::sync::LazyLock<link_version::Protocol> = std::sync::LazyLock::new(|| {
+    link_version::Protocol::shipped(include_str!("environment/protocol.toml"))
+});
+
+/// An environment as it is carried to another machine: the hand-off's
+/// version ([`PROTOCOL`]), its file and every file the file names, by
+/// their paths from its folder, and its image's hash (`lnk env check`).
+/// Never a secret's value: those stay on the computer they were set on.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Packed {
+    /// The hand-off's version it's written in.
+    pub protocol: u32,
     /// The file's name, among `files`.
     pub file: String,
     pub hash: String,
@@ -45,10 +53,26 @@ pub fn pack(read: &Read, hash: &str) -> anyhow::Result<Packed> {
         files.insert(path.display().to_string(), text);
     }
     Ok(Packed {
+        protocol: PROTOCOL.current,
         file,
         hash: hash.to_string(),
         files,
     })
+}
+
+/// An environment another machine sent, as `bytes`: its version read
+/// before anything else of it, so one written by another release is
+/// refused by name, naming the upgrade, never a bare error of its shape.
+pub fn unpack(bytes: &[u8]) -> anyhow::Result<Packed> {
+    let value: serde_json::Value =
+        serde_json::from_slice(bytes).within("reading the environment's files")?;
+    let version = value
+        .get("protocol")
+        .and_then(serde_json::Value::as_u64)
+        .and_then(|v| u32::try_from(v).ok())
+        .within("the environment sent names no hand-off version: the machine that sent it runs another release")?;
+    PROTOCOL.read("the machine that sent this environment", version)?;
+    serde_json::from_value(value).within("reading the environment's files")
 }
 
 /// Capture declared files through held directories, with the same no-link boundary as copies.
@@ -143,6 +167,34 @@ mod tests {
             dir: dir.to_path_buf(),
             text,
         }
+    }
+
+    /// A hand-off names its version, read first: one of another release
+    /// is refused by name, and one naming none is refused too.
+    #[test]
+    fn a_hand_off_says_its_version_and_another_is_refused_by_name() {
+        let packed = super::Packed {
+            protocol: super::PROTOCOL.current,
+            file: "env.toml".into(),
+            ..Default::default()
+        };
+        let bytes = serde_json::to_vec(&packed).unwrap();
+        assert_eq!(super::unpack(&bytes).unwrap(), packed);
+        let mut newer = serde_json::to_value(&packed).unwrap();
+        newer["protocol"] = (super::PROTOCOL.current + 1).into();
+        newer["more"] = "a field a newer release adds".into();
+        let refused = super::unpack(&serde_json::to_vec(&newer).unwrap()).unwrap_err();
+        assert!(
+            format!("{refused:#}").contains("lnk upgrade"),
+            "{refused:#}"
+        );
+        let mut none = serde_json::to_value(&packed).unwrap();
+        none.as_object_mut().unwrap().remove("protocol");
+        let refused = super::unpack(&serde_json::to_vec(&none).unwrap()).unwrap_err();
+        assert!(
+            format!("{refused:#}").contains("no hand-off version"),
+            "{refused:#}"
+        );
     }
 
     #[test]

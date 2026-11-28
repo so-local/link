@@ -96,6 +96,9 @@ pub struct Macos {
     pub localhost: bool,
     /// The localhost ports it may connect to without `localhost`.
     pub ports: BTreeSet<u16>,
+    /// The localhost ports it may listen on without `network`: those it
+    /// serves, never one it only reaches.
+    pub serves: BTreeSet<u16>,
     /// Certificate checks without `network`: behind a proxy that reaches
     /// the internet, TLS still goes end to end, and the Security framework
     /// asks trustd.
@@ -217,6 +220,7 @@ impl Rules {
                     }
                 ),
                 ports: ports(&policy.net),
+                serves: serves(&policy.net),
                 certificates: false,
                 developer_tools: policy.developer_tools,
                 report_execs: false,
@@ -276,6 +280,17 @@ pub fn ports(net: &Net) -> BTreeSet<u16> {
             .chain(proxy.routes.iter().flat_map(|r| &r.ports))
             .copied()
             .collect(),
+    }
+}
+
+/// The ports of this machine's loopback a sandbox on `net` serves: its
+/// proxy's `serve`, only behind its proxy.
+pub fn serves(net: &Net) -> BTreeSet<u16> {
+    match net {
+        Net::Proxied { proxy, .. } => proxy.serve.clone(),
+        Net::Closed | Net::Loopback { .. } | Net::Reaching { .. } | Net::Host { .. } => {
+            BTreeSet::new()
+        }
     }
 }
 

@@ -13,12 +13,12 @@ const config: NextConfig = {
       ]),
       // Match English first so an old /en address reaches its canonical
       // destination directly rather than passing through another redirect.
-      { source: "/en/agents/harnesses/link/:path*", destination: "/agents/link/:path*", permanent: true },
-      { source: "/agents/harnesses/link/:path*", destination: "/agents/link/:path*", permanent: true },
-      { source: "/:lang/agents/harnesses/link/:path*", destination: "/:lang/agents/link/:path*", permanent: true },
-      { source: "/en/tooling/sandbox/:path*", destination: "/security/sandbox/:path*", permanent: true },
-      { source: "/tooling/sandbox/:path*", destination: "/security/sandbox/:path*", permanent: true },
-      { source: "/:lang/tooling/sandbox/:path*", destination: "/:lang/security/sandbox/:path*", permanent: true },
+      { source: "/en/agents/link/:path+", destination: "/agents/harnesses/link/:path+", permanent: true },
+      { source: "/agents/link/:path+", destination: "/agents/harnesses/link/:path+", permanent: true },
+      { source: "/:lang/agents/link/:path+", destination: "/:lang/agents/harnesses/link/:path+", permanent: true },
+      { source: "/en/security/sandbox/:path*", destination: "/tooling/sandbox/:path*", permanent: true },
+      { source: "/security/sandbox/:path*", destination: "/tooling/sandbox/:path*", permanent: true },
+      { source: "/:lang/security/sandbox/:path*", destination: "/:lang/tooling/sandbox/:path*", permanent: true },
       ...(await shared.redirects?.() ?? []),
     ];
   },

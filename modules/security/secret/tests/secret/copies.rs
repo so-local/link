@@ -16,7 +16,7 @@ fn remove_reaches_each_copy_through_the_module_whose_move_made_it() {
     std::fs::write(
         world.store(),
         format!(
-            "[entry.{key}]\nkind = \"own\"\nvalue = \"{VALUE}\"\n\
+            "schema = 1\n[entry.{key}]\nkind = \"own\"\nvalue = \"{VALUE}\"\n\
              to = [{{ principal = \"service:{MAIN}\", action = \"secret.secret.read\", resource = \"secret:{key}\", workload = \"{MAIN_WORKLOAD}\", name = \"main\", as = {{ kind = \"own\", purpose = \"model\" }} }}]\n\
              copies = [{{ name = \"aws-1\" }}, {{ name = \"gcp-1\" }}, {{ name = \"old-1\" }}, \
              {{ cloud = true, name = \"cloud-1\" }}, {{ cloud = true, name = \"cloud-2\" }}]\n"
@@ -141,7 +141,7 @@ fn remove_here_for_an_agent_leaves_another_agents_key() {
     std::fs::write(
         world.store(),
         format!(
-            "[entry.k1m2n3p4q5r6]\nkind = \"own\"\nvalue = \"{VALUE}\"\n\
+            "schema = 1\n[entry.k1m2n3p4q5r6]\nkind = \"own\"\nvalue = \"{VALUE}\"\n\
              to = [{{ principal = \"service:z9y8x7w6v5u4\", action = \"secret.secret.read\", resource = \"secret:k1m2n3p4q5r6\", workload = \"{MAIN_WORKLOAD}\", name = \"main\", as = {{ kind = \"own\", purpose = \"model\" }} }}]\n"
         ),
     )
@@ -214,7 +214,7 @@ fn uninstall_reaches_the_copies_a_move_left_first() {
     std::fs::write(
         world.store(),
         format!(
-            "[entry.{key}]\nkind = \"own\"\nvalue = \"{VALUE}\"\n\
+            "schema = 1\n[entry.{key}]\nkind = \"own\"\nvalue = \"{VALUE}\"\n\
              to = [{{ principal = \"service:{MAIN}\", action = \"secret.secret.read\", resource = \"secret:{key}\", workload = \"{MAIN_WORKLOAD}\", name = \"main\", as = {{ kind = \"own\", purpose = \"model\" }} }}]\n\
              copies = [{{ name = \"aws-1\" }}, {{ name = \"gcp-1\" }}]\n"
         ),

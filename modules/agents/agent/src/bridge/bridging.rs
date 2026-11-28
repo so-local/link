@@ -120,7 +120,7 @@ pub fn link(agent: &Settings, connection: &str, again: bool) -> anyhow::Result<b
         .spawn()
         .within(format!("running {}", program.display()))?;
     let mut stdin = child.stdin.take().within("no stdin")?;
-    stdin.write_all(format!("{}\n", serde_json::to_string(&request)?).as_bytes())?;
+    stdin.write_all(link_connection_contract::stated(&request)?.as_bytes())?;
     drop(stdin);
     let status = child.wait()?;
     match status.code() {
@@ -219,7 +219,7 @@ fn once(
         .within(format!("running {}", program.display()))?;
     // Held open while it runs: it stops when this closes.
     let mut stdin = child.stdin.take().within("no stdin")?;
-    stdin.write_all(format!("{}\n", serde_json::to_string(request)?).as_bytes())?;
+    stdin.write_all(link_connection_contract::stated(request)?.as_bytes())?;
     stdin.flush()?;
     {
         let mut slot = running.lock().map_err(|_| anyhow::anyhow!("poisoned"))?;

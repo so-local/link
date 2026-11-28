@@ -5,8 +5,8 @@
 # newer-release notice show. Each release is a `[[release]]` table:
 #
 # [[release]]
-# version = "0.2.0"
+# version = "0.0.2"
 # notes = ["`lnk upgrade --check` says which release is the latest."]
 #
-# Link 0.1 keeps no install made earlier, so the list starts empty.
+# Link 0.0.1 keeps no install made earlier, so the list starts empty.
 release = []

@@ -45,7 +45,7 @@ owner = "instructions/owner.md"           # who you are, as you wrote it; "none"
 standing = "instructions/instruction.md"   # yours, read as you edit it; "none"
 now = "link"                      # the date, time, connection and who's speaking, in each message
 notes = "memory/notes.md"   # what it noted for itself, with memory's remember; "none"
-repository = "link"               # the repository's AGENTS.md, else CLAUDE.md, nearest folder first; "none"
+repository = "none"               # "link": the repository's AGENTS.md, else CLAUDE.md, nearest folder first, for an agent working in one
 
 [instructions.max]                # each section's most: what's past it is cut
 base = "16 KB"
@@ -134,7 +134,7 @@ background_keep = "1d"            # its record and output, once it ended and was
 background_per_day = 100          # started in a day: each one's ending starts a turn
 
 [tool.file]
-enabled = true                    # on: asked to, it changes its files, instructions and skills
+enabled = false                   # add file explicitly: asked to, it changes its files, instructions and skills
 find = true                       # files found by name, lines by a pattern
 diffs = true                      # a write or replace answers with the change as a diff
 
@@ -159,7 +159,7 @@ pace = "1s"                       # how often it's shown again, at least
 groups = "mention"                # in a group, only a message that mentions it
 images = true                     # a message's images reach it
 documents = true                  # a message's documents (PDF or text) reach it
-voice = true                      # a message's voice notes reach it, heard as their words by [model] transcribe
+voice = false                     # true: a message's voice notes reach it, heard as their words by [model] transcribe, OpenAI's whatever its provider
 ask_wait = "10m"                  # a question for you (a tool call, a page) waits this long: no answer is no
 cache = "auto"                    # its prompt cached as long as is expected to cost least
 compact_after = "auto"            # a quiet chat compacts just before its cache ends, when that costs less

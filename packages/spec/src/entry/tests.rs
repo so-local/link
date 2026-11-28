@@ -38,7 +38,7 @@ impl Program for Example {
     }
     fn history(&self) -> History {
         History::parse(
-            "[[gone]]\nwas = \"start --model\"\nnow = \"lnk start --model.name\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n[[gone]]\nwas = \"run --network\"\nwhy = \"Gone.\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n",
+            "[[gone]]\nwas = \"start --model\"\nnow = \"lnk start --model.name\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n[[gone]]\nwas = \"run --network\"\nwhy = \"Gone.\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n",
         )
         .unwrap()
     }
@@ -326,7 +326,7 @@ fn a_renamed_module_never_runs_through_an_external_command() {
                 r#"[[renamed]]
 module = "old"
 now = "current"
-since = "0.1.0"
+since = "0.0.1"
 until = "99.0.0"
 "#,
             )
@@ -359,7 +359,7 @@ impl Program for WithOldVariable {
     }
     fn history(&self) -> History {
         history_of(
-            "[[gone]]\nwas = \"LNK_OLD_MODEL\"\nnow = \"lnk start --model.name\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n",
+            "[[gone]]\nwas = \"LNK_OLD_MODEL\"\nnow = \"lnk start --model.name\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n",
         )
     }
     fn variables_set<'h>(&self, history: &'h History) -> Vec<&'h crate::history::Gone> {
@@ -408,7 +408,7 @@ impl Program for Renaming {
     }
     fn history(&self) -> History {
         history_of(
-            "[[renamed]]\nmodule = \"memory\"\nnow = \"notes\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n[[renamed]]\nmodule = \"notes\"\nnow = \"stop\"\nsince = \"0.2.0\"\nuntil = \"99.0.0\"\n",
+            "[[renamed]]\nmodule = \"memory\"\nnow = \"notes\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n[[renamed]]\nmodule = \"notes\"\nnow = \"stop\"\nsince = \"0.0.2\"\nuntil = \"99.0.0\"\n",
         )
     }
 }
@@ -459,7 +459,7 @@ impl Program for Removing {
     }
     fn history(&self) -> History {
         history_of(
-            "[[removed]]\nmodule = \"memory\"\nwhy = \"Use lnk stop.\"\nsince = \"0.2.0\"\nuntil = \"99.0.0\"\n",
+            "[[removed]]\nmodule = \"memory\"\nwhy = \"Use lnk stop.\"\nsince = \"0.0.2\"\nuntil = \"99.0.0\"\n",
         )
     }
 }
@@ -477,7 +477,7 @@ fn a_removed_module_is_answered_by_name_with_why() {
         assert_eq!(report.exit, link_format::Exit::Usage);
         let said = refused_text(&report);
         assert!(
-            said.contains("memory module is removed since 0.2.0"),
+            said.contains("memory module is removed since 0.0.2"),
             "{said}"
         );
         assert!(said.contains("Use lnk stop."), "{said}");
@@ -488,7 +488,7 @@ fn a_removed_module_is_answered_by_name_with_why() {
 #[test]
 fn a_declared_replacements_placeholder_stays_one() {
     let history = history_of(
-        "[[gone]]\nwas = \"start --model\"\nnow = \"lnk start --variables.<name>\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n",
+        "[[gone]]\nwas = \"start --model\"\nnow = \"lnk start --variables.<name>\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n",
     );
     let report = retired_report(
         &history,
@@ -535,7 +535,7 @@ impl Program for Stepped {
     fn binding(&self, words: &[String]) -> Option<Binding> {
         let format = crate::schema::Format::parse(
             "schema = 1\nkind = 'k'\ncurrent = 2\ncommand = 'lnk k spec show --spec'\n\
-             [[steps]]\nfrom = 1\nsince = '0.1.0'\nuntil = '99.0.0'\nrename = { 'model.name' = 'model.thinking' }\n",
+             [[steps]]\nfrom = 1\nsince = '0.0.1'\nuntil = '99.0.0'\nrename = { 'model.name' = 'model.thinking' }\n",
         )
         .unwrap();
         (words == ["start"]).then(|| Binding {
@@ -597,7 +597,7 @@ impl Program for Namespaced {
     }
     fn history(&self) -> History {
         history_of(
-            "[[gone]]\nwas = \"agent allow --read\"\nnow = \"lnk agent permission add --files.read\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n[[gone]]\nwas = \"agent allow\"\nnow = \"lnk agent permission add\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n",
+            "[[gone]]\nwas = \"agent allow --read\"\nnow = \"lnk agent permission add --files.read\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n[[gone]]\nwas = \"agent allow\"\nnow = \"lnk agent permission add\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n",
         )
     }
     fn namespace(&self) -> Option<&str> {
@@ -670,7 +670,7 @@ impl Program for Retiring {
     }
     fn history(&self) -> History {
         history_of(
-            "[[gone]]\nwas = \"agent add --agent\"\nnow = \"lnk agent add --member\"\nsince = \"0.1.0\"\nuntil = \"99.0.0\"\n",
+            "[[gone]]\nwas = \"agent add --agent\"\nnow = \"lnk agent add --member\"\nsince = \"0.0.1\"\nuntil = \"99.0.0\"\n",
         )
     }
     fn namespace(&self) -> Option<&str> {

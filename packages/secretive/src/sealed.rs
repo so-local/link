@@ -292,9 +292,29 @@ impl Recipient {
         sealed: &Sealed<T>,
         about: &About,
     ) -> Result<T, Refused> {
-        if sealed.about != *about {
+        self.open_sealed_within(sealed, about, about.version)
+    }
+
+    /// What `sealed` holds, as [`Recipient::open_sealed`] opens it, but
+    /// sealed at any version of its format from `oldest` to `about`'s,
+    /// the current one: a format's owner declares both, so a value sealed
+    /// before its format changed still opens, and its owner seals it
+    /// again at the current one ([`Sealed::about`] says which it was).
+    /// Its version is sealed with it, so none passes as another.
+    pub fn open_sealed_within<T: Sealable>(
+        &self,
+        sealed: &Sealed<T>,
+        about: &About,
+        oldest: u32,
+    ) -> Result<T, Refused> {
+        let at = &sealed.about;
+        if at.owner != about.owner
+            || at.kind != about.kind
+            || !(oldest..=about.version).contains(&at.version)
+        {
             return Err(Refused);
         }
+        let about = at;
         let enc = from_base64(&sealed.enc)?;
         let enc = <Kem as hpke::Kem>::EncappedKey::from_bytes(&enc).map_err(|_| Refused)?;
         let data = from_base64(&sealed.data)?;
@@ -524,6 +544,54 @@ mod tests {
         data[0] ^= 1;
         bent.data = base64(&data);
         assert_eq!(recipient.open_sealed(&bent, &about()), Err(Refused));
+    }
+
+    /// A value sealed at an older version of its format opens while its
+    /// owner still declares that version, and never as a newer one.
+    #[test]
+    fn a_value_sealed_at_an_older_version_opens_within_its_oldest() {
+        let recipient = Recipient::new();
+        let secret = Secret::new("sk-ant-hunter2".to_string());
+        let current = About {
+            version: 2,
+            ..about()
+        };
+        let sealed = Sealed::seal(&secret, recipient.seal_to(), about()).unwrap();
+        // Exactly as `about` says: an older one isn't it.
+        assert_eq!(recipient.open_sealed(&sealed, &current), Err(Refused));
+        assert_eq!(
+            recipient.open_sealed_within(&sealed, &current, 1).unwrap(),
+            secret
+        );
+        assert_eq!(sealed.about().version, 1);
+        // Past its oldest, refused.
+        assert_eq!(
+            recipient.open_sealed_within(&sealed, &current, 2),
+            Err(Refused)
+        );
+        // One that says it's newer than it was sealed doesn't open.
+        let wire = serde_json::to_string(&sealed)
+            .unwrap()
+            .replace("\"version\":1", "\"version\":2");
+        let relabelled: Sealed<Secret> = serde_json::from_str(&wire).unwrap();
+        assert_eq!(
+            recipient.open_sealed_within(&relabelled, &current, 1),
+            Err(Refused)
+        );
+        // Nor one sealed at a version newer than the current.
+        let newer = Sealed::seal(
+            &secret,
+            recipient.seal_to(),
+            About {
+                version: 3,
+                ..about()
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            recipient.open_sealed_within(&newer, &current, 1),
+            Err(Refused)
+        );
     }
 
     #[test]

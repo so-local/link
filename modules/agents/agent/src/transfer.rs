@@ -49,7 +49,7 @@ pub use link_agent_contract::moving::PROTOCOL;
 pub use link_agent_contract::moving::Phase;
 mod archiving;
 mod indexes;
-mod landing;
+pub(crate) mod landing;
 mod receiving;
 mod restoring;
 mod settling;
@@ -313,13 +313,16 @@ fn write(
     seal_to: Option<&link_secretive::SealTo>,
     stores: Option<&stores::Stores>,
 ) -> anyhow::Result<()> {
-    if let (Phase::Switch, Some(to)) = (manifest.phase, seal_to) {
-        let mut sealed = link_secretive::stream::Sender::new(out, to, stream::stream_about())?;
-        write_tar(&mut sealed, manifest, parts, have, stores)?;
-        sealed.finish()?;
-        Ok(())
-    } else {
-        write_tar(out, manifest, parts, have, stores)
+    match (manifest.phase, seal_to) {
+        (Phase::Switch, Some(to)) => {
+            let mut sealed = link_secretive::stream::Sender::new(out, to, stream::stream_about())?;
+            write_tar(&mut sealed, manifest, parts, have, stores)?;
+            sealed.finish()?;
+            Ok(())
+        }
+        // A switch carries the agent's secrets: never written unsealed.
+        (Phase::Switch, None) => anyhow::bail!("a switch needs its receiver's public key"),
+        _ => write_tar(out, manifest, parts, have, stores),
     }
 }
 

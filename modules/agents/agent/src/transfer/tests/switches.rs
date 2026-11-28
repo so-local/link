@@ -92,9 +92,11 @@ fn an_agent(dir: &Path) -> Parts {
     }
 }
 
+/// A stream of `phase`, unsealed whatever its phase: as a hostile sender
+/// would write a switch, which `write` never does.
 fn stream_of(phase: Phase, parts: &Parts, have: &Have) -> Vec<u8> {
     let mut out = Vec::new();
-    write(&mut out, manifest_for(phase), parts, have, None, None).unwrap();
+    write_tar(&mut out, manifest_for(phase), parts, have, None).unwrap();
     out
 }
 
@@ -112,7 +114,26 @@ fn a_switchs_secrets_cross_only_sealed_to_its_receiver() {
         let mut manifest = manifest_for(Phase::Switch);
         manifest.bucket = Some(serde_json::json!({"password": "hunter2-password"}));
         let mut out = Vec::new();
-        write(&mut out, manifest, &parts, &Have::new(), seal_to, None).unwrap();
+        match seal_to {
+            Some(_) => write(&mut out, manifest, &parts, &Have::new(), seal_to, None).unwrap(),
+            None => {
+                // Never written unsealed by Link: a hostile sender's.
+                let refused = write(
+                    &mut Vec::new(),
+                    manifest_for(Phase::Switch),
+                    &parts,
+                    &Have::new(),
+                    None,
+                    None,
+                )
+                .unwrap_err();
+                assert!(
+                    format!("{refused:#}").contains("a switch needs its receiver's public key"),
+                    "{refused:#}"
+                );
+                write_tar(&mut out, manifest, &parts, &Have::new(), None).unwrap()
+            }
+        }
         out
     };
     let receiver = link_secretive::Recipient::new();
@@ -476,7 +497,7 @@ fn a_switch_carries_its_schedules_identities() {
 #[test]
 fn a_manifest_reads_with_or_without_connections() {
     let old = r#"{"format": 4, "phase": "switch",
-            "move": "0123456789abcdef0123456789abcdef", "version": "0.11.0",
+            "move": "0123456789abcdef0123456789abcdef", "version": "0.0.1",
             "agent": {"workload": "agent:a1b2c3d4e5f6", "name": "main"}, "harness": "fake",
             "model": null,
             "state": {"include": ["~/.fake"], "exclude": []}}"#;
@@ -496,7 +517,7 @@ fn a_manifest_reads_with_or_without_connections() {
     }
     // A copy's: the agent and its harness alone.
     let copy = r#"{"format": 4, "phase": "copy",
-            "move": "0123456789abcdef0123456789abcdef", "version": "0.15.0",
+            "move": "0123456789abcdef0123456789abcdef", "version": "0.0.5",
             "agent": {"workload": "agent:a1b2c3d4e5f6", "name": "main"}, "harness": "fake"}"#;
     let copy = read_text(copy).unwrap();
     assert_eq!(copy.phase, Phase::Copy);
@@ -705,4 +726,42 @@ fn a_teams_folder_is_derived_again_where_it_arrives() {
     assert_eq!(given.spec.teams["design"], notes);
     assert!(!given.spec.teams.contains_key("old"));
     assert!(left_out.is_empty());
+}
+
+/// Staging a stream unpacked a folder of without write permission into is
+/// removed whole, and a link in it is removed, never followed.
+#[test]
+fn a_failed_receive_leaves_no_staging() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = temp("no-staging");
+    let staging = dir.join("staging");
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(staging.join("connections/signal/data")).unwrap();
+    std::fs::create_dir_all(&outside).unwrap();
+    std::fs::write(outside.join("kept"), "not staging's").unwrap();
+    std::fs::write(staging.join("connections/signal/data/keys"), "linked").unwrap();
+    std::os::unix::fs::symlink(&outside, staging.join("connections/out")).unwrap();
+    for folder in ["connections/signal/data", "connections/signal"] {
+        std::fs::set_permissions(staging.join(folder), std::fs::Permissions::from_mode(0o500))
+            .unwrap();
+    }
+    remove_staging(&staging);
+    assert!(!staging.exists());
+    assert_eq!(
+        std::fs::read_to_string(outside.join("kept")).unwrap(),
+        "not staging's"
+    );
+}
+
+/// A stream naming no service keeps the one here, whose secrets are kept
+/// by it; one naming its service brings it.
+#[test]
+fn a_stream_without_a_service_keeps_the_local_one() {
+    let here = Some("service:abcdef123456".to_string());
+    assert_eq!(service_after(None, &here), here);
+    assert_eq!(
+        service_after(Some("service:fedcba654321"), &here).as_deref(),
+        Some("service:fedcba654321")
+    );
+    assert_eq!(service_after(None, &None), None);
 }

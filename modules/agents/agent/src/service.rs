@@ -155,6 +155,11 @@ pub struct Calendar {
 
 link_files::specification!(Calendar, include_str!("service/calendar.schema.toml"));
 
+/// Each agent's scheduler calendar, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Calendar>()
+}
+
 /// Keeps how to take away the calendar entry waking agent `agent`'s
 /// scheduler: `remove`, its command line.
 pub fn keep_calendar(agent: &str, remove: Vec<String>) -> anyhow::Result<()> {

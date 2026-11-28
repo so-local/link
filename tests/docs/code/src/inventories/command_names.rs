@@ -8,8 +8,9 @@ use link_docs_check::Tree;
 use super::{Items, entry};
 
 pub const COMMANDS: &str =
-    "modules/agents/harnesses/link/docs/agents/link/commands/namespace-commands.md";
-pub const ALIASES: &str = "modules/agents/harnesses/link/docs/agents/link/commands/aliases.md";
+    "modules/agents/harnesses/link/docs/agents/harnesses/link/commands/namespace-commands.md";
+pub const ALIASES: &str =
+    "modules/agents/harnesses/link/docs/agents/harnesses/link/commands/aliases.md";
 
 fn collect(
     commands: &mut Items,

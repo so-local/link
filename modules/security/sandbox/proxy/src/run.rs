@@ -104,7 +104,14 @@ impl Drop for Group {
         if self.id > 1 {
             // SAFETY: only this run's group. In particular, never group -1.
             unsafe { libc::kill(-self.id, libc::SIGKILL) };
+            // Its leader reaped, where it isn't yet: only once it has ended
+            // is what it left running this process's child, to end below.
+            // SAFETY: waits for this run's own child, the group's leader;
+            // one already reaped answers at once.
+            unsafe { libc::waitpid(self.id, std::ptr::null_mut(), 0) };
         }
+        // And what its program left outside its group, handed here.
+        link_secretive::process::end_left(link_sandbox_contract::constants::BUBBLEWRAP);
         if let Some(ours) = self.terminal {
             foreground_group(ours);
         }
@@ -205,6 +212,44 @@ pub async fn run_with_dns(argv: &[String], bwrap: usize, filter: Filter) -> anyh
     Ok(status.code().unwrap_or(1))
 }
 
+/// Whether a program started now would own this process's terminal: its
+/// input is one, and this process's group is the terminal's foreground,
+/// as an interactive run is.
+pub fn owns_terminal() -> bool {
+    // SAFETY: these calls only inspect process and terminal identity.
+    unsafe {
+        libc::isatty(libc::STDIN_FILENO) == 1
+            && libc::tcgetpgrp(libc::STDIN_FILENO) == libc::getpgrp()
+    }
+}
+
+/// On macOS, starts `command` in a session of its own (`setsid`), with
+/// no controlling terminal, where it doesn't own this process's terminal
+/// ([`owns_terminal`]): it then can't type into the caller's shell
+/// (`TIOCSTI` on `/dev/tty`), which Seatbelt doesn't stop. Linux's
+/// bubblewrap does the same (`--new-session`); an interactive run, in
+/// the terminal's foreground, keeps it. Whether it does: a session of
+/// its own is a group of its own too.
+pub fn own_session(command: &mut std::process::Command) -> bool {
+    if !cfg!(target_os = "macos") || owns_terminal() {
+        return false;
+    }
+    new_session(command);
+    true
+}
+
+/// `command` started as the leader of a session of its own.
+fn new_session(command: &mut std::process::Command) {
+    use std::os::unix::process::CommandExt;
+    // SAFETY: setsid is async-signal-safe; its error is the start's.
+    unsafe {
+        command.pre_exec(|| match libc::setsid() {
+            -1 => Err(std::io::Error::last_os_error()),
+            _ => Ok(()),
+        });
+    }
+}
+
 /// `argv` as a command, its limit of open files as this process's was.
 fn command(argv: &[String]) -> anyhow::Result<tokio::process::Command> {
     let (program, args) = argv.split_first().context("nothing to run")?;
@@ -223,6 +268,35 @@ fn command(argv: &[String]) -> anyhow::Result<tokio::process::Command> {
     // The listener its proxy was handed is the proxy's alone: its
     // program never learns of it ([`crate::listen::handed`]).
     command.env_remove(link_sandbox_client::HELD_LISTENER_ENV);
-    command.args(args).process_group(0).kill_on_drop(true);
+    command.args(args).kill_on_drop(true);
+    // A group of its own, in a session of its own where it doesn't own
+    // the terminal (macOS: [`own_session`]).
+    if !own_session(command.as_std_mut()) {
+        command.process_group(0);
+    }
     Ok(command)
+}
+
+#[cfg(test)]
+mod tests {
+    /// A run started in a session of its own leads it, with no
+    /// controlling terminal to type into: its session's ID is its own.
+    #[test]
+    #[cfg(target_os = "linux")]
+    fn a_run_in_a_session_of_its_own_never_types_into_its_terminal() {
+        let home = link_test_kit::TempDir::new("session");
+        let mut command = link_test_kit::env::command("/bin/sh", &home);
+        command.args(["-c", "exec cat /proc/self/stat"]);
+        super::new_session(&mut command);
+        let output = command.output().unwrap();
+        assert!(output.status.success());
+        let stat = String::from_utf8(output.stdout).unwrap();
+        // `pid (name) state ppid pgrp session ...`, after the name.
+        let pid = stat.split_whitespace().next().unwrap();
+        let fields: Vec<&str> = stat[stat.rfind(')').unwrap() + 2..]
+            .split_whitespace()
+            .collect();
+        assert_eq!(fields[3], pid, "a session of its own: {stat}");
+        assert_eq!(fields[2], pid, "a group of its own: {stat}");
+    }
 }

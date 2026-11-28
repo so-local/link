@@ -10,12 +10,12 @@ lnk agent tool add browser
 
 It installs the `browser-tool` module if it's missing, defines the tool for this
 agent alone, and restarts your agent with it; `--agent <name>` picks
-another agent, and its first [`lnk agent start`](../../../../../../agent/docs/agents/README.md#create-an-agent) offers it too. `lnk
+another agent, and its first [`lnk agent start`](../../../../../../agent/docs/agents/README.md#start-your-agent) offers it too. `lnk
 agent tool remove browser` takes it away; its profile stays.
 
 ### In its specification
 
-[`lnk agent tool add browser`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) also writes `enabled = true` under
+[`lnk agent tool add browser`](../../../../../../agent/docs/agents/README.md#tools) also writes `enabled = true` under
 `[tool.browser]` in the agent's specification, and `remove` writes `false`. An
 agent whose specification says it, such as one imported from an archive, gets
 its browser at its next start wherever it runs, [its module installed if
@@ -183,7 +183,7 @@ A page's address, title, and text, what its dialogs say, and a download's name e
 
 ## Its sandbox
 
-The browser starts at the first call, headless, in a sandbox of its own, which [`lnk sandbox run`](../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) makes. It reads its own program, writes only its profile,
+The browser starts at the first call, headless, in a sandbox of its own, which [`lnk sandbox run`](../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) makes. It reads its own program, writes only its profile,
 and reaches the internet hosts the agent's `[internet] hosts` name
 through the sandbox's proxy. It reaches nothing else on this computer or
 your network, however a page asks: a link, a redirect, or a script, but

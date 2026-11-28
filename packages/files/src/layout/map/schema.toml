@@ -1,7 +1,7 @@
 schema = 1
 kind = "map"
 current = 1
-command = "lnk folder set"
+command = "lnk location set"
 
 [[files]]
 location = "lnk.map"

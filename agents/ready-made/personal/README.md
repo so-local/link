@@ -2,13 +2,7 @@
 
 Personal Assistant is a ready-made agent, named `personal`, that learns
 about you, keeps your lists and reminders, and plans your day. The full
-guide is [Personal Assistant](../../../modules/agents/agent/docs/agents/ready-made/personal.md) in Local Link's docs.
-
-## How Far Personal Assistant Goes
-
-Personal Assistant is an example we've worked with and think works.
-Shape its skills and instructions to what you want kept and how you like
-reminders.
+guide is [Personal Assistant](../../docs/agents/ready-made/personal.md) in Local Link's docs.
 
 ## Who Personal Assistant Is For
 
@@ -25,20 +19,21 @@ Personal Assistant runs on Link Harness and stays awake, so reminders
 fire without you. Its model is Link's default, `claude-haiku-5-5` on
 Anthropic, the current Haiku.
 
-- **Tools:** file, scheduler, memory, web, Link MCP, run for `sh` alone, and a browser of its own that needs Chromium, Google Chrome, Microsoft Edge, or Brave.
+- **Tools:** file, scheduler, memory, web, and a browser of its own that needs Chromium, Google Chrome, Microsoft Edge, or Brave.
 - **Skills:** `learn-about-you`, `recall`, `remind`, `plan-day`, `lists`, and `weekly-review`.
-- **Home:** `about-me.md`, `people.md`, `work.md`, `health.md`, `home.md`, `money.md`, `interests.md`, `routines.md`, `dates.md`, `lists/`, and `notes/`.
+- **Home:** `about-me.md`, `people.md`, `work.md`, `health.md`, `home.md`, `money.md`, `interests.md`, `routines.md`, `dates.md`, `reminders.md`, `lists/`, and `notes/`.
 
 ## Bring Personal Assistant In
 
 Download `link-personal.tar.gz` from Local Link's
-[latest release](https://github.com/so-local/link-releases/releases/latest), then import it. Import checks the whole
+[latest release](https://github.com/so-local/link-releases/releases/latest), then import it from the folder you saved it in.
+Import checks the whole
 archive, asks whether to keep the name `personal`, and places the agent in
 `~/Link/Agents/personal/`, with its settings in `~/Link/Safe/Agents/personal/`.
 Nothing is installed, connected, or started until you say so.
 
 ```sh
-lnk archive import ~/Downloads/link-personal.tar.gz
+lnk archive import link-personal.tar.gz
 ```
 
 From a checkout of Local Link's repository, pack this folder as the
@@ -94,7 +89,7 @@ lnk agent show --agent personal --permissions
 
 ## Make Personal Assistant Your Own
 
-An imported agent is yours. Edit its standing instructions in
+**Personal Assistant learns the life you live.** An imported agent is yours. Edit its standing instructions in
 `~/Link/Agents/personal/agent/instructions/instruction.md`, or ask the agent
 to, since its sandbox writes them. Add or remove skills and tools, and
 change one key of its specification with a field flag on
@@ -107,7 +102,7 @@ lnk agent spec show personal
 ```
 
 A part of your life the Home lacks is a new file, with a line in the Home's `README.md` saying what it holds.
-[Make an Agent Your Own](../../../modules/agents/agent/docs/agents/ready-made/README.md#make-an-agent-your-own)
+[Make an Agent Your Own](../../docs/agents/ready-made/README.md#make-an-agent-your-own)
 covers each change, and
 [Share an Agent](../../../modules/agents/agent/docs/agents/share/export.md#share-your-agent)
 shows how to export your version for others.

@@ -38,7 +38,7 @@ esac
 /// and its `connect` refusing the bot agent main has.
 const TELEGRAM: &str = r#"#!/bin/sh
 case "$1" in
-  describe) echo '{"title":"Telegram","secret_fields":["bot_token"],"bridged":true,"hosts":["api.telegram.org"]}' ;;
+  describe) echo '{"protocol": 1, "title":"Telegram","secret_fields":["bot_token"],"bridged":true,"hosts":["api.telegram.org"]}' ;;
   rule) echo '{"field":"bot_token","root":"api_root","host":"api.telegram.org","paths":[{"prefix":"bot{secret}/","rest":"name"},{"prefix":"file/bot{secret}/","rest":"path"}],"refuse":["bot{secret}/setwebhook","bot{secret}/logout","bot{secret}/close"],"methods":["GET","POST"],"public":":"}' ;;
   connect)
     case "$*" in
@@ -52,7 +52,7 @@ esac
 
 /// A Slack module, as `lnk-slack describe` answers.
 const SLACK: &str = r#"#!/bin/sh
-[ "$1" = describe ] && { echo '{"title":"Slack","secret_fields":["bot_token","app_token"],"bridged":true}'; exit 0; }
+[ "$1" = describe ] && { echo '{"protocol": 1, "title":"Slack","secret_fields":["bot_token","app_token"],"bridged":true}'; exit 0; }
 exit 1
 "#;
 
@@ -311,7 +311,7 @@ fn a_new_agent_writes_out_links_behavior() {
     let fresh: toml::Table = spec("fresh").parse().unwrap();
     assert_eq!(
         fresh["behavior"]["instructions"]["repository"].as_str(),
-        Some("link")
+        Some("none")
     );
     let printed = ok(&world.lnk(&["spec", "show", "fresh"]));
     assert!(printed.contains("repository"), "{printed}");
@@ -341,7 +341,7 @@ fn a_new_agent_writes_out_links_behavior() {
     assert_eq!(given["behavior"]["turns"]["rounds"].as_integer(), Some(3));
     assert_eq!(
         given["behavior"]["instructions"]["repository"].as_str(),
-        Some("link")
+        Some("none")
     );
     assert!(!spec("programmer").contains("extends ="));
 }
@@ -421,8 +421,8 @@ fn two_agents_on_one_machine_stay_apart() {
         assert!(!world.lnk(&["create", bad]).status.success(), "{bad}");
     }
 
-    // With two, a command needs -a.
-    assert!(failed(&world.lnk(&["show"])).contains("-a <name>"));
+    // With two, a command needs --agent.
+    assert!(failed(&world.lnk(&["show"])).contains("--agent <name>"));
     let status = world.lnk(&["-a", "moltbot-2", "show", "--json"]);
     let status: serde_json::Value = serde_json::from_slice(&status.stdout).unwrap();
     link_test_kit::ids::assert_named(&status);
@@ -630,14 +630,7 @@ fn a_sealed_secret_is_refused_in_a_shared_harness() {
     }
     link_test_kit::write_program(&world.bin.join("lnk-sharer"), SHARER).unwrap();
     ok(&world.start("main", &["create", "main", "--harness", "sharer"]));
-    std::fs::write(
-        world.home.join(".lnk/safe/agents/policy.toml"),
-        format!(
-            "{}\nshared_harness = true\n",
-            read(&world.home.join(".lnk/safe/agents/policy.toml"))
-        ),
-    )
-    .unwrap();
+    crate::common::add_policy(&world.home, "shared_harness = true\n");
     let identity = crate::common::record(&world.home, "main", "identity.toml");
     let (service, id) = (
         identity["service"].as_str().unwrap(),
@@ -975,6 +968,7 @@ fn a_harness_installed_in_the_home_folder_runs() {
     assert!(err.contains("is, holds or is in"), "{err}");
 }
 
+mod first_start;
 mod flags;
 mod ids;
 mod ports;

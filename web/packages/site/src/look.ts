@@ -178,7 +178,7 @@ export function cardsWidth(screen: number, page: number): number {
  * its width, from `least` to `most` pixels, with `top` pixels above it
  * and `below` ems under it.
  */
-export const brand = { name: "local.link", least: 26, most: 32, share: 0.03, line: 1.2, tracking: -0.055, weight: "semibold", ink: "zinc-900", flower: 1.125, gap: 8, top: 24, below: 0.225 } as const;
+export const brand = { name: "local.link", home: "https://www.local.link", least: 26, most: 32, share: 0.03, line: 1.2, tracking: -0.055, weight: "semibold", ink: "zinc-900", flower: 1.125, gap: 8, top: 24, below: 0.225 } as const;
 
 /** A paint as CSS: a hex color, or `rgba()` at its opacity. */
 export function paint(p: Paint): string {

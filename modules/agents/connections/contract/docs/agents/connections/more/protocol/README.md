@@ -29,7 +29,7 @@ its [`types.toml`](../../../../../types.toml). Each connection lists the
 ones it answers under `[implements]` in its own `actions.toml`, and its
 command line is generated from that, so every connection reads its
 command the same way. Unknown commands, flags, and extra operands are
-refused before stdin is read. [`lnk agent connect`](../../../../../../../agent/docs/agents/README.md#connect-your-channels) builds `connect`'s
+refused before stdin is read. [`lnk agent connect`](../../../../../../../agent/docs/agents/connections/connect/README.md#choose-an-app) builds `connect`'s
 command line from the same declaration
 (`link_connection_contract::declared::ConnectionConnectArgs`).
 
@@ -39,6 +39,26 @@ Each answer is written as its declared type, so one its declaration
 refuses is an error, never printed. `sift` and `hold` print one of
 their items a line, a `verdict` and a `held-line`, and `bridge` prints
 nothing.
+
+### Its Version
+
+The connection protocol has a version, declared in the contract crate's
+[`protocol.toml`](../../../../../src/connection/protocol.toml) as
+`link_connection_contract::PROTOCOL`. Each line a module reads on stdin
+that holds a `Bridge` (`bridge`, `link`, `owner`, `send`, `take` and
+`receive`) and each answer of `connect`, `describe` and `rule` states it
+as `protocol` beside its own keys (`link_connection_contract::stated`).
+Its reader (`link_connection_contract::read`) takes `protocol` out first
+and refuses a line that states none, or a version older than the oldest
+it accepts or newer than its own, naming [`lnk upgrade`](../../../../../../../../../docs/more/modules/guide.md#upgrade).
+
+### Unknown Keys
+
+After `protocol`, its reader reads
+the rest and refuses a key it doesn't know, so a newer field is never
+dropped unread. A rule's own keys are the one exception: they're read
+beside the secret's route, which takes the keys the rule doesn't name,
+so the rule's writer is held to its declared shape instead.
 
 ## Connect and describe
 
@@ -50,7 +70,7 @@ Asks for the connection's token, from its `LNK_<CONNECTION>_...` variables
 or else on the terminal, its questions on stderr. It refuses a bot in
 `--taken` (`[{"id", "agent", "machine"?}]`, the bots other agents have,
 here and running on boxes, `[]` when it's left out), and pairs whoever sends the bot its
-one-time code. Read by [`lnk agent connect`](../../../../../../../agent/docs/agents/README.md#connect-your-channels), which stops the agent
+one-time code. Read by [`lnk agent connect`](../../../../../../../agent/docs/agents/README.md#talk-to-your-agent), which stops the agent
 meanwhile, keeps the settings and starts it again.
 
 #### What it prints
@@ -195,7 +215,7 @@ connection's account as a device into its `state`, from a QR code on
 stdout. It exits 0 at once when it's linked already (`--again`: links
 it anew), and 10, [`NOT_LINKED`](../../../../../../../harnesses/portability/contract/base/docs/agents/harnesses/more/vocabulary/base.md#a-link-not-made), when it isn't and
 stdout is no terminal. Read by
-`lnk-agent` in `lnk agent connect` and [`lnk agent start`](../../../../../../../agent/docs/agents/README.md#create-an-agent), for a harness
+`lnk-agent` in `lnk agent connect` and [`lnk agent start`](../../../../../../../agent/docs/agents/README.md#start-your-agent), for a harness
 with an `endpoint`.
 
 ### `lnk-<connection> state`

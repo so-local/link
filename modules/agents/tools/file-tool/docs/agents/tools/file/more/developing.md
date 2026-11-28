@@ -34,11 +34,11 @@ on a machine and through the files bridge alike.
 ### Its sandboxed process
 
 It touches no file: it starts `<command>` at the first call, which Link
-makes [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) with the sandbox file's flags, then
+makes [`lnk sandbox run`](../../../../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) with the sandbox file's flags, then
 `lnk-file-tool apply --files <folder> --agent-folder <folder> --write
 <folder>...`, and keeps it for the session (`Sandboxed`,
 `src/sandboxed.rs`). `--whole` stands for the whole files folder, `.`,
-which [`lnk sandbox tool add`](../../../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside) would refuse as a path from here.
+which [`lnk sandbox tool add`](../../../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside) would refuse as a path from here.
 
 ### Each call
 

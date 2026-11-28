@@ -16,7 +16,7 @@ mod copying;
 mod hosts;
 mod sessions;
 pub use copying::{copy, open_unlinked, remote_folder};
-use hosts::{adopt, at, known_hosts};
+use hosts::{adopt, at};
 pub use hosts::{alias, forget, key, pin, public_key};
 use sessions::{Shared, shared};
 pub use sessions::{

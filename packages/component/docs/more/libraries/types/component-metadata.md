@@ -55,7 +55,7 @@ format's check.
 
 An action's `diagnoses` is the kind of name (`agent`, `box`) its command
 diagnoses: given one, `<command> <name> --json` answers that name's
-state as typed blocks, the same a person sees, and [`lnk issue create`](../../../../../../docs/more/modules/guide.md#get-help) puts it
+state as typed blocks, the same a person sees, and [`lnk issue create`](../../../../../../core/cli/docs/tooling/issue.md#report-a-bug) puts it
 in an issue scrubbed. Each kind has one; an end-to-end test holds the
 contract, with the kinds no command diagnoses yet on a list that may
 shrink, never grow.

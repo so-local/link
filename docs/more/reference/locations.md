@@ -5,7 +5,7 @@ This page explains why there are two folders, how each is split so no
 agent can change what steers it, and where every location is.
 
 ```sh
-lnk folder list
+lnk location list
 ```
 
 ## Two Folders
@@ -133,7 +133,7 @@ four, at the same path in each part:
 ```
 
 Each part keeps only the files that fit its kind, so the four folders
-hold different files. [Agent Files](../../../modules/agents/agent/docs/agents/more/settings/files.md)
+hold different files. [Agent Files](../../../modules/agents/agent/docs/agents/state/files.md)
 lists what an agent keeps in each, and the
 [Secrets guide](../../../modules/security/secret/docs/config/secrets/README.md#where-a-secret-is-kept)
 says where a secret's value goes.
@@ -182,17 +182,9 @@ as it is. The map itself always stays at the same path.
 
 ### Set a Location
 
-`lnk folder set` moves a location and everything inside it, then
-updates the map. Here the Link folder moves into `Documents`:
-
-```sh
-lnk folder set link ~/Documents/Link
-```
-
-When you already moved the files yourself, the same command points Local
-Link at their new place. When the Link folder isn't where the map says,
-the next `lnk` command asks where it went, or whether to make a new one
-with `lnk folder create`. Local Link never searches the disk for it.
+[`lnk location set`](../../../core/cli/docs/config/locations.md#set-a-location)
+moves a location and everything inside it, then updates the map, and
+points Local Link at files you moved yourself.
 
 ### Paths in a Moved Link Folder
 
@@ -322,7 +314,7 @@ use the package manager's records to identify what it installed.
 
 Each entry is a location in [`layout.toml`](../../../packages/files/layout.toml): its
 default path, its kind, its owner and its ID in the map. Paths are the
-defaults a new machine starts with, and `lnk folder list` shows this
+defaults a new machine starts with, and [`lnk location list`](../../../core/cli/docs/config/locations.md#list-the-locations) shows this
 machine's.
 
 <!-- inventory:layout:start -->
@@ -337,7 +329,7 @@ machine's.
 - `~/.lnk/data/bundles`: data, bundles', location `lnk.bundles`
 - `~/.lnk/data/harnesses/claude`: data, harnesses', location `lnk.claude`
 - `~/.lnk/data/harnesses/codex`: data, harnesses', location `lnk.codex`
-- `~/.lnk/data/harnesses/configured`: data, harnesses', location `lnk.configured`
+- `~/.lnk/data/harnesses/configured`: data, harnesses', location `lnk.harness-configured`
 - `~/.lnk/data/harnesses/openclaw/doctor-release`: data, harnesses', location `lnk.openclaw-doctor-release`
 - `~/.lnk/data/measures/measures.jsonl`: data, measures', location `lnk.harness-measure-log`
 - `~/.lnk/data/models/context`: data, models', location `lnk.model-context`
@@ -354,6 +346,7 @@ machine's.
 - `~/.lnk/safe/agents/bridges`: control, agents', location `lnk.shared-bridges`
 - `~/.lnk/safe/agents/credentials`: control, agents', location `lnk.agent-credentials`
 - `~/.lnk/safe/agents/environments`: control, agents', location `lnk.agent-environments`
+- `~/.lnk/safe/agents/group-ids.toml`: control, agents', location `lnk.group-ids`
 - `~/.lnk/safe/agents/harness-grants`: control, agents', location `lnk.harness-grants`
 - `~/.lnk/safe/agents/ids.toml`: control, agents', location `lnk.agent-ids`
 - `~/.lnk/safe/agents/installations`: control, agents', location `lnk.installations`
@@ -397,8 +390,8 @@ machine's.
 - `~/.lnk/safe/releases`: control, Link's own, location `lnk.releases`
 - `~/.lnk/safe/sandboxes/grants`: control, sandboxes', location `lnk.sandbox-grants`
 - `~/.lnk/safe/sandboxes`: control, sandboxes', location `lnk.sandboxes`
-- `~/.lnk/safe/secrets/preferences.toml`: control, secrets', location `lnk.secret-preferences`
 - `~/.lnk/safe/secrets/secrets.toml`: control, secrets', location `lnk.secrets`
+- `~/.lnk/safe/secrets/settings.toml`: control, secrets', location `lnk.secret-settings`
 - `~/.lnk/safe/services`: control, Link's own, location `lnk.services`
 - `~/.lnk/safe/settings.toml`: control, Link's own, location `lnk.settings`
 - `~/.lnk/safe/storage`: control, storage', location `lnk.storage`
@@ -427,4 +420,4 @@ machine's.
 A module released apart from Link keeps its folders in `~/.lnk` too,
 in its own folder by its word, and lists them in its own documentation
 rather than here. They aren't on the map, so each stays at its declared
-path in this machine's `~/.lnk`, and `lnk folder set` doesn't move them.
+path in this machine's `~/.lnk`, and `lnk location set` doesn't move them.

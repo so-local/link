@@ -55,7 +55,7 @@ lnk agent spec show
 ### Keep Conversations Through a Driver
 
 Read how conversations stay in local logs, compressed history, or a store
-driver in [Link Harness](../../../../../harnesses/link/docs/agents/link/conversations.md#keep-them-smaller-or-in-a-database).
+driver in [Link Harness](../../../../../harnesses/link/docs/agents/harnesses/link/conversations.md#keep-them-smaller-or-in-a-database).
 
 ## Write a Store Driver
 

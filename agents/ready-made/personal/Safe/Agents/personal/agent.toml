@@ -1,45 +1,31 @@
 # personal: a general assistant that learns about its owner, keeps what
 # it learns in its files folder, and reminds and plans through schedules.
 # Connections (Telegram, Slack and the like) are never in an archive,
-# because their secrets stay on the owner's machine.
+# because their secrets stay on the owner's machine. Only what differs
+# from Link's defaults, where every tool is off, is set here.
 schema = 1
-harness = "link"
-sandbox = true
-awake = true
 # Its memory searches its files and conversations by meaning. Where
 # memory can't be served, it starts without it and says so.
 memory = "link"
 
-[behavior]
-
-# Link MCP, so you can ask it about Local Link: it reads Link's manual
-# and runs Link's declared commands, and a change asks you first.
-[behavior.tool.mcp]
-enabled = true
+# It lives on your phone, so a voice note reaches it, heard by OpenAI's
+# transcription model whatever its provider: that needs an OpenAI key.
+[behavior.connections]
+voice = true
 
 # It keeps what it learns as plain files, so you can read and edit them.
 [behavior.tool.file]
 enabled = true
 
 # Reminders and recurring messages are schedules the agent creates.
+# Owner and agent are the only parties, so a recurring one, such as its
+# morning brief, starts without asking too.
 [behavior.tool.scheduler]
 enabled = true
-# Owner and agent are the only parties, so a schedule starts without
-# asking, a recurring one such as its morning brief too.
-ask = false
 recurring = "allow"
-
-# It runs one program, sh, its sandbox file's only one; code stays off,
-# as Link's defaults have it.
-[behavior.tool.run]
-enabled = true
 
 # A browser of its own, to open, read and fill in pages for you; no
 # desktop. It needs Chromium, Google Chrome, Microsoft Edge or Brave on
 # the machine it runs on.
 [behavior.tool.browser]
 enabled = true
-
-# There is no repository: nothing to read as project instructions.
-[behavior.instructions]
-repository = "none"

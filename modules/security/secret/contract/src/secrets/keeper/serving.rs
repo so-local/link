@@ -150,6 +150,7 @@ pub fn serve_with_routes(
         if let Arrival::Busy = arrival {
             continue;
         }
+        let call = Call::accepted(stream);
         let (root, routes, management) = (root.to_path_buf(), routes.clone(), management.clone());
         std::thread::spawn(move || {
             let admission = match arrival {
@@ -158,8 +159,8 @@ pub fn serve_with_routes(
                 Arrival::Busy => None,
             };
             let result = match admission {
-                Some(_admission) => answer(stream, &root, &routes),
-                None => refuse(stream, BUSY),
+                Some(_admission) => answer(call, &root, &routes),
+                None => refuse(call, BUSY),
             };
             if let Err(err) = result {
                 link_format::daemon::warn!("a call was refused: {err:#}");
@@ -202,14 +203,88 @@ pub fn user_store(root: &Path, uid: u32) -> anyhow::Result<Store> {
     Ok(Store::at(dir.join("secrets.toml")))
 }
 
+/// Removes the store the keeper keeps under `root` for the user whose ID
+/// is `uid`, and the note of whose it is: what `lnk box user remove`
+/// asks, as root, before the user goes, so a user given the name or the
+/// ID later never finds their secrets. None there is no error.
+pub fn remove_user_store(root: &Path, uid: u32) -> anyhow::Result<()> {
+    let dir = root.join(uid.to_string());
+    let store = Store::at(dir.join("secrets.toml"));
+    let _locked = match dir.is_dir() {
+        true => Some(store.lock()?),
+        false => None,
+    };
+    match std::fs::remove_dir_all(&dir) {
+        Err(err) if err.kind() != std::io::ErrorKind::NotFound => {
+            Err(err).with_context(|| format!("removing {}", dir.display()))
+        }
+        _ => Ok(()),
+    }
+}
+
+/// The store of the user `whose`, removed as `asker` asks: root's alone.
+fn remove_asked(asker: u32, root: &Path, whose: u32) -> anyhow::Result<Reply> {
+    anyhow::ensure!(asker == 0, "only root removes another user's secrets");
+    remove_user_store(root, whose)?;
+    Ok(Reply::Done)
+}
+
+/// One connection's call, under its one deadline, [`WAIT`] from its
+/// accept: every read and write of it ends by then, however slowly its
+/// caller writes or reads, so no caller holds a thread longer.
+pub(super) struct Call {
+    stream: UnixStream,
+    until: std::time::Instant,
+}
+
+impl Call {
+    fn accepted(stream: UnixStream) -> Call {
+        Call::until(stream, std::time::Instant::now() + WAIT)
+    }
+
+    fn until(stream: UnixStream, until: std::time::Instant) -> Call {
+        Call { stream, until }
+    }
+
+    /// What's left of its time, or an error once there's none.
+    fn left(&self) -> std::io::Result<Duration> {
+        let left = self
+            .until
+            .saturating_duration_since(std::time::Instant::now());
+        if left.is_zero() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::TimedOut,
+                format!("the call took longer than its {} s", WAIT.as_secs()),
+            ));
+        }
+        Ok(left)
+    }
+}
+
+impl Read for Call {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        self.stream.set_read_timeout(Some(self.left()?))?;
+        self.stream.read(buf)
+    }
+}
+
+impl Write for Call {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.stream.set_write_timeout(Some(self.left()?))?;
+        self.stream.write(buf)
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.stream.flush()
+    }
+}
+
 /// One connection's call, refused unasked with `why`: its request is
 /// read first, so that the reply reaches the caller before the close.
-fn refuse(mut stream: UnixStream, why: &str) -> anyhow::Result<()> {
-    stream.set_read_timeout(Some(WAIT))?;
-    stream.set_write_timeout(Some(WAIT))?;
-    read_line(&mut stream, REQUEST_MAX)?;
+fn refuse(mut call: Call, why: &str) -> anyhow::Result<()> {
+    read_line(&mut call, REQUEST_MAX)?;
     reply(
-        &mut stream,
+        &mut call,
         Reply::Refused {
             error: why.to_string(),
         },
@@ -217,7 +292,7 @@ fn refuse(mut stream: UnixStream, why: &str) -> anyhow::Result<()> {
 }
 
 /// `reply`, written to `stream` as its one line.
-fn reply(stream: &mut UnixStream, reply: Reply) -> anyhow::Result<()> {
+fn reply(stream: &mut impl Write, reply: Reply) -> anyhow::Result<()> {
     let answered = Answered {
         protocol: PROTOCOL.current,
         reply,
@@ -229,11 +304,9 @@ fn reply(stream: &mut UnixStream, reply: Reply) -> anyhow::Result<()> {
 }
 
 /// One connection's call, answered.
-pub(super) fn answer(mut stream: UnixStream, root: &Path, routes: &Routes) -> anyhow::Result<()> {
-    stream.set_read_timeout(Some(WAIT))?;
-    stream.set_write_timeout(Some(WAIT))?;
-    let uid = peer_uid(&stream)?;
-    let line = read_line(&mut stream, REQUEST_MAX)?;
+pub(super) fn answer(mut call: Call, root: &Path, routes: &Routes) -> anyhow::Result<()> {
+    let uid = peer_uid(&call.stream)?;
+    let line = read_line(&mut call, REQUEST_MAX)?;
     let asked = serde_json::from_slice::<Asked<Request>>(line.expose())
         .map_err(|_| anyhow::anyhow!("not a call your secrets' keeper takes"))
         .and_then(|asked| {
@@ -250,6 +323,7 @@ pub(super) fn answer(mut stream: UnixStream, root: &Path, routes: &Routes) -> an
             routes.unbind(uid, &workload, key.as_ref());
             Ok(Reply::Done)
         }
+        Ok(Request::RemoveUser { uid: whose }) => remove_asked(uid, root, whose),
         Ok(request) => user_store(root, uid)
             .and_then(|store| store.answer(request, &Holder::Keeper(PathBuf::new()).kept_by())),
         Err(err) => Err(err),
@@ -257,7 +331,7 @@ pub(super) fn answer(mut stream: UnixStream, root: &Path, routes: &Routes) -> an
     .unwrap_or_else(|err| Reply::Refused {
         error: format!("{err:#}"),
     });
-    reply(&mut stream, replied)
+    reply(&mut call, replied)
 }
 
 #[cfg(test)]
@@ -289,6 +363,100 @@ mod tests {
         let refused = format!("{:#}", user_store(&root, uid).unwrap_err());
         assert!(refused.contains("another user's"), "{refused}");
         assert!(refused.contains("root removes"), "{refused}");
+    }
+
+    /// A caller writing a byte at a time, never its line's end, is cut
+    /// off at its call's one deadline, however often a byte comes.
+    #[test]
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "the caller's pace between bytes is what's tested"
+    )]
+    fn a_call_has_one_deadline_however_slowly_its_caller_writes() {
+        let (theirs, ours) = UnixStream::pair().unwrap();
+        let deadline = Duration::from_millis(300);
+        let started = std::time::Instant::now();
+        let mut call = Call::until(ours, started + deadline);
+        let trickle = std::thread::spawn(move || {
+            let mut theirs = theirs;
+            // Each byte well inside a per-read timeout of the same length,
+            // for four times the deadline or until the keeper hangs up.
+            let pace = Duration::from_millis(20);
+            for _ in 0..(deadline * 4).as_millis() / pace.as_millis() {
+                if theirs.write_all(b"x").is_err() {
+                    break;
+                }
+                std::thread::sleep(pace);
+            }
+        });
+        let refused = read_line(&mut call, REQUEST_MAX).unwrap_err();
+        let took = started.elapsed();
+        assert!(took < deadline * 3, "the call ran {took:?}");
+        let io = refused.downcast::<std::io::Error>().unwrap();
+        // Past its deadline, or the socket's timeout of what was left.
+        assert!(
+            matches!(
+                io.kind(),
+                std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock
+            ),
+            "{io}"
+        );
+        drop(call);
+        trickle.join().unwrap();
+    }
+
+    /// A store past its largest is never written: the store on disk stays
+    /// as it was.
+    #[test]
+    fn a_store_past_its_largest_is_never_written() {
+        let dir = link_test_kit::TempDir::short("keeper-store-max");
+        let store = Store::at(dir.join("secrets.toml"));
+        let add = |value: String| {
+            store.answer(
+                Request::Add {
+                    name: "BIG".into(),
+                    value: Secret::from(value),
+                    sealed: None,
+                    to: Vec::new(),
+                },
+                "",
+            )
+        };
+        add("small".into()).unwrap();
+        let before = std::fs::read(store.file()).unwrap();
+        let refused = add("x".repeat(crate::secrets::stored::STORE_MAX + 1)).unwrap_err();
+        assert!(
+            format!("{refused:#}").contains("would be over"),
+            "{refused:#}"
+        );
+        assert_eq!(std::fs::read(store.file()).unwrap(), before);
+    }
+
+    /// A box user's store goes when root removes it, the note of whose it
+    /// was with it, and removing it again is no error.
+    #[test]
+    fn a_removed_users_store_goes_with_its_note() {
+        let root = link_test_kit::TempDir::short("keeper-remove-user");
+        let dir = root.join("4242");
+        std::fs::create_dir_all(&dir).unwrap();
+        link_files::write_private(&dir.join(USER), b"ada\n").unwrap();
+        link_files::write_private(&dir.join("secrets.toml"), b"").unwrap();
+        remove_user_store(&root, 4242).unwrap();
+        assert!(!dir.exists());
+        remove_user_store(&root, 4242).unwrap();
+    }
+
+    /// Only root asks the keeper to remove another user's store.
+    #[test]
+    fn only_root_removes_another_users_store() {
+        let root = link_test_kit::TempDir::short("keeper-remove-asked");
+        let other = root.join("4242");
+        std::fs::create_dir_all(&other).unwrap();
+        let refused = remove_asked(1000, &root, 4242).unwrap_err();
+        assert!(format!("{refused:#}").contains("only root"), "{refused:#}");
+        assert!(other.exists());
+        assert!(matches!(remove_asked(0, &root, 4242).unwrap(), Reply::Done));
+        assert!(!other.exists());
     }
 
     fn answered(arrival: Arrival) -> Admission {

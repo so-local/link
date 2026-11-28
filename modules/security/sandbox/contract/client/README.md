@@ -9,7 +9,7 @@ flags, and the sandbox's own routes.
 
 ## Docs
 
-- [Interface](docs/security/sandbox/more/contract/client.md): What other programs can rely on from `lnk sandbox`
+- [Interface](docs/tooling/sandbox/more/contract/client.md): What other programs can rely on from `lnk sandbox`
 
 <!-- docs-tree:end -->
 

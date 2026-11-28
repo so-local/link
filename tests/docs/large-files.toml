@@ -51,13 +51,12 @@ words = [
     "interop/agents/harnesses/docs/agents/harnesses/adapters/README.md",
     "interop/cloud/gcp/docs/services/cloud/gcp.md",
     "docs/more/developing/modules.md",
-    "modules/security/docs/security/README.md",
     "modules/agents/agent/docs/agents/chat/README.md",
-    "modules/agents/agent/docs/agents/harnesses/use/migrate/README.md",
+    "modules/agents/agent/docs/agents/migrate/README.md",
     "modules/agents/agent/docs/agents/more/settings/README.md",
     "modules/agents/agent/docs/agents/tools/use/skill/README.md",
-    "modules/agents/harnesses/link/docs/agents/link/media/README.md",
-    "modules/agents/harnesses/link/docs/agents/link/more/acp/README.md",
+    "modules/agents/harnesses/link/docs/agents/harnesses/link/media/README.md",
+    "modules/agents/harnesses/link/docs/agents/harnesses/link/more/acp/README.md",
     "modules/agents/harnesses/mini/docs/agents/harnesses/more/mini/link/README.md",
     "modules/agents/harnesses/mini/docs/agents/harnesses/more/mini/runtime/README.md",
     "modules/agents/harnesses/portability/hub/docs/agents/harnesses/more/protocol/hub.md",
@@ -69,9 +68,9 @@ words = [
     "modules/compute/box/docs/services/boxes/more/README.md",
     "modules/compute/box/docs/services/boxes/user/README.md",
     "modules/compute/env/docs/services/environments/approval/README.md",
-    "modules/security/sandbox/bridge/docs/security/sandbox/more/bridges.md",
-    "modules/security/sandbox/confine/docs/security/sandbox/wall/README.md",
-    "modules/security/sandbox/docs/security/sandbox/tools/README.md",
+    "modules/security/sandbox/bridge/docs/tooling/sandbox/more/bridges.md",
+    "modules/security/sandbox/confine/docs/tooling/sandbox/wall/README.md",
+    "modules/security/sandbox/docs/tooling/sandbox/tools/README.md",
     "modules/tooling/archive/docs/tooling/archive/README.md",
     "modules/tooling/bundle/docs/tooling/bundle/README.md",
     "packages/component/docs/more/libraries/types/component-metadata.md",
@@ -87,7 +86,7 @@ words = [
     "web/packages/flowers/docs/more/developing/website/flowers/README.md",
 ]
 "kind-leaves" = [
-    "modules/security/sandbox/docs/security/sandbox/security.md",
+    "modules/security/sandbox/docs/tooling/sandbox/security.md",
 ]
 "module-pages" = [
     "core/cli",

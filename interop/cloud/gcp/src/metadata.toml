@@ -1,0 +1,13 @@
+# This machine's metadata server, which a Compute Engine machine answers
+# on with its project, its zone and its attached service account.
+root = "http://metadata.google.internal/computeMetadata/v1/"
+header = { name = "Metadata-Flavor", value = "Google" }
+# What an account connected as the machine names as where its credentials
+# come from: the metadata server's name, as Google's libraries read it.
+host_variable = "GCE_METADATA_HOST"
+host = "metadata.google.internal"
+email = "instance/service-accounts/default/email"
+project = "project/project-id"
+zone = "instance/zone"
+connect_seconds = 2
+request_seconds = 5

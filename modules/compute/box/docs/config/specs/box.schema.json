@@ -146,9 +146,9 @@
           "type": "boolean"
         },
         "version": {
-          "description": "The `lnk` release to install with its modules, such as `0.14.0` or\na prerelease, 0.11.0 or later. From a file it can't be behind this\ncomputer's `lnk`, so a specification someone hands you can't install a\nrelease with a known hole; `--lnk.version` given yourself can.\nLeft out, the latest.",
+          "description": "The `lnk` release to install with its modules, such as `0.0.1` or\na prerelease. From a file it can't be behind this\ncomputer's `lnk`, so a specification someone hands you can't install a\nrelease with a known hole; `--lnk.version` given yourself can.\nLeft out, the latest.",
           "examples": [
-            "1.0.0"
+            "0.0.1"
           ],
           "type": "string"
         }

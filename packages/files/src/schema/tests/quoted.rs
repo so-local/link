@@ -17,8 +17,8 @@ kind = "map example"
 current = 2
 [[steps]]
 from = 1
-since = '0.1.0'
-until = '0.2.0'
+since = '0.0.1'
+until = '0.0.2'
 rename = { 'locations."lnk.migration-journal"' = 'locations."lnk.moves"' }
 "#,
     )
@@ -72,8 +72,8 @@ fn an_unneeded_or_broken_quote_is_refused() {
         r#"'locations."lnk.migration-journal'"#,
     ] {
         let declared = format!(
-            "schema = 1\nkind = \"k\"\ncurrent = 2\n[[steps]]\nfrom = 1\nsince = '0.1.0'\n\
-             until = '0.2.0'\nremove = {{ {path} = \"gone\" }}\n"
+            "schema = 1\nkind = \"k\"\ncurrent = 2\n[[steps]]\nfrom = 1\nsince = '0.0.1'\n\
+             until = '0.0.2'\nremove = {{ {path} = \"gone\" }}\n"
         );
         assert!(Format::parse(&declared).is_err(), "{path}");
     }

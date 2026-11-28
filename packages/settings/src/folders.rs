@@ -157,6 +157,16 @@ struct MachineSettings {
 link_files::specification!(MachineSettings, include_str!("folders/machine.schema.toml"));
 link_files::specification!(Preferences, include_str!("folders/preferences.schema.toml"));
 
+/// The machine's settings, which an upgrade converts.
+pub fn saved_machine() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<MachineSettings>()
+}
+
+/// A person's settings, which an upgrade converts.
+pub fn saved_settings() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Preferences>()
+}
+
 #[derive(Default, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Preferences {
@@ -299,7 +309,7 @@ pub(super) fn need_in(home: &Path, machine: &Path) -> anyhow::Result<PathBuf> {
     let dir = match inspect_in(home, machine)? {
         Found::Here(dir) => dir,
         Found::Lost(dir) => anyhow::bail!(
-            "the Link folder is missing at {}: use lnk folder set link <path>",
+            "the Link folder is missing at {}: use lnk location set link <path>",
             dir.display()
         ),
     };
@@ -396,7 +406,7 @@ fn make_new_in(home: &Path, machine: &Path) -> anyhow::Result<PathBuf> {
     let dir = Folder::Home.default_in(home);
     anyhow::ensure!(
         !dir.exists() || only_empty_safe(&dir)?,
-        "{} is there already: point Link at it with lnk folder move {}",
+        "{} is there already: point Link at it with lnk location set link {}",
         dir.display(),
         dir.display()
     );

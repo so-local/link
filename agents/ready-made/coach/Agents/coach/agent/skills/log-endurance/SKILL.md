@@ -18,7 +18,7 @@ Reads: `endurance/sessions.csv` (to see the week), `plan/week.md`,
    blank for rides. For swims, put the pace per 100 m in notes.
 4. Append one row to `endurance/sessions.csv`:
    `date,sport,type,distance_km,duration_min,avg_pace_min_per_km,avg_hr_bpm,rpe,notes`
-   Example: `2027-01-12,run,easy,10.2,58,5:41,148,4,"felt good, flat route"`
+   Shape: `<YYYY-MM-DD>,<sport>,<type>,<km>,<min>,<m:ss>,<bpm>,<rpe>,"<their words>"`
 5. In `plan/week.md`, set the matching row's `status` to `done` (or add
    a row if unplanned, status `done`).
 6. If type is `race`, put the finishing time in `result_time` of the

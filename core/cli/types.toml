@@ -14,13 +14,13 @@ properties.source = { type = "string", description = "For one from outside Link,
 properties.signer = { type = "string", description = "For one from outside Link, the signer its releases must be signed with" }
 properties.answers = { type = "array", items = { type = "string" }, description = "The questions it answers, as storage.folders" }
 
-[folder]
+[location]
 type = "object"
 description = "A location in the map: its ID and where it is on this machine"
 x-link-resource = { id = "location" }
 required = ["location", "path"]
 additionalProperties = false
-properties.location = { type = "string", description = "The location's key: link for the Link folder" }
+properties.location = { type = "string", description = "The location's ID: link for the Link folder" }
 properties.path = { type = "string", x-link-path = true, description = "Where it is on this machine" }
 
 [map]

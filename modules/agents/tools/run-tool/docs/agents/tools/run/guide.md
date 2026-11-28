@@ -18,7 +18,7 @@ and in a sandbox of its own.
 
 You need the agents modules, which [`lnk up`](../../../../../../../../docs/more/modules/install.md#pick-your-modules) installs and which
 bring Link Run, and Link Harness. A new agent has `run` off:
-[`lnk agent tool add run`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) installs Link Run if it's missing, then turns it on
+[`lnk agent tool add run`](../../../../../../agent/docs/agents/README.md#tools) installs Link Run if it's missing, then turns it on
 and restarts the agent, and each start then gives the agent its `run`.
 Local program execution has no Link API fee. Your agent’s model calls
 and any services the program uses retain their usual cost.
@@ -74,7 +74,7 @@ has the whole of what holds.
 A name is found on the owner's captured `PATH`, then the system's, and a program your computer
 doesn't have isn't offered, so without Python your agent is never
 told it has Python. There's no asking: `[commands]` allows or refuses.
-[Permissions](../../../../../../agent/docs/security/sandbox/permissions/README.md)
+[Permissions](../../../../../../agent/docs/tooling/sandbox/permissions/README.md)
 has the whole file.
 
 ## How your agent calls it

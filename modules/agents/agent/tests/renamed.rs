@@ -10,7 +10,7 @@ fn settings_with_a_channels_table_are_refused() {
     std::fs::create_dir_all(home.join("Link/Safe/Agents/main")).unwrap();
     std::fs::write(
         home.join("Link/Safe/Agents/main/agent.toml"),
-        "harness = \"fake\"\n[channels.telegram]\nsettings = \"\"\n",
+        "schema = 1\nharness = \"fake\"\n[channels.telegram]\nsettings = \"\"\n",
     )
     .unwrap();
     let output = env::command(env!("CARGO_BIN_EXE_lnk-agent"), &home)

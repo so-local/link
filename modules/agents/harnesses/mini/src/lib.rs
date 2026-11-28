@@ -4,7 +4,7 @@ pub mod core;
 mod link;
 pub mod runtime;
 
-pub use link::run;
+pub use link::{SAVED, run};
 
 /// Entry point for contract tests imitating another harness's ACP capabilities.
 /// The fixture executable owns its environment controls, not the installed Mini.

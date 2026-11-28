@@ -12,7 +12,7 @@
 
 ## Inspect the Sandbox
 
-`lnk agent harness check` tests access from inside the harness's sandbox and reports what gets through. `lnk agent harness run` runs a command with the harness's home, grants, and proxy. [Run a Command in the Sandbox](../../../../security/sandbox/permissions/README.md#run-a-command-in-its-sandbox) explains that execution context.
+`lnk agent harness check` tests access from inside the harness's sandbox and reports what gets through. `lnk agent harness run` runs a command with the harness's home, grants, and proxy. [Run a Command in the Sandbox](../../../../tooling/sandbox/permissions/README.md#run-a-command-in-its-sandbox) explains that execution context.
 
 ## Remove the Harness
 

@@ -13,6 +13,13 @@ use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWrite
 use tokio::sync::oneshot;
 
 use super::{MAX_MESSAGE, START_TIMEOUT, Tool, server};
+
+/// The calls one session holds waiting on its server at once: one that
+/// never answers holds no more than these.
+const MOST_PENDING: usize = 64;
+/// The tools one session keeps what its server says of: a server listing
+/// ever more names grows nothing past these.
+const MOST_HINTS: usize = 1024;
 #[cfg(test)]
 mod tests;
 
@@ -79,9 +86,13 @@ impl Started {
 }
 
 impl Session {
-    /// `tool`'s server, started.
-    pub fn start(tool: &Tool) -> anyhow::Result<Arc<Self>> {
+    /// `tool`'s server, started, told the sandbox whose session it serves
+    /// (`caller`, [`super::CALLER`]) when there is one.
+    pub fn start(tool: &Tool, caller: Option<&str>) -> anyhow::Result<Arc<Self>> {
         let mut command = server(tool);
+        if let Some(caller) = caller {
+            command.env(super::CALLER, caller);
+        }
         // In a group of its own, so it ends whole; and on Linux, with this
         // proxy, as it did in the proxy's group.
         link_secretive::process::ends_with_parent(&mut command, libc::SIGKILL);
@@ -154,10 +165,18 @@ impl Session {
     ) -> anyhow::Result<oneshot::Receiver<Value>> {
         let id = message.get("id").within("a request without an id")?;
         let (tx, rx) = oneshot::channel();
-        self.pending
-            .lock()
-            .map_err(|_| anyhow::anyhow!("a session's lock"))?
-            .insert(id.to_string(), tx);
+        {
+            let mut pending = self
+                .pending
+                .lock()
+                .map_err(|_| anyhow::anyhow!("a session's lock"))?;
+            ensure!(
+                pending.len() < MOST_PENDING,
+                "tool {} has {MOST_PENDING} calls waiting on it already: try again once one is answered",
+                self.tool
+            );
+            pending.insert(id.to_string(), tx);
+        }
         self.send(message).await?;
         drop(fence);
         Ok(rx)
@@ -223,13 +242,21 @@ impl Session {
         Ok(())
     }
 
-    /// Keeps what `result` (a `tools/list` answer) says of each tool.
-    pub(super) fn keep_hints(&self, result: &Value) {
+    /// Keeps what `result` (a `tools/list` answer) says of each tool: in
+    /// place of what was kept before when it's a `fresh` listing (its
+    /// first page), else beside it, at most [`MOST_HINTS`] tools.
+    pub(super) fn keep_hints(&self, result: &Value, fresh: bool) {
         let Some(tools) = result.pointer("/result/tools").and_then(Value::as_array) else {
             return;
         };
         if let Ok(mut hints) = self.hints.lock() {
+            if fresh {
+                hints.clear();
+            }
             for tool in tools {
+                if hints.len() >= MOST_HINTS {
+                    break;
+                }
                 if let Some(name) = tool.get("name").and_then(Value::as_str) {
                     hints.insert(
                         name.into(),
@@ -326,7 +353,7 @@ async fn read_line<R: tokio::io::AsyncBufRead + Unpin>(
 /// here: each one's name, what the server says of it, and a line of its
 /// description.
 pub async fn calls(tool: &Tool) -> anyhow::Result<Vec<(String, Value, String)>> {
-    let session = Session::start(tool)?;
+    let session = Session::start(tool, None)?;
     let init = json!({"jsonrpc": "2.0", "id": 0, "method": "initialize", "params": {
         "protocolVersion": "2025-06-18",
         "capabilities": {},

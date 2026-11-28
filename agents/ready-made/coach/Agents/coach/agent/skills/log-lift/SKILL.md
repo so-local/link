@@ -14,12 +14,12 @@ Reads: `strength/exercises.csv`, `strength/records.csv`,
    RPE of the hardest set per exercise if they have not said.
 2. Match each exercise to a name in `exercises.csv`. If it is missing,
    add a row first: `exercise,pattern,primary_muscles,equipment,notes`
-   (for example `Back squat,squat,"quads, glutes",barbell,`).
+   (shape `<their name>,<pattern>,"<muscles>",<equipment>,`).
 3. Append one row per set to `strength/sets.csv`:
    `date,exercise,set,reps,weight_kg,rpe,notes`
-   Example: `2027-01-12,Back squat,1,5,80,7,`. `set` counts from 1 per
-   exercise for that day. Bodyweight sets use `0`; added load is the
-   number.
+   Shape: `<YYYY-MM-DD>,<catalogue name>,<set>,<reps>,<kg>,<rpe>,`.
+   `set` counts from 1 per exercise for that day. Bodyweight sets use
+   `0`; added load is the number.
 4. Estimated 1RM (Epley) for each exercise, from its best set of 10
    reps or fewer: `weight_kg x (1 + reps / 30)`, rounded to 0.5 kg. For
    1 rep it is the weight itself. Example: 80 x (1 + 5/30) = 93.3, so 93.5.

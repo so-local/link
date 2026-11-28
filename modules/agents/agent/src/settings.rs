@@ -34,17 +34,17 @@ pub mod configuration;
 mod folders;
 pub mod ids;
 mod loading;
-mod paths;
-mod ports;
+pub(crate) mod paths;
+pub(crate) mod ports;
 mod providers;
 pub mod records;
 mod team_files;
 mod wiring;
 pub use catalog::{
-    DEFAULT_HARNESS, DEFAULT_MEMORY, KNOWN, MAIN, MEMORIES, MORE_HARNESSES, harnesses,
-    known_harness, memory_module_of, module_of, runtime_of, takes_proxy,
+    DEFAULT_HARNESS, DEFAULT_MEMORY, KNOWN, MEMORIES, MORE_HARNESSES, harnesses, known_harness,
+    memory_module_of, module_of, runtime_of, takes_proxy,
 };
-pub use loading::{Peek, names, peek};
+pub use loading::{Peek, away, names, peek};
 pub use paths::{
     Defaults, SETTINGS_FILE, agent_dir, agents, agents_config, boxes, config_of, configuration_of,
     home, id_of, is_key, key_of, memory_record_of, memory_service_of, memory_tool_of, owner_of,

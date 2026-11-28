@@ -115,7 +115,8 @@ the cloud says, and checked on every one after.
   account.
 - They're pinned in Link's own `known_hosts` before the first SSH
   connection, and kept in `boxes.toml`. SSH then refuses any other key:
-  `StrictHostKeyChecking=accept-new` accepts only hosts it doesn't know.
+  once Link's `known_hosts` holds a box's keys, every connection checks
+  them with `StrictHostKeyChecking=yes`.
 - They're kept under the box's own name, `lnk-<cloud>-<its id>` (ssh's
   `HostKeyAlias`), never its address, so a box at a new address,
   restarted here, from the cloud's console or by another computer, is
@@ -124,6 +125,11 @@ the cloud says, and checked on every one after.
   read it, the key is accepted on first contact and pinned after, under
   the box's name too, and Link says so. That trusts the network between
   you and the cloud once.
+- The first contact (`accept-new`) writes the
+  key to a file of its own, `known_hosts.first-<name>`, never to Link's
+  `known_hosts`, which only Link writes, under its lock: the next
+  connection reads the key back, pins it there and checks it strictly
+  from then on.
 - An address is one box's: a box given an address another box of yours
   was last seen at (stopped since) takes it, so the keys, certificate and
   tunnel Link finds by the address are that box's alone.
@@ -223,10 +229,10 @@ on a command line; AWS's own short-lived session token is on
 
 ### Your Own SSH Config
 
-Every connection runs your own `ssh`, which reads your `~/.ssh/config`,
-so a `ProxyJump` you need still works. What would hand the box
-something of this computer, such as your keys, X11 or a forwarded port,
-is turned off on the command line, which wins over that file.
+Every connection runs your own `ssh` with none of your SSH settings
+but their `ProxyJump`, which still works: the jump host is reached by
+an `ssh` that reads them. What would hand the box something of this
+computer, such as your keys, X11 or a forwarded port, is turned off.
 [Security](security.md#your-own-ssh-settings) lists each option and why.
 
 ## Shells on a Box Here
@@ -331,6 +337,9 @@ lnk box forward aws-1 --port 40780 --proxy-port 1080
 refuses this computer and its networks, so the box can't reach them
 through it. `ssh`'s own SOCKS proxy, which refuses nothing, is never
 used. The socket is the safer choice: only the box's user reaches it,
-and no SSH setting opens it to the network. A box here refuses
+and no SSH setting opens it to the network. A box with
+[users of its own](user/README.md) refuses `--port`, since every one of
+them reaches a port on its loopback: only the socket is forwarded
+there. A box here refuses
 forwarding, since it is this computer already. How the socket's folder
 is prepared is in the [box contract](../../../contract/docs/services/boxes/more/contract.md#a-socket-forwarded-over-ssh).

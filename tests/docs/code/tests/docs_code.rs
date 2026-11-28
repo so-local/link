@@ -117,7 +117,7 @@ const NAMED: &[&str] = &[
     "manual",
     "measure",
     "up",
-    "folder",
+    "location",
     "upgrade",
     "uninstall",
 ];
@@ -278,7 +278,7 @@ fn specs(tree: &Tree, path: &Path, text: &str) -> Vec<Finding> {
         ("box", "/config/specs/box.md"),
         ("box", "/services/boxes/"),
         ("sandbox", "/config/specs/sandbox.md"),
-        ("sandbox", "/security/sandbox/"),
+        ("sandbox", "/tooling/sandbox/"),
         ("agent", "/config/specs/agent.md"),
         ("env", "/config/specs/env.md"),
         ("env", "/services/environments/"),

@@ -87,7 +87,7 @@ its buckets stay known.
 
 ### `lnk storage keys --owner <kind>:<id>` and `revoke`
 
-`{"<cloud>": {"bucket", "credential"}}`: through [`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts), a credential reaching
+`{"<cloud>": {"bucket", "credential"}}`: through [`lnk cloud`](../../../../../../cloud/cloud/docs/services/cloud/README.md#platforms), a credential reaching
 only each of the owner's buckets (found by its `lnk-folder` label), any
 before replaced; or those credentials gone. Read when its folder moves to a box
 and back. `lnk storage delete` revokes them too, each with the IAM user

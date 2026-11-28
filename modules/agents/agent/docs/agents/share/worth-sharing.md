@@ -9,7 +9,7 @@ training or keeping your reminders. A narrow job lets its instructions
 be specific, its skills cover the work, and its sandbox open only what
 the work needs. Someone you share it with knows at once what it's for.
 Make a second agent for a second job, as
-[Create Another Agent](../start/create.md) shows.
+[Create and Delete Agents](../start/create.md) shows.
 
 ## Write Instructions
 
@@ -17,7 +17,7 @@ An agent's standing instructions are
 `~/Link/Agents/<name>/agent/instructions/instruction.md`, what it always
 does, with `persona.md` beside them for who it is. Its harness reads them
 into every prompt, as
-[Link Harness](../../../../harnesses/link/docs/agents/link/guide.md#tell-it-who-to-be)
+[Link Harness](../../../../harnesses/link/docs/agents/harnesses/link/guide.md#tell-it-who-to-be)
 shows. Write rules the agent can follow, such as which file to update
 and how short a reply is, rather than hopes about its character.
 
@@ -40,7 +40,7 @@ An agent's tools are the ones its settings turn on and its sandbox file
 grants. Give it only the tools its job uses, since each one is something
 it can do without asking. Adding or removing one of Local Link's tools
 keeps whatever the tool saved, and [Tools and Skills](../tools/use/README.md)
-describes each. [Permissions](../../security/sandbox/permissions/README.md)
+describes each. [Permissions](../../tooling/sandbox/permissions/README.md)
 chooses the folders and hosts it reaches.
 
 ```sh

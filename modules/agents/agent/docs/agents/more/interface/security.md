@@ -102,13 +102,13 @@ an owner message merely because it targets an owner's chat.
 A harness's sandbox lets it out by two kinds of door, and by nothing
 else: its proxy, and its bridges.
 
-- **The [proxy](../../../../../../security/sandbox/proxy/docs/security/sandbox/more/proxy/README.md)**:
+- **The [proxy](../../../../../../security/sandbox/proxy/docs/tooling/sandbox/more/proxy/README.md)**:
   the internet, its model and its tools, as its permissions say, with
   the keys and secrets it never sees added outside.
-- Its model, secrets, tools and pages are [its routes](../../../../../../security/sandbox/contract/route/docs/security/sandbox/more/contract/models-and-secrets.md#routes-served-outside), each handed,
+- Its model, secrets, tools and pages are [its routes](../../../../../../security/sandbox/contract/route/docs/tooling/sandbox/more/contract/models-and-secrets.md#routes-served-outside), each handed,
   proved as the agent, to the bridge of the module it's for, outside
   every sandbox.
-- [A proxy started blank](../../../../../../security/sandbox/proxy/docs/security/sandbox/more/proxy/README.md#a-blank-proxy-linux), on a machine that packs agents, refuses every
+- [A proxy started blank](../../../../../../security/sandbox/proxy/docs/tooling/sandbox/more/proxy/README.md#a-blank-proxy-linux), on a machine that packs agents, refuses every
   call until it's bound to one agent.
 - **Its bridges:** programs outside the sandbox, each holding what the
   sandbox never sees and doing one kind of thing for the agent with it.

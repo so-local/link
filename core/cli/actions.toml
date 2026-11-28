@@ -25,12 +25,12 @@ json = { x-link-cli = { shared = "json" } }
 [aliases]
 module = "mod"
 
-[actions."core.folder.check"]
+[actions."core.location.check"]
 description = "List old atomic-write staging files in your data without deleting them"
 role = "secondary"
-docs = "/more/architecture/files#staging-files"
+docs = "/config/locations#check-for-staging-files"
 output = "staging"
-fail = ["core.folder.list"]
+fail = ["core.location.list"]
 
 [actions."core.core.help"]
 description = "Show Link's commands or the help for one command"
@@ -48,7 +48,7 @@ Turn the last failure into a bug report: its fields, scrubbed of what's
 private, to paste, or filled in on the bug form with --open
 """
 role = "secondary"
-docs = "/more/modules/guide#get-help"
+docs = "/tooling/issue#report-a-bug"
 output = "core.report"
 
 [actions."core.issue.create".args]
@@ -92,9 +92,9 @@ role = "primary"
 docs = "/more/modules/install#pick-your-modules"
 output = "core.report"
 checks = ["up_from_source"]
-next = ["core.variable.list", "core.module.list", "core.module.add", "core.folder.list"]
+next = ["core.variable.list", "core.module.list", "core.module.add", "core.location.list"]
 next-modules = true
-fail = ["core.module.list", "core.core.uninstall", "core.module.add", "core.module.remove", "core.folder.create"]
+fail = ["core.module.list", "core.core.uninstall", "core.module.add", "core.module.remove", "core.location.create"]
 
 [actions."core.core.up".args]
 uses = { type = "array", items = { type = "string" }, description = "What you want Link for (`agents`) [default: asks]", x-link-cli = { position = 1, conflicts = ["source"] } }
@@ -108,11 +108,11 @@ role = "primary"
 docs = "/more/modules/guide#upgrade"
 output = "core.report"
 next = ["core.core.upgrade", "secret.keeper.create", "sandbox.sandbox.workers"]
-fail = ["core.core.upgrade", "core.folder.create"]
+fail = ["core.core.upgrade", "core.location.create"]
 
 [actions."core.core.upgrade".args]
 yes = { x-link-cli = { shared = "yes" } }
-version = { type = "string", description = "Version to install, e.g. 0.14.0 [default: the latest release]", x-link-cli = { position = 1, conflicts = ["check"] } }
+version = { type = "string", description = "Version to install, e.g. 0.0.1 [default: the latest release]", x-link-cli = { position = 1, conflicts = ["check"] } }
 check = { type = "boolean", x-link-cli = { conflicts = ["yes"] }, description = """
 Report newer releases and advisories, installing nothing. Ordinary
 interactive commands refresh this guidance in the background
@@ -123,37 +123,37 @@ description = "Print the installed Link version."
 role = "plumbing"
 output = "core.report"
 
-[actions."core.folder.create"]
+[actions."core.location.create"]
 description = "Make a new, empty Link folder at `~/Link`, in place of one that's gone"
 role = "secondary"
-docs = "/more/reference/locations#set-a-location"
-next = ["core.folder.list"]
-fail = ["core.folder.set", "core.core.uninstall"]
+docs = "/config/locations#set-a-location"
+next = ["core.location.list"]
+fail = ["core.location.set", "core.core.uninstall"]
 
-[actions."core.folder.list"]
+[actions."core.location.list"]
 description = """
 List the map: each location, by its ID, and where it is on this machine,
 starting with the Link folder
 """
 role = "primary"
-docs = "/more/reference/locations#every-location"
+docs = "/config/locations#list-the-locations"
 default = true
 output = "map"
-next = ["core.folder.set", "core.folder.create", "core.folder.check"]
-fail = ["core.folder.set", "core.folder.create"]
+next = ["core.location.set", "core.location.create", "core.location.check"]
+fail = ["core.location.set", "core.location.create"]
 
-[actions."core.folder.set"]
+[actions."core.location.set"]
 description = """
 Move a location to a path: its files, when they're there, and its entry in
 the map, with every location inside it; or point Link at files you moved
 """
 role = "secondary"
-docs = "/more/reference/locations#set-a-location"
-next = ["core.folder.list"]
-fail = ["core.folder.list", "core.folder.create"]
+docs = "/config/locations#set-a-location"
+next = ["core.location.list"]
+fail = ["core.location.list", "core.location.create"]
 
-[actions."core.folder.set".args]
-location = { type = "string", description = "The location's ID, as `lnk folder list` shows it: link for the Link folder", required = true, x-link-cli = { position = 1 } }
+[actions."core.location.set".args]
+location = { type = "string", description = "The location's ID, as `lnk location list` shows it: link for the Link folder", required = true, x-link-cli = { position = 1 } }
 path = { type = "string", x-link-path = true, description = "Where it goes, or where you moved it", required = true, x-link-cli = { position = 2 } }
 
 [actions."core.module.add"]
@@ -164,7 +164,7 @@ output = "core.report"
 checks = ["module_or_url"]
 next = ["core.core.up", "core.module.list", "core.module.add"]
 next-modules = true
-fail = ["core.module.list", "core.module.add", "core.core.uninstall", "core.module.remove", "core.folder.create"]
+fail = ["core.module.list", "core.module.add", "core.core.uninstall", "core.module.remove", "core.location.create"]
 
 [actions."core.module.add".args]
 modules = { type = "array", items = { type = "string" }, description = "Link's modules by name (`lnk module list`)", x-link-cli = { position = 1 } }
@@ -190,7 +190,7 @@ role = "secondary"
 docs = "/more/modules/guide#add-or-remove-a-module"
 output = "core.report"
 next = ["core.module.list"]
-fail = ["core.module.list", "core.folder.create"]
+fail = ["core.module.list", "core.location.create"]
 
 [actions."core.module.remove".args]
 modules = { type = "array", items = { type = "string" }, description = "The modules, as `lnk module list` names them", required = true, x-link-cli = { position = 1 } }
@@ -214,7 +214,7 @@ module = { type = "string", description = "The module, as `lnk module list` name
 [actions."core.variable.list"]
 description = "List command environment variable names and descriptions, optionally for one command, without reading their values"
 role = "primary"
-docs = "/more/architecture/files#list-a-commands-variables"
+docs = "/config/variables#list-a-commands-variables"
 
 [actions."core.variable.list".args]
 command = { type = "array", items = { type = "string" }, description = "Command words to inspect, such as agent start; omit to list all command declarations", x-link-cli = { position = 1 } }

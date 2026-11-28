@@ -44,7 +44,7 @@ pub struct Exported {
     pub about: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub steps: Vec<crate::schema::Step>,
-    /// Its shapes that predate Link 0.1, each refused by name.
+    /// Its shapes that predate Link 0.0.1, each refused by name.
     #[serde(default, skip_serializing_if = "crate::schema::Before::is_empty")]
     pub before: crate::schema::Before,
     /// Its JSON Schema, without the format envelope ([`schema`]).

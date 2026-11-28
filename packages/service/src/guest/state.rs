@@ -103,6 +103,11 @@ pub(super) struct Record {
 }
 
 link_files::specification!(Record, include_str!("state.schema.toml"));
+
+/// Each guest service's state, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Record>()
+}
 impl Record {
     pub fn advance(&mut self, desired: Desired) -> anyhow::Result<u64> {
         self.revision = self

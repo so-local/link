@@ -31,7 +31,7 @@ Each variable with its type, its default, and the crate defining it.
 - `LNK_RELEASES_URL`, string, from `core`: Where releases are read from (tests, staging and dev builds). Signatures remain required. An HTTPS address with no login, backslash, query or fragment, a bucket of yours (s3://<bucket>/<folder> or gs://<bucket>/<folder>, read with that cloud's CLI and your login) or a folder here (file:///<folder>); debug builds also accept HTTP on this machine.
 - `LNK_TEST_RELEASE_SIGNERS`, string, from `core`: An allowed-signers file whose keys are trusted beside the built-in release signer (tests). Only debug builds read it.
 - `LNK_UPDATE_NOTICE`, string, from `core`: `off`: commands never check for or announce a newer release.
-- `LNK_VERSION`, string, from `core`: The release version to install, such as `0.14.0`. A released `lnk` refuses a version older than itself.
+- `LNK_VERSION`, string, from `core`: The release version to install, such as `0.0.1`. A released `lnk` refuses a version older than itself.
 - `LOGNAME`, string, from `core`: Who you are, where `USER` isn't set: kept for programs Link runs, and scrubbed from reports.
 - `NODE_EXTRA_CA_CERTS`, string, from `core`: Certificates Node.js trusts besides its own
 - `NODE_USE_ENV_PROXY`, string, from `core`: Node.js's switch to send its requests through `HTTPS_PROXY`, set to 1 for a program Link runs in Node
@@ -147,6 +147,7 @@ Each variable with its type, its default, and the crate defining it.
 - `DEBIAN_FRONTEND`, string, from `sandbox`: How Debian's installer asks: `noninteractive` as the sandbox installs bubblewrap with apt on a box, where no one answers, so nothing waits on a question.
 - `LNK_CHECK_SECRET`, string, from `sandbox`: The bait secret `lnk sandbox check` gives a helper it starts outside the sandbox, in its environment, for the probe that tries to read another program's environment: never a real secret.
 - `LNK_PROBE_*`, string, from `sandbox`: What `lnk sandbox check` hands each probe it runs inside the sandbox: its bait and what it tries (`LNK_PROBE_ARG`), the folders it reads or writes, the ports and machines it reaches. Its `*`: What the probe is handed, as `ARG` or `CANARY`.
+- `LNK_SANDBOX_CALLER`, string, from `sandbox`: The sandbox a tool's server serves, which the bridge sets as it starts the server for that sandbox's session: a namespace asks and pauses as its caller, and serves no sandbox without it.
 - `LNK_SANDBOX_LEARN_FD`, string, from `sandbox`: Into the sandbox, for its first program, which removes it: the descriptor it writes each program started to. A program inside that sets it only records what it runs itself.
 - `LNK_TEST_CA`, string, from `sandbox`: A certificate authority's PEM file the sandbox's proxy trusts beside this machine's, for a test's own host over TLS. A debug build reads it; a release build doesn't.
 - `LNK_TEST_ON_CLOUD`, string, from `sandbox`: `1`: the sandbox takes this machine for a cloud's, refusing `[lan]` what it refuses there (tests). Nothing makes a cloud's machine not one.

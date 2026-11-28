@@ -1,0 +1,10 @@
+# The connection protocol: what `lnk-agent`, or a service hosting agents, and
+# a connection module (`lnk-<connection>`) say. Every line a module reads
+# on standard input that carries a bridge (`bridge`, `link`, `owner`,
+# `send`, `take` and `receive`), and every answer `connect`, `describe`
+# and `rule` print, states `protocol`, and its reader refuses a version
+# older than `oldest` or newer than `current`, then any key it doesn't know.
+name = "connection"
+current = 1
+oldest = 1
+upgrade = "lnk upgrade"

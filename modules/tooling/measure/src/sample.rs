@@ -142,6 +142,11 @@ pub struct Counted {
 
 link_files::specification!(Counted, include_str!("sample/counted.schema.toml"));
 
+/// The counts, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Counted>()
+}
+
 /// A process's key in [`Counted::gpus`]: its pid, and when it started,
 /// so another process given the same pid isn't taken for it.
 fn proxy_key(proc: &Proc) -> String {

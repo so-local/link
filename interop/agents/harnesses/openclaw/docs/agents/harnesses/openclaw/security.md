@@ -80,7 +80,8 @@ What its gateway takes and holds, and when its browser's ports open.
 OpenClaw's local gateway, on 127.0.0.1, takes Link's key for each start
 as its token, kept in `~/.openclaw/.env` in its home (600), which its
 settings name (`${LNK_OPENCLAW_GATEWAY_TOKEN}`). [`lnk secret list`](../../../../../../../../modules/security/secret/contract/docs/config/secrets/more/contract.md#listed-for-lnk-secret-list) lists
-the gateway's token in each agent's home.
+the gateway's token in each agent's home. That home is a folder the agent
+can read, so the agent can read the gateway's token there.
 
 ### Its keys and addresses
 
@@ -99,7 +100,7 @@ go. A sign-in (OAuth) stays: it can't be given another way.
 
 #### A migrated copy keeps no key Link took
 
-[`lnk agent migrate`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-your-agent) takes each key it moves into Link's secrets out of
+[`lnk agent migrate`](../../../../../../../../modules/agents/agent/docs/agents/README.md#migrate-to-local-link) takes each key it moves into Link's secrets out of
 the copy's `auth-profiles.json` files at once, through the adapter's
 `clean`, so an agent never started keeps none either. A profile holding
 another key, or a sign-in, stays. A key an install had already moved into
@@ -175,5 +176,5 @@ Unsandboxed, OpenClaw writes `~/.openclaw`, `~/openclaw`,
 
 [`lnk agent harness show --harness openclaw`](../../../../../../../../modules/agents/agent/docs/agents/harnesses/use/harness/README.md#inspect-the-installation) looks for these; `lnk agent
 harness delete --harness openclaw` deletes them with its home. Its own service
-would run outside the sandbox, so [`lnk agent start`](../../../../../../../../modules/agents/agent/docs/agents/README.md#create-an-agent) stops it and keeps
+would run outside the sandbox, so [`lnk agent start`](../../../../../../../../modules/agents/agent/docs/agents/README.md#start-your-agent) stops it and keeps
 its file in `~/.lnk/safe/agents/stopped-services`: Link runs OpenClaw.

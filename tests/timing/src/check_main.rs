@@ -130,7 +130,11 @@ fn copies_of(
         .join("target/check/copies")
         .join(test.replace("::", "-"));
     let _ = std::fs::remove_dir_all(&logs);
-    println!("{test}: {copies} copies at once");
+    let how = match link_test_timing::copies::is_system(&program)? {
+        true => "through its runner, as wide as the suite",
+        false => "at once",
+    };
+    println!("{test}: {copies} copies, {how}");
     let done = link_test_timing::copies::run(&program, test, copies, &logs)?;
     println!("{} of {} copies failed", done.failed, done.ran);
     if let Some(first) = &done.first {

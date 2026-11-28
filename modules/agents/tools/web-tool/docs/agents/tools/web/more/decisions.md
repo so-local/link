@@ -4,7 +4,7 @@ How your agent reaches the web, and whose search it uses.
 
 ## How does your agent reach the web?
 
-Through Link Web, a tool like any other, added with [`lnk sandbox tool add web`](../../../../../../../../security/sandbox/docs/security/sandbox/reach.md#call-a-tool-that-runs-outside), then allowed with [`lnk agent permission add --tools.names web`](../../../../../../../agent/docs/security/sandbox/permissions/README.md#choose-what-your-agent-can-reach), so it works in every harness and its
+Through Link Web, a tool like any other, added with [`lnk sandbox tool add web`](../../../../../../../../security/sandbox/docs/tooling/sandbox/reach.md#call-a-tool-that-runs-outside), then allowed with [`lnk agent permission add --tools.names web`](../../../../../../../agent/docs/tooling/sandbox/permissions/README.md#choose-what-your-agent-can-reach), so it works in every harness and its
 calls go through the agent's proxy, logged and gated. It runs outside
 the agent's sandbox, so a search API's key is in the tool's own
 environment and never the harness's. A tool rather than code in a

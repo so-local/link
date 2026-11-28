@@ -12,7 +12,7 @@ It installs `web-tool` if it's missing, takes the search key from
 `BRAVE_API_KEY` or `TAVILY_API_KEY`, else asks for it (Enter for pages
 only), and lets your agent call the tool. It restarts your agent with
 the tool, and `--agent <name>` picks another agent. Your agent's first
-[`lnk agent start`](../../../../../../agent/docs/agents/README.md#create-an-agent) offers it too.
+[`lnk agent start`](../../../../../../agent/docs/agents/README.md#start-your-agent) offers it too.
 
 ### Ask it something
 
@@ -34,7 +34,7 @@ Link Web searches through Brave Search's API or Tavily's, with the key
 in its own environment. Your agent and its harness never see the key,
 because the tool runs outside the agent's sandbox.
 Set `TAVILY_API_KEY` or `BRAVE_API_KEY` to your key in the environment
-you run [`lnk agent tool add web`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) from, and the tool takes it from there.
+you run [`lnk agent tool add web`](../../../../../../agent/docs/agents/README.md#tools) from, and the tool takes it from there.
 
 ### Which Search Provider
 

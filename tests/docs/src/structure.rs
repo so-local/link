@@ -348,7 +348,8 @@ pub fn sidebar_strays(tree: &Tree) -> Vec<(PathBuf, PathBuf)> {
                 if node.target.contains("://") {
                     continue;
                 }
-                let page = crate::site::normal(&dir.join(md::link_path(&node.target)));
+                let page =
+                    crate::site::normal(&dir.join(md::link_path(md::target_path(&node.target))));
                 if let (Some(parent), Some(address)) = (above, addresses.get(&page))
                     && let Some(under) = addresses.get(parent)
                     && !below(address, under)

@@ -75,7 +75,8 @@ pub fn local_clock(t: SystemTime, now: SystemTime) -> String {
 /// The day and time of day `t` is on this machine's clock, its zone as
 /// the C library has it (`TZ`, else `/etc/localtime`).
 fn local(t: SystemTime) -> (String, String) {
-    let at = seconds(t) as libc::time_t;
+    // `localtime_r` says the type: musl's `time_t` is changing width.
+    let at = seconds(t) as _;
     // SAFETY: `localtime_r` writes only the `tm` it's given.
     let mut tm: libc::tm = unsafe { std::mem::zeroed() };
     if unsafe { libc::localtime_r(&at, &mut tm) }.is_null() {

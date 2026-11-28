@@ -295,7 +295,7 @@ fn no_runtime_flag_shares_a_fields_name() {
 /// every module's and the core's (a bound command's field flags among its
 /// flags, a tool module's calls by the names a model calls), so a command
 /// moved names its new home, and none has reached the release that
-/// deletes it. Link 0.1 is the baseline every history starts from, so a
+/// deletes it. Link 0.0.1 is the baseline every history starts from, so a
 /// module has a file only once a later release retires something; the
 /// mechanism's own cases are `link-spec`'s fixtures.
 #[test]
@@ -386,7 +386,7 @@ fn a_boxs_setup_runs_commands_its_programs_take() {
         id: "k3v9q2x7m1ab".into(),
         name: "aws-1".into(),
     };
-    let version: link_version::Version = "0.14.0".parse().unwrap();
+    let version: link_version::Version = "0.0.4".parse().unwrap();
     let releases = Releases {
         source: "https://builds.example/releases".parse().unwrap(),
         version: Some(version.clone()),

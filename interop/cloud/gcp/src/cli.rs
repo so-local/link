@@ -19,10 +19,13 @@ pub struct Cli {
 impl Cli {
     /// `program` (`aws`, `gcloud`) as found by [`find`], acting with `env`.
     pub fn new(program: &str, mut env: BTreeMap<String, Secret>) -> anyhow::Result<Self> {
+        let credential = (program == "gcloud")
+            .then(|| crate::connect::credential(|name| env.contains_key(name)))
+            .flatten();
         // Existing saved accounts may predate the explicit SDK override.
         // GOOGLE_APPLICATION_CREDENTIALS alone does not select gcloud's
         // identity. Bind every SDK call to the account's same saved file.
-        if program == "gcloud"
+        if credential == Some(crate::connect::Credential::File)
             && let Some(file) = env
                 .get(crate::connect::CREDENTIALS)
                 .map(Duplicate::duplicate)
@@ -47,9 +50,10 @@ impl Cli {
             );
         };
         // A saved SDK token-file or impersonation setting takes precedence
-        // over credential_file_override. File-backed account calls get a
-        // fresh private SDK configuration for this client's lifetime.
-        let config = if program == "gcloud" && env.contains_key(crate::connect::CREDENTIALS) {
+        // over credential_file_override, and a signed-in login over this
+        // machine's service account. An account's calls get a fresh
+        // private SDK configuration for this client's lifetime.
+        let config = if credential.is_some() {
             let config = link_files::private_temp_dir("gcp-sdk")?;
             env.insert(
                 "CLOUDSDK_CONFIG".into(),

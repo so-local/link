@@ -1,0 +1,16 @@
+# What `[lan]` counts as this machine's own, read by `lan.rs` once.
+
+# Interfaces whose networks are this machine's: its containers' and
+# virtual machines', named by the program that makes them. Bridges
+# (Docker's `docker0` and `br-*`, libvirt's `virbr0`, a VM app's
+# `bridge100`), VirtualBox's host-only networks (`vboxnet*`), VMware's
+# (`vmnet*`), Parallels' (`vnic*`) and QEMU's taps (`tap*`). On Linux,
+# any interface with no device behind it counts too.
+interfaces = ["bridge", "br-", "docker", "virbr", "vboxnet", "vmnet", "vnic", "tap"]
+
+# Files only a cloud's Mac has: AWS's EC2 Macs run `ec2-macos-init`.
+# A Mac has no firmware facts in `/sys` to read, as Linux does.
+cloud_mac_files = [
+    "/Library/LaunchDaemons/com.amazon.ec2.macos-init.plist",
+    "/usr/local/aws/ec2-macos-init",
+]

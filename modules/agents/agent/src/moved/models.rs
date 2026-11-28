@@ -28,6 +28,11 @@ pub struct Models {
 
 link_files::specification!(Models, include_str!("models.schema.toml"));
 
+/// A moved agent's models, which an upgrade converts.
+pub(crate) fn saved_file() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Models>()
+}
+
 fn path(id: &str) -> anyhow::Result<PathBuf> {
     link_machine::machine::check_id(id)?;
     Ok(super::dir().join(format!("{id}.models")))

@@ -3,7 +3,7 @@
 Your agent's log is what its harness and Local Link wrote while it ran. It says what
 the agent answered on, which tool failed, and why the agent stopped. Read the log when the
 agent doesn't answer or answers slowly. [Check Your
-Agent](../status.md) says first whether the agent runs.
+Agent](../show.md#check-whether-an-agent-runs) says first whether the agent runs.
 
 ## Read the Log
 

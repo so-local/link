@@ -11,7 +11,7 @@ shift 2
 # A version lnk reads (link_core::Version): numbers, then perhaps
 # a prerelease of letters, digits, dots and dashes.
 printf '%s' "$version" | grep -qE '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$' || {
-    echo "set-version: $version isn't a version: 0.15.0, or 0.15.0-staging.202610131900" >&2
+    echo "set-version: $version isn't a version: 0.0.1, or 0.0.1-staging.202610131900" >&2
     exit 1
 }
 # A workspace's first version line, its [workspace.package] one, which

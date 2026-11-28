@@ -369,6 +369,8 @@ impl History {
     /// commands, which no entry may still be, and `catalog` the release's
     /// whole surface, every module's and the core's, which a replacement
     /// may name, so a command moved to another module names its home.
+    /// `version` is held as the release it's a build of, so a staging
+    /// build of 0.0.2 holds entries since 0.0.2 as current.
     pub fn validate(
         &self,
         surface: &Surface,
@@ -376,6 +378,7 @@ impl History {
         modules: &[&str],
         version: &Version,
     ) -> anyhow::Result<()> {
+        let version = &version.release();
         for removed in &self.removed {
             ensure!(
                 &removed.since <= version,

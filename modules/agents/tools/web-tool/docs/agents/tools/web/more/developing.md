@@ -49,7 +49,7 @@ Manual Web registration supplies the search credential and any trusted internal 
 
 ### By hand
 
-[`lnk agent tool add web`](../../../../../../../agent/docs/agents/README.md#add-tools-and-skills) is these three steps: the module, the tool
+[`lnk agent tool add web`](../../../../../../../agent/docs/agents/README.md#tools) is these three steps: the module, the tool
 with its key, and your agent allowed to call it. Set `BRAVE_API_KEY` to
 your key in the environment you run these from, and `--env BRAVE_API_KEY`
 hands it to the tool.

@@ -5,7 +5,8 @@ description: Optional weekly look back and ahead at lists, dates and routines.
 
 # Weekly Review
 
-Read lists/todo.md, dates.md, routines.md and the week's schedules.
+Read lists/todo.md, dates.md, routines.md and reminders.md, which lists
+every reminder.
 
 Say in a few lines: what got done, what is still open and how long it
 has waited when a dated record establishes it, what dates come in the

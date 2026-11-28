@@ -81,11 +81,11 @@ fn a_new_agents_home_keeps_its_own_folders() {
     }
 }
 
-/// An agent first saved by `lnk agent harness set`, before it ever started, is
-/// laid out as two folders already: a repository given at its first start
-/// keeps its own folders.
+/// An agent created before it ever ran with a repository is laid out as
+/// two folders already: a repository given at a later start keeps its own
+/// folders.
 #[test]
-fn an_agent_made_by_use_keeps_a_repositorys_folders() {
+fn an_agent_created_first_keeps_a_repositorys_folders() {
     let world = World::new("use-home");
     if world.skips() {
         return;
@@ -93,7 +93,7 @@ fn an_agent_made_by_use_keeps_a_repositorys_folders() {
     let repo = world.home.join("repo");
     std::fs::create_dir_all(repo.join("skills/lint")).unwrap();
     std::fs::write(repo.join("skills/lint/SKILL.md"), "the repository's").unwrap();
-    let used = world.lnk(&["harness", "set", "tidy"]);
+    let used = world.lnk(&["create", "main", "--harness", "tidy"]);
     assert!(
         world
             .home
@@ -104,14 +104,8 @@ fn an_agent_made_by_use_keeps_a_repositorys_folders() {
     );
     let own = world.home.join("Link/Agents/main/agent");
     assert!(own.is_dir(), "{}", text(&used));
-    // Saved, though it couldn't start here (no systemd): run by the
-    // harness that keeps to the layout.
-    let settings = world.home.join("Link/Safe/Agents/main/agent.toml");
-    std::fs::write(
-        &settings,
-        read(&settings).replace("harness = \"link\"", "harness = \"tidy\""),
-    )
-    .unwrap();
+    // Saved, though it couldn't start in the background here (no
+    // systemd), run by the harness that keeps to the layout.
     let files = repo.display().to_string();
     ok(&world.lnk(&["start", "--foreground", "--run.files", &files]));
     assert_eq!(read(&repo.join("skills/lint/SKILL.md")), "the repository's");

@@ -161,6 +161,21 @@ pub(crate) fn switching(id: &str) -> anyhow::Result<bool> {
 }
 
 impl Journal {
+    /// A move to a box taken back: the key made for that box revoked, and
+    /// one made again where the agent stays, on a box
+    /// ([`super::buckets::key_back`]).
+    pub(crate) fn key_back(&self, out: &mut Out) {
+        if let End::Box(_) = &self.to {
+            let stays_on = match &self.from {
+                End::Box(name) => Some(name.as_str()),
+                _ => None,
+            };
+            if !matches!(self.from, End::Hosted(_)) {
+                super::buckets::key_back(out, &self.id, stays_on);
+            }
+        }
+    }
+
     pub(crate) fn save(&self) -> anyhow::Result<()> {
         let mut journals = Journals::load(&self.id)?;
         journals.moves.retain(|j| j.move_id != self.move_id);
@@ -243,26 +258,58 @@ pub(crate) fn undo_there(out: &mut Out, journal: &Journal, source: &Source) -> U
     match there(&to, &journal.name, &journal.id) {
         // It may be there, its status failing: removed if it is.
         There::Absent => {
-            take_back(out, &journal.name, &to, source, &journal.from, true);
+            take_back(
+                out,
+                &journal.name,
+                &journal.id,
+                &to,
+                source,
+                &journal.from,
+                true,
+            );
             Undone::Gone
         }
         // Running there and not removed, so maybe not stopped: it stays
         // stopped where it was.
         There::Running(_) => {
-            match take_back(out, &journal.name, &to, source, &journal.from, false) {
+            match take_back(
+                out,
+                &journal.name,
+                &journal.id,
+                &to,
+                source,
+                &journal.from,
+                false,
+            ) {
                 true => Undone::Gone,
                 false => Undone::Held,
             }
         }
         There::Stopped(_) => {
-            match take_back(out, &journal.name, &to, source, &journal.from, false) {
+            match take_back(
+                out,
+                &journal.name,
+                &journal.id,
+                &to,
+                source,
+                &journal.from,
+                false,
+            ) {
                 true => Undone::Gone,
                 false => Undone::Kept,
             }
         }
         // What of it is there can't be read: removed if it can be, else
         // held stopped where it was while it may run there.
-        There::Unknown => match take_back(out, &journal.name, &to, source, &journal.from, false) {
+        There::Unknown => match take_back(
+            out,
+            &journal.name,
+            &journal.id,
+            &to,
+            source,
+            &journal.from,
+            false,
+        ) {
             true => Undone::Gone,
             false if may_run => Undone::Held,
             false => Undone::Kept,
@@ -297,17 +344,20 @@ fn listed(to: &Option<String>) -> bool {
 /// [`Step::Answered`], so the next move or start of it here removes it
 /// before anything starts. Whether it went, or an error, before any of
 /// it, when this computer's note of the agent can't be read.
+/// `new_box_keyless`: moving from a box to another, no key reaching its
+/// buckets could be made for the new one.
 pub(crate) fn went(
     out: &mut Out,
     journal: &Journal,
     source: &Source,
     machine: &moved::Place,
+    new_box_keyless: bool,
 ) -> anyhow::Result<bool> {
     let to = journal.to.machine().flatten();
     let hosted_target = journal.to.machine().is_none();
     let id = &journal.id;
     let note = moved::of_id(id)?;
-    if !source.left(out, &journal.name, &to, machine) {
+    if !source.left(out, &journal.name, id, &to, machine) {
         return Ok(false);
     }
     if let Some(from) = source.keys_at()
@@ -328,21 +378,66 @@ pub(crate) fn went(
         let _ = note.save();
     }
     // Here, it backs up with your accounts; on an account that hosts it,
-    // with that account's: the box's keys go. (To another box, the key
-    // made for that box replaced them.)
-    if from_box.is_some()
-        && to.is_none()
+    // with that account's: the box's keys go. To another box, the key
+    // made for that box replaced them, unless none could be made
+    // (`new_box_keyless`): then the old box's go too, and the new box has
+    // no backups.
+    if let Some(from_box) = from_box
+        && (to.is_none() || new_box_keyless)
         && link_core::find_module("storage").is_some()
         && let Ok(owner) = link_agent::owners::agent_flag(id)
     {
-        let _ = link_core::lnk()
+        let revoked = link_core::lnk()
             .args(["storage", "revoke"])
-            .args(owner)
+            .args(&owner)
             .stdin(Stdio::null())
-            .status();
+            .status()
+            .is_ok_and(|s| s.success());
+        if !revoked {
+            out.block(Report::warning(sentence!(
+                "The key {} had to reach {}'s buckets may still work: {} revokes it.",
+                Foreign::new(from_box),
+                Name::new("agent", &journal.name),
+                Foreign::new(&format!("lnk storage revoke {}", owner.join(" ")))
+            )));
+        }
+        if let (Some(to), true) = (&to, new_box_keyless) {
+            out.block(Report::warning(sentence!(
+                "{} has no backups on {}: no key reaching its buckets could be made for it.",
+                Name::new("agent", &journal.name),
+                Foreign::new(to)
+            )));
+        }
     }
     journal.remove();
     Ok(true)
+}
+
+/// `lnk agent start` of agent `name` (`id`), refused while another `lnk
+/// agent move` of it on this computer holds its lock: it would take the
+/// agent out of its pause midway through that move's switch. A start
+/// that's a part of a move, `during_move` (`lnk agent start
+/// --during-move`), is let through for a move this computer's journal
+/// holds: its own start where it lands, or its take-back's.
+pub(crate) fn check_start(id: &str, name: &str, during_move: Option<&str>) -> anyhow::Result<()> {
+    if let Some(move_id) = during_move {
+        link_agent_contract::moving::check_move_id(move_id)?;
+    }
+    let lock = link_files::layout::Hidden::Moving
+        .path()
+        .join(format!("{id}.lock"));
+    if !lock.exists() || try_moving_lock(id)?.is_some() {
+        return Ok(());
+    }
+    if let Some(move_id) = during_move
+        && Journals::load(id)?
+            .moves
+            .iter()
+            .any(|j| j.move_id == move_id)
+    {
+        return Ok(());
+    }
+    bail!("{name} is being moved by another lnk agent move: start it once that move is over")
 }
 
 /// An earlier move of agent `id` from this computer that ended without a
@@ -413,6 +508,7 @@ fn recover_one(out: &mut Out, mut journal: Journal, starting: bool) -> anyhow::R
                 return Ok(());
             }
             journal.remove();
+            journal.key_back(out);
             out.block(Note(sentence!(
                 "It was still copying: {} answers on {}, as it did.",
                 &agent,
@@ -434,7 +530,7 @@ fn recover_one(out: &mut Out, mut journal: Journal, starting: bool) -> anyhow::R
         _ => None,
     };
     if let Some(machine) = answering {
-        if !went(out, &journal, &source, &machine)? {
+        if !went(out, &journal, &source, &machine, false)? {
             bail!(
                 "{name} answers on {to}, but its copy on {from} couldn't be removed: it stays \
                  stopped there, so it never answers in both, and the next lnk agent move or lnk \
@@ -464,8 +560,9 @@ fn recover_one(out: &mut Out, mut journal: Journal, starting: bool) -> anyhow::R
         let resumed = match (&journal.from, starting) {
             // `start` starts it next.
             (End::Here, true) => true,
-            _ => source.resume(out, &name),
+            _ => source.resume(out, &name, id),
         };
+        journal.key_back(out);
         // An account that doesn't say it answers there again: kept, as
         // far as it got, to tell it again.
         if !resumed && matches!(journal.from, End::Hosted(_)) {
@@ -546,6 +643,17 @@ mod tests {
         std::fs::write(&path, newer).unwrap();
         let refused = format!("{:#}", Journals::load_from(&path, "a1").err().unwrap());
         assert!(refused.contains("lnk upgrade"), "{refused}");
+        assert!(refused.contains("a1.toml"), "{refused}");
+    }
+
+    /// A journal that's there but won't parse stops the move, recovery
+    /// and a start's switching check, never read as no move.
+    #[test]
+    fn an_unreadable_journal_stops_the_move() {
+        let fixture = link_test_kit::TempDir::new("journal-unreadable");
+        let path = fixture.canonicalize().unwrap().join("a1.toml");
+        std::fs::write(&path, "schema = 1\n[[move]\nname = ").unwrap();
+        let refused = format!("{:#}", Journals::load_from(&path, "a1").err().unwrap());
         assert!(refused.contains("a1.toml"), "{refused}");
     }
 }

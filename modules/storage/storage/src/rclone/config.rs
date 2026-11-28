@@ -158,7 +158,7 @@ pub(super) fn put_section(
         text += &format!("{key} = {value}\n");
     }
     if !moved.is_empty() {
-        let mut listed = keychain_list(config);
+        let mut listed = keychain_list(config)?;
         listed.insert(name.to_string(), moved);
         save_keychain_list(config, &listed)?;
     }
@@ -227,7 +227,8 @@ fn secrets(config: &Path) -> BTreeMap<String, Vec<(String, Kept)>> {
                 .push((key.trim().into(), Kept::File(config.to_path_buf())));
         }
     }
-    for (section, keys) in keychain_list(config) {
+    // Shown, never saved: a list that can't be read shows none of its own.
+    for (section, keys) in keychain_list(config).unwrap_or_default() {
         for key in keys {
             let kept = Kept::Keychain(key_account(&section, &key));
             found.entry(section.clone()).or_default().push((key, kept));
@@ -290,12 +291,19 @@ struct KeychainList {
 
 link_files::specification!(KeychainList, include_str!("keychain.schema.toml"));
 
-fn keychain_list(config: &Path) -> std::collections::BTreeMap<String, Vec<String>> {
-    std::fs::read_to_string(keychain_list_path(config))
-        .ok()
-        .and_then(|text| link_files::saved::parse::<KeychainList>(&text).ok())
+/// The storage keychain list, which an upgrade converts.
+pub fn keychain_saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<KeychainList>()
+}
+
+/// The list: empty only when its file is missing. One that can't be read
+/// is refused by name, never read as empty, since the next save would
+/// drop what it lists and orphan those Keychain settings.
+fn keychain_list(config: &Path) -> anyhow::Result<std::collections::BTreeMap<String, Vec<String>>> {
+    let path = keychain_list_path(config);
+    Ok(link_files::saved::read_optional::<KeychainList>(&path)?
         .unwrap_or_default()
-        .sections
+        .sections)
 }
 
 fn save_keychain_list(
@@ -318,7 +326,7 @@ fn save_keychain_list(
 
 /// Removes section `name`'s settings from the Keychain.
 fn forget_keychain(config: &Path, name: &str) -> anyhow::Result<()> {
-    let mut listed = keychain_list(config);
+    let mut listed = keychain_list(config)?;
     let Some(keys) = listed.remove(name) else {
         return Ok(());
     };
@@ -335,7 +343,7 @@ pub(super) fn keychain_settings(config: &Path) -> anyhow::Result<Vec<(String, St
         return Ok(Vec::new());
     }
     let mut found = Vec::new();
-    for (section, keys) in keychain_list(config) {
+    for (section, keys) in keychain_list(config)? {
         for key in keys {
             if let Some(value) = link_keychain::fetch(&key_account(&section, &key), None)? {
                 found.push((section.clone(), key, value));
@@ -352,7 +360,7 @@ pub fn section(config: &Path, name: &str) -> anyhow::Result<Option<Vec<(String, 
     if let Some(settings) = found.as_mut()
         && keychain(config)
     {
-        for key in keychain_list(config).remove(name).unwrap_or_default() {
+        for key in keychain_list(config)?.remove(name).unwrap_or_default() {
             // Back among the section's settings, as rclone reads them.
             if let Some(value) = link_keychain::fetch(&key_account(name, &key), None)? {
                 settings.push((key, value.expose_owned()));
@@ -438,8 +446,24 @@ mod tests {
         save_keychain_list(&config, &listed).unwrap();
         let text = std::fs::read_to_string(keychain_list_path(&config)).unwrap();
         assert!(text.starts_with("schema = 1\n"), "{text}");
-        assert_eq!(keychain_list(&config), listed);
+        assert_eq!(keychain_list(&config).unwrap(), listed);
         save_keychain_list(&config, &Default::default()).unwrap();
         assert!(!keychain_list_path(&config).exists());
+        assert!(keychain_list(&config).unwrap().is_empty());
+    }
+
+    /// A list that can't be read is refused by name, never read as empty,
+    /// so no save drops what it lists.
+    #[test]
+    fn an_unreadable_keychain_list_is_refused_by_name() {
+        let dir = link_test_kit::TempDir::new("rclone-keychain-torn");
+        let config = dir.join("rclone.conf");
+        std::fs::write(keychain_list_path(&config), "schema = 1\n[sections\n").unwrap();
+        let refused = keychain_list(&config).unwrap_err();
+        assert!(
+            format!("{refused:#}").contains("rclone-keychain.toml"),
+            "{refused:#}"
+        );
+        assert!(forget_keychain(&config, "aws").is_err());
     }
 }

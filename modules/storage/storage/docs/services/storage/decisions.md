@@ -16,7 +16,7 @@ and no `RCLONE_*` variables.
 
 ### How does a bucket sign in to AWS or Google Cloud?
 
-As its [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#cloud-accounts) account, the one your boxes there use: the cloud's
+As its [`lnk cloud`](../../../../../cloud/cloud/docs/services/cloud/README.md#platforms) account, the one your boxes there use: the cloud's
 adapter hands rclone the account's sign-in for each command, and
 `rclone.conf` keeps none of it. Buckets had signed in their own way,
 which meant a second set of bugs and a service account that worked for

@@ -65,6 +65,9 @@ workspace = true
 [dependencies.serde_json]
 workspace = true
 
+[dependencies.link-version]
+workspace = true
+
 [dependencies.toml]
 workspace = true
 

@@ -1,7 +1,5 @@
 # Agent Configuration
 
-> Agent Specifications and Machine Settings
-
 An agent's configuration is its specification, which describes the agent, and this machine's settings, which say what any agent here may do. Inspect what the agent uses at startup before you edit either.
 
 ## Inspect the Configuration
@@ -85,7 +83,7 @@ left them before it slept.
 
 ## Agents (`lnk agent`)
 
-[Agent Files](files.md) lists every file `lnk agent` keeps for an agent, its harness, and its moves. An agent's folder, specification, and grants are
+[Agent Files](../../state/files.md) lists every file `lnk agent` keeps for an agent, its harness, and its moves. An agent's folder, specification, and grants are
 below.
 
 ### Pass Variables to the Bridge
@@ -136,7 +134,7 @@ conversations, and nothing else of `home/`. Read only by default.
 ### `agent/instructions/`
 
 The `instructions` collection, plain files you edit, and the agent too
-when you ask it, with [`[files] write`](../../../security/sandbox/permissions/README.md#write-and-read).
+when you ask it, with [`[files] write`](../../../tooling/sandbox/permissions/README.md#write-and-read).
 `instruction.md`, optional, is your standing instructions, a section of
 Link Harness's prompt, read at each message (`lnk agent show --instructions`
 prints the prompt).
@@ -236,7 +234,7 @@ file's.
 Local Link keeps these fields in this machine's private records, not in
 `agent.toml`. Identity and ownership are in `identity.toml`; ports,
 program paths and stopped services are in `here.toml`.
-[Agent Files](files.md#this-machines-records) gives their full paths.
+[Agent Files](../../state/files.md#this-machines-records) gives their full paths.
 
 ### `id`
 
@@ -430,15 +428,6 @@ asked again until `reset`.
 ## Where Things Live
 
 Your agent's settings are a few of the files Local Link keeps for it.
-[Agent Files](files.md) lists every file an agent keeps while it's here,
-grouped by purpose, and who can reach each. [Move Files](moves.md) lists
+[Agent Files](../../state/files.md) lists every file an agent keeps while it's here,
+grouped by purpose, and who can reach each. [Move Files](../../state/moves.md) lists
 what a move or a delete leaves behind and how long it stays.
-
-<!-- docs-tree:start -->
-
-## Docs
-
-- [Agent Files](files.md): Find your agent's saved files and Link's private runtime state, grouped by purpose
-- [Move Files](moves.md): Find what a move or a delete leaves behind, holds on its way, and copies aside
-
-<!-- docs-tree:end -->

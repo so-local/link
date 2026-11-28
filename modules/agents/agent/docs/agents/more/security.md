@@ -17,7 +17,7 @@ Which sandbox runs each harness, and how it's made.
   harness), with a confinement made from the grants below.
 - How the sandbox is built on each system, and what it keeps closed
   whatever a specification says (Link's settings among them), is the [sandbox's
-  security](../../../../../security/sandbox/confine/docs/security/sandbox/wall/README.md#the-sandbox-on-macos).
+  security](../../../../../security/sandbox/confine/docs/tooling/sandbox/wall/README.md#the-sandbox-on-macos).
 - A harness's specification writes its home and the files folder, the agent's
   Home (the harness itself only, not its installer); one that keeps to
   Link's layout writes only its conversations and the folders its
@@ -234,7 +234,7 @@ its route.
   `file`, `agent`): its harness is handed Link's tools under them.
 
 - **`[internet]`** (on, any host): the internet, through its [filtering
-  proxy](../../../../../security/sandbox/proxy/docs/security/sandbox/more/proxy/README.md),
+  proxy](../../../../../security/sandbox/proxy/docs/tooling/sandbox/more/proxy/README.md),
   for hosted models and connections.
 - Its installer and setup steps go through a proxy of their own, which
   leaves from this machine, and the installer and `configure` reach only
@@ -326,7 +326,7 @@ Where the files that set the sandbox live, out of every harness's reach.
   `~/.local`, `~/.ssh`), `~/Library/LaunchAgents`, Link's settings or
   `lnk`'s own folder.
 - At the top of the files folder, what runs outside the sandbox (`.git`,
-  `.envrc`, `.vscode`, `.idea`) [is read only to the harness](../../../../../security/sandbox/confine/docs/security/sandbox/wall/README.md#what-every-sandbox-keeps-closed), so it
+  `.envrc`, `.vscode`, `.idea`) [is read only to the harness](../../../../../security/sandbox/confine/docs/tooling/sandbox/wall/README.md#what-every-sandbox-keeps-closed), so it
   commits in a repository it makes inside; in its own home it's its own.
 - Its sandbox file can grant them with [`write_dot_files`](settings/README.md#files-write_dot_files),
   as Link's coding agent's does so it commits. A git hook or setting it
@@ -384,8 +384,8 @@ port.
 
 ### Checking its sandbox
 
-`lnk agent harness check` runs [`lnk sandbox check`](../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide)'s
-[probes](../../../../../security/sandbox/docs/security/sandbox/security.md#checking-a-sandbox)
+`lnk agent harness check` runs [`lnk sandbox check`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide)'s
+[probes](../../../../../security/sandbox/docs/tooling/sandbox/security.md#checking-a-sandbox)
 inside the harness's real sandbox, with its home, its grants and a
 `<name>-check` profile. It refuses to run with the sandbox off. For an
 agent on a team, it also reads each folder of the team's it's granted,
@@ -438,10 +438,10 @@ explicit flag.
 
 With no sandbox, the harness keeps its proxy, on its own port of this
 machine's loopback: its tools other than `run` and `file`, [which need a sandbox](../tools/use/security.md#run-and-file), memory, scheduler, model provider credential and sealed secrets,
-the wire's log, [`lnk sandbox stop`](../../../../../security/sandbox/docs/security/sandbox/guide.md#stop-a-sandbox) and its counted usage stay. That
+the wire's log, [`lnk sandbox stop`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#stop-a-sandbox) and its counted usage stay. That
 proxy is advice the harness may ignore, not a wall: nothing keeps the
 harness to it, and it reaches what you can, Link's settings and the keys
-its proxy adds among them. [A route is refused with no sandbox](../../../../../security/sandbox/proxy/docs/security/sandbox/more/proxy/README.md#with-no-sandbox), which
+its proxy adds among them. [A route is refused with no sandbox](../../../../../security/sandbox/proxy/docs/tooling/sandbox/more/proxy/README.md#with-no-sandbox), which
 alone would keep the harness to it.
 
 #### A background service
@@ -457,7 +457,7 @@ doesn't run again until `lnk agent start` starts it in its sandbox, or
 
 #### Ubuntu's rule for user namespaces
 
-Where [Ubuntu's rule for user namespaces](../../../../../security/sandbox/confine/docs/security/sandbox/wall/README.md#ubuntus-rule-for-user-namespaces) stops the sandbox, `lnk agent
+Where [Ubuntu's rule for user namespaces](../../../../../security/sandbox/confine/docs/tooling/sandbox/wall/README.md#ubuntus-rule-for-user-namespaces) stops the sandbox, `lnk agent
 start` offers to add its profile first, and never starts the harness
 unsandboxed on its own.
 
@@ -491,8 +491,8 @@ agent's sandbox file grants of the agent's own folder. Everything else
 Local Link keeps for an agent, its settings, grants, keys, logs,
 sockets and services, is out of every harness's reach, most of it in a
 [Safe](../../../../../../docs/more/reference/locations.md#safe-exec-and-data).
-[Agent Files](settings/files.md) lists each file and who writes it, and
-[Move Files](settings/moves.md) lists what a move or a delete leaves.
+[Agent Files](../state/files.md) lists each file and who writes it, and
+[Move Files](../state/moves.md) lists what a move or a delete leaves.
 
 ### Revoking an Agent's Configuration
 
@@ -528,7 +528,7 @@ What the sandbox doesn't stop, and what Link supports.
 ### Known gaps
 
 A harness's sandbox has the [sandbox's known
-gaps](../../../../../security/sandbox/docs/security/sandbox/security/gaps.md#known-gaps),
+gaps](../../../../../security/sandbox/docs/tooling/sandbox/security/gaps.md#known-gaps),
 and `lnk agent harness check` reports them as `open`. Which apply
 depends on its grants:
 
@@ -560,7 +560,7 @@ The sandbox stops a harness that connects to `localhost` or `127.0.0.1`,
   its notes, through `remember`, capped and headed.
 - **Processes on macOS.** Every stop of a `run` call or a background
   command (its timeout, `task__stop`, `lnk agent stop`, a move, a delete)
-  ends the process group [`lnk sandbox run`](../../../../../security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) leads.
+  ends the process group [`lnk sandbox run`](../../../../../security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) leads.
 - On Linux the sandbox ends everything else the call started; on macOS a
   command that leaves the group (`setsid`) outlives it, still in its
   sandbox but without its proxy, writing what the call could write and
@@ -590,7 +590,7 @@ Which harnesses, connections and systems Link runs agents on.
   attachments are named as left out. Connection bridges download and
   validate attachments before handing them to the harness. Voice notes
   use the configured transcription model when available. The
-  [media guide](../../../../harnesses/link/docs/agents/link/media/README.md)
+  [media guide](../../../../harnesses/link/docs/agents/harnesses/link/media/README.md)
   owns supported types, counts, sizes, and transcription limits. An
   edited platform message is not carried as a new message.
 - On Link Harness, a Discord message sent while its Gateway connection
@@ -607,4 +607,4 @@ Which harnesses, connections and systems Link runs agents on.
 - A backup holds one copy of the harness's state, the latest: `restore`
   goes back to it, not to an older one.
 - On Linux the sandbox needs bubblewrap; on Ubuntu 23.10 and newer, also
-  [an AppArmor profile](../../../../../security/sandbox/confine/docs/security/sandbox/wall/README.md#ubuntus-rule-for-user-namespaces).
+  [an AppArmor profile](../../../../../security/sandbox/confine/docs/tooling/sandbox/wall/README.md#ubuntus-rule-for-user-namespaces).

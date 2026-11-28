@@ -53,7 +53,7 @@ An installer writes its own staging while it runs. After it exits, Link copies i
 
 ### Temporary security probes
 
-[`lnk sandbox check`](../../../../../../modules/security/sandbox/docs/security/sandbox/guide.md#sandbox-guide) may temporarily create native dotfile probes in writable folders, including Home, to test confinement. These probes are the exception to the visibility rule and are removed after checking. See [temporary native names](../../../../../../modules/security/sandbox/docs/security/sandbox/security.md#temporary-native-names).
+[`lnk sandbox check`](../../../../../../modules/security/sandbox/docs/tooling/sandbox/guide.md#sandbox-guide) may temporarily create native dotfile probes in writable folders, including Home, to test confinement. These probes are the exception to the visibility rule and are removed after checking. See [temporary native names](../../../../../../modules/security/sandbox/docs/tooling/sandbox/security.md#temporary-native-names).
 
 ## Owners and the Map
 
@@ -79,8 +79,8 @@ which none of its things may be named.
 Each location's path on a machine is [the map's](../../../../../../docs/more/reference/locations.md#moving-a-location), read by
 `layout::map`. It maps a location's stable key, or `link` for the Link
 folder, to its path. The map itself is at a fixed path, `Hidden::Map`,
-the one location never mapped. [`lnk folder list`](../../../../../../docs/more/reference/locations.md#every-location)
-and [`lnk folder set`](../../../../../../docs/more/reference/locations.md#set-a-location) are its commands.
+the one location never mapped. [`lnk location list`](../../../../../../core/cli/docs/config/locations.md#list-the-locations)
+and [`lnk location set`](../../../../../../core/cli/docs/config/locations.md#set-a-location) are its commands.
 
 ### Reading It Once
 
@@ -101,7 +101,7 @@ creates no control roots or map. Before untrusted code starts,
 `layout::prepare()` protects Hidden's Safe and installed programs, and
 Home's Safe when Home exists. A missing Home stays absent until an
 operation needs it, so moving the Link folder outside Link does not
-recreate its old path before [`lnk folder set link`](../../../../../../docs/more/reference/locations.md#set-a-location) selects the moved folder.
+recreate its old path before [`lnk location set link`](../../../../../../core/cli/docs/config/locations.md#set-a-location) selects the moved folder.
 
 ### Refusals
 
@@ -135,8 +135,9 @@ advance it through its steps, and `saved::write` writes it whole with
 `schema` first. `parse_json` and `print_json` do the same for a JSON
 object, its steps applied to its keys. `advance` gives the current text
 to an owner that parses it itself, as the secret store does so its
-errors never show a value. A saved file with no `schema` is the current
-one, a specification file with none is refused, and one written by a newer release is refused, naming [`lnk upgrade`](../../../../../../docs/more/modules/guide.md#upgrade).
+errors never show a value. A saved file or a specification file with no
+`schema` is refused, since every file Link saves names the one it was
+written in, and one written by a newer release is refused, naming [`lnk upgrade`](../../../../../../docs/more/modules/guide.md#upgrade).
 
 #### Line Ledgers
 
@@ -314,7 +315,7 @@ so it never stops the command that started it.
 
 ### Staging in Data
 
-Old staging in data is only listed by [`lnk folder check`](../../../../../../core/cli/docs/more/architecture/files.md#staging-files), with `--json` for an
+Old staging in data is only listed by [`lnk location check`](../../../../../../core/cli/docs/config/locations.md#check-for-staging-files), with `--json` for an
 array of paths. It is never deleted. The scan covers the catalogue's data
 roots owned by this user and skips linked directories. The core's Safe
 keeps the last completed sweep in `maintenance.toml`; deleting it permits

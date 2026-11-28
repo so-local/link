@@ -334,10 +334,18 @@ fn what_a_killed_run_left_goes_with_the_next() {
         ])
         .spawn()
         .unwrap();
-    let start = std::time::Instant::now();
-    while !idea.is_dir() && start.elapsed().as_secs() < 10 {
-        std::thread::sleep(std::time::Duration::from_millis(50));
-    }
+    // Killed once its placeholder is listed, not merely made: the run
+    // makes it, then lists it, in one step under the list's lock, and
+    // one killed between the two left nothing for the next to find.
+    let list = project.home.join(".lnk/safe/sandboxes/placeholders.json");
+    link_test_kit::wait::eventually(
+        "the run's .idea placeholder listed",
+        std::time::Duration::from_secs(10),
+        || {
+            let listed = std::fs::read_to_string(&list).unwrap_or_default();
+            (idea.is_dir() && listed.contains(&*idea.to_string_lossy())).then_some(())
+        },
+    );
     // Every process of the run, the one holding the placeholders too.
     let _ = Command::new("pkill")
         .args([
@@ -350,7 +358,6 @@ fn what_a_killed_run_left_goes_with_the_next() {
     let _ = killed.wait();
     std::thread::sleep(std::time::Duration::from_millis(300));
     assert!(idea.is_dir(), "a run killed outright can't remove its own");
-    let list = project.home.join(".lnk/safe/sandboxes/placeholders.json");
     let before = std::fs::read_to_string(&list).unwrap_or_default();
     assert_eq!(project.run(&[], "true"), "");
     let after = std::fs::read_to_string(&list).unwrap_or_default();

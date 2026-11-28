@@ -234,6 +234,36 @@ done
 exit 0
 "#;
 
+/// A script printing each of a box's users, one a line: every member of
+/// [`link_sandbox_contract::box_users::GROUP`], and with `homes`
+/// (`/home`), every folder there but the SSH user's own, a removed
+/// user's kept one among them. The secret scan reads the SSH user's home
+/// alone, so an image of a box with users would carry their homes,
+/// Safes, keys and secrets unread.
+fn users_script(homes: Option<&str>) -> String {
+    let group = link_sandbox_contract::box_users::GROUP;
+    let mut script = format!("getent group {group} | cut -d: -f4 | tr ',' '\\n' | grep . || :\n");
+    if let Some(homes) = homes {
+        let homes = link_box::setup::quote(homes);
+        script += &format!(
+            "for d in {homes}/*; do\n\
+             \x20 [ -d \"$d\" ] && [ \"$d\" != \"$HOME\" ] && printf '%s\\n' \"${{d##*/}}\"\n\
+             done\n"
+        );
+    }
+    script + "exit 0\n"
+}
+
+/// The users of the box at `ip`, each once: those who log in, and with
+/// `homes`, every folder of a user in it ([`users_script`]).
+pub(crate) fn box_users(ip: &str, homes: Option<&str>) -> anyhow::Result<Vec<String>> {
+    let said = ssh::script_output(ip, &users_script(homes))?;
+    let mut users: Vec<String> = said.lines().map(clean).filter(|u| !u.is_empty()).collect();
+    users.sort_unstable();
+    users.dedup();
+    Ok(users)
+}
+
 /// The secrets on the box at `ip`: where other tools leave theirs
 /// ([`SECRETS`]), `~/<path> (<what>)`, and what Link's modules there
 /// keep ([`kept_secrets`]).
@@ -404,6 +434,25 @@ pub fn create(
                     Value::List(names)
                 ))
                 .next(cmd!("lnk agent move here --agent <agent>"), "move an agent off it")
+                .exit(Exit::Usage),
+        ));
+    }
+    // A box user's home, Safe and keys, and the keeper's store of their
+    // secrets, which no scan here reads: refused.
+    let users = box_users(&ip, Some("/home"))
+        .within(format!("listing {name}'s users before it's saved"))?;
+    if !users.is_empty() {
+        let names: Vec<Value> = users
+            .iter()
+            .map(|u| Name::new("user", u.as_str()).into())
+            .collect();
+        return Err(said(
+            Report::error(sentence!("Couldn't save {}, which has users of its own.", &shown))
+                .why(prose!(
+                    "An image would carry the homes, Safes, keys and secrets of {} to every box made from it, so save a box before it has users, or remove them and their folders in /home first.",
+                    Value::List(names)
+                ))
+                .next(cmd!("lnk box ssh {}", &shown), "remove them there")
                 .exit(Exit::Usage),
         ));
     }
@@ -716,12 +765,10 @@ mod tests {
     use super::*;
 
     /// The secrets script on `home`: the paths it finds, sorted.
-    #[expect(clippy::disallowed_methods, reason = "moves onto the testing kit")]
     fn found_in(home: &std::path::Path) -> Vec<String> {
-        let output = std::process::Command::new("sh")
+        let output = link_test_kit::env::command("/bin/sh", home)
             .arg("-c")
             .arg(SECRETS)
-            .env("HOME", home)
             .output()
             .unwrap();
         assert!(output.status.success());
@@ -732,6 +779,30 @@ mod tests {
             .collect();
         found.sort_unstable();
         found
+    }
+
+    /// A box's users are every folder in its homes but the SSH user's,
+    /// a removed user's kept one among them: each refuses an image.
+    #[test]
+    fn a_box_with_users_is_never_imaged() {
+        let homes = link_test_kit::TempDir::new("homes");
+        let script = users_script(Some(&homes.display().to_string()));
+        let run = || {
+            let output = link_test_kit::env::command("/bin/sh", &homes.join("ubuntu"))
+                .arg("-c")
+                .arg(&script)
+                .output()
+                .unwrap();
+            assert!(output.status.success());
+            String::from_utf8(output.stdout).unwrap()
+        };
+        std::fs::create_dir(homes.join("ubuntu")).unwrap();
+        assert!(!run().lines().any(|l| l == "ubuntu"), "the SSH user's own");
+        std::fs::create_dir(homes.join("alice")).unwrap();
+        std::fs::create_dir(homes.join("gone")).unwrap();
+        let said = run();
+        assert!(said.lines().any(|l| l == "alice"), "{said}");
+        assert!(said.lines().any(|l| l == "gone"), "{said}");
     }
 
     /// The secrets script, run on a home folder like a box's: what it

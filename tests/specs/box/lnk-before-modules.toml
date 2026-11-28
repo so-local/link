@@ -1,6 +1,0 @@
-# A box needs an lnk with modules.
-[run]
-flags = ["--lnk.version", "0.10.2"]
-
-[expect]
-invalid = "has no modules"

@@ -20,7 +20,7 @@ Another X server took the display number your agent's desktop keeps,
 in `~/.lnk/data/agents/<agent>/desktop/display`. The error says when
 another user runs that server, which the tool never sends its cookie
 to. Stop that server, or delete
-the file and run [`lnk agent tool add desktop`](../../../../../../agent/docs/agents/README.md#add-tools-and-skills) again, which picks the
+the file and run [`lnk agent tool add desktop`](../../../../../../agent/docs/agents/README.md#tools) again, which picks the
 first number no X server holds and no other agent keeps.
 
 ## The screenshot is black

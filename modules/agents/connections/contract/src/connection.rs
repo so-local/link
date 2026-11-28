@@ -73,6 +73,7 @@ mod asking;
 mod endpoint;
 mod pairing;
 mod parts;
+mod protocol;
 pub mod pushed;
 pub mod questions;
 mod received;
@@ -107,6 +108,7 @@ pub use pairing::{
     pairing_code, qr, steps_aside, warn,
 };
 pub use parts::*;
+pub use protocol::{PROTOCOL, Stated, VERSION_KEY, read, stated};
 pub use received::Received;
 pub use run::{
     Operation, REPLY_REFUSED, ReplyRefused, Request, TOKEN_REFUSED, TokenRefused, WEBHOOK_REFUSED,
@@ -123,6 +125,7 @@ pub use threads::{
 
 /// What `connect` made.
 #[derive(Duplicate, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Connected {
     /// The connection's section of [`crate::harness::Settings`]
     /// (`{"bot_token", "allowed_users"}` for Telegram, ...): the owner
@@ -205,6 +208,7 @@ pub struct Sending {
 /// What `describe --json` prints: what the harness module needs to keep,
 /// show and carry the connection without knowing it by name.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Describe {
     /// Its name as people write it (`Telegram`).
     pub title: String,
@@ -278,6 +282,7 @@ pub struct Ruled {
 
 /// A connection's bot: none of it secret.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Bot {
     /// Its id on the connection, the same whichever token names it.
     pub id: String,
@@ -323,6 +328,7 @@ pub const AGENT_ID_HEADER: &str = "Link-Agent-Id";
 /// the connection's settings (they hold its token, so never on a command
 /// line).
 #[derive(Duplicate, Default, PartialEq, Serialize, Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct Bridge {
     /// The agent's name: each request's [`AGENT_HEADER`], and its log
     /// lines.

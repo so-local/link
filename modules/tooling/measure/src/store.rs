@@ -31,7 +31,7 @@ use crate::sample::Measured;
 
 mod daily;
 mod disk;
-pub use daily::{DAY, Days, ordered, summarize};
+pub use daily::{DAY, Days, ordered, saved as saved_days, summarize};
 use disk::{OPEN, Reader, Writer, close, file_time, files, first, lines};
 
 const HOUR: u64 = 3_600;

@@ -155,7 +155,7 @@ fn a_teammates_message_is_taken_and_a_strangers_isnt() {
     assert_eq!(fake.asked.lock().unwrap().len(), 2);
     // Tomorrow, it starts again.
     let path = fake.dir.join("received/g7h8j9k0m1n2.json");
-    std::fs::write(&path, r#"{"day": 1, "taken": 2}"#).unwrap();
+    std::fs::write(&path, r#"{"day": 1, "taken": 2, "schema": 1}"#).unwrap();
     assert!(fake.runtime.block_on(fake.way_in.fire(message())).is_ok());
     let taken = || {
         let bytes = std::fs::read(&path).unwrap();

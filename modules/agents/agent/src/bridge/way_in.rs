@@ -6,12 +6,22 @@ use link_format::WithinExt;
 
 link_files::specification!(Owed, include_str!("way_in/owed.schema.toml"));
 
+/// Each owed answer's way, which an upgrade converts.
+pub(crate) fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Owed>()
+}
+
 /// `~/.lnk/safe/agents/<agent>/received/<teammate>.json`: how many
 /// messages a teammate's had taken today, naming its schema. The count is
 /// the connections contract's type, so its format is declared here.
 static RECEIVED: std::sync::LazyLock<link_files::schema::Format> = std::sync::LazyLock::new(|| {
     link_files::schema::Format::shipped(include_str!("way_in/received.schema.toml"))
 });
+
+/// Each teammate's count of messages taken, which an upgrade converts.
+pub(crate) fn saved_received() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::shipped::<Received>(&RECEIVED)
+}
 
 impl WayIn {
     pub(crate) fn sent_in_schedule(
@@ -670,7 +680,7 @@ impl WayIn {
             .spawn()
             .within(format!("running {} send", program.display()))?;
         let mut stdin = child.stdin.take().within("no stdin")?;
-        stdin.write_all(format!("{}\n", serde_json::to_string(&sending)?).as_bytes())?;
+        stdin.write_all(link_connection_contract::stated(&sending)?.as_bytes())?;
         drop(stdin);
         let output = child.wait_with_output()?;
         anyhow::ensure!(

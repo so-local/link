@@ -95,7 +95,8 @@ pub use link_cloud_contract::{Account, NoCommand, account};
 
 /// One `agent-*` command's input and output, and what they hold,
 /// generated from the contract's declarations (`types.toml`).
-pub use declared::{Connect, Create, Held, HostedAgent, Refused, Reply, Request};
+pub use declared::{Connect, Create, Held, HostedAgent, Phase, Refused, Reply, Request};
+pub use link_actions::value::Words;
 
 #[expect(
     clippy::derivable_impls,
@@ -131,7 +132,7 @@ impl Duplicate for Request {
             have: self.have.clone(),
             r#move: self.r#move.clone(),
             owner: self.owner.clone(),
-            phase: self.phase.clone(),
+            phase: self.phase,
             seal_to: self.seal_to.clone(),
             size: self.size,
             team: self.team.clone(),
@@ -147,6 +148,48 @@ impl Duplicate for Connect {
             connection: self.connection.clone(),
             token: self.token.duplicate(),
             user: self.user.clone(),
+        }
+    }
+}
+
+impl Phase {
+    /// The phase written `word`, refusing any other word by name.
+    pub fn of(word: &str) -> anyhow::Result<Phase> {
+        match Phase::from_word(word) {
+            Some(phase) => Ok(phase),
+            None => {
+                let words: Vec<_> = Phase::WORDS.iter().map(|(_, word)| *word).collect();
+                bail!(
+                    "{:?} isn't a phase of a move: {}",
+                    link_format::clean(word),
+                    words.join(", ")
+                )
+            }
+        }
+    }
+
+    /// The word it's written as (`copy`, `switch` or `files`).
+    pub fn name(self) -> &'static str {
+        self.word()
+    }
+
+    /// The folders a stream of this phase holds, as an account that hosts
+    /// agents sends it.
+    pub fn folders(self) -> &'static [&'static str] {
+        match self {
+            Phase::Copy => &["files", "memory"],
+            Phase::Switch => &["files", "memory", "schedule", "harness", "connections"],
+            Phase::Files => &["files"],
+        }
+    }
+
+    /// The folders a stream of this phase may hold, as it's read: a copy
+    /// between machines carries the harness's state too (`lnk agent state-send
+    /// --state`).
+    pub fn accepts(self) -> &'static [&'static str] {
+        match self {
+            Phase::Copy => &["files", "memory", "harness"],
+            phase => phase.folders(),
         }
     }
 }

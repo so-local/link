@@ -17,7 +17,7 @@ mod tests;
 
 #[derive(Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-struct State {
+pub(crate) struct State {
     swept: u64,
 }
 

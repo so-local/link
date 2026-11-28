@@ -27,7 +27,7 @@ exit 0
 /// ~/.lnk/data/agents/main/harnesses/fake: the real home is six up.
 const SIGNAL: &str = r#"#!/bin/sh
 case "$1 $2" in
-  "describe --json") echo '{"title": "Signal", "linked": true, "bridged": true, "cli": true}' ;;
+  "describe --json") echo '{"protocol": 1, "title": "Signal", "linked": true, "bridged": true, "cli": true}' ;;
   "cli install")
     cat > "$HOME/signal-asked.json"
     mkdir -p "$HOME/.signal-cli" && touch "$HOME/.signal-cli/signal-cli"

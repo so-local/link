@@ -5,7 +5,7 @@
 ## Use a model at its own address
 
 A model served on a port of its own is then a model like Ollama's.
-[`lnk agent start --model.default <model>`](../../../../../agent/docs/agents/README.md#create-an-agent) uses it.
+[`lnk agent start --model.default <model>`](../../../../../agent/docs/agents/README.md#start-your-agent) uses it.
 
 ```sh
 lnk model runtime add http://localhost:5000 --name mymodel

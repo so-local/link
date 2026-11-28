@@ -17,7 +17,7 @@ no `run` call: every command runs in the shell.
 
 The program isn't in its sandbox file's `[commands]`, so the sandbox
 refuses to run it though the shell may run. Add it there, then
-[`lnk agent start --sandbox`](../../../../../../agent/docs/agents/README.md#create-an-agent) your file.
+[`lnk agent start --sandbox`](../../../../../../agent/docs/agents/README.md#start-your-agent) your file.
 
 ## A command can't reach a host
 

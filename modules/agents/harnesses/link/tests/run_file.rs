@@ -94,7 +94,7 @@ async fn link_harness_runs_and_edits_each_call_in_a_sandbox_of_its_own() {
     let (port, asked) = fake_model().await;
     std::fs::write(
         harness_home.join("config.json"),
-        json!({"endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
+        json!({"schema": 1, "endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
             "base_url": format!("http://127.0.0.1:{port}")}})
         .to_string(),
     )
@@ -295,7 +295,7 @@ async fn a_background_command_outlives_its_turn_and_its_end_is_heard() {
     let (port, asked) = background_model().await;
     std::fs::write(
         harness_home.join("config.json"),
-        json!({"endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
+        json!({"schema": 1, "endpoint_key": "test-key", "model": {"provider": "local", "name": "fake",
             "base_url": format!("http://127.0.0.1:{port}")}})
         .to_string(),
     )

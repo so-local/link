@@ -7,6 +7,7 @@ mod cli;
 mod connect;
 mod images;
 mod install;
+mod metadata;
 mod prices;
 
 use link_cloud_contract::{self as cloud, Reply};

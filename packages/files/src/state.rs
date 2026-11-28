@@ -22,14 +22,15 @@ macro_rules! areas {
 
 areas! {
     Context => Context,
-    Configured => Configured,
+    Configured => HarnessConfigured,
     OpenclawDoctorRelease => OpenclawDoctorRelease,
     Jobs => Jobs,
     Measures => HarnessMeasureLog,
 }
 
-/// State in this explicit home, independent of `LNK_INSTALLATION_DIR`. A harness's
-/// home is already isolated from the machine's settings by its caller.
+/// State in this explicit home, independent of `LNK_INSTALLATION_DIR`.
+/// Such a home is already isolated from the machine's settings by its
+/// caller.
 pub fn path(home: &Path, area: Area) -> PathBuf {
     home.join(&crate::layout::LAYOUT.roots.hidden)
         .join(area.relative())

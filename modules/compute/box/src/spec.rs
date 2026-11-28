@@ -34,8 +34,6 @@ pub(crate) use values::lnk_version;
 pub use values::{CloudKind, check_name};
 pub use wanting::fit;
 
-/// The first release with modules: a box's `lnk` is this or later.
-pub const FLOOR: Version = Version::new(0, 11, 0);
 /// A box's disk when the spec says none, as before specs.
 pub const DISK_GB: u64 = 20;
 /// The least memory a box gets when its spec asks for CPUs or GPUs but

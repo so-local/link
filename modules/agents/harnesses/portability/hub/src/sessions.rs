@@ -16,6 +16,11 @@ pub(crate) struct Kept {
 
 link_files::specification!(Kept, include_str!("sessions.schema.toml"));
 
+/// The hub's sessions, which an upgrade converts.
+pub fn saved() -> link_files::upgrade::Saved {
+    link_files::upgrade::Saved::of::<Kept>()
+}
+
 pub(crate) struct Sessions {
     file: PathBuf,
     kept: Mutex<Result<Bindings, String>>,

@@ -12,7 +12,6 @@ pub mod commands;
 pub mod credentials;
 pub mod flags;
 pub mod flakes;
-pub mod layer_words;
 pub mod legacy;
 mod licenses;
 pub mod lints;
@@ -25,7 +24,9 @@ pub mod shapes;
 pub mod state_roots;
 pub mod test_kit;
 pub mod tool_names;
+pub mod tracked;
 mod trust;
+pub mod versions;
 
 pub use licenses::{ALLOWED, licenses, npm_licenses, permitted};
 pub use trust::{refresh, refresh_in, trust, trust_in};

@@ -159,6 +159,8 @@ link-sandbox-bridge = { workspace = true, features = ["conformance"] }
 link-component-build.workspace = true
 link-actions-build.workspace = true
 anyhow.workspace = true
+# Reading first_agent.toml, which names the archive folder carried in.
+toml.workspace = true
 
 [dependencies.link-actions]
 workspace = true
